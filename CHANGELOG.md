@@ -1,5 +1,11 @@
 # Changelog
 
+## v3.13.0 - Release Consumption CI Action
+
+- Added `actions/release-consume` for downloading and verifying published release proof assets in GitHub Actions.
+- Added a copyable release-consume workflow, docs, CI coverage, package verification, and self-audit coverage.
+- The action uploads consumer reports, SHA-256 output, asset digest matrices, replay proof, and regenerated attestation proof.
+
 ## v3.12.0 - Release Asset Digest Matrix
 
 - Added `asset-digests.json` and `asset-digests.md` outputs to `codex-maintainer release-consume verify`.

@@ -1,0 +1,23 @@
+name: Verify Codex maintainer release proof
+
+on:
+  workflow_dispatch:
+    inputs:
+      release-tag:
+        description: Release tag to verify, such as v3.13.0.
+        required: true
+        default: v3.13.0
+
+permissions:
+  contents: read
+
+jobs:
+  verify-release-proof:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify published proof assets
+        uses: jlekerli-source/ringly-codex-workflows/actions/release-consume@v3.13.0
+        with:
+          repo: jlekerli-source/ringly-codex-workflows
+          release-tag: ${{ inputs.release-tag }}
+          mode: fail

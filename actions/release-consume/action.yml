@@ -1,0 +1,157 @@
+name: Verify Codex maintainer release proof
+description: Download and verify Codex maintainer release proof assets with consumer reports and digest matrices.
+
+inputs:
+  release-tag:
+    description: Release tag to verify, such as v3.13.0.
+    required: true
+  repo:
+    description: GitHub repository containing the release assets.
+    required: false
+    default: ""
+  version:
+    description: Release version. Defaults to release-tag without the leading v.
+    required: false
+    default: ""
+  assets-dir:
+    description: Directory for downloaded or pre-existing release assets.
+    required: false
+    default: artifacts/codex-maintainer-release-assets
+  out:
+    description: Directory for consumer proof output.
+    required: false
+    default: artifacts/codex-maintainer-release-consume
+  download-assets:
+    description: Set false to verify files already present in assets-dir.
+    required: false
+    default: "true"
+  upload-artifact:
+    description: Set false to skip consumer proof artifact upload.
+    required: false
+    default: "true"
+  artifact-name:
+    description: Uploaded artifact name.
+    required: false
+    default: codex-maintainer-release-consume
+  mode:
+    description: Use fail to fail the job on invalid proof, or warn to emit warnings only.
+    required: false
+    default: fail
+
+outputs:
+  status:
+    description: pass or fail.
+    value: ${{ steps.release-consume.outputs.status }}
+  consumer-report:
+    description: Path to consumer-report.json.
+    value: ${{ steps.release-consume.outputs.consumer-report }}
+  consumer-report-md:
+    description: Path to consumer-report.md.
+    value: ${{ steps.release-consume.outputs.consumer-report-md }}
+  asset-digests:
+    description: Path to asset-digests.json.
+    value: ${{ steps.release-consume.outputs.asset-digests }}
+  asset-digests-md:
+    description: Path to asset-digests.md.
+    value: ${{ steps.release-consume.outputs.asset-digests-md }}
+  sha256:
+    description: Path to sha256.txt.
+    value: ${{ steps.release-consume.outputs.sha256 }}
+  attestation-badge:
+    description: Path to regenerated attestation-badge.json.
+    value: ${{ steps.release-consume.outputs.attestation-badge }}
+
+runs:
+  using: composite
+  steps:
+    - name: Verify release proof consumption
+      id: release-consume
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        set -euo pipefail
+
+        root="${{ github.action_path }}/../.."
+        tag="${{ inputs.release-tag }}"
+        repo="${{ inputs.repo }}"
+        version="${{ inputs.version }}"
+        assets_dir="${{ inputs.assets-dir }}"
+        out="${{ inputs.out }}"
+        download_assets="${{ inputs.download-assets }}"
+        mode="${{ inputs.mode }}"
+
+        if [[ -z "$version" ]]; then
+          version="${tag#v}"
+        fi
+
+        if [[ -z "$tag" ]]; then
+          echo "::error::release-tag is required"
+          exit 2
+        fi
+
+        if [[ -z "$repo" ]]; then
+          repo="${{ github.repository }}"
+        fi
+
+        if [[ "$mode" != "fail" && "$mode" != "warn" ]]; then
+          echo "::error::mode must be fail or warn"
+          exit 2
+        fi
+
+        if [[ "$download_assets" == "true" ]]; then
+          rm -rf "$assets_dir"
+          mkdir -p "$assets_dir"
+          gh release download "$tag" \
+            --repo "$repo" \
+            --dir "$assets_dir" \
+            --clobber
+        elif [[ "$download_assets" == "false" ]]; then
+          mkdir -p "$assets_dir"
+        else
+          echo "::error::download-assets must be true or false"
+          exit 2
+        fi
+
+        mkdir -p "$out"
+
+        set +e
+        "$root/bin/codex-maintainer" release-consume verify \
+          --dir "$assets_dir" \
+          --out "$out" \
+          --version "$version"
+        verify_exit="$?"
+        set -e
+
+        status="pass"
+        if [[ "$verify_exit" -ne 0 ]]; then
+          status="fail"
+        fi
+
+        {
+          echo "status=$status"
+          echo "consumer-report=$out/consumer-report.json"
+          echo "consumer-report-md=$out/consumer-report.md"
+          echo "asset-digests=$out/asset-digests.json"
+          echo "asset-digests-md=$out/asset-digests.md"
+          echo "sha256=$out/sha256.txt"
+          echo "attestation-badge=$out/attestation/attestation-badge.json"
+        } >> "$GITHUB_OUTPUT"
+
+        if [[ "$status" == "fail" ]]; then
+          message="release proof consumption failed for $repo@$tag"
+          if [[ "$mode" == "warn" ]]; then
+            echo "::warning::$message"
+          else
+            echo "::error::$message"
+            exit "$verify_exit"
+          fi
+        fi
+
+    - name: Upload release consumption proof
+      if: ${{ inputs.upload-artifact == 'true' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.artifact-name }}
+        path: ${{ inputs.out }}
+        if-no-files-found: error

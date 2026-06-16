@@ -5,19 +5,19 @@
 Use it after downloading release assets from GitHub:
 
 ```bash
-mkdir -p /tmp/codex-maintainer-v3.12.0
-gh release download v3.12.0 \
+mkdir -p /tmp/codex-maintainer-v3.13.0
+gh release download v3.13.0 \
   --repo jlekerli-source/ringly-codex-workflows \
-  --pattern 'codex-maintainer-v3.12.0.tar.gz' \
+  --pattern 'codex-maintainer-v3.13.0.tar.gz' \
   --pattern 'release-manifest.json' \
   --pattern 'release-index.json' \
   --pattern 'proof-ledger.md' \
-  --dir /tmp/codex-maintainer-v3.12.0
+  --dir /tmp/codex-maintainer-v3.13.0
 
 ./bin/codex-maintainer release-consume verify \
-  --dir /tmp/codex-maintainer-v3.12.0 \
-  --out /tmp/codex-maintainer-v3.12.0/consumer-proof \
-  --version 3.12.0
+  --dir /tmp/codex-maintainer-v3.13.0 \
+  --out /tmp/codex-maintainer-v3.13.0/consumer-proof \
+  --version 3.13.0
 ```
 
 Inputs expected in `--dir`:
@@ -60,3 +60,5 @@ It fails when:
 The published replay, attestation, and badge assets are compared by stable fields such as status, version, artifact SHA-256, blocked-check count, and badge message. Generated timestamps are intentionally ignored.
 
 This command still does not download assets itself. Keeping download separate makes the reviewed files explicit and keeps the verifier local and deterministic.
+
+For GitHub Actions usage, `actions/release-consume` wraps the download, verification, artifact upload, digest matrix, and regenerated attestation proof in one composite action. See `release-consume-action.md` and `examples/workflows/release-consume-verify.yml`.

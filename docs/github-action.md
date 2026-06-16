@@ -1,6 +1,6 @@
 # GitHub Action
 
-This repo exposes reusable composite actions for validating a workflow-bundle checkout and building release proof artifacts.
+This repo exposes reusable composite actions for validating a workflow-bundle checkout, building release proof artifacts, and consuming published release proof assets.
 
 ## Usage
 
@@ -21,7 +21,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Validate Codex workflow bundle
-        uses: jlekerli-source/ringly-codex-workflows/actions/validate@v3.12.0
+        uses: jlekerli-source/ringly-codex-workflows/actions/validate@v3.13.0
 ```
 
 ## Inputs
@@ -34,13 +34,26 @@ jobs:
 
 ```yaml
 - name: Build release proof
-  uses: jlekerli-source/ringly-codex-workflows/actions/release-proof@v3.12.0
+  uses: jlekerli-source/ringly-codex-workflows/actions/release-proof@v3.13.0
   with:
-    release-url: https://github.com/owner/repo/releases/tag/v3.12.0
+    release-url: https://github.com/owner/repo/releases/tag/v3.13.0
     issue-url: https://github.com/owner/repo/issues/123
 ```
 
 The action builds the release tarball, manifest, release index, replay report, attestation, and attestation badge, then uploads them as an artifact. See `release-proof-action.md`, `release-proof-workflows.md`, and `release-proof-consumption.md`.
+
+## Release Consume Action
+
+```yaml
+- name: Verify published proof assets
+  uses: jlekerli-source/ringly-codex-workflows/actions/release-consume@v3.13.0
+  with:
+    repo: jlekerli-source/ringly-codex-workflows
+    release-tag: v3.13.0
+    mode: fail
+```
+
+The action downloads release assets with `gh release download`, runs `codex-maintainer release-consume verify`, uploads the consumer proof bundle, and exposes paths for `consumer-report.json`, `asset-digests.json`, `sha256.txt`, and the regenerated attestation badge. See `release-consume-action.md`.
 
 ## Local Action Development
 

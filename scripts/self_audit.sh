@@ -91,6 +91,7 @@ done
 required_artifacts=(
   "templates/policy/default.conf"
   "actions/ci-gate/action.yml"
+  "actions/release-consume/action.yml"
   "actions/release-proof/action.yml"
   "actions/review-comment/action.yml"
   "examples/demo-reports/leaderboard.json"
@@ -101,6 +102,7 @@ required_artifacts=(
   "docs/check-run.md"
   "docs/template-profiles.md"
   "docs/release-attest.md"
+  "docs/release-consume-action.md"
   "docs/release-consume.md"
   "docs/release-proof.md"
   "docs/release-proof-consumption.md"
@@ -111,6 +113,7 @@ required_artifacts=(
   "docs/release-replay.md"
   "examples/workflows/release-proof-on-tag.yml"
   "examples/workflows/release-proof-manual.yml"
+  "examples/workflows/release-consume-verify.yml"
   "examples/release-proof-consumption-checklist.md"
   "templates/web/AGENTS.md"
   "templates/backend/AGENTS.md"
