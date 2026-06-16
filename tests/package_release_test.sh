@@ -10,7 +10,7 @@ cd "$repo_root"
 
 tarball="$(./scripts/package_release.sh)"
 version="$(sed -n '1p' VERSION)"
-package_name="codex-maintainer-v$version"
+package_name="shipguard-v$version"
 tar_list="$tmp_dir/tar-list.txt"
 
 [[ -f "$tarball" ]] || {
@@ -19,6 +19,7 @@ tar_list="$tmp_dir/tar-list.txt"
 }
 
 tar -tzf "$tarball" > "$tar_list"
+grep -q "^$package_name/bin/shipguard$" "$tar_list"
 grep -q "^$package_name/bin/codex-maintainer$" "$tar_list"
 grep -q "^$package_name/AGENTS.md$" "$tar_list"
 grep -q "^$package_name/.github/workflows/autopsy-artifact.yml$" "$tar_list"
@@ -216,21 +217,22 @@ if grep -RIEq "$local_path_pattern|ghp_[A-Za-z0-9_]{20,}|sk-[A-Za-z0-9]{20,}" "$
   exit 1
 fi
 
+test "$("$package_root/bin/shipguard" version)" = "$version"
 test "$("$package_root/bin/codex-maintainer" version)" = "$version"
-"$package_root/bin/codex-maintainer" policy show >/dev/null
-"$package_root/bin/codex-maintainer" validate "$package_root" >/dev/null
-"$package_root/bin/codex-maintainer" init ios "$tmp_dir/demo-target" --force >/dev/null
-"$package_root/bin/codex-maintainer" doctor "$tmp_dir/demo-target" >/dev/null
-"$package_root/bin/codex-maintainer" init web "$tmp_dir/web-target" --force >/dev/null
-"$package_root/bin/codex-maintainer" doctor web "$tmp_dir/web-target" >/dev/null
-grep -q 'Web Codex Maintainer Instructions' "$tmp_dir/web-target/AGENTS.md"
-"$package_root/bin/codex-maintainer" init backend "$tmp_dir/backend-target" --force >/dev/null
-"$package_root/bin/codex-maintainer" doctor backend "$tmp_dir/backend-target" >/dev/null
-grep -q 'Backend Service Codex Maintainer Instructions' "$tmp_dir/backend-target/AGENTS.md"
-"$package_root/bin/codex-maintainer" init cli "$tmp_dir/cli-target" --force >/dev/null
-"$package_root/bin/codex-maintainer" doctor cli "$tmp_dir/cli-target" >/dev/null
-grep -q 'CLI Tool Codex Maintainer Instructions' "$tmp_dir/cli-target/AGENTS.md"
-"$package_root/bin/codex-maintainer" autopsy \
+"$package_root/bin/shipguard" policy show >/dev/null
+"$package_root/bin/shipguard" validate "$package_root" >/dev/null
+"$package_root/bin/shipguard" init ios "$tmp_dir/demo-target" --force >/dev/null
+"$package_root/bin/shipguard" doctor "$tmp_dir/demo-target" >/dev/null
+"$package_root/bin/shipguard" init web "$tmp_dir/web-target" --force >/dev/null
+"$package_root/bin/shipguard" doctor web "$tmp_dir/web-target" >/dev/null
+grep -q 'Web Shipguard Instructions' "$tmp_dir/web-target/AGENTS.md"
+"$package_root/bin/shipguard" init backend "$tmp_dir/backend-target" --force >/dev/null
+"$package_root/bin/shipguard" doctor backend "$tmp_dir/backend-target" >/dev/null
+grep -q 'Backend Service Shipguard Instructions' "$tmp_dir/backend-target/AGENTS.md"
+"$package_root/bin/shipguard" init cli "$tmp_dir/cli-target" --force >/dev/null
+"$package_root/bin/shipguard" doctor cli "$tmp_dir/cli-target" >/dev/null
+grep -q 'CLI Tool Shipguard Instructions' "$tmp_dir/cli-target/AGENTS.md"
+"$package_root/bin/shipguard" autopsy \
   --run "$package_root/fixtures/autopsy/good-run/run.md" \
   --task "$package_root/fixtures/autopsy/good-run/task.md" \
   --diff "$package_root/fixtures/autopsy/good-run/diff.patch" \
@@ -238,7 +240,7 @@ grep -q 'CLI Tool Codex Maintainer Instructions' "$tmp_dir/cli-target/AGENTS.md"
   --out "$tmp_dir/package-autopsy" >/dev/null
 grep -q '"total": 11' "$tmp_dir/package-autopsy/report.json"
 grep -q '"verdict": "usable maintainer-quality run"' "$tmp_dir/package-autopsy/report.json"
-"$package_root/bin/codex-maintainer" arena run \
+"$package_root/bin/shipguard" arena run \
   --fixture "$package_root/fixtures/arena" \
   --out "$tmp_dir/package-arena" >/dev/null
 grep -q '"case_count": 10' "$tmp_dir/package-arena/results.json"
@@ -256,10 +258,10 @@ for case_id in \
   weak-maintainer; do
   cp -R "$package_root/fixtures/arena/$case_id" "$tmp_dir/package-eight-case-fixture/$case_id"
 done
-"$package_root/bin/codex-maintainer" arena run \
+"$package_root/bin/shipguard" arena run \
   --fixture "$tmp_dir/package-eight-case-fixture" \
   --out "$tmp_dir/package-old-arena" >/dev/null
-"$package_root/bin/codex-maintainer" arena compare \
+"$package_root/bin/shipguard" arena compare \
   --left "$tmp_dir/package-old-arena/results.json" \
   --right "$tmp_dir/package-arena/results.json" \
   --out "$tmp_dir/package-arena-compare" >/dev/null
@@ -267,35 +269,35 @@ grep -q '"status" : "improved"' "$tmp_dir/package-arena-compare/arena-compare.js
 grep -q '"average_total_delta" : 0.75' "$tmp_dir/package-arena-compare/arena-compare.json"
 grep -q '"id" : "docs-release-proof-drift"' "$tmp_dir/package-arena-compare/arena-compare.json"
 grep -q '"id" : "frontend-async-state-regression"' "$tmp_dir/package-arena-compare/arena-compare.json"
-"$package_root/bin/codex-maintainer" arena import \
+"$package_root/bin/shipguard" arena import \
   --source "$package_root/fixtures/external-arena-pack" \
   --out "$tmp_dir/package-imported-arena" \
   --pack-name "package-imported" >/dev/null
 grep -q 'Pack: package-imported' "$tmp_dir/package-imported-arena/PACK.md"
-"$package_root/bin/codex-maintainer" arena run \
+"$package_root/bin/shipguard" arena run \
   --fixture "$tmp_dir/package-imported-arena" \
   --out "$tmp_dir/package-imported-results" >/dev/null
 grep -q '"case_count": 2' "$tmp_dir/package-imported-results/results.json"
-"$package_root/bin/codex-maintainer" arena sign \
+"$package_root/bin/shipguard" arena sign \
   --fixture "$tmp_dir/package-imported-arena" \
   --out "$tmp_dir/package-imported-arena/PACK.json" \
   --pack-name "package-imported" \
   --signer "Package Fixture Maintainer" \
-  --signer-url "https://github.com/jlekerli-source/ringly-codex-workflows" >/dev/null
+  --signer-url "https://github.com/jlekerli-source/shipguard" >/dev/null
 grep -q '"signature_type" : "sha256-content-digest"' "$tmp_dir/package-imported-arena/PACK.json"
 grep -q '"signer" : "Package Fixture Maintainer"' "$tmp_dir/package-imported-arena/PACK.json"
 grep -q '"identity_digest" : "[a-f0-9]\{64\}"' "$tmp_dir/package-imported-arena/PACK.json"
-"$package_root/bin/codex-maintainer" arena verify \
+"$package_root/bin/shipguard" arena verify \
   --fixture "$tmp_dir/package-imported-arena" \
   --manifest "$tmp_dir/package-imported-arena/PACK.json" >/dev/null
-"$package_root/bin/codex-maintainer" review-comment \
+"$package_root/bin/shipguard" review-comment \
   --report "$tmp_dir/package-autopsy/report.json" \
   --out "$tmp_dir/package-review/comment.md" \
   --badge "$tmp_dir/package-review/badge.json" \
   --artifact-dir "$tmp_dir/package-review" >/dev/null
 grep -q '| Status | pass |' "$tmp_dir/package-review/comment.md"
 grep -q '"message": "pass 11/12"' "$tmp_dir/package-review/badge.json"
-"$package_root/bin/codex-maintainer" ci-gate \
+"$package_root/bin/shipguard" ci-gate \
   --run "$package_root/fixtures/autopsy/good-run/run.md" \
   --task "$package_root/fixtures/autopsy/good-run/task.md" \
   --diff "$package_root/fixtures/autopsy/good-run/diff.patch" \
@@ -307,32 +309,32 @@ grep -q '"sarif": "sarif/results.sarif"' "$tmp_dir/package-gate/gate.json"
 grep -q '"summary": "summary.md"' "$tmp_dir/package-gate/gate.json"
 grep -q '"version" : "2.1.0"' "$tmp_dir/package-gate/sarif/results.sarif"
 grep -q '| Status | pass |' "$tmp_dir/package-gate/summary.md"
-"$package_root/bin/codex-maintainer" docs-check "$package_root" --out "$tmp_dir/package-docs-check" >/dev/null
+"$package_root/bin/shipguard" docs-check "$package_root" --out "$tmp_dir/package-docs-check" >/dev/null
 grep -q '"status" : "pass"' "$tmp_dir/package-docs-check/docs-check.json"
 grep -q '"broken_count" : 0' "$tmp_dir/package-docs-check/docs-check.json"
-"$package_root/bin/codex-maintainer" ci-summary \
+"$package_root/bin/shipguard" ci-summary \
   --gate "$tmp_dir/package-gate/gate.json" \
   --out "$tmp_dir/package-summary.md" >/dev/null
 grep -q '| Score | 11/12 |' "$tmp_dir/package-summary.md"
-"$package_root/bin/codex-maintainer" check-run \
+"$package_root/bin/shipguard" check-run \
   --gate "$tmp_dir/package-gate/gate.json" \
   --head-sha 0123456789abcdef \
   --out "$tmp_dir/package-check-run/payload.json" >/dev/null
 grep -q '"conclusion" : "success"' "$tmp_dir/package-check-run/payload.json"
 grep -q '"head_sha" : "0123456789abcdef"' "$tmp_dir/package-check-run/payload.json"
-"$package_root/bin/codex-maintainer" check-run post \
+"$package_root/bin/shipguard" check-run post \
   --payload "$tmp_dir/package-check-run/payload.json" \
   --repo owner/repo \
   --out "$tmp_dir/package-check-run/dry-run.json" \
   --dry-run >/dev/null
 grep -q '"dry_run" : true' "$tmp_dir/package-check-run/dry-run.json"
 grep -q '"url" : "https://api.github.com/repos/owner/repo/check-runs"' "$tmp_dir/package-check-run/dry-run.json"
-"$package_root/bin/codex-maintainer" leaderboard build \
+"$package_root/bin/shipguard" leaderboard build \
   --arena-results "$tmp_dir/package-arena/results.json" \
   --out "$tmp_dir/package-leaderboard.json" >/dev/null
 grep -q '"schema_version": "1.0"' "$tmp_dir/package-leaderboard.json"
 grep -q '"average_total": 7.00' "$tmp_dir/package-leaderboard.json"
-"$package_root/bin/codex-maintainer" release-manifest \
+"$package_root/bin/shipguard" release-manifest \
   --tarball "$tarball" \
   --out "$tmp_dir/package-release-proof" \
   --version "$version" \
@@ -344,17 +346,17 @@ grep -q '"average_total": 7.00' "$tmp_dir/package-leaderboard.json"
 grep -q '"schema_version" : "1.0"' "$tmp_dir/package-release-proof/release-manifest.json"
 grep -q "\"tag\" : \"v$version\"" "$tmp_dir/package-release-proof/release-manifest.json"
 grep -q 'Artifact SHA-256:' "$tmp_dir/package-release-proof/proof-ledger.md"
-"$package_root/bin/codex-maintainer" release-manifest verify \
+"$package_root/bin/shipguard" release-manifest verify \
   --manifest "$tmp_dir/package-release-proof/release-manifest.json" \
   --tarball "$tarball" \
   --version "$version" \
   --tag "v$version" >/dev/null
-"$package_root/bin/codex-maintainer" release-index build \
+"$package_root/bin/shipguard" release-index build \
   --manifest "$tmp_dir/package-release-proof/release-manifest.json" \
   --out "$tmp_dir/package-release-index" >/dev/null
 grep -q '"release_count" : 1' "$tmp_dir/package-release-index/release-index.json"
-grep -q '| '"$version"' | v'"$version"' | 0123456789ab | codex-maintainer-v'"$version"'.tar.gz |' "$tmp_dir/package-release-index/release-index.md"
-"$package_root/bin/codex-maintainer" release-replay verify \
+grep -q '| '"$version"' | v'"$version"' | 0123456789ab | shipguard-v'"$version"'.tar.gz |' "$tmp_dir/package-release-index/release-index.md"
+"$package_root/bin/shipguard" release-replay verify \
   --manifest "$tmp_dir/package-release-proof/release-manifest.json" \
   --tarball "$tarball" \
   --index "$tmp_dir/package-release-index/release-index.json" \
@@ -363,14 +365,14 @@ grep -q '| '"$version"' | v'"$version"' | 0123456789ab | codex-maintainer-v'"$ve
 grep -q '"status": "pass"' "$tmp_dir/package-release-replay/replay-report.json"
 grep -q '"name": "artifact sha256"' "$tmp_dir/package-release-replay/replay-report.json"
 grep -q '# Release Replay Report' "$tmp_dir/package-release-replay/replay-report.md"
-"$package_root/bin/codex-maintainer" release-attest build \
+"$package_root/bin/shipguard" release-attest build \
   --manifest "$tmp_dir/package-release-proof/release-manifest.json" \
   --replay "$tmp_dir/package-release-replay/replay-report.json" \
   --out "$tmp_dir/package-release-attestation" >/dev/null
 grep -q '"status" : "pass"' "$tmp_dir/package-release-attestation/attestation.json"
 grep -q '"message" : "pass v'"$version"'"' "$tmp_dir/package-release-attestation/attestation-badge.json"
-grep -q '# Codex Maintainer Release Attestation' "$tmp_dir/package-release-attestation/attestation.md"
-"$package_root/bin/codex-maintainer" release-proof build \
+grep -q '# Shipguard Release Attestation' "$tmp_dir/package-release-attestation/attestation.md"
+"$package_root/bin/shipguard" release-proof build \
   --out "$tmp_dir/package-release-proof-bundle" \
   --version "$version" \
   --tag "v$version" \
@@ -378,19 +380,19 @@ grep -q '# Codex Maintainer Release Attestation' "$tmp_dir/package-release-attes
   --ci-run-url "https://github.com/example/repo/actions/runs/123" \
   --release-url "https://github.com/example/repo/releases/tag/v$version" \
   --issue-url "https://github.com/example/repo/issues/99" >/dev/null
-test -f "$tmp_dir/package-release-proof-bundle/codex-maintainer-v$version.tar.gz"
+test -f "$tmp_dir/package-release-proof-bundle/shipguard-v$version.tar.gz"
 grep -q '"status": "pass"' "$tmp_dir/package-release-proof-bundle/replay/replay-report.json"
 grep -q '"status" : "pass"' "$tmp_dir/package-release-proof-bundle/attestation/attestation.json"
 grep -q '"message" : "pass v'"$version"'"' "$tmp_dir/package-release-proof-bundle/attestation/attestation-badge.json"
 mkdir -p "$tmp_dir/package-release-consume-assets"
-cp "$tmp_dir/package-release-proof-bundle/codex-maintainer-v$version.tar.gz" "$tmp_dir/package-release-consume-assets/"
+cp "$tmp_dir/package-release-proof-bundle/shipguard-v$version.tar.gz" "$tmp_dir/package-release-consume-assets/"
 cp "$tmp_dir/package-release-proof-bundle/proof/release-manifest.json" "$tmp_dir/package-release-consume-assets/"
 cp "$tmp_dir/package-release-proof-bundle/index/release-index.json" "$tmp_dir/package-release-consume-assets/"
 cp "$tmp_dir/package-release-proof-bundle/proof/proof-ledger.md" "$tmp_dir/package-release-consume-assets/"
 cp "$tmp_dir/package-release-proof-bundle/replay/replay-report.json" "$tmp_dir/package-release-consume-assets/"
 cp "$tmp_dir/package-release-proof-bundle/attestation/attestation.json" "$tmp_dir/package-release-consume-assets/"
 cp "$tmp_dir/package-release-proof-bundle/attestation/attestation-badge.json" "$tmp_dir/package-release-consume-assets/"
-"$package_root/bin/codex-maintainer" release-consume verify \
+"$package_root/bin/shipguard" release-consume verify \
   --dir "$tmp_dir/package-release-consume-assets" \
   --out "$tmp_dir/package-release-consume" \
   --version "$version" >/dev/null
@@ -399,15 +401,15 @@ grep -q '"replay_blocked": 0' "$tmp_dir/package-release-consume/consumer-report.
 grep -q '"replay_report": "pass"' "$tmp_dir/package-release-consume/consumer-report.json"
 grep -q '"attestation_badge": "pass"' "$tmp_dir/package-release-consume/consumer-report.json"
 grep -q '"asset_digest_matrix": "asset-digests.json"' "$tmp_dir/package-release-consume/consumer-report.json"
-grep -q "| codex-maintainer-v$version.tar.gz | release tarball | true | present |" "$tmp_dir/package-release-consume/asset-digests.md"
+grep -q "| shipguard-v$version.tar.gz | release tarball | true | present |" "$tmp_dir/package-release-consume/asset-digests.md"
 grep -q '"name": "attestation-badge.json"' "$tmp_dir/package-release-consume/asset-digests.json"
-"$package_root/bin/codex-maintainer" release-diff compare \
+"$package_root/bin/shipguard" release-diff compare \
   --left "$tmp_dir/package-release-proof-bundle" \
   --right "$tmp_dir/package-release-consume-assets" \
   --out "$tmp_dir/package-release-diff" >/dev/null
 grep -q '"status" : "pass"' "$tmp_dir/package-release-diff/release-diff.json"
 grep -q '# Release Diff Audit' "$tmp_dir/package-release-diff/release-diff.md"
-"$package_root/bin/codex-maintainer" release-evidence site \
+"$package_root/bin/shipguard" release-evidence site \
   --consume "$tmp_dir/package-release-consume" \
   --diff "$tmp_dir/package-release-diff" \
   --out "$tmp_dir/package-release-site" >/dev/null
@@ -416,14 +418,14 @@ test -f "$tmp_dir/package-release-site/evidence.json"
 test -f "$tmp_dir/package-release-site/sources/consumer-report.json"
 grep -q '"status" : "pass"' "$tmp_dir/package-release-site/evidence.json"
 grep -q 'Asset Digest Matrix' "$tmp_dir/package-release-site/index.html"
-"$package_root/bin/codex-maintainer" release-evidence index \
+"$package_root/bin/shipguard" release-evidence index \
   --site "$tmp_dir/package-release-site" \
   --out "$tmp_dir/package-release-evidence-index" >/dev/null
 test -f "$tmp_dir/package-release-evidence-index/index.html"
 test -f "$tmp_dir/package-release-evidence-index/evidence-index.json"
 grep -q '"status" : "pass"' "$tmp_dir/package-release-evidence-index/evidence-index.json"
 grep -q 'Machine-readable index' "$tmp_dir/package-release-evidence-index/index.html"
-"$package_root/bin/codex-maintainer" release-evidence bundle \
+"$package_root/bin/shipguard" release-evidence bundle \
   --assets "$tmp_dir/package-release-consume-assets" \
   --left "$tmp_dir/package-release-proof-bundle" \
   --out "$tmp_dir/package-release-evidence-bundle" \
@@ -435,7 +437,7 @@ test -f "$tmp_dir/package-release-evidence-bundle/site/index.html"
 test -f "$tmp_dir/package-release-evidence-bundle/index/evidence-index.json"
 grep -q '"status": "pass"' "$tmp_dir/package-release-evidence-bundle/bundle.json"
 grep -q '"diff_included": true' "$tmp_dir/package-release-evidence-bundle/bundle.json"
-"$package_root/bin/codex-maintainer" release-evidence verify \
+"$package_root/bin/shipguard" release-evidence verify \
   --dir "$tmp_dir/package-release-evidence-bundle" \
   --out "$tmp_dir/package-release-evidence-verify" \
   --require-diff true \
@@ -446,7 +448,7 @@ test -f "$tmp_dir/package-release-evidence-verify/badge.json"
 grep -q '"status" : "pass"' "$tmp_dir/package-release-evidence-verify/evidence-verify.json"
 grep -q '"bundle_present" : true' "$tmp_dir/package-release-evidence-verify/evidence-verify.json"
 grep -q '"message" : "pass v'"$version"'"' "$tmp_dir/package-release-evidence-verify/badge.json"
-"$package_root/bin/codex-maintainer" release-evidence negative-index \
+"$package_root/bin/shipguard" release-evidence negative-index \
   --fixture "$package_root/fixtures/release-evidence/negative" \
   --out "$tmp_dir/package-release-evidence-negative-index" >/dev/null
 test -f "$tmp_dir/package-release-evidence-negative-index/negative-fixture-index.json"
@@ -509,7 +511,7 @@ Maintainer: Use API_TOKEN=example-secret-value only as a placeholder.
 RAW
 PACKAGE_HOME_PATH="$package_home_path" \
   perl -pi -e 's#__PACKAGE_HOME_PATH__#$ENV{PACKAGE_HOME_PATH}#g' "$package_raw_transcript"
-"$package_root/bin/codex-maintainer" transcript redact \
+"$package_root/bin/shipguard" transcript redact \
   --in "$package_raw_transcript" \
   --out "$tmp_dir/package-redacted-transcript.md" \
   --report "$tmp_dir/package-redaction-report.json" \
@@ -519,42 +521,42 @@ grep -q '\[redacted-private-term\]' "$tmp_dir/package-redacted-transcript.md"
 grep -q "$package_home_prefix/\\[redacted-user\\]" "$tmp_dir/package-redacted-transcript.md"
 grep -q '\[redacted-email\]' "$tmp_dir/package-redacted-transcript.md"
 grep -q 'API_TOKEN=\[redacted-secret\]' "$tmp_dir/package-redacted-transcript.md"
-"$package_root/bin/codex-maintainer" transcript verify \
+"$package_root/bin/shipguard" transcript verify \
   --in "$tmp_dir/package-redacted-transcript.md" \
   --report "$tmp_dir/package-redaction-report.json" \
   --out "$tmp_dir/package-transcript-verify" >/dev/null
 grep -q '"status" : "pass"' "$tmp_dir/package-transcript-verify/transcript-verify.json"
 grep -q '"message" : "pass"' "$tmp_dir/package-transcript-verify/badge.json"
-"$package_root/bin/codex-maintainer" transcript corpus \
+"$package_root/bin/shipguard" transcript corpus \
   --source "$package_root/fixtures/transcripts" \
   --out "$tmp_dir/package-transcript-corpus" \
   --require-report true >/dev/null
 grep -q '"status": "pass"' "$tmp_dir/package-transcript-corpus/corpus.json"
 grep -q '"case_count": 4' "$tmp_dir/package-transcript-corpus/corpus.json"
 grep -q '"message": "pass 4/4"' "$tmp_dir/package-transcript-corpus/badge.json"
-"$package_root/bin/codex-maintainer" self-audit \
+"$package_root/bin/shipguard" self-audit \
   --out "$tmp_dir/package-self-audit" >/dev/null
 grep -q '"status": "pass"' "$tmp_dir/package-self-audit/self-audit.json"
-grep -q '| codex-maintainer transcript redact --help | pass |' "$tmp_dir/package-self-audit/self-audit.md"
-grep -q '| codex-maintainer transcript verify --help | pass |' "$tmp_dir/package-self-audit/self-audit.md"
-grep -q '| codex-maintainer transcript corpus --help | pass |' "$tmp_dir/package-self-audit/self-audit.md"
-grep -q '| codex-maintainer arena compare --help | pass |' "$tmp_dir/package-self-audit/self-audit.md"
+grep -q '| shipguard transcript redact --help | pass |' "$tmp_dir/package-self-audit/self-audit.md"
+grep -q '| shipguard transcript verify --help | pass |' "$tmp_dir/package-self-audit/self-audit.md"
+grep -q '| shipguard transcript corpus --help | pass |' "$tmp_dir/package-self-audit/self-audit.md"
+grep -q '| shipguard arena compare --help | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 grep -q '| actions/arena-compare/action.yml | pass |' "$tmp_dir/package-self-audit/self-audit.md"
-grep -q '| codex-maintainer leaderboard build --help | pass |' "$tmp_dir/package-self-audit/self-audit.md"
-grep -q '| codex-maintainer release-attest build --help | pass |' "$tmp_dir/package-self-audit/self-audit.md"
-grep -q '| codex-maintainer release-proof build --help | pass |' "$tmp_dir/package-self-audit/self-audit.md"
-grep -q '| codex-maintainer release-index build --help | pass |' "$tmp_dir/package-self-audit/self-audit.md"
-grep -q '| codex-maintainer release-manifest --help | pass |' "$tmp_dir/package-self-audit/self-audit.md"
-grep -q '| codex-maintainer release-manifest verify --help | pass |' "$tmp_dir/package-self-audit/self-audit.md"
-grep -q '| codex-maintainer release-replay verify --help | pass |' "$tmp_dir/package-self-audit/self-audit.md"
-grep -q '| codex-maintainer release-consume verify --help | pass |' "$tmp_dir/package-self-audit/self-audit.md"
-grep -q '| codex-maintainer release-diff compare --help | pass |' "$tmp_dir/package-self-audit/self-audit.md"
-grep -q '| codex-maintainer release-evidence site --help | pass |' "$tmp_dir/package-self-audit/self-audit.md"
-grep -q '| codex-maintainer release-evidence index --help | pass |' "$tmp_dir/package-self-audit/self-audit.md"
-grep -q '| codex-maintainer release-evidence bundle --help | pass |' "$tmp_dir/package-self-audit/self-audit.md"
-grep -q '| codex-maintainer release-evidence verify --help | pass |' "$tmp_dir/package-self-audit/self-audit.md"
-grep -q '| codex-maintainer release-evidence negative-index --help | pass |' "$tmp_dir/package-self-audit/self-audit.md"
-grep -q '| codex-maintainer docs-check --help | pass |' "$tmp_dir/package-self-audit/self-audit.md"
+grep -q '| shipguard leaderboard build --help | pass |' "$tmp_dir/package-self-audit/self-audit.md"
+grep -q '| shipguard release-attest build --help | pass |' "$tmp_dir/package-self-audit/self-audit.md"
+grep -q '| shipguard release-proof build --help | pass |' "$tmp_dir/package-self-audit/self-audit.md"
+grep -q '| shipguard release-index build --help | pass |' "$tmp_dir/package-self-audit/self-audit.md"
+grep -q '| shipguard release-manifest --help | pass |' "$tmp_dir/package-self-audit/self-audit.md"
+grep -q '| shipguard release-manifest verify --help | pass |' "$tmp_dir/package-self-audit/self-audit.md"
+grep -q '| shipguard release-replay verify --help | pass |' "$tmp_dir/package-self-audit/self-audit.md"
+grep -q '| shipguard release-consume verify --help | pass |' "$tmp_dir/package-self-audit/self-audit.md"
+grep -q '| shipguard release-diff compare --help | pass |' "$tmp_dir/package-self-audit/self-audit.md"
+grep -q '| shipguard release-evidence site --help | pass |' "$tmp_dir/package-self-audit/self-audit.md"
+grep -q '| shipguard release-evidence index --help | pass |' "$tmp_dir/package-self-audit/self-audit.md"
+grep -q '| shipguard release-evidence bundle --help | pass |' "$tmp_dir/package-self-audit/self-audit.md"
+grep -q '| shipguard release-evidence verify --help | pass |' "$tmp_dir/package-self-audit/self-audit.md"
+grep -q '| shipguard release-evidence negative-index --help | pass |' "$tmp_dir/package-self-audit/self-audit.md"
+grep -q '| shipguard docs-check --help | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 grep -q '| actions/release-consume/action.yml | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 grep -q '| actions/release-diff/action.yml | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 grep -q '| actions/release-evidence/action.yml | pass |' "$tmp_dir/package-self-audit/self-audit.md"
@@ -605,11 +607,11 @@ grep -q '| scripts/transcript_redact.sh | pass |' "$tmp_dir/package-self-audit/s
 grep -q '| scripts/transcript_verify.sh | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 grep -q '| scripts/transcript_corpus.sh | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 grep -q '| scripts/docs_check.sh | pass |' "$tmp_dir/package-self-audit/self-audit.md"
-"$package_root/bin/codex-maintainer" sarif \
+"$package_root/bin/shipguard" sarif \
   --report "$tmp_dir/package-autopsy/report.json" \
   --out "$tmp_dir/package-sarif/results.sarif" >/dev/null
 grep -q '"version" : "2.1.0"' "$tmp_dir/package-sarif/results.sarif"
-"$package_root/bin/codex-maintainer" next-goal \
+"$package_root/bin/shipguard" next-goal \
   --release 2.6.0 \
   --title "Package Proof Followup" \
   --out "$tmp_dir/package-next-goal.md" >/dev/null
@@ -649,6 +651,7 @@ grep -q './tests/release_replay_test.sh' "$tmp_dir/package-next-goal.md"
 
 install_prefix="$tmp_dir/install"
 PREFIX="$install_prefix" "$package_root/scripts/install.sh" >/dev/null
+test "$("$install_prefix/bin/shipguard" version)" = "$version"
 test "$("$install_prefix/bin/codex-maintainer" version)" = "$version"
 
 echo "package release tests passed"

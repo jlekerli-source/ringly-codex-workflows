@@ -1,17 +1,17 @@
 # Release Proof Bundle
 
-`codex-maintainer release-proof build` runs the full local release proof chain in one command.
+`shipguard release-proof build` runs the full local release proof chain in one command.
 
 ```bash
-./bin/codex-maintainer release-proof build \
-  --out /tmp/codex-maintainer-release-proof-bundle \
+./bin/shipguard release-proof build \
+  --out /tmp/shipguard-release-proof-bundle \
   --release-url https://github.com/owner/repo/releases/tag/v3.38.0 \
   --issue-url https://github.com/owner/repo/issues/123
 ```
 
 Outputs:
 
-- `codex-maintainer-vX.Y.Z.tar.gz`
+- `shipguard-vX.Y.Z.tar.gz`
 - `proof/release-manifest.json`
 - `proof/proof-ledger.md`
 - `index/release-index.json`

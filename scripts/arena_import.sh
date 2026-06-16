@@ -4,10 +4,10 @@ set -euo pipefail
 
 usage() {
   cat <<'USAGE'
-codex-maintainer arena import
+shipguard arena import
 
 Usage:
-  codex-maintainer arena import --source <fixture-dir> --out <fixture-dir> [--pack-name <name>] [--force]
+  shipguard arena import --source <fixture-dir> --out <fixture-dir> [--pack-name <name>] [--force]
 
 Fixture case format:
   <fixture-dir>/<case-id>/run.md
@@ -91,7 +91,7 @@ done < <(find "$source_dir" -mindepth 1 -maxdepth 1 -type d | sort)
 [[ "${#case_dirs[@]}" -gt 0 ]] || fail "source fixture directory has no case subdirectories: $source_dir"
 
 mkdir -p "$out_dir"
-generated_at="${CODEX_MAINTAINER_GENERATED_AT:-$(date -u '+%Y-%m-%dT%H:%M:%SZ')}"
+generated_at="${SHIPGUARD_GENERATED_AT:-${CODEX_MAINTAINER_GENERATED_AT:-$(date -u '+%Y-%m-%dT%H:%M:%SZ')}}"
 [[ -n "$pack_name" ]] || pack_name="$(basename "$source_dir")"
 
 supported_files=(run.md task.md diff.patch tests.log)

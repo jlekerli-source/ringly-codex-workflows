@@ -1,5 +1,5 @@
-name: Run Codex maintainer CI gate
-description: Run autopsy, SARIF export, review-comment, badge generation, step-summary output, check-run payload generation, and artifact upload from a Codex maintainer run summary.
+name: Run Shipguard CI gate
+description: Run autopsy, SARIF export, review-comment, badge generation, step-summary output, check-run payload generation, and artifact upload from a Shipguard run summary.
 
 inputs:
   run:
@@ -24,7 +24,7 @@ inputs:
   out:
     description: Output artifact directory.
     required: false
-    default: artifacts/codex-maintainer-gate
+    default: artifacts/shipguard-gate
   mode:
     description: warn exits zero; fail exits non-zero on blocked reports.
     required: false
@@ -32,7 +32,7 @@ inputs:
   artifact-name:
     description: Uploaded artifact name.
     required: false
-    default: codex-maintainer-gate
+    default: shipguard-gate
   post-check-run:
     description: Set true to post the generated check-run payload with the GitHub Checks API.
     required: false
@@ -61,7 +61,7 @@ runs:
         if [[ -n "${{ inputs.tests }}" ]]; then args+=(--tests "${{ inputs.tests }}"); fi
         if [[ -n "${{ inputs.task }}" ]]; then args+=(--task "${{ inputs.task }}"); fi
         if [[ -n "${{ inputs.policy }}" ]]; then args+=(--policy "${{ inputs.policy }}"); fi
-        "${{ github.action_path }}/../../bin/codex-maintainer" ci-gate "${args[@]}"
+        "${{ github.action_path }}/../../bin/shipguard" ci-gate "${args[@]}"
 
     - name: Append CI gate step summary
       if: ${{ always() }}
@@ -76,7 +76,7 @@ runs:
       if: ${{ always() }}
       shell: bash
       run: |
-        "${{ github.action_path }}/../../bin/codex-maintainer" check-run \
+        "${{ github.action_path }}/../../bin/shipguard" check-run \
           --gate "${{ inputs.out }}/gate.json" \
           --head-sha "${{ github.sha }}" \
           --out "${{ inputs.out }}/check-run/payload.json"
@@ -93,7 +93,7 @@ runs:
         if [[ -z "$repo" ]]; then
           repo="$DEFAULT_CHECK_RUN_REPOSITORY"
         fi
-        "${{ github.action_path }}/../../bin/codex-maintainer" check-run post \
+        "${{ github.action_path }}/../../bin/shipguard" check-run post \
           --payload "${{ inputs.out }}/check-run/payload.json" \
           --repo "$repo" \
           --out "${{ inputs.out }}/check-run/response.json"

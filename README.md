@@ -1,4 +1,4 @@
-# Ringly Codex Workflows
+# Shipguard
 
 Public operating rules for using Codex on risk-sensitive solo iOS work.
 
@@ -17,11 +17,13 @@ The goal is simple: make AI-assisted coding repeatable, reviewable, and useful f
 Install from a release tarball:
 
 ```bash
-tar -xzf codex-maintainer-v3.38.0.tar.gz
-cd codex-maintainer-v3.38.0
+tar -xzf shipguard-v3.38.0.tar.gz
+cd shipguard-v3.38.0
 PREFIX="$HOME/.local" ./scripts/install.sh
-"$HOME/.local/bin/codex-maintainer" version
+"$HOME/.local/bin/shipguard" version
 ```
+
+The old `codex-maintainer` command remains as a compatibility alias.
 
 Read the guided setup first:
 
@@ -74,19 +76,19 @@ Read the guided setup first:
 Validate this workflow bundle:
 
 ```bash
-./bin/codex-maintainer validate
+./bin/shipguard validate
 ```
 
 Copy the iOS starter into another project:
 
 ```bash
-./bin/codex-maintainer init ios ../my-ios-app
+./bin/shipguard init ios ../my-ios-app
 ```
 
 Copy the web starter into another project:
 
 ```bash
-./bin/codex-maintainer init web ../my-web-app
+./bin/shipguard init web ../my-web-app
 ```
 
 1. Start each non-trivial Codex thread from `CODEX_TASK_TEMPLATE.md`.
@@ -98,42 +100,42 @@ Copy the web starter into another project:
 
 For a worked example, read `examples/issue-to-plan-to-validation.md`.
 For public proof without private app code, read `examples/demo-walkthrough.md`.
-For agent-claim auditing, run `./bin/codex-maintainer autopsy` against `fixtures/autopsy/`.
-For aggregate benchmark proof, run `./bin/codex-maintainer arena run --fixture fixtures/arena --out /tmp/arena`.
-For benchmark regression proof, run `./bin/codex-maintainer arena compare --left /tmp/arena-old/results.json --right /tmp/arena/results.json --out /tmp/arena-compare`.
-To compare Arena results in GitHub Actions, use `jlekerli-source/ringly-codex-workflows/actions/arena-compare@v3.38.0`.
-To publish a maintainer transcript safely, run `./bin/codex-maintainer transcript redact --in raw-transcript.md --out /tmp/redacted-transcript.md --report /tmp/redaction-report.json --private-term "InternalProjectName"`.
-To verify a redacted transcript before publishing, run `./bin/codex-maintainer transcript verify --in /tmp/redacted-transcript.md --report /tmp/redaction-report.json --out /tmp/transcript-verify`.
-To verify a redacted transcript in GitHub Actions, use `jlekerli-source/ringly-codex-workflows/actions/transcript-verify@v3.38.0`.
-To publish a checked transcript corpus, run `./bin/codex-maintainer transcript corpus --source fixtures/transcripts --out /tmp/transcript-corpus --require-report true`.
-To verify a checked transcript corpus in GitHub Actions, use `jlekerli-source/ringly-codex-workflows/actions/transcript-corpus@v3.38.0`.
-For external benchmark packs, run `./bin/codex-maintainer arena import --source external-pack --out /tmp/imported-arena`.
-For fixture-pack integrity metadata, run `./bin/codex-maintainer arena sign --fixture /tmp/imported-arena --out /tmp/imported-arena/PACK.json --signer "Example Maintainers" --signer-url "https://github.com/example/repo"`.
-For toolkit release readiness, run `./bin/codex-maintainer self-audit --out /tmp/codex-maintainer-audit`.
-For the next improvement loop, run `./bin/codex-maintainer next-goal --out NEXT_GOAL.md`.
-For CI-consumable findings, run `./bin/codex-maintainer sarif --report /tmp/autopsy/report.json --out /tmp/results.sarif`.
-For docs-heavy releases, run `./bin/codex-maintainer docs-check . --out /tmp/codex-maintainer-docs-check`.
-For workflow-run summaries, run `./bin/codex-maintainer ci-summary --gate /tmp/codex-gate/gate.json --out /tmp/codex-gate/summary.md`.
-For Check Run payloads, run `./bin/codex-maintainer check-run --gate /tmp/codex-gate/gate.json --head-sha "$GITHUB_SHA" --out /tmp/codex-gate/check-run/payload.json`.
-To post a Check Run after reviewing the payload, run `./bin/codex-maintainer check-run post --payload /tmp/codex-gate/check-run/payload.json --repo "$GITHUB_REPOSITORY" --out /tmp/codex-gate/check-run/response.json`.
-For release proof files, run `./bin/codex-maintainer release-manifest --tarball dist/codex-maintainer-v3.38.0.tar.gz --out /tmp/release-proof`.
-To verify release proof files, run `./bin/codex-maintainer release-manifest verify --manifest /tmp/release-proof/release-manifest.json --tarball dist/codex-maintainer-v3.38.0.tar.gz`.
-To catalog release proof files, run `./bin/codex-maintainer release-index build --manifest /tmp/release-proof/release-manifest.json --out /tmp/release-index`.
-To replay release proof from downloaded assets, run `./bin/codex-maintainer release-replay verify --manifest /tmp/release-proof/release-manifest.json --tarball dist/codex-maintainer-v3.38.0.tar.gz --index /tmp/release-index/release-index.json --ledger /tmp/release-proof/proof-ledger.md --out /tmp/release-replay`.
-To generate a compact release attestation, run `./bin/codex-maintainer release-attest build --manifest /tmp/release-proof/release-manifest.json --replay /tmp/release-replay/replay-report.json --out /tmp/release-attestation`.
-To generate the full proof bundle in one command, run `./bin/codex-maintainer release-proof build --out /tmp/release-proof-bundle --release-url https://github.com/owner/repo/releases/tag/v3.38.0`.
-To consume a published proof bundle, run `./bin/codex-maintainer release-consume verify --dir /tmp/codex-maintainer-v3.38.0 --out /tmp/codex-maintainer-v3.38.0/consumer-proof --version 3.38.0`.
-To verify a published proof bundle in GitHub Actions, use `jlekerli-source/ringly-codex-workflows/actions/release-consume@v3.38.0`.
-To compare two release proof bundles, run `./bin/codex-maintainer release-diff compare --left /tmp/codex-maintainer-old --right /tmp/codex-maintainer-v3.38.0 --out /tmp/release-diff`.
-To compare two published proof bundles in GitHub Actions, use `jlekerli-source/ringly-codex-workflows/actions/release-diff@v3.38.0`.
-To export a static evidence page, run `./bin/codex-maintainer release-evidence site --consume /tmp/codex-maintainer-v3.38.0/consumer-proof --diff /tmp/release-diff --out /tmp/release-site`.
-To build a static evidence history, run `./bin/codex-maintainer release-evidence index --site /tmp/release-site --out /tmp/release-history`.
-To build the local release evidence proof path in one command, run `./bin/codex-maintainer release-evidence bundle --assets /tmp/codex-maintainer-v3.38.0 --left /tmp/codex-maintainer-old --out /tmp/release-evidence-bundle --version 3.38.0`.
-To export release evidence in GitHub Actions, use `jlekerli-source/ringly-codex-workflows/actions/release-evidence@v3.38.0`.
-To consume a downloaded release evidence artifact, run `./bin/codex-maintainer release-evidence verify --dir /tmp/codex-maintainer-release-evidence --out /tmp/codex-maintainer-release-evidence-verify --require-diff true --require-index true`.
-To audit the checked-in broken evidence fixtures, run `./bin/codex-maintainer release-evidence negative-index --fixture fixtures/release-evidence/negative --out /tmp/codex-maintainer-negative-evidence`.
-To verify release evidence artifacts in GitHub Actions, use `jlekerli-source/ringly-codex-workflows/actions/release-evidence-verify@v3.38.0`.
-To publish the negative fixture index in GitHub Actions, use `jlekerli-source/ringly-codex-workflows/actions/release-evidence-negative-index@v3.38.0`.
+For agent-claim auditing, run `./bin/shipguard autopsy` against `fixtures/autopsy/`.
+For aggregate benchmark proof, run `./bin/shipguard arena run --fixture fixtures/arena --out /tmp/arena`.
+For benchmark regression proof, run `./bin/shipguard arena compare --left /tmp/arena-old/results.json --right /tmp/arena/results.json --out /tmp/arena-compare`.
+To compare Arena results in GitHub Actions, use `jlekerli-source/shipguard/actions/arena-compare@v3.38.0`.
+To publish a maintainer transcript safely, run `./bin/shipguard transcript redact --in raw-transcript.md --out /tmp/redacted-transcript.md --report /tmp/redaction-report.json --private-term "InternalProjectName"`.
+To verify a redacted transcript before publishing, run `./bin/shipguard transcript verify --in /tmp/redacted-transcript.md --report /tmp/redaction-report.json --out /tmp/transcript-verify`.
+To verify a redacted transcript in GitHub Actions, use `jlekerli-source/shipguard/actions/transcript-verify@v3.38.0`.
+To publish a checked transcript corpus, run `./bin/shipguard transcript corpus --source fixtures/transcripts --out /tmp/transcript-corpus --require-report true`.
+To verify a checked transcript corpus in GitHub Actions, use `jlekerli-source/shipguard/actions/transcript-corpus@v3.38.0`.
+For external benchmark packs, run `./bin/shipguard arena import --source external-pack --out /tmp/imported-arena`.
+For fixture-pack integrity metadata, run `./bin/shipguard arena sign --fixture /tmp/imported-arena --out /tmp/imported-arena/PACK.json --signer "Example Maintainers" --signer-url "https://github.com/example/repo"`.
+For toolkit release readiness, run `./bin/shipguard self-audit --out /tmp/shipguard-audit`.
+For the next improvement loop, run `./bin/shipguard next-goal --out NEXT_GOAL.md`.
+For CI-consumable findings, run `./bin/shipguard sarif --report /tmp/autopsy/report.json --out /tmp/results.sarif`.
+For docs-heavy releases, run `./bin/shipguard docs-check . --out /tmp/shipguard-docs-check`.
+For workflow-run summaries, run `./bin/shipguard ci-summary --gate /tmp/codex-gate/gate.json --out /tmp/codex-gate/summary.md`.
+For Check Run payloads, run `./bin/shipguard check-run --gate /tmp/codex-gate/gate.json --head-sha "$GITHUB_SHA" --out /tmp/codex-gate/check-run/payload.json`.
+To post a Check Run after reviewing the payload, run `./bin/shipguard check-run post --payload /tmp/codex-gate/check-run/payload.json --repo "$GITHUB_REPOSITORY" --out /tmp/codex-gate/check-run/response.json`.
+For release proof files, run `./bin/shipguard release-manifest --tarball dist/shipguard-v3.38.0.tar.gz --out /tmp/release-proof`.
+To verify release proof files, run `./bin/shipguard release-manifest verify --manifest /tmp/release-proof/release-manifest.json --tarball dist/shipguard-v3.38.0.tar.gz`.
+To catalog release proof files, run `./bin/shipguard release-index build --manifest /tmp/release-proof/release-manifest.json --out /tmp/release-index`.
+To replay release proof from downloaded assets, run `./bin/shipguard release-replay verify --manifest /tmp/release-proof/release-manifest.json --tarball dist/shipguard-v3.38.0.tar.gz --index /tmp/release-index/release-index.json --ledger /tmp/release-proof/proof-ledger.md --out /tmp/release-replay`.
+To generate a compact release attestation, run `./bin/shipguard release-attest build --manifest /tmp/release-proof/release-manifest.json --replay /tmp/release-replay/replay-report.json --out /tmp/release-attestation`.
+To generate the full proof bundle in one command, run `./bin/shipguard release-proof build --out /tmp/release-proof-bundle --release-url https://github.com/owner/repo/releases/tag/v3.38.0`.
+To consume a published proof bundle, run `./bin/shipguard release-consume verify --dir /tmp/shipguard-v3.38.0 --out /tmp/shipguard-v3.38.0/consumer-proof --version 3.38.0`.
+To verify a published proof bundle in GitHub Actions, use `jlekerli-source/shipguard/actions/release-consume@v3.38.0`.
+To compare two release proof bundles, run `./bin/shipguard release-diff compare --left /tmp/shipguard-old --right /tmp/shipguard-v3.38.0 --out /tmp/release-diff`.
+To compare two published proof bundles in GitHub Actions, use `jlekerli-source/shipguard/actions/release-diff@v3.38.0`.
+To export a static evidence page, run `./bin/shipguard release-evidence site --consume /tmp/shipguard-v3.38.0/consumer-proof --diff /tmp/release-diff --out /tmp/release-site`.
+To build a static evidence history, run `./bin/shipguard release-evidence index --site /tmp/release-site --out /tmp/release-history`.
+To build the local release evidence proof path in one command, run `./bin/shipguard release-evidence bundle --assets /tmp/shipguard-v3.38.0 --left /tmp/shipguard-old --out /tmp/release-evidence-bundle --version 3.38.0`.
+To export release evidence in GitHub Actions, use `jlekerli-source/shipguard/actions/release-evidence@v3.38.0`.
+To consume a downloaded release evidence artifact, run `./bin/shipguard release-evidence verify --dir /tmp/shipguard-release-evidence --out /tmp/shipguard-release-evidence-verify --require-diff true --require-index true`.
+To audit the checked-in broken evidence fixtures, run `./bin/shipguard release-evidence negative-index --fixture fixtures/release-evidence/negative --out /tmp/shipguard-negative-evidence`.
+To verify release evidence artifacts in GitHub Actions, use `jlekerli-source/shipguard/actions/release-evidence-verify@v3.38.0`.
+To publish the negative fixture index in GitHub Actions, use `jlekerli-source/shipguard/actions/release-evidence-negative-index@v3.38.0`.
 
 ## What Is Inside
 
@@ -143,7 +145,8 @@ To publish the negative fixture index in GitHub Actions, use `jlekerli-source/ri
 - `SUBAGENTS.md`: inspector, implementer, tester, and reviewer roles for larger Codex tasks.
 - `.agents/skills/`: reusable Codex skills for alarm testing, notification permissions, UI polish, release checklists, and bug triage.
 - `scripts/`: release handoff, bug triage, alarm validation, packaging, and autopsy report generation.
-- `bin/codex-maintainer`: a dependency-light CLI for profile init, validation, doctor checks, run scoring, autopsy reports, Arena comparison, transcript redaction, verification, corpus indexing, CI artifacts, and release-loop proof.
+- `bin/shipguard`: a dependency-light CLI for profile init, validation, doctor checks, run scoring, autopsy reports, Arena comparison, transcript redaction, verification, corpus indexing, CI artifacts, and release-loop proof.
+- `bin/codex-maintainer`: compatibility wrapper for older automation.
 - `VERSION`: the release version used by the CLI and package script.
 - `actions/validate/`: a reusable GitHub composite action for workflow-bundle validation.
 - `actions/arena-compare/`: a reusable GitHub composite action for Arena comparison artifacts.

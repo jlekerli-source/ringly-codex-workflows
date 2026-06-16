@@ -10,11 +10,11 @@ Example workflow step:
 
 ```yaml
 - name: Build release proof
-  uses: jlekerli-source/ringly-codex-workflows/actions/release-proof@v3.38.0
+  uses: jlekerli-source/shipguard/actions/release-proof@v3.38.0
   with:
     release-url: https://github.com/owner/repo/releases/tag/v3.38.0
     issue-url: https://github.com/owner/repo/issues/123
-    out: artifacts/codex-maintainer-release-proof
+    out: artifacts/shipguard-release-proof
 ```
 
 Outputs:
@@ -27,7 +27,7 @@ Outputs:
 
 Uploaded artifact contents include:
 
-- `codex-maintainer-vX.Y.Z.tar.gz`
+- `shipguard-vX.Y.Z.tar.gz`
 - `proof/release-manifest.json`
 - `proof/proof-ledger.md`
 - `index/release-index.json`
@@ -40,4 +40,4 @@ Uploaded artifact contents include:
 
 The action requires a `release-url` because replay verification and attestation are meant to bind artifact proof to a public release page. Use the predictable tag URL before publishing, then verify the final release after upload. For complete workflow files, see `release-proof-workflows.md`.
 
-For the same proof chain outside GitHub Actions, use `codex-maintainer release-proof build`. For downstream verification after publishing, see `release-proof-consumption.md`.
+For the same proof chain outside GitHub Actions, use `shipguard release-proof build`. For downstream verification after publishing, see `release-proof-consumption.md`.

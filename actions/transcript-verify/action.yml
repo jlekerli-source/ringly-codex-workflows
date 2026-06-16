@@ -1,4 +1,4 @@
-name: Verify Codex maintainer transcript
+name: Verify Shipguard transcript
 description: Verify a redacted maintainer transcript, publish verification reports, and optionally fail on remaining risky content.
 
 inputs:
@@ -12,7 +12,7 @@ inputs:
   out:
     description: Directory for transcript verification output.
     required: false
-    default: artifacts/codex-maintainer-transcript-verify
+    default: artifacts/shipguard-transcript-verify
   upload-artifact:
     description: Set false to skip transcript verification artifact upload.
     required: false
@@ -20,7 +20,7 @@ inputs:
   artifact-name:
     description: Uploaded transcript verification artifact name.
     required: false
-    default: codex-maintainer-transcript-verify
+    default: shipguard-transcript-verify
   mode:
     description: Use fail to fail the job on blocked transcript verification, or warn to emit warnings only.
     required: false
@@ -72,7 +72,7 @@ runs:
 
         verify_exit=0
         set +e
-        "$root/bin/codex-maintainer" "${args[@]}"
+        "$root/bin/shipguard" "${args[@]}"
         verify_exit="$?"
         set -e
 

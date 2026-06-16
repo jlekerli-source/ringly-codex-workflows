@@ -8,9 +8,9 @@ trap 'rm -rf "$tmp_dir"' EXIT
 
 cd "$repo_root"
 
-./bin/codex-maintainer check-run post --help >/dev/null
+./bin/shipguard check-run post --help >/dev/null
 
-./bin/codex-maintainer ci-gate \
+./bin/shipguard ci-gate \
   --run fixtures/autopsy/good-run/run.md \
   --task fixtures/autopsy/good-run/task.md \
   --diff fixtures/autopsy/good-run/diff.patch \
@@ -19,13 +19,13 @@ cd "$repo_root"
   --out "$tmp_dir/gate" \
   --mode warn >/dev/null
 
-./bin/codex-maintainer check-run \
+./bin/shipguard check-run \
   --gate "$tmp_dir/gate/gate.json" \
   --head-sha 0123456789abcdef \
   --out "$tmp_dir/payload.json" >/dev/null
 
 GITHUB_TOKEN="secret-value-that-must-not-be-written" \
-  ./bin/codex-maintainer check-run post \
+  ./bin/shipguard check-run post \
     --payload "$tmp_dir/payload.json" \
     --repo owner/repo \
     --out "$tmp_dir/dry-run.json" \
@@ -42,7 +42,7 @@ perl -MJSON::PP -0e '
   die "must not write token" if index(join("\n", @{ $response->{headers} || [] }), "secret-value") >= 0;
 ' "$tmp_dir/dry-run.json"
 
-env -u GITHUB_TOKEN ./bin/codex-maintainer check-run post \
+env -u GITHUB_TOKEN ./bin/shipguard check-run post \
   --payload "$tmp_dir/payload.json" \
   --repo owner/repo \
   --api-url "https://example.test/api/" \
@@ -52,7 +52,7 @@ env -u GITHUB_TOKEN ./bin/codex-maintainer check-run post \
 grep -q '"url" : "https://example.test/api/repos/owner/repo/check-runs"' "$tmp_dir/custom-api.json"
 grep -q '"token_present" : false' "$tmp_dir/custom-api.json"
 
-if ./bin/codex-maintainer check-run post \
+if ./bin/shipguard check-run post \
   --payload "$tmp_dir/payload.json" \
   --repo bad \
   --out "$tmp_dir/bad-repo.json" \
@@ -61,7 +61,7 @@ if ./bin/codex-maintainer check-run post \
   exit 1
 fi
 
-if ./bin/codex-maintainer check-run post \
+if ./bin/shipguard check-run post \
   --payload "$tmp_dir/missing.json" \
   --repo owner/repo \
   --out "$tmp_dir/missing.json" \
@@ -70,7 +70,7 @@ if ./bin/codex-maintainer check-run post \
   exit 1
 fi
 
-if env -u GITHUB_TOKEN ./bin/codex-maintainer check-run post \
+if env -u GITHUB_TOKEN ./bin/shipguard check-run post \
   --payload "$tmp_dir/payload.json" \
   --repo owner/repo \
   --out "$tmp_dir/no-token.json" >/dev/null 2>&1; then

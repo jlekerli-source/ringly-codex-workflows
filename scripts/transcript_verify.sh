@@ -4,10 +4,10 @@ set -euo pipefail
 
 usage() {
   cat <<'USAGE'
-codex-maintainer transcript verify
+shipguard transcript verify
 
 Usage:
-  codex-maintainer transcript verify --in <redacted.md> --out <dir> [--report <redaction-report.json>]
+  shipguard transcript verify --in <redacted.md> --out <dir> [--report <redaction-report.json>]
 
 Outputs:
   transcript-verify.json

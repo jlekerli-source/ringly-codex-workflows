@@ -1,13 +1,13 @@
 # Web Workflow Starter
 
-This profile adapts the Codex maintainer workflow for web apps.
+This profile adapts the Shipguard workflow for web apps.
 
 It is intentionally framework-neutral. Replace placeholder paths with the actual app structure before using it for production work.
 
 After initializing:
 
 ```bash
-codex-maintainer doctor web .
+shipguard doctor web .
 ```
 
 Then update `AGENTS.md` with:

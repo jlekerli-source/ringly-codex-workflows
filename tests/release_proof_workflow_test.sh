@@ -14,9 +14,9 @@ test -f "$manual_workflow"
 
 for workflow in "$tag_workflow" "$manual_workflow"; do
   grep -q 'actions/checkout@v5' "$workflow"
-  grep -q 'jlekerli-source/ringly-codex-workflows/actions/release-proof@v3.38.0' "$workflow"
+  grep -q 'jlekerli-source/shipguard/actions/release-proof@v3.38.0' "$workflow"
   grep -q 'release-url:' "$workflow"
-  grep -q 'artifacts/codex-maintainer-release-proof' "$workflow"
+  grep -q 'artifacts/shipguard-release-proof' "$workflow"
   grep -q 'attestation-badge' "$workflow"
   grep -q 'permissions:' "$workflow"
   grep -q 'contents: read' "$workflow"

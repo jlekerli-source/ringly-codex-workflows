@@ -16,8 +16,8 @@ test -f "$doc"
 test -f "$checklist"
 
 grep -q "gh release download v$version" "$doc"
-grep -q -- "--repo jlekerli-source/ringly-codex-workflows" "$doc"
-grep -q "codex-maintainer-v$version.tar.gz" "$doc"
+grep -q -- "--repo jlekerli-source/shipguard" "$doc"
+grep -q "shipguard-v$version.tar.gz" "$doc"
 grep -q "release-manifest.json" "$doc"
 grep -q "release-index.json" "$doc"
 grep -q "proof-ledger.md" "$doc"
@@ -34,27 +34,27 @@ grep -q "release-replay verify" "$checklist"
 grep -q "release-attest build" "$checklist"
 grep -q "blocked checks are \`0\`" "$checklist"
 
-CODEX_MAINTAINER_GENERATED_AT="2026-06-16T00:00:00Z" \
-  ./bin/codex-maintainer release-proof build \
+SHIPGUARD_GENERATED_AT="2026-06-16T00:00:00Z" \
+  ./bin/shipguard release-proof build \
     --out "$tmp_dir/downloaded" \
     --version "$version" \
     --tag "v$version" \
     --commit 0123456789abcdef \
-    --ci-run-url "https://github.com/jlekerli-source/ringly-codex-workflows/actions/runs/123" \
-    --release-url "https://github.com/jlekerli-source/ringly-codex-workflows/releases/tag/v$version" \
-    --issue-url "https://github.com/jlekerli-source/ringly-codex-workflows/issues/99" >/dev/null
+    --ci-run-url "https://github.com/jlekerli-source/shipguard/actions/runs/123" \
+    --release-url "https://github.com/jlekerli-source/shipguard/releases/tag/v$version" \
+    --issue-url "https://github.com/jlekerli-source/shipguard/issues/99" >/dev/null
 
-shasum -a 256 "$tmp_dir/downloaded/codex-maintainer-v$version.tar.gz" > "$tmp_dir/sha256.txt"
+shasum -a 256 "$tmp_dir/downloaded/shipguard-v$version.tar.gz" > "$tmp_dir/sha256.txt"
 grep -q "$(perl -MJSON::PP -e 'open my $fh, "<", $ARGV[0] or die $!; local $/; print decode_json(<$fh>)->{artifact}->{sha256}' "$tmp_dir/downloaded/proof/release-manifest.json")" "$tmp_dir/sha256.txt"
 
-./bin/codex-maintainer release-replay verify \
+./bin/shipguard release-replay verify \
   --manifest "$tmp_dir/downloaded/proof/release-manifest.json" \
-  --tarball "$tmp_dir/downloaded/codex-maintainer-v$version.tar.gz" \
+  --tarball "$tmp_dir/downloaded/shipguard-v$version.tar.gz" \
   --index "$tmp_dir/downloaded/index/release-index.json" \
   --ledger "$tmp_dir/downloaded/proof/proof-ledger.md" \
   --out "$tmp_dir/consumer-replay" >/dev/null
 
-./bin/codex-maintainer release-attest build \
+./bin/shipguard release-attest build \
   --manifest "$tmp_dir/downloaded/proof/release-manifest.json" \
   --replay "$tmp_dir/consumer-replay/replay-report.json" \
   --out "$tmp_dir/consumer-attestation" >/dev/null

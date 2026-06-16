@@ -8,9 +8,9 @@ trap 'rm -rf "$tmp_dir"' EXIT
 
 cd "$repo_root"
 
-./bin/codex-maintainer docs-check --help >/dev/null
+./bin/shipguard docs-check --help >/dev/null
 
-./bin/codex-maintainer docs-check . --out "$tmp_dir/docs-check" >/dev/null
+./bin/shipguard docs-check . --out "$tmp_dir/docs-check" >/dev/null
 test -f "$tmp_dir/docs-check/docs-check.json"
 test -f "$tmp_dir/docs-check/docs-check.md"
 grep -q '"status" : "pass"' "$tmp_dir/docs-check/docs-check.json"
@@ -26,7 +26,7 @@ This one is external and ignored: [OpenAI](https://openai.com/).
 This in-page anchor is ignored: [top](#broken-docs).
 MD
 
-if ./bin/codex-maintainer docs-check "$tmp_dir/broken" --out "$tmp_dir/broken-out" >/dev/null 2>&1; then
+if ./bin/shipguard docs-check "$tmp_dir/broken" --out "$tmp_dir/broken-out" >/dev/null 2>&1; then
   echo "expected docs-check to fail on a broken local link" >&2
   exit 1
 fi

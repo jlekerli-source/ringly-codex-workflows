@@ -10,7 +10,7 @@ cd "$repo_root"
 
 action="actions/release-proof/action.yml"
 test -f "$action"
-grep -q 'name: Build Codex maintainer release proof' "$action"
+grep -q 'name: Build Shipguard release proof' "$action"
 grep -q 'release-url:' "$action"
 grep -q 'required: true' "$action"
 grep -q 'actions/upload-artifact@v4' "$action"
@@ -27,8 +27,8 @@ release_tarball="$out/$(basename "$tarball")"
 mkdir -p "$out"
 cp "$tarball" "$release_tarball"
 
-CODEX_MAINTAINER_GENERATED_AT="2026-06-16T00:00:00Z" \
-  ./bin/codex-maintainer release-manifest \
+SHIPGUARD_GENERATED_AT="2026-06-16T00:00:00Z" \
+  ./bin/shipguard release-manifest \
     --tarball "$release_tarball" \
     --out "$out/proof" \
     --version "$version" \
@@ -39,27 +39,27 @@ CODEX_MAINTAINER_GENERATED_AT="2026-06-16T00:00:00Z" \
     --issue-url "https://github.com/example/repo/issues/99" \
     --notes "action test" >/dev/null
 
-./bin/codex-maintainer release-manifest verify \
+./bin/shipguard release-manifest verify \
   --manifest "$out/proof/release-manifest.json" \
   --tarball "$release_tarball" \
   --version "$version" \
   --tag "v$version" >/dev/null
 
-CODEX_MAINTAINER_GENERATED_AT="2026-06-16T00:00:00Z" \
-  ./bin/codex-maintainer release-index build \
+SHIPGUARD_GENERATED_AT="2026-06-16T00:00:00Z" \
+  ./bin/shipguard release-index build \
     --manifest "$out/proof/release-manifest.json" \
     --out "$out/index" >/dev/null
 
-CODEX_MAINTAINER_GENERATED_AT="2026-06-16T00:00:00Z" \
-  ./bin/codex-maintainer release-replay verify \
+SHIPGUARD_GENERATED_AT="2026-06-16T00:00:00Z" \
+  ./bin/shipguard release-replay verify \
     --manifest "$out/proof/release-manifest.json" \
     --tarball "$release_tarball" \
     --index "$out/index/release-index.json" \
     --ledger "$out/proof/proof-ledger.md" \
     --out "$out/replay" >/dev/null
 
-CODEX_MAINTAINER_GENERATED_AT="2026-06-16T00:00:00Z" \
-  ./bin/codex-maintainer release-attest build \
+SHIPGUARD_GENERATED_AT="2026-06-16T00:00:00Z" \
+  ./bin/shipguard release-attest build \
     --manifest "$out/proof/release-manifest.json" \
     --replay "$out/replay/replay-report.json" \
     --out "$out/attestation" >/dev/null

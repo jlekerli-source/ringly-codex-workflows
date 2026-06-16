@@ -1,12 +1,12 @@
 # Transcript Verify Action
 
-`actions/transcript-verify` runs `codex-maintainer transcript verify` in GitHub Actions and uploads the verification bundle.
+`actions/transcript-verify` runs `shipguard transcript verify` in GitHub Actions and uploads the verification bundle.
 
 Use it when redacted maintainer transcripts, benchmark notes, or public examples should be checked before publication:
 
 ```yaml
 - name: Verify redacted transcript
-  uses: jlekerli-source/ringly-codex-workflows/actions/transcript-verify@v3.38.0
+  uses: jlekerli-source/shipguard/actions/transcript-verify@v3.38.0
   with:
     transcript: docs/public-transcript.md
     report: artifacts/redaction-report.json
@@ -17,9 +17,9 @@ Inputs:
 
 - `transcript`: redacted Markdown transcript to verify.
 - `report`: optional `redaction-report.json` from `transcript redact`.
-- `out`: output directory, default `artifacts/codex-maintainer-transcript-verify`.
+- `out`: output directory, default `artifacts/shipguard-transcript-verify`.
 - `upload-artifact`: set `false` to skip artifact upload.
-- `artifact-name`: artifact name, default `codex-maintainer-transcript-verify`.
+- `artifact-name`: artifact name, default `shipguard-transcript-verify`.
 - `mode`: `fail` blocks the job on unsafe content, `warn` emits warnings only.
 
 Outputs:

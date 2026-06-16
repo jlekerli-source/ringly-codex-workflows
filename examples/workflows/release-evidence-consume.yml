@@ -1,4 +1,4 @@
-name: Build and verify Codex maintainer release evidence
+name: Build and verify Shipguard release evidence
 
 on:
   workflow_dispatch:
@@ -20,14 +20,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Build release evidence bundle
-        uses: jlekerli-source/ringly-codex-workflows/actions/release-evidence@v3.38.0
+        uses: jlekerli-source/shipguard/actions/release-evidence@v3.38.0
         with:
           run: bundle
-          repo: jlekerli-source/ringly-codex-workflows
+          repo: jlekerli-source/shipguard
           release-tag: ${{ inputs.release-tag }}
           previous-tag: ${{ inputs.previous-tag }}
           download-assets: true
-          artifact-name: codex-maintainer-release-evidence
+          artifact-name: shipguard-release-evidence
           mode: fail
 
   verify-release-evidence:
@@ -35,11 +35,11 @@ jobs:
     needs: build-release-evidence
     steps:
       - name: Verify release evidence artifact
-        uses: jlekerli-source/ringly-codex-workflows/actions/release-evidence-verify@v3.38.0
+        uses: jlekerli-source/shipguard/actions/release-evidence-verify@v3.38.0
         with:
           download-artifact: true
-          source-artifact-name: codex-maintainer-release-evidence
-          dir: artifacts/codex-maintainer-release-evidence
+          source-artifact-name: shipguard-release-evidence
+          dir: artifacts/shipguard-release-evidence
           require-diff: true
           require-index: true
           mode: fail

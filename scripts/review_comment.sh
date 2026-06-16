@@ -6,10 +6,10 @@ tool_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 usage() {
   cat <<'USAGE'
-codex-maintainer review-comment
+shipguard review-comment
 
 Usage:
-  codex-maintainer review-comment --report <report.json> --out <comment.md> [--badge <badge.json>] [--artifact-dir <dir>] [--mode warn|fail] [--warn-below <score>] [--fail-below <score>]
+  shipguard review-comment --report <report.json> --out <comment.md> [--badge <badge.json>] [--artifact-dir <dir>] [--mode warn|fail] [--warn-below <score>] [--fail-below <score>]
 
 Defaults:
   --mode warn
@@ -144,7 +144,7 @@ elif [[ "$total" -lt "$warn_below" ]]; then
 fi
 
 {
-  echo "## Codex Maintainer Review"
+  echo "## Shipguard Review"
   echo
   echo "| Field | Value |"
   echo "| --- | --- |"

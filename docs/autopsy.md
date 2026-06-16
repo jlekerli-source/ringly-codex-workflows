@@ -7,7 +7,7 @@ Use it when an agent says a change is done, safe, green, release-ready, or secur
 ## Command
 
 ```bash
-./bin/codex-maintainer autopsy \
+./bin/shipguard autopsy \
   --run fixtures/autopsy/good-run/run.md \
   --task fixtures/autopsy/good-run/task.md \
   --diff fixtures/autopsy/good-run/diff.patch \

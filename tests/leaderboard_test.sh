@@ -8,20 +8,20 @@ trap 'rm -rf "$tmp_dir"' EXIT
 
 cd "$repo_root"
 
-CODEX_MAINTAINER_GENERATED_AT="2026-06-16T00:00:00Z" \
-  ./bin/codex-maintainer arena run \
+SHIPGUARD_GENERATED_AT="2026-06-16T00:00:00Z" \
+  ./bin/shipguard arena run \
   --fixture fixtures/arena \
   --out "$tmp_dir/arena" >/dev/null
 
-CODEX_MAINTAINER_GENERATED_AT="2026-06-16T00:00:00Z" \
-  ./bin/codex-maintainer leaderboard build \
+SHIPGUARD_GENERATED_AT="2026-06-16T00:00:00Z" \
+  ./bin/shipguard leaderboard build \
   --arena-results "$tmp_dir/arena/results.json" \
   --out "$tmp_dir/leaderboard.json" >/dev/null
 
 grep -q '"schema_version": "1.0"' "$tmp_dir/leaderboard.json"
 grep -q '"benchmark": "Public AI Maintainer Reliability Benchmark"' "$tmp_dir/leaderboard.json"
 grep -q '"generated_at": "2026-06-16T00:00:00Z"' "$tmp_dir/leaderboard.json"
-grep -q '"id": "codex-maintainer-fixture-baseline"' "$tmp_dir/leaderboard.json"
+grep -q '"id": "shipguard-fixture-baseline"' "$tmp_dir/leaderboard.json"
 grep -q '"average_total": 7.00' "$tmp_dir/leaderboard.json"
 grep -q '"high_risk_finding_count": 8' "$tmp_dir/leaderboard.json"
 grep -q '"task_id": "backend-webhook-idempotency"' "$tmp_dir/leaderboard.json"

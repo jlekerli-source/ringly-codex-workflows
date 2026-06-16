@@ -3,7 +3,7 @@
 Use this checklist for every release after `v2.0.0`.
 
 ```bash
-./bin/codex-maintainer validate
+./bin/shipguard validate
 ./tests/cli_smoke_test.sh
 ./tests/template_profiles_test.sh
 ./tests/autopsy_test.sh
@@ -47,22 +47,22 @@ Then:
 
 ```bash
 ./scripts/package_release.sh
-shasum -a 256 dist/codex-maintainer-vX.Y.Z.tar.gz
-./bin/codex-maintainer release-manifest --tarball dist/codex-maintainer-vX.Y.Z.tar.gz --out /tmp/codex-maintainer-release-proof
-./bin/codex-maintainer release-manifest verify --manifest /tmp/codex-maintainer-release-proof/release-manifest.json --tarball dist/codex-maintainer-vX.Y.Z.tar.gz
-./bin/codex-maintainer release-index build --manifest /tmp/codex-maintainer-release-proof/release-manifest.json --out /tmp/codex-maintainer-release-index
-./bin/codex-maintainer release-replay verify --manifest /tmp/codex-maintainer-release-proof/release-manifest.json --tarball dist/codex-maintainer-vX.Y.Z.tar.gz --index /tmp/codex-maintainer-release-index/release-index.json --ledger /tmp/codex-maintainer-release-proof/proof-ledger.md --out /tmp/codex-maintainer-release-replay
-./bin/codex-maintainer release-attest build --manifest /tmp/codex-maintainer-release-proof/release-manifest.json --replay /tmp/codex-maintainer-release-replay/replay-report.json --out /tmp/codex-maintainer-release-attestation
-./bin/codex-maintainer release-proof build --out /tmp/codex-maintainer-release-proof-bundle --release-url https://github.com/owner/repo/releases/tag/vX.Y.Z
+shasum -a 256 dist/shipguard-vX.Y.Z.tar.gz
+./bin/shipguard release-manifest --tarball dist/shipguard-vX.Y.Z.tar.gz --out /tmp/shipguard-release-proof
+./bin/shipguard release-manifest verify --manifest /tmp/shipguard-release-proof/release-manifest.json --tarball dist/shipguard-vX.Y.Z.tar.gz
+./bin/shipguard release-index build --manifest /tmp/shipguard-release-proof/release-manifest.json --out /tmp/shipguard-release-index
+./bin/shipguard release-replay verify --manifest /tmp/shipguard-release-proof/release-manifest.json --tarball dist/shipguard-vX.Y.Z.tar.gz --index /tmp/shipguard-release-index/release-index.json --ledger /tmp/shipguard-release-proof/proof-ledger.md --out /tmp/shipguard-release-replay
+./bin/shipguard release-attest build --manifest /tmp/shipguard-release-proof/release-manifest.json --replay /tmp/shipguard-release-replay/replay-report.json --out /tmp/shipguard-release-attestation
+./bin/shipguard release-proof build --out /tmp/shipguard-release-proof-bundle --release-url https://github.com/owner/repo/releases/tag/vX.Y.Z
 ```
 
 After publishing, consume the uploaded assets from a clean directory:
 
 ```bash
-gh release download vX.Y.Z --repo owner/repo --dir /tmp/codex-maintainer-vX.Y.Z
-./bin/codex-maintainer release-consume verify --dir /tmp/codex-maintainer-vX.Y.Z --out /tmp/codex-maintainer-vX.Y.Z/consumer-proof --version X.Y.Z
-./bin/codex-maintainer release-replay verify --manifest /tmp/codex-maintainer-vX.Y.Z/release-manifest.json --tarball /tmp/codex-maintainer-vX.Y.Z/codex-maintainer-vX.Y.Z.tar.gz --index /tmp/codex-maintainer-vX.Y.Z/release-index.json --ledger /tmp/codex-maintainer-vX.Y.Z/proof-ledger.md --out /tmp/codex-maintainer-vX.Y.Z/consumer-replay
-./bin/codex-maintainer release-attest build --manifest /tmp/codex-maintainer-vX.Y.Z/release-manifest.json --replay /tmp/codex-maintainer-vX.Y.Z/consumer-replay/replay-report.json --out /tmp/codex-maintainer-vX.Y.Z/consumer-attestation
+gh release download vX.Y.Z --repo owner/repo --dir /tmp/shipguard-vX.Y.Z
+./bin/shipguard release-consume verify --dir /tmp/shipguard-vX.Y.Z --out /tmp/shipguard-vX.Y.Z/consumer-proof --version X.Y.Z
+./bin/shipguard release-replay verify --manifest /tmp/shipguard-vX.Y.Z/release-manifest.json --tarball /tmp/shipguard-vX.Y.Z/shipguard-vX.Y.Z.tar.gz --index /tmp/shipguard-vX.Y.Z/release-index.json --ledger /tmp/shipguard-vX.Y.Z/proof-ledger.md --out /tmp/shipguard-vX.Y.Z/consumer-replay
+./bin/shipguard release-attest build --manifest /tmp/shipguard-vX.Y.Z/release-manifest.json --replay /tmp/shipguard-vX.Y.Z/consumer-replay/replay-report.json --out /tmp/shipguard-vX.Y.Z/consumer-attestation
 ```
 
 Before publishing, confirm:

@@ -6,10 +6,10 @@ tool_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 usage() {
   cat <<'USAGE'
-codex-maintainer transcript corpus
+shipguard transcript corpus
 
 Usage:
-  codex-maintainer transcript corpus --source <dir> --out <dir> [--require-report true|false]
+  shipguard transcript corpus --source <dir> --out <dir> [--require-report true|false]
 
 Fixture format:
   <dir>/<case-id>/transcript.md
@@ -108,7 +108,7 @@ while IFS= read -r transcript_file; do
   fi
 
   verify_exit=0
-  if ! "$tool_root/bin/codex-maintainer" "${verify_args[@]}" >/dev/null; then
+  if ! "$tool_root/bin/shipguard" "${verify_args[@]}" >/dev/null; then
     verify_exit=1
   fi
 

@@ -14,7 +14,7 @@ workflow="examples/workflows/transcript-verify.yml"
 test -f "$action"
 test -f "$workflow"
 
-grep -q 'name: Verify Codex maintainer transcript' "$action"
+grep -q 'name: Verify Shipguard transcript' "$action"
 grep -q 'transcript:' "$action"
 grep -q 'report:' "$action"
 grep -q 'transcript verify' "$action"
@@ -25,12 +25,12 @@ grep -q 'mode must be fail or warn' "$action"
 grep -q 'status="failed"' "$action"
 grep -q 'exit_code="$verify_exit"' "$action"
 grep -q 'actions/upload-artifact@v4' "$action"
-grep -q 'codex-maintainer-transcript-verify' "$action"
+grep -q 'shipguard-transcript-verify' "$action"
 
-grep -q 'jlekerli-source/ringly-codex-workflows/actions/transcript-verify@v3.38.0' "$workflow"
+grep -q 'jlekerli-source/shipguard/actions/transcript-verify@v3.38.0' "$workflow"
 grep -q 'contents: read' "$workflow"
 grep -q 'mode: fail' "$workflow"
-grep -q 'artifact-name: codex-maintainer-transcript-verify' "$workflow"
+grep -q 'artifact-name: shipguard-transcript-verify' "$workflow"
 
 if command -v ruby >/dev/null 2>&1; then
   ruby -ryaml -e 'ARGV.each { |file| YAML.load_file(file) }' "$action" "$workflow"
@@ -51,13 +51,13 @@ Agent: I will redact maintainer@example.com and API_KEY=secret-value before publ
 RAW
 HOME_PATH="$home_path" perl -pi -e 's#__HOME_PATH__#$ENV{HOME_PATH}#g' "$raw"
 
-./bin/codex-maintainer transcript redact \
+./bin/shipguard transcript redact \
   --in "$raw" \
   --out "$redacted" \
   --report "$redaction_report" \
   --private-term "TranscriptActionApp" >/dev/null
 
-./bin/codex-maintainer transcript verify \
+./bin/shipguard transcript verify \
   --in "$redacted" \
   --report "$redaction_report" \
   --out "$verify_dir" >/dev/null

@@ -2,12 +2,12 @@
 
 Use this checklist before trusting a published toolkit release.
 
-- [ ] Download release assets with `gh release download v3.38.0 --repo jlekerli-source/ringly-codex-workflows`.
-- [ ] Confirm these assets are present: `codex-maintainer-v3.38.0.tar.gz`, `release-manifest.json`, `release-index.json`, `proof-ledger.md`, `replay-report.json`, `attestation.json`, and `attestation-badge.json`.
-- [ ] Run `shasum -a 256 /tmp/codex-maintainer-v3.38.0/codex-maintainer-v3.38.0.tar.gz`.
-- [ ] Run `codex-maintainer release-consume verify --dir /tmp/codex-maintainer-v3.38.0 --out /tmp/codex-maintainer-v3.38.0/consumer-proof --version 3.38.0`.
-- [ ] Run `codex-maintainer release-replay verify` against the downloaded tarball, manifest, index, and ledger.
-- [ ] Run `codex-maintainer release-attest build` against the downloaded manifest and your local `consumer-replay/replay-report.json`.
+- [ ] Download release assets with `gh release download v3.38.0 --repo jlekerli-source/shipguard`.
+- [ ] Confirm these assets are present: `shipguard-v3.38.0.tar.gz`, `release-manifest.json`, `release-index.json`, `proof-ledger.md`, `replay-report.json`, `attestation.json`, and `attestation-badge.json`.
+- [ ] Run `shasum -a 256 /tmp/shipguard-v3.38.0/shipguard-v3.38.0.tar.gz`.
+- [ ] Run `shipguard release-consume verify --dir /tmp/shipguard-v3.38.0 --out /tmp/shipguard-v3.38.0/consumer-proof --version 3.38.0`.
+- [ ] Run `shipguard release-replay verify` against the downloaded tarball, manifest, index, and ledger.
+- [ ] Run `shipguard release-attest build` against the downloaded manifest and your local `consumer-replay/replay-report.json`.
 - [ ] Confirm local replay status is `pass`.
 - [ ] Confirm local attestation status is `pass`, blocked checks are `0`, and the badge says `pass v3.38.0`.
 - [ ] Confirm the manifest release URL, tag, commit, and artifact SHA-256 match the GitHub release being reviewed.

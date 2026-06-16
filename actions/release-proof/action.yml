@@ -1,15 +1,15 @@
-name: Build Codex maintainer release proof
+name: Build Shipguard release proof
 description: Build a release tarball, manifest, index, replay report, attestation, and uploaded proof artifact.
 
 inputs:
   out:
     description: Output artifact directory.
     required: false
-    default: artifacts/codex-maintainer-release-proof
+    default: artifacts/shipguard-release-proof
   artifact-name:
     description: Uploaded artifact name.
     required: false
-    default: codex-maintainer-release-proof
+    default: shipguard-release-proof
   version:
     description: Release version. Defaults to VERSION.
     required: false
@@ -101,7 +101,7 @@ runs:
         replay_dir="$out/replay"
         attestation_dir="$out/attestation"
 
-        "$root/bin/codex-maintainer" release-manifest \
+        "$root/bin/shipguard" release-manifest \
           --tarball "$release_tarball" \
           --out "$proof_dir" \
           --version "$version" \
@@ -112,24 +112,24 @@ runs:
           --issue-url "${{ inputs.issue-url }}" \
           --notes "${{ inputs.notes }}"
 
-        "$root/bin/codex-maintainer" release-manifest verify \
+        "$root/bin/shipguard" release-manifest verify \
           --manifest "$proof_dir/release-manifest.json" \
           --tarball "$release_tarball" \
           --version "$version" \
           --tag "$tag"
 
-        "$root/bin/codex-maintainer" release-index build \
+        "$root/bin/shipguard" release-index build \
           --manifest "$proof_dir/release-manifest.json" \
           --out "$index_dir"
 
-        "$root/bin/codex-maintainer" release-replay verify \
+        "$root/bin/shipguard" release-replay verify \
           --manifest "$proof_dir/release-manifest.json" \
           --tarball "$release_tarball" \
           --index "$index_dir/release-index.json" \
           --ledger "$proof_dir/proof-ledger.md" \
           --out "$replay_dir"
 
-        "$root/bin/codex-maintainer" release-attest build \
+        "$root/bin/shipguard" release-attest build \
           --manifest "$proof_dir/release-manifest.json" \
           --replay "$replay_dir/replay-report.json" \
           --out "$attestation_dir"

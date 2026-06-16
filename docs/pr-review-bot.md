@@ -9,7 +9,7 @@ PR Review Bot Mode turns an autopsy `report.json` into:
 ## Command
 
 ```bash
-./bin/codex-maintainer review-comment \
+./bin/shipguard review-comment \
   --report /tmp/autopsy/report.json \
   --out /tmp/review/comment.md \
   --badge /tmp/review/badge.json \
@@ -28,8 +28,8 @@ Defaults:
 ## Reusable Action
 
 ```yaml
-- name: Generate Codex maintainer review comment
-  uses: jlekerli-source/ringly-codex-workflows/actions/review-comment@v0.8.0
+- name: Generate Shipguard review comment
+  uses: jlekerli-source/shipguard/actions/review-comment@v0.8.0
   with:
     report: autopsy/report.json
     mode: warn
@@ -45,16 +45,16 @@ permissions:
 steps:
   - uses: actions/checkout@v5
   - name: Generate autopsy report
-    run: ./bin/codex-maintainer autopsy --run run.md --diff change.patch --tests test.log --out autopsy
+    run: ./bin/shipguard autopsy --run run.md --diff change.patch --tests test.log --out autopsy
   - name: Generate review comment
-    uses: jlekerli-source/ringly-codex-workflows/actions/review-comment@v0.8.0
+    uses: jlekerli-source/shipguard/actions/review-comment@v0.8.0
     with:
       report: autopsy/report.json
       mode: warn
   - name: Comment on PR
     env:
       GH_TOKEN: ${{ github.token }}
-    run: gh pr comment "${{ github.event.pull_request.number }}" --body-file artifacts/codex-maintainer-review/comment.md
+    run: gh pr comment "${{ github.event.pull_request.number }}" --body-file artifacts/shipguard-review/comment.md
 ```
 
 Use `mode: fail` only after the project agrees that blocked autopsy reports should fail CI.

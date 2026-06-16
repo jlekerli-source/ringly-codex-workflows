@@ -1,28 +1,28 @@
 # Release Consume
 
-`codex-maintainer release-consume verify` verifies a directory of downloaded release proof assets and writes a consumer-facing proof report.
+`shipguard release-consume verify` verifies a directory of downloaded release proof assets and writes a consumer-facing proof report.
 
 Use it after downloading release assets from GitHub:
 
 ```bash
-mkdir -p /tmp/codex-maintainer-v3.38.0
+mkdir -p /tmp/shipguard-v3.38.0
 gh release download v3.38.0 \
-  --repo jlekerli-source/ringly-codex-workflows \
-  --pattern 'codex-maintainer-v3.38.0.tar.gz' \
+  --repo jlekerli-source/shipguard \
+  --pattern 'shipguard-v3.38.0.tar.gz' \
   --pattern 'release-manifest.json' \
   --pattern 'release-index.json' \
   --pattern 'proof-ledger.md' \
-  --dir /tmp/codex-maintainer-v3.38.0
+  --dir /tmp/shipguard-v3.38.0
 
-./bin/codex-maintainer release-consume verify \
-  --dir /tmp/codex-maintainer-v3.38.0 \
-  --out /tmp/codex-maintainer-v3.38.0/consumer-proof \
+./bin/shipguard release-consume verify \
+  --dir /tmp/shipguard-v3.38.0 \
+  --out /tmp/shipguard-v3.38.0/consumer-proof \
   --version 3.38.0
 ```
 
 Inputs expected in `--dir`:
 
-- `codex-maintainer-vX.Y.Z.tar.gz`
+- `shipguard-vX.Y.Z.tar.gz`
 - `release-manifest.json`
 - `release-index.json`
 - `proof-ledger.md`

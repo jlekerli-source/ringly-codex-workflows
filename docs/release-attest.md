@@ -1,12 +1,12 @@
 # Release Attestation
 
-`codex-maintainer release-attest build` turns a valid release manifest plus a passing replay report into a compact attestation bundle.
+`shipguard release-attest build` turns a valid release manifest plus a passing replay report into a compact attestation bundle.
 
 ```bash
-./bin/codex-maintainer release-attest build \
-  --manifest /tmp/codex-maintainer-v3.38.0/release-manifest.json \
-  --replay /tmp/codex-maintainer-v3.38.0/replay-report.json \
-  --out /tmp/codex-maintainer-v3.38.0/attestation
+./bin/shipguard release-attest build \
+  --manifest /tmp/shipguard-v3.38.0/release-manifest.json \
+  --replay /tmp/shipguard-v3.38.0/replay-report.json \
+  --out /tmp/shipguard-v3.38.0/attestation
 ```
 
 Outputs:

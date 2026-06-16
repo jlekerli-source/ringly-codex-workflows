@@ -4,10 +4,10 @@ set -euo pipefail
 
 usage() {
   cat <<'USAGE'
-codex-maintainer release-index
+shipguard release-index
 
 Usage:
-  codex-maintainer release-index build --manifest <release-manifest.json> [--manifest <release-manifest.json> ...] --out <dir> [--title <title>]
+  shipguard release-index build --manifest <release-manifest.json> [--manifest <release-manifest.json> ...] --out <dir> [--title <title>]
 
 Outputs:
   release-index.json
@@ -22,7 +22,7 @@ fail() {
 
 cmd_build() {
   local out_dir=""
-  local title="Codex Maintainer Release Proof Catalog"
+  local title="Shipguard Release Proof Catalog"
   local manifests=()
 
   while [[ "$#" -gt 0 ]]; do
@@ -61,7 +61,7 @@ cmd_build() {
   mkdir -p "$out_dir"
   local index_json="$out_dir/release-index.json"
   local index_md="$out_dir/release-index.md"
-  local generated_at="${CODEX_MAINTAINER_GENERATED_AT:-$(date -u '+%Y-%m-%dT%H:%M:%SZ')}"
+  local generated_at="${SHIPGUARD_GENERATED_AT:-${CODEX_MAINTAINER_GENERATED_AT:-$(date -u '+%Y-%m-%dT%H:%M:%SZ')}}"
 
   TITLE="$title" GENERATED_AT="$generated_at" INDEX_JSON="$index_json" INDEX_MD="$index_md" perl -MJSON::PP -MList::Util=none -e '
 use strict;

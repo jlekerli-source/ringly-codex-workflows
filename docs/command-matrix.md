@@ -1,6 +1,6 @@
 # Command Matrix
 
-`codex-maintainer` is organized around the core maintainer jobs below.
+`shipguard` is organized around the core maintainer jobs below.
 
 | Job | Command | Output |
 | --- | --- | --- |

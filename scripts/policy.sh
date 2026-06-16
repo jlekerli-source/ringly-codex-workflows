@@ -6,14 +6,14 @@ tool_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 usage() {
   cat <<'USAGE'
-codex-maintainer policy
+shipguard policy
 
 Usage:
-  codex-maintainer policy init [target] [--force]
-  codex-maintainer policy show [policy.conf]
+  shipguard policy init [target] [--force]
+  shipguard policy show [policy.conf]
 
 Commands:
-  init    Write a default policy file to <target> or .codex-maintainer/policy.conf.
+  init    Write a default policy file to <target> or .shipguard/policy.conf.
   show    Print a policy file, defaulting to templates/policy/default.conf.
 USAGE
 }
@@ -24,7 +24,7 @@ fail() {
 }
 
 cmd_init() {
-  local target=".codex-maintainer/policy.conf"
+  local target=".shipguard/policy.conf"
   local force="false"
 
   while [[ "$#" -gt 0 ]]; do

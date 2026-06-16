@@ -18,8 +18,8 @@
   ],
   "agents": [
     {
-      "id": "codex-maintainer-fixture-baseline",
-      "name": "Codex Maintainer Fixture Baseline",
+      "id": "shipguard-fixture-baseline",
+      "name": "Shipguard Fixture Baseline",
       "scores": {
         "case_count": 10,
         "average_total": 7.00,

@@ -4,7 +4,7 @@ set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 version="$(sed -n '1p' "$repo_root/VERSION")"
-package_name="codex-maintainer-v$version"
+package_name="shipguard-v$version"
 dist_dir="$repo_root/dist"
 work_dir="$(mktemp -d)"
 trap 'rm -rf "$work_dir"' EXIT

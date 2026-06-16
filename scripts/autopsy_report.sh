@@ -6,10 +6,10 @@ tool_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 usage() {
   cat <<'USAGE'
-codex-maintainer autopsy
+shipguard autopsy
 
 Usage:
-  codex-maintainer autopsy --run <run.md> [--diff <patch.diff>] [--tests <test.log>] [--task <task.md>] [--policy <policy.conf>] [--out <dir>]
+  shipguard autopsy --run <run.md> [--diff <patch.diff>] [--tests <test.log>] [--task <task.md>] [--policy <policy.conf>] [--out <dir>]
 
 Outputs:
   report.md
@@ -152,7 +152,7 @@ mkdir -p "$out_dir"
 markdown_report="$out_dir/report.md"
 json_report="$out_dir/report.json"
 tool_version="$(sed -n '1p' "$tool_root/VERSION")"
-generated_at="${CODEX_MAINTAINER_GENERATED_AT:-$(date -u '+%Y-%m-%dT%H:%M:%SZ')}"
+generated_at="${SHIPGUARD_GENERATED_AT:-${CODEX_MAINTAINER_GENERATED_AT:-$(date -u '+%Y-%m-%dT%H:%M:%SZ')}}"
 
 category_labels=(
   "Scope control"

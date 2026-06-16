@@ -5,7 +5,7 @@ CI Gate Mode runs Autopsy, generates SARIF, creates a review comment, creates ba
 ## Command
 
 ```bash
-./bin/codex-maintainer ci-gate \
+./bin/shipguard ci-gate \
   --run fixtures/autopsy/good-run/run.md \
   --task fixtures/autopsy/good-run/task.md \
   --diff fixtures/autopsy/good-run/diff.patch \
@@ -36,13 +36,13 @@ permissions:
   contents: read
   checks: write
 
-- name: Run Codex maintainer CI gate
-  uses: jlekerli-source/ringly-codex-workflows/actions/ci-gate@v3.38.0
+- name: Run Shipguard CI gate
+  uses: jlekerli-source/shipguard/actions/ci-gate@v3.38.0
   with:
     run: run.md
     diff: change.patch
     tests: test.log
-    policy: .codex-maintainer/policy.conf
+    policy: .shipguard/policy.conf
     mode: warn
     post-check-run: "true"
     github-token: ${{ secrets.GITHUB_TOKEN }}

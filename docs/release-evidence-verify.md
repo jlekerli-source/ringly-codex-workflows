@@ -1,13 +1,13 @@
 # Release Evidence Verification
 
-`codex-maintainer release-evidence verify` consumes a release evidence artifact and checks that the static evidence, copied source reports, optional index, and optional bundle metadata agree.
+`shipguard release-evidence verify` consumes a release evidence artifact and checks that the static evidence, copied source reports, optional index, and optional bundle metadata agree.
 
 Use it after downloading the artifact produced by `actions/release-evidence`:
 
 ```bash
-./bin/codex-maintainer release-evidence verify \
-  --dir /tmp/codex-maintainer-release-evidence \
-  --out /tmp/codex-maintainer-release-evidence-verify \
+./bin/shipguard release-evidence verify \
+  --dir /tmp/shipguard-release-evidence \
+  --out /tmp/shipguard-release-evidence-verify \
   --require-diff true \
   --require-index true
 ```
@@ -37,11 +37,11 @@ In GitHub Actions, let `actions/release-evidence-verify` download and verify the
 
 ```yaml
 - name: Verify release evidence artifact
-  uses: jlekerli-source/ringly-codex-workflows/actions/release-evidence-verify@v3.38.0
+  uses: jlekerli-source/shipguard/actions/release-evidence-verify@v3.38.0
   with:
     download-artifact: true
-    source-artifact-name: codex-maintainer-release-evidence
-    dir: artifacts/codex-maintainer-release-evidence
+    source-artifact-name: shipguard-release-evidence
+    dir: artifacts/shipguard-release-evidence
     require-diff: true
     require-index: true
     mode: fail
@@ -62,9 +62,9 @@ Each negative fixture should exit nonzero while still writing:
 Use `negative-index` to run the full fixture manifest and publish a compact guardrail report:
 
 ```bash
-./bin/codex-maintainer release-evidence negative-index \
+./bin/shipguard release-evidence negative-index \
   --fixture fixtures/release-evidence/negative \
-  --out /tmp/codex-maintainer-negative-evidence
+  --out /tmp/shipguard-negative-evidence
 ```
 
 The command reads `cases.tsv`, runs every case through `release-evidence verify`, and writes `index.html`, `negative-fixture-index.json`, `negative-fixture-index.md`, `badge.json`, plus per-case verifier outputs under `runs/<case>/`. It passes only when every listed negative fixture blocks on its expected check.

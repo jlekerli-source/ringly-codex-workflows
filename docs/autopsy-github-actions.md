@@ -17,7 +17,7 @@ fixture = good-run
 The workflow runs:
 
 ```bash
-./bin/codex-maintainer autopsy \
+./bin/shipguard autopsy \
   --run fixtures/autopsy/good-run/run.md \
   --task fixtures/autopsy/good-run/task.md \
   --diff fixtures/autopsy/good-run/diff.patch \

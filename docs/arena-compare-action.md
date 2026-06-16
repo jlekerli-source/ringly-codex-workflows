@@ -1,6 +1,6 @@
 # Arena Compare Action
 
-`actions/arena-compare` runs `codex-maintainer arena compare` in GitHub Actions and uploads the comparison output as an artifact.
+`actions/arena-compare` runs `shipguard arena compare` in GitHub Actions and uploads the comparison output as an artifact.
 
 Use it when a workflow has already produced two Arena `results.json` files and you want CI-visible proof that a benchmark fixture or scoring change improved, stayed unchanged, or regressed.
 
@@ -8,7 +8,7 @@ Use it when a workflow has already produced two Arena `results.json` files and y
 
 ```yaml
 - name: Compare Arena results
-  uses: jlekerli-source/ringly-codex-workflows/actions/arena-compare@v3.38.0
+  uses: jlekerli-source/shipguard/actions/arena-compare@v3.38.0
   with:
     left-results: artifacts/arena-old/results.json
     right-results: artifacts/arena-current/results.json
@@ -21,10 +21,10 @@ Use it when a workflow has already produced two Arena `results.json` files and y
 | --- | --- | --- | --- |
 | `left-results` | yes | | Older Arena `results.json`. |
 | `right-results` | yes | | Newer Arena `results.json`. |
-| `out` | no | `artifacts/codex-maintainer-arena-compare` | Output directory. |
-| `title` | no | `Codex Maintainer Arena Compare` | Report title. |
+| `out` | no | `artifacts/shipguard-arena-compare` | Output directory. |
+| `title` | no | `Shipguard Arena Compare` | Report title. |
 | `upload-artifact` | no | `true` | Upload the output directory. |
-| `artifact-name` | no | `codex-maintainer-arena-compare` | Uploaded artifact name. |
+| `artifact-name` | no | `shipguard-arena-compare` | Uploaded artifact name. |
 | `mode` | no | `warn` | Use `fail` to fail the job when status is `regressed` or comparison generation fails. |
 
 ## Outputs

@@ -12,10 +12,10 @@ version="$(sed -n '1p' VERSION)"
 tarball="$(./scripts/package_release.sh)"
 tarball_name="$(basename "$tarball")"
 
-./bin/codex-maintainer release-replay verify --help >/dev/null
+./bin/shipguard release-replay verify --help >/dev/null
 
-CODEX_MAINTAINER_GENERATED_AT="2026-06-16T00:00:00Z" \
-  ./bin/codex-maintainer release-manifest \
+SHIPGUARD_GENERATED_AT="2026-06-16T00:00:00Z" \
+  ./bin/shipguard release-manifest \
     --tarball "$tarball" \
     --out "$tmp_dir/proof" \
     --version "$version" \
@@ -25,13 +25,13 @@ CODEX_MAINTAINER_GENERATED_AT="2026-06-16T00:00:00Z" \
     --release-url "https://github.com/example/repo/releases/tag/v$version" \
     --issue-url "https://github.com/example/repo/issues/99" >/dev/null
 
-CODEX_MAINTAINER_GENERATED_AT="2026-06-16T00:00:00Z" \
-  ./bin/codex-maintainer release-index build \
+SHIPGUARD_GENERATED_AT="2026-06-16T00:00:00Z" \
+  ./bin/shipguard release-index build \
     --manifest "$tmp_dir/proof/release-manifest.json" \
     --out "$tmp_dir/index" >/dev/null
 
-CODEX_MAINTAINER_GENERATED_AT="2026-06-16T00:00:00Z" \
-  ./bin/codex-maintainer release-replay verify \
+SHIPGUARD_GENERATED_AT="2026-06-16T00:00:00Z" \
+  ./bin/shipguard release-replay verify \
     --manifest "$tmp_dir/proof/release-manifest.json" \
     --tarball "$tarball" \
     --index "$tmp_dir/index/release-index.json" \
@@ -48,8 +48,8 @@ grep -q '"name": "proof ledger replay"' "$tmp_dir/replay/replay-report.json"
 grep -q '# Release Replay Report' "$tmp_dir/replay/replay-report.md"
 grep -q '| artifact sha256 | pass |' "$tmp_dir/replay/replay-report.md"
 
-CODEX_MAINTAINER_GENERATED_AT="2026-06-16T00:00:00Z" \
-  ./bin/codex-maintainer release-replay verify \
+SHIPGUARD_GENERATED_AT="2026-06-16T00:00:00Z" \
+  ./bin/shipguard release-replay verify \
     --manifest "$tmp_dir/proof/release-manifest.json" \
     --tarball "$tarball" \
     --out "$tmp_dir/replay-without-optional" >/dev/null
@@ -60,7 +60,7 @@ tamper_dir="$tmp_dir/tamper"
 mkdir -p "$tamper_dir"
 cp "$tarball" "$tamper_dir/$tarball_name"
 printf 'tampered' >> "$tamper_dir/$tarball_name"
-if ./bin/codex-maintainer release-replay verify \
+if ./bin/shipguard release-replay verify \
   --manifest "$tmp_dir/proof/release-manifest.json" \
   --tarball "$tamper_dir/$tarball_name" \
   --index "$tmp_dir/index/release-index.json" \

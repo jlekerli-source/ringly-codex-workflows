@@ -3,7 +3,7 @@
 Run the public fixture pack:
 
 ```bash
-./bin/codex-maintainer arena run --fixture fixtures/arena --out /tmp/arena
+./bin/shipguard arena run --fixture fixtures/arena --out /tmp/arena
 ```
 
 Expected summary:

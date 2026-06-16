@@ -1,11 +1,11 @@
 # Release Diff Action
 
-`actions/release-diff` compares two published release proof asset sets in GitHub Actions. It can download both releases with `gh release download`, run `codex-maintainer release-diff compare`, and upload `release-diff.json` plus `release-diff.md`.
+`actions/release-diff` compares two published release proof asset sets in GitHub Actions. It can download both releases with `gh release download`, run `shipguard release-diff compare`, and upload `release-diff.json` plus `release-diff.md`.
 
 ## Usage
 
 ```yaml
-name: Compare Codex maintainer releases
+name: Compare Shipguard releases
 
 on:
   workflow_dispatch:
@@ -27,9 +27,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Compare release proof assets
-        uses: jlekerli-source/ringly-codex-workflows/actions/release-diff@v3.38.0
+        uses: jlekerli-source/shipguard/actions/release-diff@v3.38.0
         with:
-          repo: jlekerli-source/ringly-codex-workflows
+          repo: jlekerli-source/shipguard
           left-tag: ${{ inputs.left-tag }}
           right-tag: ${{ inputs.right-tag }}
           mode: fail
@@ -42,12 +42,12 @@ jobs:
 | `left-tag` | required | Older release tag to compare. |
 | `right-tag` | required | Newer release tag to compare. |
 | `repo` | current repository | Repository containing release assets. |
-| `left-assets-dir` | `artifacts/codex-maintainer-release-diff/left` | Directory for older release assets. |
-| `right-assets-dir` | `artifacts/codex-maintainer-release-diff/right` | Directory for newer release assets. |
-| `out` | `artifacts/codex-maintainer-release-diff/report` | Directory for diff reports. |
+| `left-assets-dir` | `artifacts/shipguard-release-diff/left` | Directory for older release assets. |
+| `right-assets-dir` | `artifacts/shipguard-release-diff/right` | Directory for newer release assets. |
+| `out` | `artifacts/shipguard-release-diff/report` | Directory for diff reports. |
 | `download-assets` | `true` | Download both releases with `gh release download`; set `false` to compare existing files. |
 | `upload-artifact` | `true` | Upload the diff report directory with `actions/upload-artifact`. |
-| `artifact-name` | `codex-maintainer-release-diff` | Uploaded artifact name. |
+| `artifact-name` | `shipguard-release-diff` | Uploaded artifact name. |
 | `mode` | `fail` | `fail` fails invalid diff proof; `warn` emits an annotation and continues. |
 
 ## Outputs

@@ -1,21 +1,21 @@
 # Release Replay
 
-`codex-maintainer release-replay verify` verifies downloaded release assets against the release proof files that were published with them.
+`shipguard release-replay verify` verifies downloaded release assets against the release proof files that were published with them.
 
 ```bash
 gh release download v3.38.0 \
-  --pattern 'codex-maintainer-v3.38.0.tar.gz' \
+  --pattern 'shipguard-v3.38.0.tar.gz' \
   --pattern 'release-manifest.json' \
   --pattern 'release-index.json' \
   --pattern 'proof-ledger.md' \
-  --dir /tmp/codex-maintainer-v3.38.0
+  --dir /tmp/shipguard-v3.38.0
 
-./bin/codex-maintainer release-replay verify \
-  --manifest /tmp/codex-maintainer-v3.38.0/release-manifest.json \
-  --tarball /tmp/codex-maintainer-v3.38.0/codex-maintainer-v3.38.0.tar.gz \
-  --index /tmp/codex-maintainer-v3.38.0/release-index.json \
-  --ledger /tmp/codex-maintainer-v3.38.0/proof-ledger.md \
-  --out /tmp/codex-maintainer-v3.38.0/replay
+./bin/shipguard release-replay verify \
+  --manifest /tmp/shipguard-v3.38.0/release-manifest.json \
+  --tarball /tmp/shipguard-v3.38.0/shipguard-v3.38.0.tar.gz \
+  --index /tmp/shipguard-v3.38.0/release-index.json \
+  --ledger /tmp/shipguard-v3.38.0/proof-ledger.md \
+  --out /tmp/shipguard-v3.38.0/replay
 ```
 
 Outputs:
@@ -34,4 +34,4 @@ The verifier checks:
 - optional release-index row matching version, tag, commit, and artifact SHA-256
 - optional proof-ledger entries matching version, tag, release URL, and artifact SHA-256
 
-The command is local and deterministic. It does not call the GitHub API itself; download release assets first, then replay the proof offline. Use `codex-maintainer release-attest build` after replay verification when you want a compact release-proof badge and attestation summary. For the full downstream review flow, see `release-proof-consumption.md`.
+The command is local and deterministic. It does not call the GitHub API itself; download release assets first, then replay the proof offline. Use `shipguard release-attest build` after replay verification when you want a compact release-proof badge and attestation summary. For the full downstream review flow, see `release-proof-consumption.md`.

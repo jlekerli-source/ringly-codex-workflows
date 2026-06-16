@@ -1,0 +1,502 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+tool_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+usage() {
+  cat <<'USAGE'
+shipguard
+
+Usage:
+  shipguard init ios [target] [--force]
+  shipguard init web [target] [--force]
+  shipguard init backend [target] [--force]
+  shipguard init cli [target] [--force]
+  shipguard validate [path]
+  shipguard doctor [ios|web|backend|cli] [path]
+  shipguard policy init [target] [--force]
+  shipguard policy show [policy.conf]
+  shipguard score <run.md>
+  shipguard autopsy --run <run.md> [--diff <patch.diff>] [--tests <test.log>] [--task <task.md>] [--policy <policy.conf>] [--out <dir>]
+  shipguard arena run --fixture <fixture-dir> [--out <dir>]
+  shipguard arena import --source <fixture-dir> --out <fixture-dir> [--pack-name <name>] [--force]
+  shipguard arena sign --fixture <fixture-dir> --out <manifest.json> [--pack-name <name>] [--signer <name>] [--signer-url <url>]
+  shipguard arena verify --fixture <fixture-dir> --manifest <manifest.json>
+  shipguard arena compare --left <results.json> --right <results.json> --out <dir>
+  shipguard transcript redact --in <transcript.md> --out <redacted.md> [--report <report.json>] [--private-term <text> ...]
+  shipguard transcript verify --in <redacted.md> --out <dir> [--report <redaction-report.json>]
+  shipguard transcript corpus --source <dir> --out <dir> [--require-report true|false]
+  shipguard review-comment --report <report.json> --out <comment.md> [--mode warn|fail]
+  shipguard ci-gate --run <run.md> [--diff <patch.diff>] [--tests <test.log>] [--task <task.md>] [--policy <policy.conf>] [--out <dir>] [--mode warn|fail]
+  shipguard ci-summary --gate <gate.json> --out <summary.md>
+  shipguard check-run --gate <gate.json> --head-sha <sha> --out <payload.json> [--name <name>]
+  shipguard check-run post --payload <payload.json> --repo <owner/repo> --out <response.json> [--api-url <url>] [--token <token>] [--dry-run]
+  shipguard sarif --report <report.json> --out <results.sarif>
+  shipguard docs-check [path] [--out <dir>]
+  shipguard leaderboard build --arena-results <results.json> --out <leaderboard.json>
+  shipguard release-manifest --tarball <release.tar.gz> --out <dir> [--version <version>] [--tag <tag>] [--commit <sha>] [--ci-run-url <url>] [--release-url <url>] [--issue-url <url>]
+  shipguard release-manifest verify --manifest <release-manifest.json> --tarball <release.tar.gz> [--version <version>] [--tag <tag>]
+  shipguard release-index build --manifest <release-manifest.json> [--manifest <release-manifest.json> ...] --out <dir> [--title <title>]
+  shipguard release-replay verify --manifest <release-manifest.json> --tarball <release.tar.gz> --out <dir> [--index <release-index.json>] [--ledger <proof-ledger.md>]
+  shipguard release-attest build --manifest <release-manifest.json> --replay <replay-report.json> --out <dir> [--title <title>]
+  shipguard release-proof build --out <dir> --release-url <url> [--version <version>] [--tag <tag>] [--commit <sha>] [--ci-run-url <url>] [--issue-url <url>] [--notes <text>]
+  shipguard release-consume verify --dir <downloaded-assets-dir> --out <dir> [--version <version>]
+  shipguard release-diff compare --left <release-assets-dir> --right <release-assets-dir> --out <dir>
+  shipguard release-evidence site --consume <consumer-proof-dir> --out <dir> [--diff <release-diff-dir>] [--title <title>]
+  shipguard release-evidence index --site <evidence-site-dir> [--site <evidence-site-dir> ...] --out <dir> [--title <title>]
+  shipguard release-evidence bundle --assets <release-assets-dir> --out <dir> [--version <version>] [--left <previous-release-assets-dir>] [--title <title>] [--index-title <title>]
+  shipguard release-evidence verify --dir <evidence-artifact-dir> --out <dir> [--require-diff auto|true|false] [--require-index auto|true|false]
+  shipguard release-evidence negative-index --fixture <negative-fixture-dir> --out <dir> [--title <title>]
+  shipguard self-audit [--out <dir>]
+  shipguard next-goal [--out <file>] [--release <version>] [--title <title>]
+  shipguard version
+  shipguard help
+
+Commands:
+  init        Copy a workflow starter profile into a target repo.
+  validate    Validate this workflow bundle or another checkout of it.
+  doctor      Check whether a target repo has starter workflow files.
+  policy      Initialize or inspect shipguard policy config.
+  score       Score a Codex run markdown file using SCORECARD.md categories.
+  autopsy     Generate Markdown and JSON evidence reports for an AI coding run.
+  arena       Run, import, sign, verify, or compare multiple autopsy fixtures.
+  transcript  Redact, verify, or index maintainer transcripts before public sharing.
+  review-comment
+              Generate a PR-ready review comment and badge from an autopsy report.
+  ci-gate     Generate autopsy, review, badge, gate JSON, and optional CI failure.
+  ci-summary  Generate GitHub Actions step-summary Markdown from gate JSON.
+  check-run   Generate or optionally post GitHub Checks API payloads from gate JSON.
+  sarif       Convert an autopsy report JSON file into SARIF 2.1.0.
+  docs-check  Check Markdown files for broken local links.
+  leaderboard Build a stable leaderboard JSON file from arena results.
+  release-manifest
+              Generate release-manifest JSON and proof-ledger Markdown.
+  release-index
+              Build a release proof catalog from release manifests.
+  release-replay
+              Verify downloaded release assets against manifest, index, and ledger proof.
+  release-attest
+              Build release attestation JSON, Markdown, and badge proof.
+  release-proof
+              Build the full release proof bundle in one command.
+  release-consume
+              Verify downloaded release proof assets and rebuild consumer attestation.
+  release-diff
+              Compare two release proof asset directories and report what changed.
+  release-evidence
+              Export or verify release proof evidence sites, indexes, and bundles.
+  self-audit  Generate toolkit readiness proof.
+  next-goal   Generate a slash-goal release objective for the next improvement loop.
+  version     Print the toolkit version from VERSION.
+USAGE
+}
+
+fail() {
+  echo "shipguard: $*" >&2
+  exit 1
+}
+
+copy_file() {
+  local source="$1"
+  local target="$2"
+  local force="$3"
+
+  mkdir -p "$(dirname "$target")"
+  if [[ -e "$target" && "$force" != "true" ]]; then
+    echo "skip existing: $target"
+    return
+  fi
+  cp "$source" "$target"
+  echo "wrote: $target"
+}
+
+copy_dir() {
+  local source="$1"
+  local target="$2"
+  local force="$3"
+
+  mkdir -p "$target"
+  while IFS= read -r file; do
+    local relative="${file#"$source"/}"
+    copy_file "$file" "$target/$relative" "$force"
+  done < <(find "$source" -type f | sort)
+}
+
+copy_profile() {
+  local profile="$1"
+  local target="$2"
+  local force="$3"
+
+  [[ -d "$tool_root/templates/$profile" ]] || fail "unknown init profile: $profile"
+  mkdir -p "$target"
+  copy_file "$tool_root/templates/$profile/AGENTS.md" "$target/AGENTS.md" "$force"
+  copy_file "$tool_root/PLANS.md" "$target/PLANS.md" "$force"
+  copy_file "$tool_root/SUBAGENTS.md" "$target/SUBAGENTS.md" "$force"
+  copy_file "$tool_root/SCORECARD.md" "$target/SCORECARD.md" "$force"
+  copy_dir "$tool_root/.agents/skills" "$target/.agents/skills" "$force"
+
+  echo "initialized $profile Codex workflow starter in $target"
+}
+
+cmd_init_profile() {
+  local profile="$1"
+  shift || true
+  local target="."
+  local force="false"
+
+  while [[ "$#" -gt 0 ]]; do
+    case "$1" in
+      --force)
+        force="true"
+        ;;
+      -*)
+        fail "unknown init option: $1"
+        ;;
+      *)
+        target="$1"
+        ;;
+    esac
+    shift
+  done
+
+  copy_profile "$profile" "$target" "$force"
+}
+
+cmd_validate() {
+  local target="${1:-.}"
+  "$tool_root/scripts/validate_workflow_bundle.sh" "$target"
+}
+
+cmd_doctor() {
+  local profile="ios"
+  local target="."
+  if [[ "$#" -gt 0 ]]; then
+    case "$1" in
+      ios|web|backend|cli)
+        profile="$1"
+        shift
+        target="${1:-.}"
+        [[ "$#" -gt 0 ]] && shift
+        ;;
+      -*)
+        fail "unknown doctor option: $1"
+        ;;
+      *)
+        if [[ "$#" -gt 1 ]]; then
+          fail "unknown doctor profile: $1"
+        fi
+        target="$1"
+        shift
+        ;;
+    esac
+  fi
+  [[ "$#" -eq 0 ]] || fail "too many doctor arguments"
+  local missing=0
+  local required=(
+    "AGENTS.md"
+    "PLANS.md"
+    "SUBAGENTS.md"
+    "SCORECARD.md"
+    ".agents/skills/alarm-testing/SKILL.md"
+    ".agents/skills/bug-triage/SKILL.md"
+    ".agents/skills/notification-permissions/SKILL.md"
+    ".agents/skills/release-checklist/SKILL.md"
+    ".agents/skills/ui-polish/SKILL.md"
+  )
+
+  [[ -d "$tool_root/templates/$profile" ]] || fail "unknown doctor profile: $profile"
+
+  for file in "${required[@]}"; do
+    if [[ -f "$target/$file" ]]; then
+      echo "ok: $file"
+    else
+      echo "missing: $file"
+      missing=1
+    fi
+  done
+
+  if [[ "$missing" -ne 0 ]]; then
+    fail "doctor found missing $profile workflow files"
+  fi
+  echo "doctor passed for $profile"
+}
+
+extract_score() {
+  local label="$1"
+  local file="$2"
+  local line
+  line="$(grep -iF "$label" "$file" | head -n 1 || true)"
+  if [[ "$line" =~ (^|[^0-9])([0-2])([^0-9]|$) ]]; then
+    printf '%s\n' "${BASH_REMATCH[2]}"
+  fi
+}
+
+verdict_for_total() {
+  local total="$1"
+  if [[ "$total" -ge 10 ]]; then
+    echo "usable maintainer-quality run"
+  elif [[ "$total" -ge 7 ]]; then
+    echo "probably useful; review weak categories"
+  elif [[ "$total" -ge 4 ]]; then
+    echo "analysis only; request a narrower repair pass"
+  else
+    echo "discard as implementation evidence"
+  fi
+}
+
+cmd_score() {
+  local file="${1:-}"
+  [[ -n "$file" ]] || fail "score requires a markdown file"
+  [[ -f "$file" ]] || fail "score file not found: $file"
+
+  local categories=(
+    "Scope control"
+    "Owner-file accuracy"
+    "Risk awareness"
+    "Validation quality"
+    "Handoff honesty"
+    "Regression awareness"
+  )
+
+  local total=0
+  local missing=0
+  for category in "${categories[@]}"; do
+    local score
+    score="$(extract_score "$category" "$file" || true)"
+    if [[ -z "$score" ]]; then
+      echo "$category: missing"
+      missing=1
+    else
+      echo "$category: $score"
+      total=$((total + score))
+    fi
+  done
+
+  [[ "$missing" -eq 0 ]] || fail "score file is missing one or more categories"
+  echo "Total score: $total/12"
+  echo "Verdict: $(verdict_for_total "$total")"
+}
+
+cmd_autopsy() {
+  "$tool_root/scripts/autopsy_report.sh" "$@"
+}
+
+cmd_policy() {
+  "$tool_root/scripts/policy.sh" "$@"
+}
+
+cmd_arena() {
+  local subcommand="${1:-}"
+  [[ "$subcommand" == "run" || "$subcommand" == "import" || "$subcommand" == "sign" || "$subcommand" == "verify" || "$subcommand" == "compare" ]] || fail "arena requires subcommand: run, import, sign, verify, or compare"
+  shift || true
+  case "$subcommand" in
+    run)
+      "$tool_root/scripts/arena_run.sh" "$@"
+      ;;
+    import)
+      "$tool_root/scripts/arena_import.sh" "$@"
+      ;;
+    sign)
+      "$tool_root/scripts/arena_sign.sh" "$@"
+      ;;
+    verify)
+      "$tool_root/scripts/arena_verify.sh" "$@"
+      ;;
+    compare)
+      "$tool_root/scripts/arena_compare.sh" "$@"
+      ;;
+  esac
+}
+
+cmd_transcript() {
+  local subcommand="${1:-}"
+  [[ "$subcommand" == "redact" || "$subcommand" == "verify" || "$subcommand" == "corpus" ]] || fail "transcript requires subcommand: redact, verify, or corpus"
+  shift || true
+  case "$subcommand" in
+    redact)
+      "$tool_root/scripts/transcript_redact.sh" "$@"
+      ;;
+    verify)
+      "$tool_root/scripts/transcript_verify.sh" "$@"
+      ;;
+    corpus)
+      "$tool_root/scripts/transcript_corpus.sh" "$@"
+      ;;
+  esac
+}
+
+cmd_review_comment() {
+  "$tool_root/scripts/review_comment.sh" "$@"
+}
+
+cmd_ci_gate() {
+  "$tool_root/scripts/ci_gate.sh" "$@"
+}
+
+cmd_ci_summary() {
+  "$tool_root/scripts/ci_summary.sh" "$@"
+}
+
+cmd_check_run() {
+  "$tool_root/scripts/check_run.sh" "$@"
+}
+
+cmd_sarif() {
+  "$tool_root/scripts/sarif.sh" "$@"
+}
+
+cmd_docs_check() {
+  "$tool_root/scripts/docs_check.sh" "$@"
+}
+
+cmd_leaderboard() {
+  local subcommand="${1:-}"
+  [[ "$subcommand" == "build" ]] || fail "leaderboard requires subcommand: build"
+  shift || true
+  "$tool_root/scripts/leaderboard_build.sh" "$@"
+}
+
+cmd_release_manifest() {
+  "$tool_root/scripts/release_manifest.sh" "$@"
+}
+
+cmd_release_index() {
+  "$tool_root/scripts/release_index.sh" "$@"
+}
+
+cmd_release_replay() {
+  "$tool_root/scripts/release_replay.sh" "$@"
+}
+
+cmd_release_attest() {
+  "$tool_root/scripts/release_attest.sh" "$@"
+}
+
+cmd_release_proof() {
+  "$tool_root/scripts/release_proof.sh" "$@"
+}
+
+cmd_release_consume() {
+  "$tool_root/scripts/release_consume.sh" "$@"
+}
+
+cmd_release_diff() {
+  "$tool_root/scripts/release_diff.sh" "$@"
+}
+
+cmd_release_evidence() {
+  "$tool_root/scripts/release_evidence.sh" "$@"
+}
+
+cmd_self_audit() {
+  "$tool_root/scripts/self_audit.sh" "$@"
+}
+
+cmd_next_goal() {
+  "$tool_root/scripts/next_goal.sh" "$@"
+}
+
+cmd_version() {
+  local version_file="$tool_root/VERSION"
+  [[ -f "$version_file" ]] || fail "VERSION file not found"
+  sed -n '1p' "$version_file"
+}
+
+main() {
+  local command="${1:-help}"
+  shift || true
+
+  case "$command" in
+    init)
+      local kind="${1:-}"
+      [[ "$kind" == "ios" || "$kind" == "web" || "$kind" == "backend" || "$kind" == "cli" ]] || fail "supported init profiles: ios, web, backend, cli"
+      shift || true
+      cmd_init_profile "$kind" "$@"
+      ;;
+    validate)
+      cmd_validate "$@"
+      ;;
+    doctor)
+      cmd_doctor "$@"
+      ;;
+    policy)
+      cmd_policy "$@"
+      ;;
+    score)
+      cmd_score "$@"
+      ;;
+    autopsy)
+      cmd_autopsy "$@"
+      ;;
+    arena)
+      cmd_arena "$@"
+      ;;
+    transcript)
+      cmd_transcript "$@"
+      ;;
+    review-comment)
+      cmd_review_comment "$@"
+      ;;
+    ci-gate)
+      cmd_ci_gate "$@"
+      ;;
+    ci-summary)
+      cmd_ci_summary "$@"
+      ;;
+    check-run)
+      cmd_check_run "$@"
+      ;;
+    sarif)
+      cmd_sarif "$@"
+      ;;
+    docs-check)
+      cmd_docs_check "$@"
+      ;;
+    leaderboard)
+      cmd_leaderboard "$@"
+      ;;
+    release-manifest)
+      cmd_release_manifest "$@"
+      ;;
+    release-index)
+      cmd_release_index "$@"
+      ;;
+    release-replay)
+      cmd_release_replay "$@"
+      ;;
+    release-attest)
+      cmd_release_attest "$@"
+      ;;
+    release-proof)
+      cmd_release_proof "$@"
+      ;;
+    release-consume)
+      cmd_release_consume "$@"
+      ;;
+    release-diff)
+      cmd_release_diff "$@"
+      ;;
+    release-evidence)
+      cmd_release_evidence "$@"
+      ;;
+    self-audit)
+      cmd_self_audit "$@"
+      ;;
+    next-goal)
+      cmd_next_goal "$@"
+      ;;
+    version)
+      cmd_version
+      ;;
+    help|--help|-h)
+      usage
+      ;;
+    *)
+      usage
+      fail "unknown command: $command"
+      ;;
+  esac
+}
+
+main "$@"

@@ -14,7 +14,7 @@ workflow="examples/workflows/transcript-corpus.yml"
 test -f "$action"
 test -f "$workflow"
 
-grep -q 'name: Verify Codex maintainer transcript corpus' "$action"
+grep -q 'name: Verify Shipguard transcript corpus' "$action"
 grep -q 'source:' "$action"
 grep -q 'require-report:' "$action"
 grep -q 'transcript corpus' "$action"
@@ -26,19 +26,19 @@ grep -q 'mode must be fail or warn' "$action"
 grep -q 'status="failed"' "$action"
 grep -q 'exit_code="$corpus_exit"' "$action"
 grep -q 'actions/upload-artifact@v4' "$action"
-grep -q 'codex-maintainer-transcript-corpus' "$action"
+grep -q 'shipguard-transcript-corpus' "$action"
 
-grep -q 'jlekerli-source/ringly-codex-workflows/actions/transcript-corpus@v3.38.0' "$workflow"
+grep -q 'jlekerli-source/shipguard/actions/transcript-corpus@v3.38.0' "$workflow"
 grep -q 'contents: read' "$workflow"
 grep -q 'require-report: true' "$workflow"
 grep -q 'mode: fail' "$workflow"
-grep -q 'artifact-name: codex-maintainer-transcript-corpus' "$workflow"
+grep -q 'artifact-name: shipguard-transcript-corpus' "$workflow"
 
 if command -v ruby >/dev/null 2>&1; then
   ruby -ryaml -e 'ARGV.each { |file| YAML.load_file(file) }' "$action" "$workflow"
 fi
 
-./bin/codex-maintainer transcript corpus \
+./bin/shipguard transcript corpus \
   --source fixtures/transcripts \
   --out "$tmp_dir/corpus" \
   --require-report true >/dev/null

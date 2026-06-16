@@ -1,17 +1,17 @@
 # Release Diff Audit
 
-`codex-maintainer release-diff compare` compares two release proof asset directories and writes a reviewer-facing diff report.
+`shipguard release-diff compare` compares two release proof asset directories and writes a reviewer-facing diff report.
 
 Use it when you want to answer what changed between two published or locally built release proof bundles:
 
 ```bash
-./bin/codex-maintainer release-diff compare \
-  --left /tmp/codex-maintainer-old \
-  --right /tmp/codex-maintainer-v3.38.0 \
-  --out /tmp/codex-maintainer-release-diff
+./bin/shipguard release-diff compare \
+  --left /tmp/shipguard-old \
+  --right /tmp/shipguard-v3.38.0 \
+  --out /tmp/shipguard-release-diff
 ```
 
-The input directories may be flat GitHub release downloads or nested output from `codex-maintainer release-proof build`.
+The input directories may be flat GitHub release downloads or nested output from `shipguard release-proof build`.
 
 Outputs:
 

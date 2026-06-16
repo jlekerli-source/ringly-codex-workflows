@@ -12,7 +12,7 @@ Cases:
 Use:
 
 ```bash
-./bin/codex-maintainer release-evidence verify \
+./bin/shipguard release-evidence verify \
   --dir fixtures/release-evidence/negative/consumer-mismatch \
   --out /tmp/release-evidence-negative
 ```

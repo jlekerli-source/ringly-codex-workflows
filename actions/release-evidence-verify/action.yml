@@ -1,15 +1,15 @@
-name: Verify Codex maintainer release evidence
+name: Verify Shipguard release evidence
 description: Verify a downloaded release evidence artifact and produce machine-readable consumption proof.
 
 inputs:
   dir:
     description: Directory containing the downloaded release evidence artifact.
     required: false
-    default: artifacts/codex-maintainer-release-evidence
+    default: artifacts/shipguard-release-evidence
   out:
     description: Directory for verification reports.
     required: false
-    default: artifacts/codex-maintainer-release-evidence-verify
+    default: artifacts/shipguard-release-evidence-verify
   require-diff:
     description: Use true to require release diff evidence, false to skip the requirement, or auto to accept either.
     required: false
@@ -25,7 +25,7 @@ inputs:
   source-artifact-name:
     description: Evidence artifact name to download when download-artifact is true.
     required: false
-    default: codex-maintainer-release-evidence
+    default: shipguard-release-evidence
   upload-artifact:
     description: Set false to skip verification artifact upload.
     required: false
@@ -33,7 +33,7 @@ inputs:
   artifact-name:
     description: Uploaded verification artifact name.
     required: false
-    default: codex-maintainer-release-evidence-verify
+    default: shipguard-release-evidence-verify
   mode:
     description: Use fail to fail the job on invalid evidence, or warn to emit warnings only.
     required: false
@@ -96,7 +96,7 @@ runs:
 
         verify_exit=0
         set +e
-        "$root/bin/codex-maintainer" release-evidence verify \
+        "$root/bin/shipguard" release-evidence verify \
           --dir "$evidence_dir" \
           --out "$out" \
           --require-diff "$require_diff" \

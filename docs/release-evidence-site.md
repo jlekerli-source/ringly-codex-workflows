@@ -1,15 +1,15 @@
 # Release Evidence Site
 
-`codex-maintainer release-evidence site` exports release proof reports as a static, self-contained evidence page.
+`shipguard release-evidence site` exports release proof reports as a static, self-contained evidence page.
 
 Use it after running `release-consume verify`, and optionally after running `release-diff compare`:
 
 ```bash
-./bin/codex-maintainer release-evidence site \
-  --consume /tmp/codex-maintainer-v3.38.0/consumer-proof \
-  --diff /tmp/codex-maintainer-release-diff \
-  --out /tmp/codex-maintainer-release-site \
-  --title "Codex Maintainer v3.38.0 Evidence"
+./bin/shipguard release-evidence site \
+  --consume /tmp/shipguard-v3.38.0/consumer-proof \
+  --diff /tmp/shipguard-release-diff \
+  --out /tmp/shipguard-release-site \
+  --title "Shipguard v3.38.0 Evidence"
 ```
 
 Outputs:
@@ -25,8 +25,8 @@ The HTML page includes release metadata, artifact SHA-256, published proof cross
 
 The command blocks when the consumer report is not `pass` or when an included release-diff report is not `pass`.
 
-Use `codex-maintainer release-evidence index` when you want to collect multiple site exports into a release history. See `release-evidence-index.md`.
+Use `shipguard release-evidence index` when you want to collect multiple site exports into a release history. See `release-evidence-index.md`.
 
-Use `codex-maintainer release-evidence bundle` when you want to start from downloaded release assets and produce consumer proof, optional diff proof, the site, and an index in one command. See `release-evidence-bundle.md`.
+Use `shipguard release-evidence bundle` when you want to start from downloaded release assets and produce consumer proof, optional diff proof, the site, and an index in one command. See `release-evidence-bundle.md`.
 
-For GitHub Actions, use `jlekerli-source/ringly-codex-workflows/actions/release-evidence@v3.38.0` after `actions/release-consume` and optional `actions/release-diff`. See `release-evidence-action.md`.
+For GitHub Actions, use `jlekerli-source/shipguard/actions/release-evidence@v3.38.0` after `actions/release-consume` and optional `actions/release-diff`. See `release-evidence-action.md`.

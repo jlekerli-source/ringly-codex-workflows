@@ -6,10 +6,10 @@ tool_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 usage() {
   cat <<'USAGE'
-codex-maintainer self-audit
+shipguard self-audit
 
 Usage:
-  codex-maintainer self-audit [--out <dir>]
+  shipguard self-audit [--out <dir>]
 
 Outputs:
   self-audit.md
@@ -51,7 +51,7 @@ done
 
 mkdir -p "$out_dir"
 version="$(sed -n '1p' "$tool_root/VERSION")"
-generated_at="${CODEX_MAINTAINER_GENERATED_AT:-$(date -u '+%Y-%m-%dT%H:%M:%SZ')}"
+generated_at="${SHIPGUARD_GENERATED_AT:-${CODEX_MAINTAINER_GENERATED_AT:-$(date -u '+%Y-%m-%dT%H:%M:%SZ')}}"
 
 commands=(
   "policy show"
@@ -92,7 +92,7 @@ commands=(
 missing=0
 command_count=0
 for command in "${commands[@]}"; do
-  if "$tool_root/bin/codex-maintainer" $command >/dev/null; then
+  if "$tool_root/bin/shipguard" $command >/dev/null; then
     command_count=$((command_count + 1))
   else
     missing=1
@@ -196,7 +196,7 @@ status="pass"
 [[ "$missing" -ne 0 ]] && status="blocked"
 
 {
-  echo "# Codex Maintainer Self-Audit"
+  echo "# Shipguard Self-Audit"
   echo
   echo "- Generated: $generated_at"
   echo "- Version: $version"
@@ -209,10 +209,10 @@ status="pass"
   echo "| Command | Status |"
   echo "| --- | --- |"
   for command in "${commands[@]}"; do
-    if "$tool_root/bin/codex-maintainer" $command >/dev/null; then
-      echo "| codex-maintainer $command | pass |"
+    if "$tool_root/bin/shipguard" $command >/dev/null; then
+      echo "| shipguard $command | pass |"
     else
-      echo "| codex-maintainer $command | missing |"
+      echo "| shipguard $command | missing |"
     fi
   done
   echo

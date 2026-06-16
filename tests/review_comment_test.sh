@@ -9,14 +9,14 @@ trap 'rm -rf "$tmp_dir"' EXIT
 cd "$repo_root"
 
 good_autopsy="$tmp_dir/good-autopsy"
-./bin/codex-maintainer autopsy \
+./bin/shipguard autopsy \
   --run fixtures/autopsy/good-run/run.md \
   --task fixtures/autopsy/good-run/task.md \
   --diff fixtures/autopsy/good-run/diff.patch \
   --tests fixtures/autopsy/good-run/tests.log \
   --out "$good_autopsy" >/dev/null
 
-./bin/codex-maintainer review-comment \
+./bin/shipguard review-comment \
   --report "$good_autopsy/report.json" \
   --out "$tmp_dir/good-comment.md" \
   --badge "$tmp_dir/good-badge.json" \
@@ -32,13 +32,13 @@ test -f "$tmp_dir/good-bundle/comment.md"
 test -f "$tmp_dir/good-bundle/badge.json"
 
 dangerous_autopsy="$tmp_dir/dangerous-autopsy"
-./bin/codex-maintainer autopsy \
+./bin/shipguard autopsy \
   --run fixtures/autopsy/dangerous-run/run.md \
   --task fixtures/autopsy/dangerous-run/task.md \
   --diff fixtures/autopsy/dangerous-run/diff.patch \
   --out "$dangerous_autopsy" >/dev/null
 
-./bin/codex-maintainer review-comment \
+./bin/shipguard review-comment \
   --report "$dangerous_autopsy/report.json" \
   --out "$tmp_dir/dangerous-comment.md" \
   --badge "$tmp_dir/dangerous-badge.json" \
@@ -54,7 +54,7 @@ test -f "$tmp_dir/dangerous-bundle/report.md"
 test -f "$tmp_dir/dangerous-bundle/comment.md"
 test -f "$tmp_dir/dangerous-bundle/badge.json"
 
-if ./bin/codex-maintainer review-comment \
+if ./bin/shipguard review-comment \
   --report "$dangerous_autopsy/report.json" \
   --out "$tmp_dir/dangerous-fail-comment.md" \
   --mode fail >/dev/null 2>&1; then

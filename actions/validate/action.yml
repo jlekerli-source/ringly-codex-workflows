@@ -1,5 +1,5 @@
 name: Validate Codex workflow bundle
-description: Run the codex-maintainer validator for a workflow bundle checkout.
+description: Run the shipguard validator for a workflow bundle checkout.
 
 inputs:
   path:
@@ -13,4 +13,4 @@ runs:
     - name: Validate workflow bundle
       shell: bash
       run: |
-        "${{ github.action_path }}/../../bin/codex-maintainer" validate "${{ inputs.path }}"
+        "${{ github.action_path }}/../../bin/shipguard" validate "${{ inputs.path }}"

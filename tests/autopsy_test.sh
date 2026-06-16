@@ -27,7 +27,7 @@ assert_not_contains() {
 }
 
 good_out="$tmp_dir/good"
-./bin/codex-maintainer autopsy \
+./bin/shipguard autopsy \
   --run fixtures/autopsy/good-run/run.md \
   --task fixtures/autopsy/good-run/task.md \
   --diff fixtures/autopsy/good-run/diff.patch \
@@ -41,7 +41,7 @@ assert_not_contains "$good_out/report.json" '"severity": "high"'
 assert_not_contains "$good_out/report.json" 'validation_claim_without_tests'
 
 weak_out="$tmp_dir/weak"
-./bin/codex-maintainer autopsy \
+./bin/shipguard autopsy \
   --run fixtures/autopsy/weak-run/run.md \
   --task fixtures/autopsy/weak-run/task.md \
   --diff fixtures/autopsy/weak-run/diff.patch \
@@ -54,7 +54,7 @@ assert_contains "$weak_out/report.json" 'no_test_log'
 assert_contains "$weak_out/report.json" 'validation_claim_without_tests'
 
 dangerous_out="$tmp_dir/dangerous"
-./bin/codex-maintainer autopsy \
+./bin/shipguard autopsy \
   --run fixtures/autopsy/dangerous-run/run.md \
   --task fixtures/autopsy/dangerous-run/task.md \
   --diff fixtures/autopsy/dangerous-run/diff.patch \

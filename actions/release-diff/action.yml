@@ -1,4 +1,4 @@
-name: Compare Codex maintainer release proof
+name: Compare Shipguard release proof
 description: Download two release proof asset sets, compare them, and upload a release diff audit.
 
 inputs:
@@ -15,15 +15,15 @@ inputs:
   left-assets-dir:
     description: Directory for left release assets.
     required: false
-    default: artifacts/codex-maintainer-release-diff/left
+    default: artifacts/shipguard-release-diff/left
   right-assets-dir:
     description: Directory for right release assets.
     required: false
-    default: artifacts/codex-maintainer-release-diff/right
+    default: artifacts/shipguard-release-diff/right
   out:
     description: Directory for release diff output.
     required: false
-    default: artifacts/codex-maintainer-release-diff/report
+    default: artifacts/shipguard-release-diff/report
   download-assets:
     description: Set false to compare files already present in left-assets-dir and right-assets-dir.
     required: false
@@ -35,7 +35,7 @@ inputs:
   artifact-name:
     description: Uploaded artifact name.
     required: false
-    default: codex-maintainer-release-diff
+    default: shipguard-release-diff
   mode:
     description: Use fail to fail the job on invalid diff proof, or warn to emit warnings only.
     required: false
@@ -108,7 +108,7 @@ runs:
         mkdir -p "$out"
 
         set +e
-        "$root/bin/codex-maintainer" release-diff compare \
+        "$root/bin/shipguard" release-diff compare \
           --left "$left_assets_dir" \
           --right "$right_assets_dir" \
           --out "$out"

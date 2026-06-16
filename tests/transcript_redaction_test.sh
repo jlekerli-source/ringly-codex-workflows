@@ -8,7 +8,7 @@ trap 'rm -rf "$tmp_dir"' EXIT
 
 cd "$repo_root"
 
-./bin/codex-maintainer transcript redact --help >/dev/null
+./bin/shipguard transcript redact --help >/dev/null
 
 raw="$tmp_dir/raw-transcript.md"
 redacted="$tmp_dir/redacted-transcript.md"
@@ -31,7 +31,7 @@ RAW
 HOME_PATH="$home_path" GITHUB_TOKEN="$github_token" OPENAI_KEY="$openai_key" \
   perl -pi -e 's#__HOME_PATH__#$ENV{HOME_PATH}#g; s#__GITHUB_TOKEN__#$ENV{GITHUB_TOKEN}#g; s#__OPENAI_KEY__#$ENV{OPENAI_KEY}#g' "$raw"
 
-./bin/codex-maintainer transcript redact \
+./bin/shipguard transcript redact \
   --in "$raw" \
   --out "$redacted" \
   --report "$report" \

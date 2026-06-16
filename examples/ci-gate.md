@@ -3,7 +3,7 @@
 Passing gate:
 
 ```bash
-./bin/codex-maintainer ci-gate \
+./bin/shipguard ci-gate \
   --run fixtures/autopsy/good-run/run.md \
   --task fixtures/autopsy/good-run/task.md \
   --diff fixtures/autopsy/good-run/diff.patch \
@@ -27,7 +27,7 @@ Expected:
 Blocked gate:
 
 ```bash
-./bin/codex-maintainer ci-gate \
+./bin/shipguard ci-gate \
   --run fixtures/autopsy/dangerous-run/run.md \
   --task fixtures/autopsy/dangerous-run/task.md \
   --diff fixtures/autopsy/dangerous-run/diff.patch \

@@ -15,13 +15,13 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v5
 
-      - name: Build Codex maintainer release proof
+      - name: Build Shipguard release proof
         id: release-proof
-        uses: jlekerli-source/ringly-codex-workflows/actions/release-proof@v3.38.0
+        uses: jlekerli-source/shipguard/actions/release-proof@v3.38.0
         with:
           release-url: https://github.com/${{ github.repository }}/releases/tag/${{ github.ref_name }}
-          out: artifacts/codex-maintainer-release-proof
-          artifact-name: codex-maintainer-release-proof-${{ github.ref_name }}
+          out: artifacts/shipguard-release-proof
+          artifact-name: shipguard-release-proof-${{ github.ref_name }}
 
       - name: Print proof paths
         run: |

@@ -1,11 +1,11 @@
 # Docs Check
 
-`codex-maintainer docs-check` scans Markdown files for broken local links.
+`shipguard docs-check` scans Markdown files for broken local links.
 
 Use it before publishing docs-heavy releases:
 
 ```bash
-./bin/codex-maintainer docs-check . --out /tmp/codex-maintainer-docs-check
+./bin/shipguard docs-check . --out /tmp/shipguard-docs-check
 ```
 
 The command ignores external URLs and in-page anchors. It checks relative links such as `docs/cli.md`, `../fixtures/arena`, and local image or report paths.

@@ -8,19 +8,19 @@ trap 'rm -rf "$tmp_dir"' EXIT
 
 cd "$repo_root"
 
-./bin/codex-maintainer policy show >/dev/null
-./bin/codex-maintainer policy init "$tmp_dir/policy.conf" >/dev/null
+./bin/shipguard policy show >/dev/null
+./bin/shipguard policy init "$tmp_dir/policy.conf" >/dev/null
 test -f "$tmp_dir/policy.conf"
 grep -q '^max_changed_files=3$' "$tmp_dir/policy.conf"
 
-if ./bin/codex-maintainer policy init "$tmp_dir/policy.conf" >/dev/null 2>&1; then
+if ./bin/shipguard policy init "$tmp_dir/policy.conf" >/dev/null 2>&1; then
   echo "expected policy init to reject existing file without --force" >&2
   exit 1
 fi
 
-./bin/codex-maintainer policy init "$tmp_dir/policy.conf" --force >/dev/null
+./bin/shipguard policy init "$tmp_dir/policy.conf" --force >/dev/null
 
-./bin/codex-maintainer autopsy \
+./bin/shipguard autopsy \
   --run fixtures/autopsy/weak-run/run.md \
   --task fixtures/autopsy/weak-run/task.md \
   --diff fixtures/autopsy/weak-run/diff.patch \

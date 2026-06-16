@@ -1,4 +1,4 @@
-# Backend Service Codex Maintainer Instructions
+# Backend Service Shipguard Instructions
 
 Use this file as the root operating contract for Codex in a backend service repository.
 

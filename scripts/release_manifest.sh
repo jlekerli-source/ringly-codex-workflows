@@ -6,11 +6,11 @@ tool_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 usage() {
   cat <<'USAGE'
-codex-maintainer release-manifest
+shipguard release-manifest
 
 Usage:
-  codex-maintainer release-manifest --tarball <release.tar.gz> --out <dir> [--version <version>] [--tag <tag>] [--commit <sha>] [--ci-run-url <url>] [--release-url <url>] [--issue-url <url>] [--notes <text>]
-  codex-maintainer release-manifest verify --manifest <release-manifest.json> --tarball <release.tar.gz> [--version <version>] [--tag <tag>]
+  shipguard release-manifest --tarball <release.tar.gz> --out <dir> [--version <version>] [--tag <tag>] [--commit <sha>] [--ci-run-url <url>] [--release-url <url>] [--issue-url <url>] [--notes <text>]
+  shipguard release-manifest verify --manifest <release-manifest.json> --tarball <release.tar.gz> [--version <version>] [--tag <tag>]
 
 Outputs:
   release-manifest.json
@@ -105,7 +105,7 @@ fi
 mkdir -p "$out_dir"
 manifest_file="$out_dir/release-manifest.json"
 ledger_file="$out_dir/proof-ledger.md"
-generated_at="${CODEX_MAINTAINER_GENERATED_AT:-$(date -u '+%Y-%m-%dT%H:%M:%SZ')}"
+generated_at="${SHIPGUARD_GENERATED_AT:-${CODEX_MAINTAINER_GENERATED_AT:-$(date -u '+%Y-%m-%dT%H:%M:%SZ')}}"
 tarball_name="$(basename "$tarball")"
 tarball_bytes="$(wc -c < "$tarball" | tr -d '[:space:]')"
 tarball_sha="$(shasum -a 256 "$tarball" | awk '{print $1}')"

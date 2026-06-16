@@ -1,12 +1,12 @@
 # Transcript Corpus Action
 
-`actions/transcript-corpus` runs `codex-maintainer transcript corpus` in GitHub Actions and uploads the corpus verification bundle.
+`actions/transcript-corpus` runs `shipguard transcript corpus` in GitHub Actions and uploads the corpus verification bundle.
 
 Use it when public transcript examples should be verified on every PR or before publishing docs:
 
 ```yaml
 - name: Verify transcript corpus
-  uses: jlekerli-source/ringly-codex-workflows/actions/transcript-corpus@v3.38.0
+  uses: jlekerli-source/shipguard/actions/transcript-corpus@v3.38.0
   with:
     source: fixtures/transcripts
     require-report: true
@@ -16,10 +16,10 @@ Use it when public transcript examples should be verified on every PR or before 
 Inputs:
 
 - `source`: corpus fixture directory.
-- `out`: output directory, default `artifacts/codex-maintainer-transcript-corpus`.
+- `out`: output directory, default `artifacts/shipguard-transcript-corpus`.
 - `require-report`: `true` requires every case to include `redaction-report.json`.
 - `upload-artifact`: set `false` to skip artifact upload.
-- `artifact-name`: artifact name, default `codex-maintainer-transcript-corpus`.
+- `artifact-name`: artifact name, default `shipguard-transcript-corpus`.
 - `mode`: `fail` blocks the job on unsafe corpus output, `warn` emits warnings only.
 
 Outputs:

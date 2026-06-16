@@ -1,11 +1,11 @@
 # Transcript Redaction
 
-`codex-maintainer transcript redact` turns a raw maintainer transcript into shareable Markdown plus a machine-readable leak-audit report.
+`shipguard transcript redact` turns a raw maintainer transcript into shareable Markdown plus a machine-readable leak-audit report.
 
 Use it before publishing anonymized agent runs, issue triage notes, or maintenance transcripts:
 
 ```bash
-./bin/codex-maintainer transcript redact \
+./bin/shipguard transcript redact \
   --in raw-transcript.md \
   --out /tmp/redacted-transcript.md \
   --report /tmp/redaction-report.json \
@@ -37,7 +37,7 @@ This is a publication guardrail, not legal review. It is designed to catch obvio
 Verify a redacted transcript before publishing it:
 
 ```bash
-./bin/codex-maintainer transcript verify \
+./bin/shipguard transcript verify \
   --in /tmp/redacted-transcript.md \
   --report /tmp/redaction-report.json \
   --out /tmp/transcript-verify
@@ -58,7 +58,7 @@ For GitHub Actions, use `actions/transcript-verify` to run the same check and up
 Build a checked corpus of redacted transcripts:
 
 ```bash
-./bin/codex-maintainer transcript corpus \
+./bin/shipguard transcript corpus \
   --source fixtures/transcripts \
   --out /tmp/transcript-corpus \
   --require-report true

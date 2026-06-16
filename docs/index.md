@@ -1,4 +1,4 @@
-# Ringly Codex Workflows
+# Shipguard
 
 This is the documentation landing page for the workflow kit.
 
@@ -62,43 +62,43 @@ Start here:
 ## First 30 Minutes
 
 1. Read the [adoption guide](adoption-guide.md).
-2. Run `./bin/codex-maintainer validate` in this repo.
-3. Run `./bin/codex-maintainer init ios ../my-ios-app` against a test repo.
+2. Run `./bin/shipguard validate` in this repo.
+3. Run `./bin/shipguard init ios ../my-ios-app` against a test repo.
 4. Open the generated `AGENTS.md` and replace placeholders.
-5. Run `./bin/codex-maintainer doctor ../my-ios-app`.
-6. Run `./bin/codex-maintainer init web ../my-web-app` against a test repo when adopting the web profile.
-7. Run `./bin/codex-maintainer init backend ../my-service` or `./bin/codex-maintainer init cli ../my-tool` when adopting those profiles.
-8. Run `./bin/codex-maintainer autopsy --run fixtures/autopsy/good-run/run.md --diff fixtures/autopsy/good-run/diff.patch --tests fixtures/autopsy/good-run/tests.log --out /tmp/autopsy-good`.
-9. Run `./bin/codex-maintainer sarif --report /tmp/autopsy-good/report.json --out /tmp/autopsy-good/results.sarif`.
-10. Run `./bin/codex-maintainer ci-summary --gate /tmp/codex-gate/gate.json --out /tmp/codex-gate/summary.md` after a gate run.
-11. Run `./bin/codex-maintainer check-run --gate /tmp/codex-gate/gate.json --head-sha "$GITHUB_SHA" --out /tmp/codex-gate/check-run/payload.json` after a gate run.
-12. Run `./bin/codex-maintainer check-run post --payload /tmp/codex-gate/check-run/payload.json --repo "$GITHUB_REPOSITORY" --out /tmp/codex-gate/check-run/response.json --dry-run` before enabling real posting.
-13. Run `./bin/codex-maintainer arena run --fixture fixtures/arena --out /tmp/arena`.
-14. Run `./bin/codex-maintainer arena import --source fixtures/external-arena-pack --out /tmp/imported-arena`.
-15. Run `./bin/codex-maintainer arena compare --left /tmp/arena-old/results.json --right /tmp/arena/results.json --out /tmp/arena-compare`.
-16. Use `jlekerli-source/ringly-codex-workflows/actions/arena-compare@v3.38.0` when the same comparison should run in GitHub Actions.
-17. Run `./bin/codex-maintainer arena sign --fixture /tmp/imported-arena --out /tmp/imported-arena/PACK.json --signer "Example Maintainers" --signer-url "https://github.com/example/repo"`.
-18. Run `./bin/codex-maintainer arena verify --fixture /tmp/imported-arena --manifest /tmp/imported-arena/PACK.json`.
-19. Run `./bin/codex-maintainer leaderboard build --arena-results /tmp/arena/results.json --out /tmp/leaderboard.json`.
-20. Run `./bin/codex-maintainer release-manifest --tarball dist/codex-maintainer-v3.38.0.tar.gz --out /tmp/codex-maintainer-release-proof` after packaging.
-21. Run `./bin/codex-maintainer release-index build --manifest /tmp/codex-maintainer-release-proof/release-manifest.json --out /tmp/codex-maintainer-release-index`.
-22. Run `./bin/codex-maintainer release-replay verify --manifest /tmp/codex-maintainer-release-proof/release-manifest.json --tarball dist/codex-maintainer-v3.38.0.tar.gz --index /tmp/codex-maintainer-release-index/release-index.json --ledger /tmp/codex-maintainer-release-proof/proof-ledger.md --out /tmp/codex-maintainer-release-replay`.
-23. Run `./bin/codex-maintainer release-attest build --manifest /tmp/codex-maintainer-release-proof/release-manifest.json --replay /tmp/codex-maintainer-release-replay/replay-report.json --out /tmp/codex-maintainer-release-attestation`.
-24. Run `./bin/codex-maintainer release-proof build --out /tmp/codex-maintainer-release-proof-bundle --release-url https://github.com/owner/repo/releases/tag/v3.38.0`.
-25. Run `./bin/codex-maintainer release-consume verify --dir /tmp/codex-maintainer-v3.38.0 --out /tmp/codex-maintainer-v3.38.0/consumer-proof --version 3.38.0` after downloading published assets.
-26. Use `jlekerli-source/ringly-codex-workflows/actions/release-consume@v3.38.0` when the same verification should run in GitHub Actions.
-27. Run `./bin/codex-maintainer release-diff compare --left /tmp/codex-maintainer-old --right /tmp/codex-maintainer-v3.38.0 --out /tmp/codex-maintainer-release-diff`.
-28. Use `jlekerli-source/ringly-codex-workflows/actions/release-diff@v3.38.0` when the same diff should run in GitHub Actions.
-29. Run `./bin/codex-maintainer release-evidence site --consume /tmp/codex-maintainer-v3.38.0/consumer-proof --diff /tmp/codex-maintainer-release-diff --out /tmp/codex-maintainer-release-site`.
-30. Run `./bin/codex-maintainer release-evidence index --site /tmp/codex-maintainer-release-site --out /tmp/codex-maintainer-release-history`.
-31. Run `./bin/codex-maintainer release-evidence bundle --assets /tmp/codex-maintainer-v3.38.0 --left /tmp/codex-maintainer-old --out /tmp/codex-maintainer-release-evidence-bundle --version 3.38.0`.
-32. Use `jlekerli-source/ringly-codex-workflows/actions/release-evidence@v3.38.0` when the same evidence export should run in GitHub Actions.
-33. Run `./bin/codex-maintainer release-evidence verify --dir /tmp/codex-maintainer-release-evidence --out /tmp/codex-maintainer-release-evidence-verify --require-diff true --require-index true` after downloading an evidence artifact.
-34. Use `jlekerli-source/ringly-codex-workflows/actions/release-evidence-verify@v3.38.0` when the evidence artifact verification should run in GitHub Actions.
-35. Run `./bin/codex-maintainer release-evidence negative-index --fixture fixtures/release-evidence/negative --out /tmp/codex-maintainer-negative-evidence`.
-36. Use `jlekerli-source/ringly-codex-workflows/actions/release-evidence-negative-index@v3.38.0` when the same negative fixture index should run in GitHub Actions.
-37. Use `jlekerli-source/ringly-codex-workflows/actions/transcript-verify@v3.38.0` when redacted transcripts should be checked in GitHub Actions.
-38. Run `./bin/codex-maintainer transcript corpus --source fixtures/transcripts --out /tmp/transcript-corpus --require-report true` before publishing transcript examples.
-39. Use `jlekerli-source/ringly-codex-workflows/actions/transcript-corpus@v3.38.0` when transcript corpus checks should run in GitHub Actions.
-40. Run `./bin/codex-maintainer self-audit --out /tmp/codex-maintainer-self-audit`.
-41. Run `./bin/codex-maintainer next-goal --out /tmp/NEXT_GOAL.md`.
+5. Run `./bin/shipguard doctor ../my-ios-app`.
+6. Run `./bin/shipguard init web ../my-web-app` against a test repo when adopting the web profile.
+7. Run `./bin/shipguard init backend ../my-service` or `./bin/shipguard init cli ../my-tool` when adopting those profiles.
+8. Run `./bin/shipguard autopsy --run fixtures/autopsy/good-run/run.md --diff fixtures/autopsy/good-run/diff.patch --tests fixtures/autopsy/good-run/tests.log --out /tmp/autopsy-good`.
+9. Run `./bin/shipguard sarif --report /tmp/autopsy-good/report.json --out /tmp/autopsy-good/results.sarif`.
+10. Run `./bin/shipguard ci-summary --gate /tmp/codex-gate/gate.json --out /tmp/codex-gate/summary.md` after a gate run.
+11. Run `./bin/shipguard check-run --gate /tmp/codex-gate/gate.json --head-sha "$GITHUB_SHA" --out /tmp/codex-gate/check-run/payload.json` after a gate run.
+12. Run `./bin/shipguard check-run post --payload /tmp/codex-gate/check-run/payload.json --repo "$GITHUB_REPOSITORY" --out /tmp/codex-gate/check-run/response.json --dry-run` before enabling real posting.
+13. Run `./bin/shipguard arena run --fixture fixtures/arena --out /tmp/arena`.
+14. Run `./bin/shipguard arena import --source fixtures/external-arena-pack --out /tmp/imported-arena`.
+15. Run `./bin/shipguard arena compare --left /tmp/arena-old/results.json --right /tmp/arena/results.json --out /tmp/arena-compare`.
+16. Use `jlekerli-source/shipguard/actions/arena-compare@v3.38.0` when the same comparison should run in GitHub Actions.
+17. Run `./bin/shipguard arena sign --fixture /tmp/imported-arena --out /tmp/imported-arena/PACK.json --signer "Example Maintainers" --signer-url "https://github.com/example/repo"`.
+18. Run `./bin/shipguard arena verify --fixture /tmp/imported-arena --manifest /tmp/imported-arena/PACK.json`.
+19. Run `./bin/shipguard leaderboard build --arena-results /tmp/arena/results.json --out /tmp/leaderboard.json`.
+20. Run `./bin/shipguard release-manifest --tarball dist/shipguard-v3.38.0.tar.gz --out /tmp/shipguard-release-proof` after packaging.
+21. Run `./bin/shipguard release-index build --manifest /tmp/shipguard-release-proof/release-manifest.json --out /tmp/shipguard-release-index`.
+22. Run `./bin/shipguard release-replay verify --manifest /tmp/shipguard-release-proof/release-manifest.json --tarball dist/shipguard-v3.38.0.tar.gz --index /tmp/shipguard-release-index/release-index.json --ledger /tmp/shipguard-release-proof/proof-ledger.md --out /tmp/shipguard-release-replay`.
+23. Run `./bin/shipguard release-attest build --manifest /tmp/shipguard-release-proof/release-manifest.json --replay /tmp/shipguard-release-replay/replay-report.json --out /tmp/shipguard-release-attestation`.
+24. Run `./bin/shipguard release-proof build --out /tmp/shipguard-release-proof-bundle --release-url https://github.com/owner/repo/releases/tag/v3.38.0`.
+25. Run `./bin/shipguard release-consume verify --dir /tmp/shipguard-v3.38.0 --out /tmp/shipguard-v3.38.0/consumer-proof --version 3.38.0` after downloading published assets.
+26. Use `jlekerli-source/shipguard/actions/release-consume@v3.38.0` when the same verification should run in GitHub Actions.
+27. Run `./bin/shipguard release-diff compare --left /tmp/shipguard-old --right /tmp/shipguard-v3.38.0 --out /tmp/shipguard-release-diff`.
+28. Use `jlekerli-source/shipguard/actions/release-diff@v3.38.0` when the same diff should run in GitHub Actions.
+29. Run `./bin/shipguard release-evidence site --consume /tmp/shipguard-v3.38.0/consumer-proof --diff /tmp/shipguard-release-diff --out /tmp/shipguard-release-site`.
+30. Run `./bin/shipguard release-evidence index --site /tmp/shipguard-release-site --out /tmp/shipguard-release-history`.
+31. Run `./bin/shipguard release-evidence bundle --assets /tmp/shipguard-v3.38.0 --left /tmp/shipguard-old --out /tmp/shipguard-release-evidence-bundle --version 3.38.0`.
+32. Use `jlekerli-source/shipguard/actions/release-evidence@v3.38.0` when the same evidence export should run in GitHub Actions.
+33. Run `./bin/shipguard release-evidence verify --dir /tmp/shipguard-release-evidence --out /tmp/shipguard-release-evidence-verify --require-diff true --require-index true` after downloading an evidence artifact.
+34. Use `jlekerli-source/shipguard/actions/release-evidence-verify@v3.38.0` when the evidence artifact verification should run in GitHub Actions.
+35. Run `./bin/shipguard release-evidence negative-index --fixture fixtures/release-evidence/negative --out /tmp/shipguard-negative-evidence`.
+36. Use `jlekerli-source/shipguard/actions/release-evidence-negative-index@v3.38.0` when the same negative fixture index should run in GitHub Actions.
+37. Use `jlekerli-source/shipguard/actions/transcript-verify@v3.38.0` when redacted transcripts should be checked in GitHub Actions.
+38. Run `./bin/shipguard transcript corpus --source fixtures/transcripts --out /tmp/transcript-corpus --require-report true` before publishing transcript examples.
+39. Use `jlekerli-source/shipguard/actions/transcript-corpus@v3.38.0` when transcript corpus checks should run in GitHub Actions.
+40. Run `./bin/shipguard self-audit --out /tmp/shipguard-self-audit`.
+41. Run `./bin/shipguard next-goal --out /tmp/NEXT_GOAL.md`.

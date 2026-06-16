@@ -6,13 +6,13 @@ tool_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 usage() {
   cat <<'USAGE'
-codex-maintainer release-consume
+shipguard release-consume
 
 Usage:
-  codex-maintainer release-consume verify --dir <downloaded-assets-dir> --out <dir> [--version <version>]
+  shipguard release-consume verify --dir <downloaded-assets-dir> --out <dir> [--version <version>]
 
 Inputs in --dir:
-  codex-maintainer-vX.Y.Z.tar.gz
+  shipguard-vX.Y.Z.tar.gz
   release-manifest.json
   release-index.json
   proof-ledger.md
@@ -141,7 +141,7 @@ PERL
   [[ -f "$tarball" ]] || fail "missing release tarball: $tarball"
 
   mkdir -p "$out_dir"
-  local generated_at="${CODEX_MAINTAINER_GENERATED_AT:-$(date -u '+%Y-%m-%dT%H:%M:%SZ')}"
+  local generated_at="${SHIPGUARD_GENERATED_AT:-${CODEX_MAINTAINER_GENERATED_AT:-$(date -u '+%Y-%m-%dT%H:%M:%SZ')}}"
   local sha_file="$out_dir/sha256.txt"
   local replay_dir="$out_dir/replay"
   local attestation_dir="$out_dir/attestation"
@@ -252,14 +252,14 @@ PERL
     done
   } > "$digest_md"
 
-  "$tool_root/bin/codex-maintainer" release-replay verify \
+  "$tool_root/bin/shipguard" release-replay verify \
     --manifest "$manifest_file" \
     --tarball "$tarball" \
     --index "$index_file" \
     --ledger "$ledger_file" \
     --out "$replay_dir" >/dev/null
 
-  "$tool_root/bin/codex-maintainer" release-attest build \
+  "$tool_root/bin/shipguard" release-attest build \
     --manifest "$manifest_file" \
     --replay "$replay_dir/replay-report.json" \
     --out "$attestation_dir" >/dev/null

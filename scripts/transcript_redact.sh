@@ -4,10 +4,10 @@ set -euo pipefail
 
 usage() {
   cat <<'USAGE'
-codex-maintainer transcript redact
+shipguard transcript redact
 
 Usage:
-  codex-maintainer transcript redact --in <transcript.md> --out <redacted.md> [--report <report.json>] [--private-term <text> ...]
+  shipguard transcript redact --in <transcript.md> --out <redacted.md> [--report <report.json>] [--private-term <text> ...]
 
 Outputs:
   redacted transcript Markdown

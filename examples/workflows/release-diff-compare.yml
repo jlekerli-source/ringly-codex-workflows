@@ -1,4 +1,4 @@
-name: Compare Codex maintainer release proof
+name: Compare Shipguard release proof
 
 on:
   workflow_dispatch:
@@ -20,9 +20,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Compare published proof assets
-        uses: jlekerli-source/ringly-codex-workflows/actions/release-diff@v3.38.0
+        uses: jlekerli-source/shipguard/actions/release-diff@v3.38.0
         with:
-          repo: jlekerli-source/ringly-codex-workflows
+          repo: jlekerli-source/shipguard
           left-tag: ${{ inputs.left-tag }}
           right-tag: ${{ inputs.right-tag }}
           mode: fail

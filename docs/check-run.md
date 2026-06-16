@@ -1,9 +1,9 @@
 # Check Run Payload
 
-`codex-maintainer check-run` converts `gate.json` into a GitHub Checks API payload. `codex-maintainer check-run post` can post that payload when a workflow explicitly opts in.
+`shipguard check-run` converts `gate.json` into a GitHub Checks API payload. `shipguard check-run post` can post that payload when a workflow explicitly opts in.
 
 ```bash
-./bin/codex-maintainer check-run \
+./bin/shipguard check-run \
   --gate /tmp/codex-gate/gate.json \
   --head-sha "$GITHUB_SHA" \
   --out /tmp/codex-gate/check-run/payload.json
@@ -30,7 +30,7 @@ Conclusion mapping:
 Posting is disabled by default. In GitHub Actions, grant `checks: write`, then pass `GITHUB_TOKEN` through the environment:
 
 ```bash
-./bin/codex-maintainer check-run post \
+./bin/shipguard check-run post \
   --payload /tmp/codex-gate/check-run/payload.json \
   --repo "$GITHUB_REPOSITORY" \
   --out /tmp/codex-gate/check-run/response.json
@@ -39,7 +39,7 @@ Posting is disabled by default. In GitHub Actions, grant `checks: write`, then p
 Use `--dry-run` to verify the request URL, payload SHA-256, and token presence without contacting GitHub:
 
 ```bash
-./bin/codex-maintainer check-run post \
+./bin/shipguard check-run post \
   --payload /tmp/codex-gate/check-run/payload.json \
   --repo owner/repo \
   --out /tmp/codex-gate/check-run/dry-run.json \

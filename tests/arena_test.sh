@@ -8,7 +8,7 @@ trap 'rm -rf "$tmp_dir"' EXIT
 
 cd "$repo_root"
 
-./bin/codex-maintainer arena run --fixture fixtures/arena --out "$tmp_dir/arena" >/dev/null
+./bin/shipguard arena run --fixture fixtures/arena --out "$tmp_dir/arena" >/dev/null
 
 test -f "$tmp_dir/arena/results.json"
 test -f "$tmp_dir/arena/index.md"

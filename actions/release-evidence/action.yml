@@ -1,4 +1,4 @@
-name: Export Codex maintainer release evidence
+name: Export Shipguard release evidence
 description: Build a static release evidence site, optional evidence index, or full evidence bundle from release proof reports.
 
 inputs:
@@ -25,19 +25,19 @@ inputs:
   consume-dir:
     description: Directory containing consumer-report.json and asset-digests.json.
     required: false
-    default: artifacts/codex-maintainer-release-consume
+    default: artifacts/shipguard-release-consume
   diff-dir:
     description: Directory containing release-diff.json.
     required: false
-    default: artifacts/codex-maintainer-release-diff/report
+    default: artifacts/shipguard-release-diff/report
   out:
     description: Root directory for generated evidence artifacts.
     required: false
-    default: artifacts/codex-maintainer-release-evidence
+    default: artifacts/shipguard-release-evidence
   assets-dir:
     description: Release asset directory for run=bundle.
     required: false
-    default: artifacts/codex-maintainer-release-assets
+    default: artifacts/shipguard-release-assets
   left-assets-dir:
     description: Previous release asset directory for run=bundle diff proof.
     required: false
@@ -49,7 +49,7 @@ inputs:
   title:
     description: Title for the generated evidence site.
     required: false
-    default: Codex Maintainer Release Evidence
+    default: Shipguard Release Evidence
   include-diff:
     description: Use true to require diff proof, false to skip it, or auto to include it when present.
     required: false
@@ -61,7 +61,7 @@ inputs:
   index-title:
     description: Title for the generated evidence index.
     required: false
-    default: Codex Maintainer Release Evidence Index
+    default: Shipguard Release Evidence Index
   extra-index-sites:
     description: Optional newline-separated evidence site directories to include in the index after the generated site.
     required: false
@@ -73,7 +73,7 @@ inputs:
   artifact-name:
     description: Uploaded artifact name.
     required: false
-    default: codex-maintainer-release-evidence
+    default: shipguard-release-evidence
   mode:
     description: Use fail to fail the job on invalid evidence, or warn to emit warnings only.
     required: false
@@ -212,7 +212,7 @@ runs:
             bundle_args+=(--version "$version")
           fi
           set +e
-          "$root/bin/codex-maintainer" "${bundle_args[@]}"
+          "$root/bin/shipguard" "${bundle_args[@]}"
           evidence_exit="$?"
           set -e
         else
@@ -234,7 +234,7 @@ runs:
           fi
 
           set +e
-          "$root/bin/codex-maintainer" "${site_args[@]}"
+          "$root/bin/shipguard" "${site_args[@]}"
           evidence_exit="$?"
           set -e
 
@@ -253,7 +253,7 @@ runs:
             fi
 
             set +e
-            "$root/bin/codex-maintainer" "${index_args[@]}"
+            "$root/bin/shipguard" "${index_args[@]}"
             evidence_exit="$?"
             set -e
           fi

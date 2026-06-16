@@ -1,11 +1,11 @@
 # Transcript Corpus
 
-`codex-maintainer transcript corpus` verifies a directory of redacted maintainer transcripts and writes a public corpus index.
+`shipguard transcript corpus` verifies a directory of redacted maintainer transcripts and writes a public corpus index.
 
 Use it when adding anonymized maintenance notes to docs, benchmark commentary, or public examples:
 
 ```bash
-./bin/codex-maintainer transcript corpus \
+./bin/shipguard transcript corpus \
   --source fixtures/transcripts \
   --out /tmp/transcript-corpus \
   --require-report true

@@ -10,20 +10,20 @@ cd "$repo_root"
 
 version="$(sed -n '1p' VERSION)"
 
-./bin/codex-maintainer release-consume verify --help >/dev/null
+./bin/shipguard release-consume verify --help >/dev/null
 
-CODEX_MAINTAINER_GENERATED_AT="2026-06-16T00:00:00Z" \
-  ./bin/codex-maintainer release-proof build \
+SHIPGUARD_GENERATED_AT="2026-06-16T00:00:00Z" \
+  ./bin/shipguard release-proof build \
     --out "$tmp_dir/proof-bundle" \
     --version "$version" \
     --tag "v$version" \
     --commit 0123456789abcdef \
-    --ci-run-url "https://github.com/jlekerli-source/ringly-codex-workflows/actions/runs/123" \
-    --release-url "https://github.com/jlekerli-source/ringly-codex-workflows/releases/tag/v$version" \
-    --issue-url "https://github.com/jlekerli-source/ringly-codex-workflows/issues/99" >/dev/null
+    --ci-run-url "https://github.com/jlekerli-source/shipguard/actions/runs/123" \
+    --release-url "https://github.com/jlekerli-source/shipguard/releases/tag/v$version" \
+    --issue-url "https://github.com/jlekerli-source/shipguard/issues/99" >/dev/null
 
 mkdir -p "$tmp_dir/downloaded"
-cp "$tmp_dir/proof-bundle/codex-maintainer-v$version.tar.gz" "$tmp_dir/downloaded/"
+cp "$tmp_dir/proof-bundle/shipguard-v$version.tar.gz" "$tmp_dir/downloaded/"
 cp "$tmp_dir/proof-bundle/proof/release-manifest.json" "$tmp_dir/downloaded/"
 cp "$tmp_dir/proof-bundle/index/release-index.json" "$tmp_dir/downloaded/"
 cp "$tmp_dir/proof-bundle/proof/proof-ledger.md" "$tmp_dir/downloaded/"
@@ -31,8 +31,8 @@ cp "$tmp_dir/proof-bundle/replay/replay-report.json" "$tmp_dir/downloaded/"
 cp "$tmp_dir/proof-bundle/attestation/attestation.json" "$tmp_dir/downloaded/"
 cp "$tmp_dir/proof-bundle/attestation/attestation-badge.json" "$tmp_dir/downloaded/"
 
-CODEX_MAINTAINER_GENERATED_AT="2026-06-16T00:00:00Z" \
-  ./bin/codex-maintainer release-consume verify \
+SHIPGUARD_GENERATED_AT="2026-06-16T00:00:00Z" \
+  ./bin/shipguard release-consume verify \
     --dir "$tmp_dir/downloaded" \
     --out "$tmp_dir/consumer" \
     --version "$version" >/dev/null
@@ -64,16 +64,16 @@ grep -q 'Replay blocked checks: 0' "$tmp_dir/consumer/consumer-report.md"
 grep -q 'Published badge crosscheck: pass' "$tmp_dir/consumer/consumer-report.md"
 grep -q 'Asset digest matrix: `asset-digests.json`' "$tmp_dir/consumer/consumer-report.md"
 grep -q '# Release Asset Digest Matrix' "$tmp_dir/consumer/asset-digests.md"
-grep -q "| codex-maintainer-v$version.tar.gz | release tarball | true | present |" "$tmp_dir/consumer/asset-digests.md"
+grep -q "| shipguard-v$version.tar.gz | release tarball | true | present |" "$tmp_dir/consumer/asset-digests.md"
 grep -q '| attestation-badge.json | published attestation badge | false | present |' "$tmp_dir/consumer/asset-digests.md"
-grep -q "\"name\": \"codex-maintainer-v$version.tar.gz\"" "$tmp_dir/consumer/asset-digests.json"
+grep -q "\"name\": \"shipguard-v$version.tar.gz\"" "$tmp_dir/consumer/asset-digests.json"
 grep -q '"role": "release tarball"' "$tmp_dir/consumer/asset-digests.json"
 grep -q '"status": "present"' "$tmp_dir/consumer/asset-digests.json"
 grep -q '"sha256":' "$tmp_dir/consumer/asset-digests.json"
 
 cp -R "$tmp_dir/downloaded" "$tmp_dir/tampered"
 printf '{ "schemaVersion": 1, "label": "release proof", "message": "pass v0.0.0", "color": "brightgreen" }\n' > "$tmp_dir/tampered/attestation-badge.json"
-if ./bin/codex-maintainer release-consume verify \
+if ./bin/shipguard release-consume verify \
   --dir "$tmp_dir/tampered" \
   --out "$tmp_dir/tampered-consumer" \
   --version "$version" >/dev/null 2>&1; then
@@ -81,7 +81,7 @@ if ./bin/codex-maintainer release-consume verify \
   exit 1
 fi
 
-if ./bin/codex-maintainer release-consume verify \
+if ./bin/shipguard release-consume verify \
   --dir "$tmp_dir/downloaded" \
   --out "$tmp_dir/wrong-version" \
   --version 0.0.0 >/dev/null 2>&1; then
@@ -89,7 +89,7 @@ if ./bin/codex-maintainer release-consume verify \
   exit 1
 fi
 
-if ./bin/codex-maintainer release-consume verify \
+if ./bin/shipguard release-consume verify \
   --dir "$tmp_dir/missing-assets" \
   --out "$tmp_dir/missing-out" >/dev/null 2>&1; then
   echo "expected missing asset dir to fail" >&2

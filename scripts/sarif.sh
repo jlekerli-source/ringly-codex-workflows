@@ -6,10 +6,10 @@ tool_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 usage() {
   cat <<'USAGE'
-codex-maintainer sarif
+shipguard sarif
 
 Usage:
-  codex-maintainer sarif --report <report.json> --out <results.sarif>
+  shipguard sarif --report <report.json> --out <results.sarif>
 
 Outputs:
   SARIF 2.1.0 file containing autopsy findings.
@@ -122,13 +122,13 @@ my $sarif = {
     {
       tool => {
         driver => {
-          name => 'codex-maintainer',
-          informationUri => 'https://github.com/jlekerli-source/ringly-codex-workflows',
+          name => 'shipguard',
+          informationUri => 'https://github.com/jlekerli-source/shipguard',
           semanticVersion => $ENV{TOOL_VERSION},
           rules => \@rules,
         },
       },
-      automationDetails => { id => 'codex-maintainer/autopsy' },
+      automationDetails => { id => 'shipguard/autopsy' },
       invocations => [
         {
           executionSuccessful => JSON::PP::true,

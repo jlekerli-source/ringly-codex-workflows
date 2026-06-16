@@ -1,4 +1,4 @@
-# Web Codex Maintainer Instructions
+# Web Shipguard Instructions
 
 Use this file as the root operating contract for Codex in a web app repository.
 

@@ -6,14 +6,14 @@ tool_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 usage() {
   cat <<'USAGE'
-codex-maintainer release-evidence
+shipguard release-evidence
 
 Usage:
-  codex-maintainer release-evidence site --consume <consumer-proof-dir> --out <dir> [--diff <release-diff-dir>] [--title <title>]
-  codex-maintainer release-evidence index --site <evidence-site-dir> [--site <evidence-site-dir> ...] --out <dir> [--title <title>]
-  codex-maintainer release-evidence bundle --assets <release-assets-dir> --out <dir> [--version <version>] [--left <previous-release-assets-dir>] [--title <title>] [--index-title <title>]
-  codex-maintainer release-evidence verify --dir <evidence-artifact-dir> --out <dir> [--require-diff auto|true|false] [--require-index auto|true|false]
-  codex-maintainer release-evidence negative-index --fixture <negative-fixture-dir> --out <dir> [--title <title>]
+  shipguard release-evidence site --consume <consumer-proof-dir> --out <dir> [--diff <release-diff-dir>] [--title <title>]
+  shipguard release-evidence index --site <evidence-site-dir> [--site <evidence-site-dir> ...] --out <dir> [--title <title>]
+  shipguard release-evidence bundle --assets <release-assets-dir> --out <dir> [--version <version>] [--left <previous-release-assets-dir>] [--title <title>] [--index-title <title>]
+  shipguard release-evidence verify --dir <evidence-artifact-dir> --out <dir> [--require-diff auto|true|false] [--require-index auto|true|false]
+  shipguard release-evidence negative-index --fixture <negative-fixture-dir> --out <dir> [--title <title>]
 
 Inputs:
   --consume must contain consumer-report.json and asset-digests.json.
@@ -85,7 +85,7 @@ cmd_site() {
   local consume_dir=""
   local diff_dir=""
   local out_dir=""
-  local title="Codex Maintainer Release Evidence"
+  local title="Shipguard Release Evidence"
 
   while [[ "$#" -gt 0 ]]; do
     case "$1" in
@@ -133,7 +133,7 @@ cmd_site() {
 
   local tool_version
   tool_version="$(sed -n '1p' "$tool_root/VERSION")"
-  local generated_at="${CODEX_MAINTAINER_GENERATED_AT:-$(date -u '+%Y-%m-%dT%H:%M:%SZ')}"
+  local generated_at="${SHIPGUARD_GENERATED_AT:-${CODEX_MAINTAINER_GENERATED_AT:-$(date -u '+%Y-%m-%dT%H:%M:%SZ')}}"
 
   CONSUME_DIR="$consume_dir" DIFF_DIR="$diff_dir" OUT_DIR="$out_dir" TITLE="$title" \
     TOOL_VERSION="$tool_version" GENERATED_AT="$generated_at" perl <<'PERL'
@@ -403,7 +403,7 @@ PERL
 
 cmd_index() {
   local out_dir=""
-  local title="Codex Maintainer Release Evidence Index"
+  local title="Shipguard Release Evidence Index"
   local site_dirs=()
 
   while [[ "$#" -gt 0 ]]; do
@@ -446,7 +446,7 @@ cmd_index() {
 
   local tool_version
   tool_version="$(sed -n '1p' "$tool_root/VERSION")"
-  local generated_at="${CODEX_MAINTAINER_GENERATED_AT:-$(date -u '+%Y-%m-%dT%H:%M:%SZ')}"
+  local generated_at="${SHIPGUARD_GENERATED_AT:-${CODEX_MAINTAINER_GENERATED_AT:-$(date -u '+%Y-%m-%dT%H:%M:%SZ')}}"
   local site_list
   site_list="$(printf '%s\n' "${site_dirs[@]}")"
 
@@ -673,8 +673,8 @@ cmd_bundle() {
   local left_dir=""
   local out_dir=""
   local version=""
-  local title="Codex Maintainer Release Evidence"
-  local index_title="Codex Maintainer Release Evidence Index"
+  local title="Shipguard Release Evidence"
+  local index_title="Shipguard Release Evidence Index"
 
   while [[ "$#" -gt 0 ]]; do
     case "$1" in
@@ -756,12 +756,12 @@ cmd_bundle() {
   if [[ -n "$version" ]]; then
     consume_args+=(--version "$version")
   fi
-  "$tool_root/bin/codex-maintainer" "${consume_args[@]}"
+  "$tool_root/bin/shipguard" "${consume_args[@]}"
 
   local site_args=(release-evidence site --consume "$consumer_dir" --out "$site_dir" --title "$title")
   local diff_included="false"
   if [[ -n "$left_dir" ]]; then
-    "$tool_root/bin/codex-maintainer" release-diff compare \
+    "$tool_root/bin/shipguard" release-diff compare \
       --left "$left_dir" \
       --right "$assets_dir" \
       --out "$diff_dir"
@@ -769,15 +769,15 @@ cmd_bundle() {
     diff_included="true"
   fi
 
-  "$tool_root/bin/codex-maintainer" "${site_args[@]}"
-  "$tool_root/bin/codex-maintainer" release-evidence index \
+  "$tool_root/bin/shipguard" "${site_args[@]}"
+  "$tool_root/bin/shipguard" release-evidence index \
     --site "$site_dir" \
     --out "$index_dir" \
     --title "$index_title"
 
   local tool_version
   tool_version="$(sed -n '1p' "$tool_root/VERSION")"
-  local generated_at="${CODEX_MAINTAINER_GENERATED_AT:-$(date -u '+%Y-%m-%dT%H:%M:%SZ')}"
+  local generated_at="${SHIPGUARD_GENERATED_AT:-${CODEX_MAINTAINER_GENERATED_AT:-$(date -u '+%Y-%m-%dT%H:%M:%SZ')}}"
 
   {
     echo "{"
@@ -804,7 +804,7 @@ cmd_bundle() {
   } > "$out_dir/bundle.json"
 
   {
-    echo "# Codex Maintainer Release Evidence Bundle"
+    echo "# Shipguard Release Evidence Bundle"
     echo
     echo "- Generated: $generated_at"
     echo "- Status: pass"
@@ -875,7 +875,7 @@ cmd_verify() {
   mkdir -p "$out_dir"
   local tool_version
   tool_version="$(sed -n '1p' "$tool_root/VERSION")"
-  local generated_at="${CODEX_MAINTAINER_GENERATED_AT:-$(date -u '+%Y-%m-%dT%H:%M:%SZ')}"
+  local generated_at="${SHIPGUARD_GENERATED_AT:-${CODEX_MAINTAINER_GENERATED_AT:-$(date -u '+%Y-%m-%dT%H:%M:%SZ')}}"
 
   EVIDENCE_DIR="$evidence_dir" OUT_DIR="$out_dir" REQUIRE_DIFF="$require_diff" \
     REQUIRE_INDEX="$require_index" TOOL_VERSION="$tool_version" GENERATED_AT="$generated_at" perl <<'PERL'
@@ -1188,7 +1188,7 @@ cmd_negative_index() {
 
   local tool_version
   tool_version="$(sed -n '1p' "$tool_root/VERSION")"
-  local generated_at="${CODEX_MAINTAINER_GENERATED_AT:-$(date -u '+%Y-%m-%dT%H:%M:%SZ')}"
+  local generated_at="${SHIPGUARD_GENERATED_AT:-${CODEX_MAINTAINER_GENERATED_AT:-$(date -u '+%Y-%m-%dT%H:%M:%SZ')}}"
   local results_file="$out_dir/results.tsv"
   : > "$results_file"
 
@@ -1212,7 +1212,7 @@ cmd_negative_index() {
     [[ -d "$case_dir" ]] || fail "negative fixture case directory not found: $case_dir"
     mkdir -p "$run_dir"
 
-    if CODEX_MAINTAINER_GENERATED_AT="$generated_at" "$tool_root/bin/codex-maintainer" \
+    if SHIPGUARD_GENERATED_AT="$generated_at" "$tool_root/bin/shipguard" \
       release-evidence verify \
       --dir "$case_dir" \
       --out "$run_dir" >/dev/null 2>&1; then

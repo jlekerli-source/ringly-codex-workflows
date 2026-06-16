@@ -8,16 +8,16 @@ trap 'rm -rf "$tmp_dir"' EXIT
 
 cd "$repo_root"
 
-./bin/codex-maintainer release-manifest --help >/dev/null
-./bin/codex-maintainer release-manifest verify --help >/dev/null
+./bin/shipguard release-manifest --help >/dev/null
+./bin/shipguard release-manifest verify --help >/dev/null
 
 tarball="$(./scripts/package_release.sh)"
 version="$(sed -n '1p' VERSION)"
 sha="$(shasum -a 256 "$tarball" | awk '{print $1}')"
 commit="$(git rev-parse HEAD)"
 
-CODEX_MAINTAINER_GENERATED_AT="2026-06-16T00:00:00Z" \
-  ./bin/codex-maintainer release-manifest \
+SHIPGUARD_GENERATED_AT="2026-06-16T00:00:00Z" \
+  ./bin/shipguard release-manifest \
     --tarball "$tarball" \
     --out "$tmp_dir/proof" \
     --version "$version" \
@@ -39,7 +39,7 @@ EXPECTED_VERSION="$version" EXPECTED_COMMIT="$commit" EXPECTED_SHA="$sha" \
   die "bad version" unless $manifest->{version} eq $ENV{EXPECTED_VERSION};
   die "bad tag" unless $manifest->{tag} eq "v$ENV{EXPECTED_VERSION}";
   die "bad commit" unless $manifest->{commit} eq $ENV{EXPECTED_COMMIT};
-  die "bad artifact name" unless $manifest->{artifact}{name} eq "codex-maintainer-v$ENV{EXPECTED_VERSION}.tar.gz";
+  die "bad artifact name" unless $manifest->{artifact}{name} eq "shipguard-v$ENV{EXPECTED_VERSION}.tar.gz";
   die "bad sha" unless $manifest->{artifact}{sha256} eq $ENV{EXPECTED_SHA};
   die "bad bytes" unless $manifest->{artifact}{bytes} > 1000;
   die "missing ci url" unless $manifest->{proofs}{ci_run_url} =~ /actions\/runs\/123/;
@@ -54,7 +54,7 @@ grep -q "Artifact SHA-256: $sha" "$tmp_dir/proof/proof-ledger.md"
 grep -q 'GitHub Actions passed on the release commit' "$tmp_dir/proof/proof-ledger.md"
 grep -q 'Tracking issue is closed' "$tmp_dir/proof/proof-ledger.md"
 
-./bin/codex-maintainer release-manifest verify \
+./bin/shipguard release-manifest verify \
   --manifest "$tmp_dir/proof/release-manifest.json" \
   --tarball "$tarball" \
   --version "$version" \
@@ -62,7 +62,7 @@ grep -q 'Tracking issue is closed' "$tmp_dir/proof/proof-ledger.md"
 
 cp "$tmp_dir/proof/release-manifest.json" "$tmp_dir/tampered-manifest.json"
 perl -0pi -e 's/"sha256" : "[a-f0-9]{64}"/"sha256" : "0000000000000000000000000000000000000000000000000000000000000000"/' "$tmp_dir/tampered-manifest.json"
-if ./bin/codex-maintainer release-manifest verify \
+if ./bin/shipguard release-manifest verify \
   --manifest "$tmp_dir/tampered-manifest.json" \
   --tarball "$tarball" >/dev/null 2>&1; then
   echo "expected tampered manifest to fail verification" >&2
@@ -70,15 +70,15 @@ if ./bin/codex-maintainer release-manifest verify \
 fi
 
 cp "$tmp_dir/proof/release-manifest.json" "$tmp_dir/local-path-manifest.json"
-perl -0pi -e 'my $absolute = "/" . "Users/example/codex-maintainer.tar.gz"; s|"path" : "[^"]+"|"path" : "$absolute"|' "$tmp_dir/local-path-manifest.json"
-if ./bin/codex-maintainer release-manifest verify \
+perl -0pi -e 'my $absolute = "/" . "Users/example/shipguard.tar.gz"; s|"path" : "[^"]+"|"path" : "$absolute"|' "$tmp_dir/local-path-manifest.json"
+if ./bin/shipguard release-manifest verify \
   --manifest "$tmp_dir/local-path-manifest.json" \
   --tarball "$tarball" >/dev/null 2>&1; then
   echo "expected manifest with local artifact path to fail verification" >&2
   exit 1
 fi
 
-if ./bin/codex-maintainer release-manifest \
+if ./bin/shipguard release-manifest \
   --tarball "$tarball" \
   --out "$tmp_dir/bad-version" \
   --version 9.9.9 >/dev/null 2>&1; then
@@ -86,7 +86,7 @@ if ./bin/codex-maintainer release-manifest \
   exit 1
 fi
 
-if ./bin/codex-maintainer release-manifest \
+if ./bin/shipguard release-manifest \
   --tarball "$tmp_dir/missing.tar.gz" \
   --out "$tmp_dir/missing" >/dev/null 2>&1; then
   echo "expected missing tarball to fail" >&2

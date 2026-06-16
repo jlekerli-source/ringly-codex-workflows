@@ -5,7 +5,7 @@ Maintainer Arena runs multiple public agent-run fixtures through Agent Autopsy a
 ## Command
 
 ```bash
-./bin/codex-maintainer arena run \
+./bin/shipguard arena run \
   --fixture fixtures/arena \
   --out /tmp/arena
 ```
@@ -35,12 +35,12 @@ Only `run.md` is required. Missing task, diff, or test evidence is passed throug
 External fixture packs can be validated and copied into a local arena directory:
 
 ```bash
-./bin/codex-maintainer arena import \
+./bin/shipguard arena import \
   --source external-pack \
   --out /tmp/imported-arena-pack \
   --pack-name "external-pack"
 
-./bin/codex-maintainer arena run \
+./bin/shipguard arena run \
   --fixture /tmp/imported-arena-pack \
   --out /tmp/imported-arena-results
 ```
@@ -58,7 +58,7 @@ The importer:
 After importing a pack, write deterministic integrity metadata:
 
 ```bash
-./bin/codex-maintainer arena sign \
+./bin/shipguard arena sign \
   --fixture /tmp/imported-arena-pack \
   --out /tmp/imported-arena-pack/PACK.json \
   --pack-name "external-pack" \
@@ -69,7 +69,7 @@ After importing a pack, write deterministic integrity metadata:
 Verify a pack before running it:
 
 ```bash
-./bin/codex-maintainer arena verify \
+./bin/shipguard arena verify \
   --fixture /tmp/imported-arena-pack \
   --manifest /tmp/imported-arena-pack/PACK.json
 ```
@@ -96,7 +96,7 @@ The public fixture pack includes clean, weak, dangerous, failing-validation, mis
 Compare two Arena result files when the fixture pack, scoring policy, or agent run set changes:
 
 ```bash
-./bin/codex-maintainer arena compare \
+./bin/shipguard arena compare \
   --left /tmp/arena-old/results.json \
   --right /tmp/arena-new/results.json \
   --out /tmp/arena-compare

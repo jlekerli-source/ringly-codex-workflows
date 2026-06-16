@@ -10,10 +10,10 @@ cd "$repo_root"
 
 version="$(sed -n '1p' VERSION)"
 
-./bin/codex-maintainer release-proof build --help >/dev/null
+./bin/shipguard release-proof build --help >/dev/null
 
-CODEX_MAINTAINER_GENERATED_AT="2026-06-16T00:00:00Z" \
-  ./bin/codex-maintainer release-proof build \
+SHIPGUARD_GENERATED_AT="2026-06-16T00:00:00Z" \
+  ./bin/shipguard release-proof build \
     --out "$tmp_dir/proof-bundle" \
     --version "$version" \
     --tag "v$version" \
@@ -23,7 +23,7 @@ CODEX_MAINTAINER_GENERATED_AT="2026-06-16T00:00:00Z" \
     --issue-url "https://github.com/example/repo/issues/99" \
     --notes "release proof test" >/dev/null
 
-test -f "$tmp_dir/proof-bundle/codex-maintainer-v$version.tar.gz"
+test -f "$tmp_dir/proof-bundle/shipguard-v$version.tar.gz"
 test -f "$tmp_dir/proof-bundle/proof/release-manifest.json"
 test -f "$tmp_dir/proof-bundle/proof/proof-ledger.md"
 test -f "$tmp_dir/proof-bundle/index/release-index.json"
@@ -39,13 +39,13 @@ grep -q '"status": "pass"' "$tmp_dir/proof-bundle/replay/replay-report.json"
 grep -q '"status" : "pass"' "$tmp_dir/proof-bundle/attestation/attestation.json"
 grep -q '"message" : "pass v'"$version"'"' "$tmp_dir/proof-bundle/attestation/attestation-badge.json"
 
-if ./bin/codex-maintainer release-proof build \
+if ./bin/shipguard release-proof build \
   --out "$tmp_dir/missing-release-url" >/dev/null 2>&1; then
   echo "expected release-proof build without release-url to fail" >&2
   exit 1
 fi
 
-if ./bin/codex-maintainer release-proof build \
+if ./bin/shipguard release-proof build \
   --out "$tmp_dir/bad-release-url" \
   --release-url "https://example.com/releases/tag/v$version" >/dev/null 2>&1; then
   echo "expected release-proof build with non-GitHub release-url to fail" >&2

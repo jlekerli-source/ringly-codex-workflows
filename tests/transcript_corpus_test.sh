@@ -8,9 +8,9 @@ trap 'rm -rf "$tmp_dir"' EXIT
 
 cd "$repo_root"
 
-./bin/codex-maintainer transcript corpus --help >/dev/null
+./bin/shipguard transcript corpus --help >/dev/null
 
-./bin/codex-maintainer transcript corpus \
+./bin/shipguard transcript corpus \
   --source fixtures/transcripts \
   --out "$tmp_dir/corpus" \
   --require-report true >/dev/null
@@ -35,7 +35,7 @@ cat > "$unsafe_source/leaky-case/transcript.md" <<'RAW'
 Maintainer: This still includes maintainer@example.com and API_TOKEN=secret-value.
 RAW
 
-if ./bin/codex-maintainer transcript corpus --source "$unsafe_source" --out "$tmp_dir/unsafe-corpus" >/dev/null 2>&1; then
+if ./bin/shipguard transcript corpus --source "$unsafe_source" --out "$tmp_dir/unsafe-corpus" >/dev/null 2>&1; then
   echo "expected unsafe transcript corpus to fail" >&2
   exit 1
 fi
@@ -52,7 +52,7 @@ cat > "$missing_report_source/clean-case/transcript.md" <<'RAW'
 Maintainer: All sensitive values are represented with redacted placeholders.
 RAW
 
-if ./bin/codex-maintainer transcript corpus --source "$missing_report_source" --out "$tmp_dir/missing-report-corpus" --require-report true >/dev/null 2>&1; then
+if ./bin/shipguard transcript corpus --source "$missing_report_source" --out "$tmp_dir/missing-report-corpus" --require-report true >/dev/null 2>&1; then
   echo "expected require-report corpus to fail without a report" >&2
   exit 1
 fi

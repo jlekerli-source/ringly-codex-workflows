@@ -5,13 +5,13 @@ This walkthrough proves the toolkit without private Ringly code.
 ## From A Clone
 
 ```bash
-./bin/codex-maintainer validate
-./bin/codex-maintainer init ios fixtures/demo-ios-repo --force
-./bin/codex-maintainer doctor fixtures/demo-ios-repo
-./bin/codex-maintainer init web /tmp/demo-web-repo --force
-./bin/codex-maintainer doctor web /tmp/demo-web-repo
-./bin/codex-maintainer score examples/scored-run.md
-./bin/codex-maintainer autopsy \
+./bin/shipguard validate
+./bin/shipguard init ios fixtures/demo-ios-repo --force
+./bin/shipguard doctor fixtures/demo-ios-repo
+./bin/shipguard init web /tmp/demo-web-repo --force
+./bin/shipguard doctor web /tmp/demo-web-repo
+./bin/shipguard score examples/scored-run.md
+./bin/shipguard autopsy \
   --run fixtures/autopsy/good-run/run.md \
   --task fixtures/autopsy/good-run/task.md \
   --diff fixtures/autopsy/good-run/diff.patch \
@@ -22,15 +22,15 @@ This walkthrough proves the toolkit without private Ringly code.
 ## From A Release Package
 
 ```bash
-tar -xzf codex-maintainer-v3.38.0.tar.gz
-cd codex-maintainer-v3.38.0
-./bin/codex-maintainer version
+tar -xzf shipguard-v3.38.0.tar.gz
+cd shipguard-v3.38.0
+./bin/shipguard version
 PREFIX="$HOME/.local" ./scripts/install.sh
-"$HOME/.local/bin/codex-maintainer" init ios /tmp/demo-ios-repo
-"$HOME/.local/bin/codex-maintainer" doctor /tmp/demo-ios-repo
-"$HOME/.local/bin/codex-maintainer" init web /tmp/demo-web-repo
-"$HOME/.local/bin/codex-maintainer" doctor web /tmp/demo-web-repo
-"$HOME/.local/bin/codex-maintainer" autopsy \
+"$HOME/.local/bin/shipguard" init ios /tmp/demo-ios-repo
+"$HOME/.local/bin/shipguard" doctor /tmp/demo-ios-repo
+"$HOME/.local/bin/shipguard" init web /tmp/demo-web-repo
+"$HOME/.local/bin/shipguard" doctor web /tmp/demo-web-repo
+"$HOME/.local/bin/shipguard" autopsy \
   --run fixtures/autopsy/dangerous-run/run.md \
   --task fixtures/autopsy/dangerous-run/task.md \
   --diff fixtures/autopsy/dangerous-run/diff.patch \

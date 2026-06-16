@@ -8,16 +8,16 @@ Use this guide when you want to bring the workflow kit into another repository w
 2. Run the local validator:
 
 ```bash
-./bin/codex-maintainer validate
+./bin/shipguard validate
 ```
 
 3. Initialize a starter profile into a test project:
 
 ```bash
-./bin/codex-maintainer init ios ../my-ios-app
-./bin/codex-maintainer init web ../my-web-app
-./bin/codex-maintainer init backend ../my-service
-./bin/codex-maintainer init cli ../my-tool
+./bin/shipguard init ios ../my-ios-app
+./bin/shipguard init web ../my-web-app
+./bin/shipguard init backend ../my-service
+./bin/shipguard init cli ../my-tool
 ```
 
 4. Open the generated `AGENTS.md` and replace:
@@ -32,10 +32,10 @@ Use this guide when you want to bring the workflow kit into another repository w
 5. Run the doctor check:
 
 ```bash
-./bin/codex-maintainer doctor ../my-ios-app
-./bin/codex-maintainer doctor web ../my-web-app
-./bin/codex-maintainer doctor backend ../my-service
-./bin/codex-maintainer doctor cli ../my-tool
+./bin/shipguard doctor ../my-ios-app
+./bin/shipguard doctor web ../my-web-app
+./bin/shipguard doctor backend ../my-service
+./bin/shipguard doctor cli ../my-tool
 ```
 
 6. Copy one prompt from `examples/prompt-pack.md` and test it on a small, low-risk issue.

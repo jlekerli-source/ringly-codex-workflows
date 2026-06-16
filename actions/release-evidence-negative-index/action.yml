@@ -1,4 +1,4 @@
-name: Audit Codex maintainer release evidence negative fixtures
+name: Audit Shipguard release evidence negative fixtures
 description: Run the bundled release evidence negative fixtures and upload an index of expected blocked checks.
 
 inputs:
@@ -9,11 +9,11 @@ inputs:
   out:
     description: Directory for negative fixture index reports.
     required: false
-    default: artifacts/codex-maintainer-release-evidence-negative-index
+    default: artifacts/shipguard-release-evidence-negative-index
   title:
     description: Title for the generated negative fixture index.
     required: false
-    default: Codex Maintainer Release Evidence Negative Fixture Index
+    default: Shipguard Release Evidence Negative Fixture Index
   upload-artifact:
     description: Set false to skip negative fixture index artifact upload.
     required: false
@@ -21,7 +21,7 @@ inputs:
   artifact-name:
     description: Uploaded negative fixture index artifact name.
     required: false
-    default: codex-maintainer-release-evidence-negative-index
+    default: shipguard-release-evidence-negative-index
   mode:
     description: Use fail to fail the job when expected blocked checks are not observed, or warn to emit warnings only.
     required: false
@@ -70,7 +70,7 @@ runs:
 
         index_exit=0
         set +e
-        "$root/bin/codex-maintainer" release-evidence negative-index \
+        "$root/bin/shipguard" release-evidence negative-index \
           --fixture "$fixture" \
           --out "$out" \
           --title "$title"

@@ -4,10 +4,10 @@ set -euo pipefail
 
 usage() {
   cat <<'USAGE'
-codex-maintainer arena sign
+shipguard arena sign
 
 Usage:
-  codex-maintainer arena sign --fixture <fixture-dir> --out <manifest.json> [--pack-name <name>] [--signer <name>] [--signer-url <url>]
+  shipguard arena sign --fixture <fixture-dir> --out <manifest.json> [--pack-name <name>] [--signer <name>] [--signer-url <url>]
 
 Outputs:
   Deterministic fixture-pack metadata with SHA-256 content digest and optional signer metadata.
@@ -68,7 +68,7 @@ done
 [[ -n "$pack_name" ]] || pack_name="$(basename "$fixture_dir")"
 
 mkdir -p "$(dirname "$out_file")"
-generated_at="${CODEX_MAINTAINER_GENERATED_AT:-$(date -u '+%Y-%m-%dT%H:%M:%SZ')}"
+generated_at="${SHIPGUARD_GENERATED_AT:-${CODEX_MAINTAINER_GENERATED_AT:-$(date -u '+%Y-%m-%dT%H:%M:%SZ')}}"
 
 FIXTURE_DIR="$fixture_dir" OUT_FILE="$out_file" PACK_NAME="$pack_name" GENERATED_AT="$generated_at" SIGNER="$signer" SIGNER_URL="$signer_url" perl <<'PERL'
 use strict;

@@ -6,10 +6,10 @@ tool_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 usage() {
   cat <<'USAGE'
-codex-maintainer arena run
+shipguard arena run
 
 Usage:
-  codex-maintainer arena run --fixture <fixture-dir> [--out <dir>]
+  shipguard arena run --fixture <fixture-dir> [--out <dir>]
 
 Fixture case format:
   <fixture-dir>/<case-id>/run.md
@@ -92,7 +92,7 @@ done < <(find "$fixture_dir" -mindepth 1 -maxdepth 1 -type d | sort)
 [[ "${#case_dirs[@]}" -gt 0 ]] || fail "fixture directory has no case subdirectories: $fixture_dir"
 
 mkdir -p "$out_dir/runs"
-generated_at="${CODEX_MAINTAINER_GENERATED_AT:-$(date -u '+%Y-%m-%dT%H:%M:%SZ')}"
+generated_at="${SHIPGUARD_GENERATED_AT:-${CODEX_MAINTAINER_GENERATED_AT:-$(date -u '+%Y-%m-%dT%H:%M:%SZ')}}"
 tool_version="$(sed -n '1p' "$tool_root/VERSION")"
 
 case_ids=()

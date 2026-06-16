@@ -1,5 +1,5 @@
-name: Generate Codex maintainer review comment
-description: Generate a PR-ready Codex maintainer review comment, badge JSON, and artifact bundle from an autopsy report.
+name: Generate Shipguard review comment
+description: Generate a PR-ready Shipguard review comment, badge JSON, and artifact bundle from an autopsy report.
 
 inputs:
   report:
@@ -8,15 +8,15 @@ inputs:
   out:
     description: Path to write the Markdown review comment.
     required: false
-    default: artifacts/codex-maintainer-review/comment.md
+    default: artifacts/shipguard-review/comment.md
   badge:
     description: Path to write Shields-compatible badge JSON.
     required: false
-    default: artifacts/codex-maintainer-review/badge.json
+    default: artifacts/shipguard-review/badge.json
   artifact-dir:
     description: Directory for report.json, report.md, comment.md, and badge.json.
     required: false
-    default: artifacts/codex-maintainer-review
+    default: artifacts/shipguard-review
   mode:
     description: warn exits zero; fail exits non-zero on blocked reports.
     required: false
@@ -36,7 +36,7 @@ runs:
     - name: Generate review comment
       shell: bash
       run: |
-        "${{ github.action_path }}/../../bin/codex-maintainer" review-comment \
+        "${{ github.action_path }}/../../bin/shipguard" review-comment \
           --report "${{ inputs.report }}" \
           --out "${{ inputs.out }}" \
           --badge "${{ inputs.badge }}" \

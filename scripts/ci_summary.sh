@@ -4,10 +4,10 @@ set -euo pipefail
 
 usage() {
   cat <<'USAGE'
-codex-maintainer ci-summary
+shipguard ci-summary
 
 Usage:
-  codex-maintainer ci-summary --gate <gate.json> --out <summary.md>
+  shipguard ci-summary --gate <gate.json> --out <summary.md>
 
 Outputs:
   GitHub Actions step-summary compatible Markdown.
@@ -67,7 +67,7 @@ my $high = defined $gate->{high_risk_findings} ? $gate->{high_risk_findings} : 0
 my $mode = $gate->{mode} || 'warn';
 
 open my $out, '>:encoding(UTF-8)', $ENV{OUT_FILE} or die "cannot write summary: $!";
-print {$out} "# Codex Maintainer Gate\n\n";
+print {$out} "# Shipguard Gate\n\n";
 print {$out} "| Field | Value |\n";
 print {$out} "| --- | --- |\n";
 print {$out} "| Status | $status |\n";

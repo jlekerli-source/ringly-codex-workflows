@@ -4,10 +4,10 @@ set -euo pipefail
 
 usage() {
   cat <<'USAGE'
-codex-maintainer docs-check
+shipguard docs-check
 
 Usage:
-  codex-maintainer docs-check [path] [--out <dir>]
+  shipguard docs-check [path] [--out <dir>]
 
 Checks Markdown files for broken local links. External URLs and in-page anchors are ignored.
 

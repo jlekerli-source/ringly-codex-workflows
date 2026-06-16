@@ -6,10 +6,10 @@ tool_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 usage() {
   cat <<'USAGE'
-codex-maintainer release-replay
+shipguard release-replay
 
 Usage:
-  codex-maintainer release-replay verify --manifest <release-manifest.json> --tarball <release.tar.gz> --out <dir> [--index <release-index.json>] [--ledger <proof-ledger.md>]
+  shipguard release-replay verify --manifest <release-manifest.json> --tarball <release.tar.gz> --out <dir> [--index <release-index.json>] [--ledger <proof-ledger.md>]
 
 Outputs:
   replay-report.json
@@ -139,7 +139,7 @@ PERL
   actual_name="$(basename "$tarball")"
   actual_bytes="$(wc -c < "$tarball" | tr -d '[:space:]')"
   actual_sha="$(shasum -a 256 "$tarball" | awk '{print $1}')"
-  generated_at="${CODEX_MAINTAINER_GENERATED_AT:-$(date -u '+%Y-%m-%dT%H:%M:%SZ')}"
+  generated_at="${SHIPGUARD_GENERATED_AT:-${CODEX_MAINTAINER_GENERATED_AT:-$(date -u '+%Y-%m-%dT%H:%M:%SZ')}}"
 
   local check_names=()
   local check_statuses=()
@@ -193,8 +193,8 @@ PERL
   fi
 
   if [[ "$tar_ok" == "true" ]]; then
-    local package_root_name="codex-maintainer-v$version"
-    if grep -q "^$package_root_name/bin/codex-maintainer$" "$tar_list" &&
+    local package_root_name="shipguard-v$version"
+    if grep -q "^$package_root_name/bin/shipguard$" "$tar_list" &&
       grep -q "^$package_root_name/VERSION$" "$tar_list" &&
       grep -q "^$package_root_name/scripts/install.sh$" "$tar_list"; then
       add_check "pass" "release runtime files" "bin, VERSION, and installer are present"

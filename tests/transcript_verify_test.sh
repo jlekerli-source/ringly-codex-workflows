@@ -8,7 +8,7 @@ trap 'rm -rf "$tmp_dir"' EXIT
 
 cd "$repo_root"
 
-./bin/codex-maintainer transcript verify --help >/dev/null
+./bin/shipguard transcript verify --help >/dev/null
 
 raw="$tmp_dir/raw-transcript.md"
 redacted="$tmp_dir/redacted-transcript.md"
@@ -25,13 +25,13 @@ Agent: I will redact maintainer@example.com and API_KEY=secret-value before shar
 RAW
 HOME_PATH="$home_path" perl -pi -e 's#__HOME_PATH__#$ENV{HOME_PATH}#g' "$raw"
 
-./bin/codex-maintainer transcript redact \
+./bin/shipguard transcript redact \
   --in "$raw" \
   --out "$redacted" \
   --report "$redaction_report" \
   --private-term "PrivateMaintainerApp" >/dev/null
 
-./bin/codex-maintainer transcript verify \
+./bin/shipguard transcript verify \
   --in "$redacted" \
   --report "$redaction_report" \
   --out "$verify_dir" >/dev/null
@@ -53,7 +53,7 @@ cat > "$unsafe" <<'RAW'
 Maintainer: This still includes maintainer@example.com and API_TOKEN=secret-value.
 RAW
 
-if ./bin/codex-maintainer transcript verify --in "$unsafe" --out "$unsafe_out" >/dev/null 2>&1; then
+if ./bin/shipguard transcript verify --in "$unsafe" --out "$unsafe_out" >/dev/null 2>&1; then
   echo "expected unsafe transcript verification to fail" >&2
   exit 1
 fi

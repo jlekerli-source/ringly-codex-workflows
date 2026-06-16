@@ -5,7 +5,7 @@
 ## Report Usage
 
 ```yaml
-name: Export Codex maintainer release evidence
+name: Export Shipguard release evidence
 
 on:
   workflow_dispatch:
@@ -27,24 +27,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Verify published proof assets
-        uses: jlekerli-source/ringly-codex-workflows/actions/release-consume@v3.38.0
+        uses: jlekerli-source/shipguard/actions/release-consume@v3.38.0
         with:
-          repo: jlekerli-source/ringly-codex-workflows
+          repo: jlekerli-source/shipguard
           release-tag: ${{ inputs.release-tag }}
           mode: fail
 
       - name: Compare release proof assets
-        uses: jlekerli-source/ringly-codex-workflows/actions/release-diff@v3.38.0
+        uses: jlekerli-source/shipguard/actions/release-diff@v3.38.0
         with:
-          repo: jlekerli-source/ringly-codex-workflows
+          repo: jlekerli-source/shipguard
           left-tag: ${{ inputs.previous-tag }}
           right-tag: ${{ inputs.release-tag }}
           mode: fail
 
       - name: Export release evidence
-        uses: jlekerli-source/ringly-codex-workflows/actions/release-evidence@v3.38.0
+        uses: jlekerli-source/shipguard/actions/release-evidence@v3.38.0
         with:
-          title: Codex Maintainer Release Evidence
+          title: Shipguard Release Evidence
           include-diff: auto
           build-index: true
           mode: fail
@@ -53,7 +53,7 @@ jobs:
 ## Bundle Usage
 
 ```yaml
-name: Build Codex maintainer release evidence bundle
+name: Build Shipguard release evidence bundle
 
 on:
   workflow_dispatch:
@@ -75,15 +75,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Build release evidence bundle
-        uses: jlekerli-source/ringly-codex-workflows/actions/release-evidence@v3.38.0
+        uses: jlekerli-source/shipguard/actions/release-evidence@v3.38.0
         with:
           run: bundle
-          repo: jlekerli-source/ringly-codex-workflows
+          repo: jlekerli-source/shipguard
           release-tag: ${{ inputs.release-tag }}
           previous-tag: ${{ inputs.previous-tag }}
           download-assets: true
-          title: Codex Maintainer Release Evidence
-          index-title: Codex Maintainer Release Evidence
+          title: Shipguard Release Evidence
+          index-title: Shipguard Release Evidence
           mode: fail
 ```
 
@@ -96,19 +96,19 @@ jobs:
 | `release-tag` | empty | Release tag to download for `run=bundle` when `download-assets` is `true`. |
 | `previous-tag` | empty | Previous release tag to download for bundle diff proof when `download-assets` is `true`. |
 | `download-assets` | `false` | Set `true` in bundle mode to download assets with `gh release download`. |
-| `consume-dir` | `artifacts/codex-maintainer-release-consume` | Directory containing `consumer-report.json` and `asset-digests.json`. |
-| `diff-dir` | `artifacts/codex-maintainer-release-diff/report` | Directory containing `release-diff.json`. |
-| `out` | `artifacts/codex-maintainer-release-evidence` | Root directory for generated evidence artifacts. |
-| `assets-dir` | `artifacts/codex-maintainer-release-assets` | Release asset directory for `run=bundle`. |
+| `consume-dir` | `artifacts/shipguard-release-consume` | Directory containing `consumer-report.json` and `asset-digests.json`. |
+| `diff-dir` | `artifacts/shipguard-release-diff/report` | Directory containing `release-diff.json`. |
+| `out` | `artifacts/shipguard-release-evidence` | Root directory for generated evidence artifacts. |
+| `assets-dir` | `artifacts/shipguard-release-assets` | Release asset directory for `run=bundle`. |
 | `left-assets-dir` | empty | Previous release asset directory for `run=bundle` diff proof. |
 | `version` | empty | Expected release version for `run=bundle`; omit to let `release-consume` infer it. |
-| `title` | `Codex Maintainer Release Evidence` | Title for the generated evidence site. |
+| `title` | `Shipguard Release Evidence` | Title for the generated evidence site. |
 | `include-diff` | `auto` | `auto` includes diff proof when present; `true` requires it; `false` skips it. |
 | `build-index` | `false` | Set `true` to build an evidence index containing the generated site. |
-| `index-title` | `Codex Maintainer Release Evidence Index` | Title for the generated evidence index. |
+| `index-title` | `Shipguard Release Evidence Index` | Title for the generated evidence index. |
 | `extra-index-sites` | empty | Newline-separated evidence site directories to include after the generated site. |
 | `upload-artifact` | `true` | Upload the evidence directory with `actions/upload-artifact`. |
-| `artifact-name` | `codex-maintainer-release-evidence` | Uploaded artifact name. |
+| `artifact-name` | `shipguard-release-evidence` | Uploaded artifact name. |
 | `mode` | `fail` | `fail` fails invalid evidence; `warn` emits an annotation and continues. |
 
 ## Outputs
@@ -129,11 +129,11 @@ To prove the uploaded artifact can be consumed outside the producer job, run `ac
 
 ```yaml
 - name: Verify release evidence artifact
-  uses: jlekerli-source/ringly-codex-workflows/actions/release-evidence-verify@v3.38.0
+  uses: jlekerli-source/shipguard/actions/release-evidence-verify@v3.38.0
   with:
     download-artifact: true
-    source-artifact-name: codex-maintainer-release-evidence
-    dir: artifacts/codex-maintainer-release-evidence
+    source-artifact-name: shipguard-release-evidence
+    dir: artifacts/shipguard-release-evidence
     require-diff: true
     require-index: true
     mode: fail

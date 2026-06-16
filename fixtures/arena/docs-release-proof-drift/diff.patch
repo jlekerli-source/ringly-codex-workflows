@@ -7,13 +7,13 @@ index 1111111..2222222 100644
  
 -gh release download vOLD \
 +gh release download vNEW \
-   --repo jlekerli-source/ringly-codex-workflows \
--  --pattern 'codex-maintainer-vOLD.tar.gz' \
-+  --pattern 'codex-maintainer-vNEW.tar.gz' \
-   --dir /tmp/codex-maintainer-release
+   --repo jlekerli-source/shipguard \
+-  --pattern 'shipguard-vOLD.tar.gz' \
++  --pattern 'shipguard-vNEW.tar.gz' \
+   --dir /tmp/shipguard-release
  
- codex-maintainer release-consume verify \
-   --dir /tmp/codex-maintainer-release \
+ shipguard release-consume verify \
+   --dir /tmp/shipguard-release \
 -  --version OLD
 +  --version NEW
 diff --git a/examples/workflows/release-consume-verify.yml b/examples/workflows/release-consume-verify.yml
@@ -28,6 +28,6 @@ index 1111111..2222222 100644
 +        default: vNEW
 @@ -17,4 +17,4 @@ jobs:
        - name: Verify published proof assets
-         uses: jlekerli-source/ringly-codex-workflows/actions/release-consume@vNEW
+         uses: jlekerli-source/shipguard/actions/release-consume@vNEW
          with:
            release-tag: ${{ inputs.release-tag }}

@@ -5,14 +5,14 @@ The v1 benchmark is a stable public format for comparing maintainer-style AI run
 It is intentionally small:
 
 - fixture tasks live under `fixtures/arena/`
-- `codex-maintainer arena run` generates per-case autopsy reports and aggregate arena results
-- `codex-maintainer leaderboard build` converts arena results into `leaderboard.json`
+- `shipguard arena run` generates per-case autopsy reports and aggregate arena results
+- `shipguard leaderboard build` converts arena results into `leaderboard.json`
 
 ## Build
 
 ```bash
-./bin/codex-maintainer arena run --fixture fixtures/arena --out /tmp/arena
-./bin/codex-maintainer leaderboard build \
+./bin/shipguard arena run --fixture fixtures/arena --out /tmp/arena
+./bin/shipguard leaderboard build \
   --arena-results /tmp/arena/results.json \
   --out /tmp/leaderboard.json
 ```
@@ -20,7 +20,7 @@ It is intentionally small:
 Compare benchmark runs before publishing a changed fixture pack:
 
 ```bash
-./bin/codex-maintainer arena compare \
+./bin/shipguard arena compare \
   --left /tmp/arena-previous/results.json \
   --right /tmp/arena-current/results.json \
   --out /tmp/arena-compare

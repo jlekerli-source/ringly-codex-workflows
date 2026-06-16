@@ -4,11 +4,11 @@ set -euo pipefail
 
 usage() {
   cat <<'USAGE'
-codex-maintainer check-run
+shipguard check-run
 
 Usage:
-  codex-maintainer check-run --gate <gate.json> --head-sha <sha> --out <payload.json> [--name <name>]
-  codex-maintainer check-run post --payload <payload.json> --repo <owner/repo> --out <response.json> [--api-url <url>] [--token <token>] [--dry-run]
+  shipguard check-run --gate <gate.json> --head-sha <sha> --out <payload.json> [--name <name>]
+  shipguard check-run post --payload <payload.json> --repo <owner/repo> --out <response.json> [--api-url <url>] [--token <token>] [--dry-run]
 
 Outputs:
   GitHub Checks API payload JSON.
@@ -25,7 +25,7 @@ cmd_payload() {
 gate_file=""
 head_sha=""
 out_file=""
-check_name="Codex Maintainer Gate"
+check_name="Shipguard Gate"
 
 while [[ "$#" -gt 0 ]]; do
   case "$1" in

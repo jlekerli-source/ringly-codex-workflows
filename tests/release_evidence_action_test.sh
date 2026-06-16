@@ -16,7 +16,7 @@ test -f "$action"
 test -f "$workflow"
 test -f "$bundle_workflow"
 
-grep -q 'name: Export Codex maintainer release evidence' "$action"
+grep -q 'name: Export Shipguard release evidence' "$action"
 grep -q 'run:' "$action"
 grep -q 'repo:' "$action"
 grep -q 'release-tag:' "$action"
@@ -47,9 +47,9 @@ grep -q 'evidence-json=' "$action"
 grep -q 'evidence-index-json=' "$action"
 grep -q 'bundle=' "$action"
 
-grep -q 'jlekerli-source/ringly-codex-workflows/actions/release-consume@v3.38.0' "$workflow"
-grep -q 'jlekerli-source/ringly-codex-workflows/actions/release-diff@v3.38.0' "$workflow"
-grep -q 'jlekerli-source/ringly-codex-workflows/actions/release-evidence@v3.38.0' "$workflow"
+grep -q 'jlekerli-source/shipguard/actions/release-consume@v3.38.0' "$workflow"
+grep -q 'jlekerli-source/shipguard/actions/release-diff@v3.38.0' "$workflow"
+grep -q 'jlekerli-source/shipguard/actions/release-evidence@v3.38.0' "$workflow"
 grep -q 'previous-tag:' "$workflow"
 grep -q 'release-tag:' "$workflow"
 grep -q 'default: v3.22.0' "$workflow"
@@ -59,7 +59,7 @@ grep -q 'include-diff: auto' "$workflow"
 grep -q 'build-index: true' "$workflow"
 grep -q 'mode: fail' "$workflow"
 
-grep -q 'jlekerli-source/ringly-codex-workflows/actions/release-evidence@v3.38.0' "$bundle_workflow"
+grep -q 'jlekerli-source/shipguard/actions/release-evidence@v3.38.0' "$bundle_workflow"
 grep -q 'run: bundle' "$bundle_workflow"
 grep -q 'download-assets: true' "$bundle_workflow"
 grep -q 'previous-tag:' "$bundle_workflow"
@@ -76,8 +76,8 @@ fi
 version="$(sed -n '1p' VERSION)"
 bundle="$tmp_dir/release-proof-bundle"
 
-CODEX_MAINTAINER_GENERATED_AT="2026-06-16T00:00:00Z" \
-  ./bin/codex-maintainer release-proof build \
+SHIPGUARD_GENERATED_AT="2026-06-16T00:00:00Z" \
+  ./bin/shipguard release-proof build \
     --out "$bundle" \
     --version "$version" \
     --tag "v$version" \
@@ -89,7 +89,7 @@ CODEX_MAINTAINER_GENERATED_AT="2026-06-16T00:00:00Z" \
 
 assets="$tmp_dir/assets"
 mkdir -p "$assets"
-cp "$bundle/codex-maintainer-v$version.tar.gz" "$assets/"
+cp "$bundle/shipguard-v$version.tar.gz" "$assets/"
 cp "$bundle/proof/release-manifest.json" "$assets/"
 cp "$bundle/proof/proof-ledger.md" "$assets/"
 cp "$bundle/index/release-index.json" "$assets/"
@@ -100,25 +100,25 @@ cp "$bundle/attestation/attestation.json" "$assets/"
 cp "$bundle/attestation/attestation.md" "$assets/"
 cp "$bundle/attestation/attestation-badge.json" "$assets/"
 
-./bin/codex-maintainer release-consume verify \
+./bin/shipguard release-consume verify \
   --dir "$assets" \
   --out "$tmp_dir/consumer-proof" \
   --version "$version" >/dev/null
 
-./bin/codex-maintainer release-diff compare \
+./bin/shipguard release-diff compare \
   --left "$bundle" \
   --right "$assets" \
   --out "$tmp_dir/release-diff" >/dev/null
 
-CODEX_MAINTAINER_GENERATED_AT="2026-06-16T00:00:00Z" \
-  ./bin/codex-maintainer release-evidence site \
+SHIPGUARD_GENERATED_AT="2026-06-16T00:00:00Z" \
+  ./bin/shipguard release-evidence site \
     --consume "$tmp_dir/consumer-proof" \
     --diff "$tmp_dir/release-diff" \
     --out "$tmp_dir/evidence/site" \
     --title "Release Evidence Action Test" >/dev/null
 
-CODEX_MAINTAINER_GENERATED_AT="2026-06-16T00:00:00Z" \
-  ./bin/codex-maintainer release-evidence index \
+SHIPGUARD_GENERATED_AT="2026-06-16T00:00:00Z" \
+  ./bin/shipguard release-evidence index \
     --site "$tmp_dir/evidence/site" \
     --out "$tmp_dir/evidence/index" \
     --title "Release Evidence Action Index Test" >/dev/null
@@ -138,8 +138,8 @@ grep -q 'Release Evidence Action Test' "$tmp_dir/evidence/site/index.html"
 grep -q '"site_count" : 1' "$tmp_dir/evidence/index/evidence-index.json"
 grep -q 'Release Evidence Action Index Test' "$tmp_dir/evidence/index/index.html"
 
-CODEX_MAINTAINER_GENERATED_AT="2026-06-16T00:00:00Z" \
-  ./bin/codex-maintainer release-evidence bundle \
+SHIPGUARD_GENERATED_AT="2026-06-16T00:00:00Z" \
+  ./bin/shipguard release-evidence bundle \
     --assets "$assets" \
     --left "$bundle" \
     --out "$tmp_dir/evidence-bundle" \

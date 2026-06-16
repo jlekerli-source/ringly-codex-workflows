@@ -4,11 +4,11 @@ Use this checklist when rolling the workflow kit into another repo.
 
 ## Setup
 
-- [ ] Run `./bin/codex-maintainer init ios <target>`.
+- [ ] Run `./bin/shipguard init ios <target>`.
 - [ ] Replace placeholders in `<target>/AGENTS.md`.
 - [ ] Add real validation commands.
 - [ ] Remove Ringly-specific assumptions that do not apply.
-- [ ] Run `./bin/codex-maintainer doctor <target>`.
+- [ ] Run `./bin/shipguard doctor <target>`.
 
 ## First Task
 

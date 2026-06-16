@@ -3,13 +3,13 @@
 Generate a dangerous autopsy report, then create a PR-ready comment:
 
 ```bash
-./bin/codex-maintainer autopsy \
+./bin/shipguard autopsy \
   --run fixtures/autopsy/dangerous-run/run.md \
   --task fixtures/autopsy/dangerous-run/task.md \
   --diff fixtures/autopsy/dangerous-run/diff.patch \
   --out /tmp/autopsy-dangerous
 
-./bin/codex-maintainer review-comment \
+./bin/shipguard review-comment \
   --report /tmp/autopsy-dangerous/report.json \
   --out /tmp/review/comment.md \
   --badge /tmp/review/badge.json \

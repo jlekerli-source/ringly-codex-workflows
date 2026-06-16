@@ -6,14 +6,14 @@ tool_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 usage() {
   cat <<'USAGE'
-codex-maintainer leaderboard build
+shipguard leaderboard build
 
 Usage:
-  codex-maintainer leaderboard build --arena-results <results.json> --out <leaderboard.json> [--agent <id>] [--name <display-name>] [--benchmark <name>]
+  shipguard leaderboard build --arena-results <results.json> --out <leaderboard.json> [--agent <id>] [--name <display-name>] [--benchmark <name>]
 
 Defaults:
-  --agent codex-maintainer-fixture-baseline
-  --name Codex Maintainer Fixture Baseline
+  --agent shipguard-fixture-baseline
+  --name Shipguard Fixture Baseline
   --benchmark Public AI Maintainer Reliability Benchmark
 USAGE
 }
@@ -25,8 +25,8 @@ fail() {
 
 arena_results=""
 out_file=""
-agent_id="codex-maintainer-fixture-baseline"
-agent_name="Codex Maintainer Fixture Baseline"
+agent_id="shipguard-fixture-baseline"
+agent_name="Shipguard Fixture Baseline"
 benchmark_name="Public AI Maintainer Reliability Benchmark"
 
 while [[ "$#" -gt 0 ]]; do
@@ -72,7 +72,7 @@ done
 
 mkdir -p "$(dirname "$out_file")"
 tool_version="$(sed -n '1p' "$tool_root/VERSION")"
-generated_at="${CODEX_MAINTAINER_GENERATED_AT:-$(date -u '+%Y-%m-%dT%H:%M:%SZ')}"
+generated_at="${SHIPGUARD_GENERATED_AT:-${CODEX_MAINTAINER_GENERATED_AT:-$(date -u '+%Y-%m-%dT%H:%M:%SZ')}}"
 
 perl -0 - "$arena_results" "$out_file" "$agent_id" "$agent_name" "$benchmark_name" "$tool_version" "$generated_at" <<'PERL'
 use strict;

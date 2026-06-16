@@ -7,22 +7,22 @@ This page shows the minimal setup for another repository.
 From a cloned repository:
 
 ```bash
-./bin/codex-maintainer init ios ../my-ios-app
-./bin/codex-maintainer init web ../my-web-app
-./bin/codex-maintainer init backend ../my-service
-./bin/codex-maintainer init cli ../my-tool
+./bin/shipguard init ios ../my-ios-app
+./bin/shipguard init web ../my-web-app
+./bin/shipguard init backend ../my-service
+./bin/shipguard init cli ../my-tool
 ```
 
 From a release tarball:
 
 ```bash
-tar -xzf codex-maintainer-v3.38.0.tar.gz
-cd codex-maintainer-v3.38.0
+tar -xzf shipguard-v3.38.0.tar.gz
+cd shipguard-v3.38.0
 PREFIX="$HOME/.local" ./scripts/install.sh
-"$HOME/.local/bin/codex-maintainer" init ios ../my-ios-app
-"$HOME/.local/bin/codex-maintainer" init web ../my-web-app
-"$HOME/.local/bin/codex-maintainer" init backend ../my-service
-"$HOME/.local/bin/codex-maintainer" init cli ../my-tool
+"$HOME/.local/bin/shipguard" init ios ../my-ios-app
+"$HOME/.local/bin/shipguard" init web ../my-web-app
+"$HOME/.local/bin/shipguard" init backend ../my-service
+"$HOME/.local/bin/shipguard" init cli ../my-tool
 ```
 
 This writes:
@@ -45,15 +45,15 @@ Replace placeholders, then add:
 - protected high-risk files
 - release handoff rules
 - permission, persistence, payment, localization, and lifecycle risks
-- rules for when agent run summaries need `codex-maintainer autopsy`
+- rules for when agent run summaries need `shipguard autopsy`
 
 ## 3. Check Installation
 
 ```bash
-./bin/codex-maintainer doctor ../my-ios-app
-./bin/codex-maintainer doctor web ../my-web-app
-./bin/codex-maintainer doctor backend ../my-service
-./bin/codex-maintainer doctor cli ../my-tool
+./bin/shipguard doctor ../my-ios-app
+./bin/shipguard doctor web ../my-web-app
+./bin/shipguard doctor backend ../my-service
+./bin/shipguard doctor cli ../my-tool
 ```
 
 ## 4. Add CI
@@ -62,7 +62,7 @@ In a repo that contains this workflow bundle, use:
 
 ```yaml
 - name: Validate Codex workflow bundle
-  uses: jlekerli-source/ringly-codex-workflows/actions/validate@v1.0.0
+  uses: jlekerli-source/shipguard/actions/validate@v1.0.0
 ```
 
 For a product repo that only copied starter files, keep using `doctor` from a checkout of this toolkit until that repo has its own validator.
@@ -82,5 +82,5 @@ Only move to implementation after the inspection output is narrow and testable.
 After implementation, ask the agent for a scored run summary and run an autopsy before treating the output as merge evidence:
 
 ```bash
-codex-maintainer autopsy --run run.md --diff change.patch --tests test.log --task task.md --out autopsy
+shipguard autopsy --run run.md --diff change.patch --tests test.log --task task.md --out autopsy
 ```

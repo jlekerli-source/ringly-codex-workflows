@@ -4,10 +4,10 @@ set -euo pipefail
 
 usage() {
   cat <<'USAGE'
-codex-maintainer arena verify
+shipguard arena verify
 
 Usage:
-  codex-maintainer arena verify --fixture <fixture-dir> --manifest <manifest.json>
+  shipguard arena verify --fixture <fixture-dir> --manifest <manifest.json>
 
 Verifies:
   case files, SHA-256 digests, file sizes, pack digest, and optional signer metadata digest.

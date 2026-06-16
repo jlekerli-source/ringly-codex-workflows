@@ -20,6 +20,7 @@ required_files=(
   "ROADMAP.md"
   "SECURITY.md"
   "LICENSE"
+  "bin/shipguard"
   "bin/codex-maintainer"
   ".github/workflows/autopsy-artifact.yml"
   "actions/ci-gate/action.yml"

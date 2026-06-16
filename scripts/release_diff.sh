@@ -6,10 +6,10 @@ tool_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 usage() {
   cat <<'USAGE'
-codex-maintainer release-diff
+shipguard release-diff
 
 Usage:
-  codex-maintainer release-diff compare --left <release-assets-dir> --right <release-assets-dir> --out <dir>
+  shipguard release-diff compare --left <release-assets-dir> --right <release-assets-dir> --out <dir>
 
 Inputs:
   Directories may contain flat GitHub release assets or a nested release-proof bundle.
@@ -67,7 +67,7 @@ cmd_compare() {
 
   local tool_version
   tool_version="$(sed -n '1p' "$tool_root/VERSION")"
-  local generated_at="${CODEX_MAINTAINER_GENERATED_AT:-$(date -u '+%Y-%m-%dT%H:%M:%SZ')}"
+  local generated_at="${SHIPGUARD_GENERATED_AT:-${CODEX_MAINTAINER_GENERATED_AT:-$(date -u '+%Y-%m-%dT%H:%M:%SZ')}}"
 
   LEFT_DIR="$left_dir" RIGHT_DIR="$right_dir" OUT_DIR="$out_dir" \
     TOOL_VERSION="$tool_version" GENERATED_AT="$generated_at" perl <<'PERL'

@@ -6,10 +6,10 @@ tool_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 usage() {
   cat <<'USAGE'
-codex-maintainer next-goal
+shipguard next-goal
 
 Usage:
-  codex-maintainer next-goal [--out <file>] [--release <version>] [--title <title>]
+  shipguard next-goal [--out <file>] [--release <version>] [--title <title>]
 
 Outputs:
   Markdown file containing a slash-goal style release objective and checklist.
@@ -33,7 +33,7 @@ out_file="NEXT_GOAL.md"
 current_version="$(sed -n '1p' "$tool_root/VERSION")"
 release_version="$(next_minor_version "$current_version")"
 title="Next Maintainer Reliability Upgrade"
-generated_at="${CODEX_MAINTAINER_GENERATED_AT:-$(date -u '+%Y-%m-%dT%H:%M:%SZ')}"
+generated_at="${SHIPGUARD_GENERATED_AT:-${CODEX_MAINTAINER_GENERATED_AT:-$(date -u '+%Y-%m-%dT%H:%M:%SZ')}}"
 
 while [[ "$#" -gt 0 ]]; do
   case "$1" in
@@ -74,7 +74,7 @@ cat > "$out_file" <<EOF
 - Title: $title
 
 \`\`\`text
-/goal Implement v$release_version $title for jlekerli-source/ringly-codex-workflows: choose one high-signal maintainer reliability improvement from ROADMAP.md, add CLI/docs/tests/package proof, push main, verify GitHub Actions, publish the release tarball, verify asset SHA-256 and clean git status, then run codex-maintainer next-goal again for the following release.
+/goal Implement v$release_version $title for jlekerli-source/shipguard: choose one high-signal maintainer reliability improvement from ROADMAP.md, add CLI/docs/tests/package proof, push main, verify GitHub Actions, publish the release tarball, verify asset SHA-256 and clean git status, then run shipguard next-goal again for the following release.
 \`\`\`
 
 ## Constraints
@@ -87,7 +87,7 @@ cat > "$out_file" <<EOF
 ## Required Proof
 
 \`\`\`bash
-./bin/codex-maintainer validate
+./bin/shipguard validate
 ./tests/cli_smoke_test.sh
 ./tests/template_profiles_test.sh
 ./tests/autopsy_test.sh
@@ -141,12 +141,12 @@ cat > "$out_file" <<EOF
 3. Update README, CLI docs, changelog, roadmap, and package verification.
 4. Commit with an issue-closing reference.
 5. Push \`main\` and verify GitHub Actions success.
-6. Create release \`v$release_version\` and upload \`dist/codex-maintainer-v$release_version.tar.gz\`.
+6. Create release \`v$release_version\` and upload \`dist/shipguard-v$release_version.tar.gz\`.
 7. Verify release asset digest, closed issue, tag target, and clean git status.
 8. Generate the next goal:
 
 \`\`\`bash
-./bin/codex-maintainer next-goal --out NEXT_GOAL.md
+./bin/shipguard next-goal --out NEXT_GOAL.md
 \`\`\`
 EOF
 

@@ -1,17 +1,17 @@
 # Release Evidence Bundle
 
-`codex-maintainer release-evidence bundle` builds the downstream release evidence path in one local command.
+`shipguard release-evidence bundle` builds the downstream release evidence path in one local command.
 
 Use it after downloading a published release asset set:
 
 ```bash
-./bin/codex-maintainer release-evidence bundle \
-  --assets /tmp/codex-maintainer-v3.38.0 \
-  --left /tmp/codex-maintainer-v3.19.0 \
-  --out /tmp/codex-maintainer-v3.38.0-evidence-bundle \
+./bin/shipguard release-evidence bundle \
+  --assets /tmp/shipguard-v3.38.0 \
+  --left /tmp/shipguard-v3.19.0 \
+  --out /tmp/shipguard-v3.38.0-evidence-bundle \
   --version 3.38.0 \
-  --title "Codex Maintainer v3.38.0 Evidence" \
-  --index-title "Codex Maintainer Release Evidence"
+  --title "Shipguard v3.38.0 Evidence" \
+  --index-title "Shipguard Release Evidence"
 ```
 
 Outputs:
@@ -32,4 +32,4 @@ Keep `--out` outside both `--assets` and `--left`; the command blocks nested out
 
 Use the lower-level `release-evidence site` and `release-evidence index` commands when you already have consumer or diff reports. Use `actions/release-evidence` with `run: bundle` and `download-assets: true` when this export should happen in GitHub Actions.
 
-After publishing the bundle as a GitHub Actions artifact, run `codex-maintainer release-evidence verify --dir <artifact-dir> --out <verify-dir> --require-diff true --require-index true` or use `actions/release-evidence-verify` in a downstream job. That verifies `bundle.json`, the evidence site, copied source reports, and evidence index as a consumer would see them.
+After publishing the bundle as a GitHub Actions artifact, run `shipguard release-evidence verify --dir <artifact-dir> --out <verify-dir> --require-diff true --require-index true` or use `actions/release-evidence-verify` in a downstream job. That verifies `bundle.json`, the evidence site, copied source reports, and evidence index as a consumer would see them.

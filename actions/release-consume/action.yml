@@ -1,5 +1,5 @@
-name: Verify Codex maintainer release proof
-description: Download and verify Codex maintainer release proof assets with consumer reports and digest matrices.
+name: Verify Shipguard release proof
+description: Download and verify Shipguard release proof assets with consumer reports and digest matrices.
 
 inputs:
   release-tag:
@@ -16,11 +16,11 @@ inputs:
   assets-dir:
     description: Directory for downloaded or pre-existing release assets.
     required: false
-    default: artifacts/codex-maintainer-release-assets
+    default: artifacts/shipguard-release-assets
   out:
     description: Directory for consumer proof output.
     required: false
-    default: artifacts/codex-maintainer-release-consume
+    default: artifacts/shipguard-release-consume
   download-assets:
     description: Set false to verify files already present in assets-dir.
     required: false
@@ -32,7 +32,7 @@ inputs:
   artifact-name:
     description: Uploaded artifact name.
     required: false
-    default: codex-maintainer-release-consume
+    default: shipguard-release-consume
   mode:
     description: Use fail to fail the job on invalid proof, or warn to emit warnings only.
     required: false
@@ -116,7 +116,7 @@ runs:
         mkdir -p "$out"
 
         set +e
-        "$root/bin/codex-maintainer" release-consume verify \
+        "$root/bin/shipguard" release-consume verify \
           --dir "$assets_dir" \
           --out "$out" \
           --version "$version"

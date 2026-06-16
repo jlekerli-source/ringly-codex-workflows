@@ -28,7 +28,7 @@ jobs:
           if [[ -f "$fixture/tests.log" ]]; then
             args+=(--tests "$fixture/tests.log")
           fi
-          ./bin/codex-maintainer autopsy "${args[@]}"
+          ./bin/shipguard autopsy "${args[@]}"
 
       - name: Upload autopsy report
         uses: actions/upload-artifact@v4

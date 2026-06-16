@@ -23,9 +23,9 @@ jobs:
         uses: actions/checkout@v5
 
       - name: Verify redacted transcript
-        uses: jlekerli-source/ringly-codex-workflows/actions/transcript-verify@v3.38.0
+        uses: jlekerli-source/shipguard/actions/transcript-verify@v3.38.0
         with:
           transcript: ${{ inputs.transcript }}
           report: ${{ inputs.report }}
           mode: fail
-          artifact-name: codex-maintainer-transcript-verify
+          artifact-name: shipguard-transcript-verify

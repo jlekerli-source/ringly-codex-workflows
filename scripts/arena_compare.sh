@@ -6,10 +6,10 @@ tool_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 usage() {
   cat <<'USAGE'
-codex-maintainer arena compare
+shipguard arena compare
 
 Usage:
-  codex-maintainer arena compare --left <results.json> --right <results.json> --out <dir> [--title <title>]
+  shipguard arena compare --left <results.json> --right <results.json> --out <dir> [--title <title>]
 
 Outputs:
   arena-compare.json
@@ -68,7 +68,7 @@ done
 mkdir -p "$out_dir"
 
 tool_version="$(sed -n '1p' "$tool_root/VERSION")"
-generated_at="${CODEX_MAINTAINER_GENERATED_AT:-$(date -u '+%Y-%m-%dT%H:%M:%SZ')}"
+generated_at="${SHIPGUARD_GENERATED_AT:-${CODEX_MAINTAINER_GENERATED_AT:-$(date -u '+%Y-%m-%dT%H:%M:%SZ')}}"
 
 LEFT_RESULTS="$left_results" RIGHT_RESULTS="$right_results" OUT_DIR="$out_dir" \
   TITLE="$title" TOOL_VERSION="$tool_version" GENERATED_AT="$generated_at" perl <<'PERL'

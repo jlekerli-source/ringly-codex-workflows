@@ -8,7 +8,7 @@ trap 'rm -rf "$tmp_dir"' EXIT
 
 cd "$repo_root"
 
-./bin/codex-maintainer release-index build --help >/dev/null
+./bin/shipguard release-index build --help >/dev/null
 
 make_manifest() {
   local version="$1"
@@ -23,8 +23,8 @@ make_manifest() {
   "tag": "v$version",
   "commit": "$commit",
   "artifact": {
-    "name": "codex-maintainer-v$version.tar.gz",
-    "path": "codex-maintainer-v$version.tar.gz",
+    "name": "shipguard-v$version.tar.gz",
+    "path": "shipguard-v$version.tar.gz",
     "bytes": 12345,
     "sha256": "$sha"
   },
@@ -42,8 +42,8 @@ JSON
 make_manifest "3.2.0" "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb" "2222222222222222222222222222222222222222222222222222222222222222" "$tmp_dir/v3.2.0.json"
 make_manifest "3.1.0" "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" "1111111111111111111111111111111111111111111111111111111111111111" "$tmp_dir/v3.1.0.json"
 
-CODEX_MAINTAINER_GENERATED_AT="2026-06-16T00:00:00Z" \
-  ./bin/codex-maintainer release-index build \
+SHIPGUARD_GENERATED_AT="2026-06-16T00:00:00Z" \
+  ./bin/shipguard release-index build \
     --manifest "$tmp_dir/v3.2.0.json" \
     --manifest "$tmp_dir/v3.1.0.json" \
     --title "Fixture Release Catalog" \
@@ -65,10 +65,10 @@ perl -MJSON::PP -0e '
 ' "$tmp_dir/index/release-index.json"
 
 grep -q '# Fixture Release Catalog' "$tmp_dir/index/release-index.md"
-grep -q '| 3.1.0 | v3.1.0 | aaaaaaaaaaaa | codex-maintainer-v3.1.0.tar.gz | `1111111111111111111111111111111111111111111111111111111111111111` | https://github.com/example/repo/releases/tag/v3.1.0 |' "$tmp_dir/index/release-index.md"
-grep -q '| 3.2.0 | v3.2.0 | bbbbbbbbbbbb | codex-maintainer-v3.2.0.tar.gz | `2222222222222222222222222222222222222222222222222222222222222222` | https://github.com/example/repo/releases/tag/v3.2.0 |' "$tmp_dir/index/release-index.md"
+grep -q '| 3.1.0 | v3.1.0 | aaaaaaaaaaaa | shipguard-v3.1.0.tar.gz | `1111111111111111111111111111111111111111111111111111111111111111` | https://github.com/example/repo/releases/tag/v3.1.0 |' "$tmp_dir/index/release-index.md"
+grep -q '| 3.2.0 | v3.2.0 | bbbbbbbbbbbb | shipguard-v3.2.0.tar.gz | `2222222222222222222222222222222222222222222222222222222222222222` | https://github.com/example/repo/releases/tag/v3.2.0 |' "$tmp_dir/index/release-index.md"
 
-if ./bin/codex-maintainer release-index build \
+if ./bin/shipguard release-index build \
   --manifest "$tmp_dir/v3.1.0.json" \
   --manifest "$tmp_dir/v3.1.0.json" \
   --out "$tmp_dir/duplicate" >/dev/null 2>&1; then
@@ -76,7 +76,7 @@ if ./bin/codex-maintainer release-index build \
   exit 1
 fi
 
-if ./bin/codex-maintainer release-index build \
+if ./bin/shipguard release-index build \
   --manifest "$tmp_dir/missing.json" \
   --out "$tmp_dir/missing" >/dev/null 2>&1; then
   echo "expected missing manifest to fail" >&2

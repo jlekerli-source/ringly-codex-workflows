@@ -8,7 +8,7 @@ trap 'rm -rf "$tmp_dir"' EXIT
 
 cd "$repo_root"
 
-./bin/codex-maintainer ci-gate \
+./bin/shipguard ci-gate \
   --run fixtures/autopsy/good-run/run.md \
   --task fixtures/autopsy/good-run/task.md \
   --diff fixtures/autopsy/good-run/diff.patch \
@@ -30,7 +30,7 @@ grep -q '"summary": "summary.md"' "$tmp_dir/good-gate/gate.json"
 grep -q '"version" : "2.1.0"' "$tmp_dir/good-gate/sarif/results.sarif"
 grep -q '| Status | pass |' "$tmp_dir/good-gate/summary.md"
 
-./bin/codex-maintainer ci-gate \
+./bin/shipguard ci-gate \
   --run fixtures/autopsy/dangerous-run/run.md \
   --task fixtures/autopsy/dangerous-run/task.md \
   --diff fixtures/autopsy/dangerous-run/diff.patch \
@@ -44,7 +44,7 @@ grep -q '| Status | blocked |' "$tmp_dir/dangerous-gate/review/comment.md"
 grep -q '| Status | blocked |' "$tmp_dir/dangerous-gate/summary.md"
 grep -q '"ruleId" : "validation_claim_without_tests"' "$tmp_dir/dangerous-gate/sarif/results.sarif"
 
-if ./bin/codex-maintainer ci-gate \
+if ./bin/shipguard ci-gate \
   --run fixtures/autopsy/dangerous-run/run.md \
   --task fixtures/autopsy/dangerous-run/task.md \
   --diff fixtures/autopsy/dangerous-run/diff.patch \

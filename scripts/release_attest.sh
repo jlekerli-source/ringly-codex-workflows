@@ -6,10 +6,10 @@ tool_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 usage() {
   cat <<'USAGE'
-codex-maintainer release-attest
+shipguard release-attest
 
 Usage:
-  codex-maintainer release-attest build --manifest <release-manifest.json> --replay <replay-report.json> --out <dir> [--title <title>]
+  shipguard release-attest build --manifest <release-manifest.json> --replay <replay-report.json> --out <dir> [--title <title>]
 
 Outputs:
   attestation.json
@@ -27,7 +27,7 @@ cmd_build() {
   local manifest_file=""
   local replay_file=""
   local out_dir=""
-  local title="Codex Maintainer Release Attestation"
+  local title="Shipguard Release Attestation"
 
   while [[ "$#" -gt 0 ]]; do
     case "$1" in
@@ -69,7 +69,7 @@ cmd_build() {
 
   mkdir -p "$out_dir"
 
-  local generated_at="${CODEX_MAINTAINER_GENERATED_AT:-$(date -u '+%Y-%m-%dT%H:%M:%SZ')}"
+  local generated_at="${SHIPGUARD_GENERATED_AT:-${CODEX_MAINTAINER_GENERATED_AT:-$(date -u '+%Y-%m-%dT%H:%M:%SZ')}}"
 
   TITLE="$title" GENERATED_AT="$generated_at" TOOL_VERSION="$(sed -n '1p' "$tool_root/VERSION")" \
     MANIFEST_FILE="$manifest_file" REPLAY_FILE="$replay_file" OUT_DIR="$out_dir" perl <<'PERL'

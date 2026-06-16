@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Audit release evidence negative fixtures
-        uses: jlekerli-source/ringly-codex-workflows/actions/release-evidence-negative-index@v3.38.0
+        uses: jlekerli-source/shipguard/actions/release-evidence-negative-index@v3.38.0
         with:
           mode: fail
 ```
@@ -30,10 +30,10 @@ The default `fixture: bundled` uses the fixture manifest shipped inside this act
 | Input | Default | Description |
 | --- | --- | --- |
 | `fixture` | `bundled` | Negative fixture directory, or `bundled` to use the action's checked-in fixtures. |
-| `out` | `artifacts/codex-maintainer-release-evidence-negative-index` | Directory for generated reports. |
-| `title` | `Codex Maintainer Release Evidence Negative Fixture Index` | Title for the generated report. |
+| `out` | `artifacts/shipguard-release-evidence-negative-index` | Directory for generated reports. |
+| `title` | `Shipguard Release Evidence Negative Fixture Index` | Title for the generated report. |
 | `upload-artifact` | `true` | Upload the report directory with `actions/upload-artifact`. |
-| `artifact-name` | `codex-maintainer-release-evidence-negative-index` | Uploaded artifact name. |
+| `artifact-name` | `shipguard-release-evidence-negative-index` | Uploaded artifact name. |
 | `mode` | `fail` | `fail` fails the job when expected blocked checks are missing; `warn` emits an annotation and continues. |
 
 ## Outputs

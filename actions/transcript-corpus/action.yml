@@ -1,4 +1,4 @@
-name: Verify Codex maintainer transcript corpus
+name: Verify Shipguard transcript corpus
 description: Verify a corpus of redacted maintainer transcripts, publish corpus reports, and optionally fail on unsafe content.
 
 inputs:
@@ -8,7 +8,7 @@ inputs:
   out:
     description: Directory for transcript corpus output.
     required: false
-    default: artifacts/codex-maintainer-transcript-corpus
+    default: artifacts/shipguard-transcript-corpus
   require-report:
     description: Set true to require every corpus case to include redaction-report.json.
     required: false
@@ -20,7 +20,7 @@ inputs:
   artifact-name:
     description: Uploaded transcript corpus artifact name.
     required: false
-    default: codex-maintainer-transcript-corpus
+    default: shipguard-transcript-corpus
   mode:
     description: Use fail to fail the job on blocked corpus verification, or warn to emit warnings only.
     required: false
@@ -72,7 +72,7 @@ runs:
 
         corpus_exit=0
         set +e
-        "$root/bin/codex-maintainer" transcript corpus \
+        "$root/bin/shipguard" transcript corpus \
           --source "$source" \
           --out "$out" \
           --require-report "$require_report"

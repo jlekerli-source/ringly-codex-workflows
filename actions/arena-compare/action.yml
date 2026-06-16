@@ -1,4 +1,4 @@
-name: Compare Codex maintainer Arena results
+name: Compare Shipguard Arena results
 description: Compare two Maintainer Arena results files, classify benchmark movement, and upload the comparison report.
 
 inputs:
@@ -11,11 +11,11 @@ inputs:
   out:
     description: Directory for Arena comparison output.
     required: false
-    default: artifacts/codex-maintainer-arena-compare
+    default: artifacts/shipguard-arena-compare
   title:
     description: Title for the generated comparison report.
     required: false
-    default: Codex Maintainer Arena Compare
+    default: Shipguard Arena Compare
   upload-artifact:
     description: Set false to skip comparison artifact upload.
     required: false
@@ -23,7 +23,7 @@ inputs:
   artifact-name:
     description: Uploaded artifact name.
     required: false
-    default: codex-maintainer-arena-compare
+    default: shipguard-arena-compare
   mode:
     description: Use fail to fail the job on regressed comparison output, or warn to emit warnings only.
     required: false
@@ -70,7 +70,7 @@ runs:
 
         compare_exit=0
         set +e
-        "$root/bin/codex-maintainer" arena compare \
+        "$root/bin/shipguard" arena compare \
           --left "$left_results" \
           --right "$right_results" \
           --out "$out" \

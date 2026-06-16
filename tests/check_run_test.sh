@@ -8,9 +8,9 @@ trap 'rm -rf "$tmp_dir"' EXIT
 
 cd "$repo_root"
 
-./bin/codex-maintainer check-run --help >/dev/null
+./bin/shipguard check-run --help >/dev/null
 
-./bin/codex-maintainer ci-gate \
+./bin/shipguard ci-gate \
   --run fixtures/autopsy/good-run/run.md \
   --task fixtures/autopsy/good-run/task.md \
   --diff fixtures/autopsy/good-run/diff.patch \
@@ -19,7 +19,7 @@ cd "$repo_root"
   --out "$tmp_dir/good-gate" \
   --mode warn >/dev/null
 
-./bin/codex-maintainer check-run \
+./bin/shipguard check-run \
   --gate "$tmp_dir/good-gate/gate.json" \
   --head-sha 0123456789abcdef \
   --name "Codex Gate Test" \
@@ -34,7 +34,7 @@ perl -MJSON::PP -0e '
   die "missing summary" unless $payload->{output}{summary} =~ /Score: 11\/12/;
 ' "$tmp_dir/good-payload.json"
 
-./bin/codex-maintainer ci-gate \
+./bin/shipguard ci-gate \
   --run fixtures/autopsy/dangerous-run/run.md \
   --task fixtures/autopsy/dangerous-run/task.md \
   --diff fixtures/autopsy/dangerous-run/diff.patch \
@@ -42,7 +42,7 @@ perl -MJSON::PP -0e '
   --out "$tmp_dir/dangerous-gate" \
   --mode warn >/dev/null
 
-./bin/codex-maintainer check-run \
+./bin/shipguard check-run \
   --gate "$tmp_dir/dangerous-gate/gate.json" \
   --head-sha abcdef0123456789 \
   --out "$tmp_dir/dangerous-payload.json" >/dev/null
@@ -53,7 +53,7 @@ perl -MJSON::PP -0e '
   die "missing artifact text" unless $payload->{output}{text} =~ /check-run/ || $payload->{output}{text} =~ /summary.md/;
 ' "$tmp_dir/dangerous-payload.json"
 
-if ./bin/codex-maintainer check-run --gate "$tmp_dir/missing.json" --head-sha abc --out "$tmp_dir/missing.json" >/dev/null 2>&1; then
+if ./bin/shipguard check-run --gate "$tmp_dir/missing.json" --head-sha abc --out "$tmp_dir/missing.json" >/dev/null 2>&1; then
   echo "expected missing gate to fail" >&2
   exit 1
 fi

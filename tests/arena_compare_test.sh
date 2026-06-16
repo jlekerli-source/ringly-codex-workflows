@@ -8,7 +8,7 @@ trap 'rm -rf "$tmp_dir"' EXIT
 
 cd "$repo_root"
 
-./bin/codex-maintainer arena compare --help >/dev/null
+./bin/shipguard arena compare --help >/dev/null
 
 mkdir -p "$tmp_dir/eight-case-fixture"
 for case_id in \
@@ -23,18 +23,18 @@ for case_id in \
   cp -R "fixtures/arena/$case_id" "$tmp_dir/eight-case-fixture/$case_id"
 done
 
-CODEX_MAINTAINER_GENERATED_AT="2026-06-16T00:00:00Z" \
-  ./bin/codex-maintainer arena run \
+SHIPGUARD_GENERATED_AT="2026-06-16T00:00:00Z" \
+  ./bin/shipguard arena run \
     --fixture "$tmp_dir/eight-case-fixture" \
     --out "$tmp_dir/old-arena" >/dev/null
 
-CODEX_MAINTAINER_GENERATED_AT="2026-06-16T00:00:00Z" \
-  ./bin/codex-maintainer arena run \
+SHIPGUARD_GENERATED_AT="2026-06-16T00:00:00Z" \
+  ./bin/shipguard arena run \
     --fixture fixtures/arena \
     --out "$tmp_dir/current-arena" >/dev/null
 
-CODEX_MAINTAINER_GENERATED_AT="2026-06-16T00:00:00Z" \
-  ./bin/codex-maintainer arena compare \
+SHIPGUARD_GENERATED_AT="2026-06-16T00:00:00Z" \
+  ./bin/shipguard arena compare \
     --left "$tmp_dir/old-arena/results.json" \
     --right "$tmp_dir/current-arena/results.json" \
     --out "$tmp_dir/compare" \
@@ -57,8 +57,8 @@ grep -q '| Average score delta | +0.75 |' "$tmp_dir/compare/arena-compare.md"
 grep -q '| docs-release-proof-drift | added | - | 10 | - | - | 0 | - |' "$tmp_dir/compare/arena-compare.md"
 grep -q '| frontend-async-state-regression | added | - | 10 | - | - | 0 | - |' "$tmp_dir/compare/arena-compare.md"
 
-CODEX_MAINTAINER_GENERATED_AT="2026-06-16T00:00:00Z" \
-  ./bin/codex-maintainer arena compare \
+SHIPGUARD_GENERATED_AT="2026-06-16T00:00:00Z" \
+  ./bin/shipguard arena compare \
     --left "$tmp_dir/current-arena/results.json" \
     --right "$tmp_dir/old-arena/results.json" \
     --out "$tmp_dir/reverse-compare" >/dev/null
@@ -70,7 +70,7 @@ grep -q '"removed_cases" : 2' "$tmp_dir/reverse-compare/arena-compare.json"
 grep -q '| docs-release-proof-drift | removed | 10 | - | - | 0 | - | - |' "$tmp_dir/reverse-compare/arena-compare.md"
 grep -q '| frontend-async-state-regression | removed | 10 | - | - | 0 | - | - |' "$tmp_dir/reverse-compare/arena-compare.md"
 
-if ./bin/codex-maintainer arena compare \
+if ./bin/shipguard arena compare \
   --left "$tmp_dir/missing.json" \
   --right "$tmp_dir/current-arena/results.json" \
   --out "$tmp_dir/missing-compare" >/dev/null 2>&1; then

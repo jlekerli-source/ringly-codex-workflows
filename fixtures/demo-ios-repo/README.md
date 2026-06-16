@@ -1,13 +1,13 @@
 # Demo iOS Repo
 
-This fixture is a fake iOS-style project used to demonstrate the Codex maintainer workflow kit.
+This fixture is a fake iOS-style project used to demonstrate the Shipguard workflow kit.
 
 It intentionally contains no private Ringly source code, credentials, product strategy, generated artifacts, or real App Store data.
 
 Try it from the repository root:
 
 ```bash
-./bin/codex-maintainer init ios fixtures/demo-ios-repo --force
-./bin/codex-maintainer doctor fixtures/demo-ios-repo
-./bin/codex-maintainer score examples/scored-run.md
+./bin/shipguard init ios fixtures/demo-ios-repo --force
+./bin/shipguard doctor fixtures/demo-ios-repo
+./bin/shipguard score examples/scored-run.md
 ```

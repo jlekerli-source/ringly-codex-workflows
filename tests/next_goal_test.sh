@@ -9,10 +9,10 @@ trap 'rm -rf "$tmp_dir"' EXIT
 cd "$repo_root"
 current_version="$(sed -n '1p' VERSION)"
 
-./bin/codex-maintainer next-goal --help >/dev/null
+./bin/shipguard next-goal --help >/dev/null
 
-CODEX_MAINTAINER_GENERATED_AT="2026-06-16T00:00:00Z" \
-  ./bin/codex-maintainer next-goal \
+SHIPGUARD_GENERATED_AT="2026-06-16T00:00:00Z" \
+  ./bin/shipguard next-goal \
     --out "$tmp_dir/NEXT_GOAL.md" \
     --release 2.6.0 \
     --title "External Fixture Pack Import" >/dev/null
@@ -54,9 +54,9 @@ grep -q './tests/release_proof_action_test.sh' "$tmp_dir/NEXT_GOAL.md"
 grep -q './tests/release_proof_consumption_test.sh' "$tmp_dir/NEXT_GOAL.md"
 grep -q './tests/release_proof_workflow_test.sh' "$tmp_dir/NEXT_GOAL.md"
 grep -q './tests/release_replay_test.sh' "$tmp_dir/NEXT_GOAL.md"
-grep -q './bin/codex-maintainer next-goal --out NEXT_GOAL.md' "$tmp_dir/NEXT_GOAL.md"
+grep -q './bin/shipguard next-goal --out NEXT_GOAL.md' "$tmp_dir/NEXT_GOAL.md"
 
-if ./bin/codex-maintainer next-goal --release nope >/dev/null 2>&1; then
+if ./bin/shipguard next-goal --release nope >/dev/null 2>&1; then
   echo "expected invalid release to fail" >&2
   exit 1
 fi

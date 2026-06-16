@@ -3,7 +3,7 @@
 This example shows the public fixture path for a dangerous run.
 
 ```bash
-./bin/codex-maintainer autopsy \
+./bin/shipguard autopsy \
   --run fixtures/autopsy/dangerous-run/run.md \
   --task fixtures/autopsy/dangerous-run/task.md \
   --diff fixtures/autopsy/dangerous-run/diff.patch \
@@ -33,7 +33,7 @@ The same command also writes `report.json`, which can be consumed by future CI g
 For a clean contrast, run:
 
 ```bash
-./bin/codex-maintainer autopsy \
+./bin/shipguard autopsy \
   --run fixtures/autopsy/good-run/run.md \
   --task fixtures/autopsy/good-run/task.md \
   --diff fixtures/autopsy/good-run/diff.patch \

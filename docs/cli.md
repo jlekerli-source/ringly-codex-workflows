@@ -1,19 +1,19 @@
 # CLI
 
-`bin/codex-maintainer` is a dependency-light helper for validating and reusing this workflow kit.
+`bin/shipguard` is a dependency-light helper for validating and reusing this workflow kit.
 
 ## Validate
 
 Run this from a checkout of this repository:
 
 ```bash
-./bin/codex-maintainer validate
+./bin/shipguard validate
 ```
 
 You can also pass a path to another checkout of this workflow bundle:
 
 ```bash
-./bin/codex-maintainer validate ../ringly-codex-workflows
+./bin/shipguard validate ../shipguard
 ```
 
 Validation checks required files, skill metadata, shell syntax, executable scripts, local markdown links, YAML files, and whitespace.
@@ -23,8 +23,8 @@ Validation checks required files, skill metadata, shell syntax, executable scrip
 Create or inspect a policy file:
 
 ```bash
-./bin/codex-maintainer policy init .codex-maintainer/policy.conf
-./bin/codex-maintainer policy show .codex-maintainer/policy.conf
+./bin/shipguard policy init .shipguard/policy.conf
+./bin/shipguard policy show .shipguard/policy.conf
 ```
 
 Pass a policy into Autopsy with `--policy`. See `policy.md`.
@@ -34,20 +34,22 @@ Pass a policy into Autopsy with `--policy`. See `policy.md`.
 Print the toolkit version:
 
 ```bash
-./bin/codex-maintainer version
+./bin/shipguard version
 ```
 
 The command reads `VERSION`, which is also used by the release packaging script.
+
+`bin/codex-maintainer` remains available as a compatibility wrapper for older automation.
 
 ## Init
 
 Copy a starter workflow profile into another project:
 
 ```bash
-./bin/codex-maintainer init ios ../my-ios-app
-./bin/codex-maintainer init web ../my-web-app
-./bin/codex-maintainer init backend ../my-service
-./bin/codex-maintainer init cli ../my-tool
+./bin/shipguard init ios ../my-ios-app
+./bin/shipguard init web ../my-web-app
+./bin/shipguard init backend ../my-service
+./bin/shipguard init cli ../my-tool
 ```
 
 The command writes:
@@ -61,10 +63,10 @@ The command writes:
 Existing files are skipped. Use `--force` to overwrite generated workflow files:
 
 ```bash
-./bin/codex-maintainer init ios ../my-ios-app --force
-./bin/codex-maintainer init web ../my-web-app --force
-./bin/codex-maintainer init backend ../my-service --force
-./bin/codex-maintainer init cli ../my-tool --force
+./bin/shipguard init ios ../my-ios-app --force
+./bin/shipguard init web ../my-web-app --force
+./bin/shipguard init backend ../my-service --force
+./bin/shipguard init cli ../my-tool --force
 ```
 
 See `template-profiles.md` for profile details.
@@ -74,11 +76,11 @@ See `template-profiles.md` for profile details.
 Check whether a target repo has the starter workflow files:
 
 ```bash
-./bin/codex-maintainer doctor ../my-ios-app
-./bin/codex-maintainer doctor ios ../my-ios-app
-./bin/codex-maintainer doctor web ../my-web-app
-./bin/codex-maintainer doctor backend ../my-service
-./bin/codex-maintainer doctor cli ../my-tool
+./bin/shipguard doctor ../my-ios-app
+./bin/shipguard doctor ios ../my-ios-app
+./bin/shipguard doctor web ../my-web-app
+./bin/shipguard doctor backend ../my-service
+./bin/shipguard doctor cli ../my-tool
 ```
 
 `doctor` without a profile defaults to `ios` for compatibility with older releases.
@@ -88,7 +90,7 @@ Check whether a target repo has the starter workflow files:
 Score a Codex run markdown file:
 
 ```bash
-./bin/codex-maintainer score examples/scored-run.md
+./bin/shipguard score examples/scored-run.md
 ```
 
 The score file must include these categories:
@@ -107,7 +109,7 @@ Each category should include a value from `0` to `2`.
 Generate Markdown and JSON evidence reports for an AI coding run:
 
 ```bash
-./bin/codex-maintainer autopsy \
+./bin/shipguard autopsy \
   --run fixtures/autopsy/good-run/run.md \
   --task fixtures/autopsy/good-run/task.md \
   --diff fixtures/autopsy/good-run/diff.patch \
@@ -129,7 +131,7 @@ See `autopsy.md` for the full guide.
 Run a fixture pack through Autopsy and aggregate the results:
 
 ```bash
-./bin/codex-maintainer arena run \
+./bin/shipguard arena run \
   --fixture fixtures/arena \
   --out /tmp/arena
 ```
@@ -141,7 +143,7 @@ See `arena.md` for the fixture format and metrics.
 Import an external fixture pack before running it:
 
 ```bash
-./bin/codex-maintainer arena import \
+./bin/shipguard arena import \
   --source external-pack \
   --out /tmp/imported-arena-pack \
   --pack-name "external-pack"
@@ -152,14 +154,14 @@ The import command copies supported fixture files, writes `PACK.md`, and rejects
 Sign and verify fixture-pack metadata:
 
 ```bash
-./bin/codex-maintainer arena sign \
+./bin/shipguard arena sign \
   --fixture /tmp/imported-arena-pack \
   --out /tmp/imported-arena-pack/PACK.json \
   --pack-name "external-pack" \
   --signer "Example Maintainers" \
   --signer-url "https://github.com/example/repo"
 
-./bin/codex-maintainer arena verify \
+./bin/shipguard arena verify \
   --fixture /tmp/imported-arena-pack \
   --manifest /tmp/imported-arena-pack/PACK.json
 ```
@@ -169,7 +171,7 @@ The signature is a deterministic SHA-256 content digest for integrity checks. Op
 Compare two Arena result files:
 
 ```bash
-./bin/codex-maintainer arena compare \
+./bin/shipguard arena compare \
   --left /tmp/arena-old/results.json \
   --right /tmp/arena-new/results.json \
   --out /tmp/arena-compare
@@ -182,7 +184,7 @@ The command writes `arena-compare.json` and `arena-compare.md`. It reports score
 Redact a maintainer transcript before publishing it as an example, benchmark note, or public proof:
 
 ```bash
-./bin/codex-maintainer transcript redact \
+./bin/shipguard transcript redact \
   --in raw-transcript.md \
   --out /tmp/redacted-transcript.md \
   --report /tmp/redaction-report.json \
@@ -194,7 +196,7 @@ The command writes redacted Markdown and a JSON report. It redacts emails, token
 Verify a redacted transcript and optional redaction report:
 
 ```bash
-./bin/codex-maintainer transcript verify \
+./bin/shipguard transcript verify \
   --in /tmp/redacted-transcript.md \
   --report /tmp/redaction-report.json \
   --out /tmp/transcript-verify
@@ -205,7 +207,7 @@ The command writes `transcript-verify.json`, `transcript-verify.md`, and `badge.
 Build a public-safe transcript corpus index:
 
 ```bash
-./bin/codex-maintainer transcript corpus \
+./bin/shipguard transcript corpus \
   --source fixtures/transcripts \
   --out /tmp/transcript-corpus \
   --require-report true
@@ -218,7 +220,7 @@ The command writes `corpus.json`, `index.md`, `badge.json`, and per-case verific
 Generate a PR-ready comment and Shields-compatible badge from an autopsy report:
 
 ```bash
-./bin/codex-maintainer review-comment \
+./bin/shipguard review-comment \
   --report /tmp/autopsy/report.json \
   --out /tmp/review/comment.md \
   --badge /tmp/review/badge.json \
@@ -233,12 +235,12 @@ Use `--mode fail` to exit non-zero when the report is blocked. See `pr-review-bo
 Run Autopsy, review-comment, badge generation, and gate JSON in one command:
 
 ```bash
-./bin/codex-maintainer ci-gate \
+./bin/shipguard ci-gate \
   --run run.md \
   --diff change.patch \
   --tests test.log \
-  --policy .codex-maintainer/policy.conf \
-  --out artifacts/codex-maintainer-gate \
+  --policy .shipguard/policy.conf \
+  --out artifacts/shipguard-gate \
   --mode warn
 ```
 
@@ -249,7 +251,7 @@ Use `--mode fail` when blocked gates should fail CI. See `ci-gate.md`.
 Generate GitHub Actions step-summary Markdown from `gate.json`:
 
 ```bash
-./bin/codex-maintainer ci-summary \
+./bin/shipguard ci-summary \
   --gate /tmp/codex-gate/gate.json \
   --out /tmp/codex-gate/summary.md
 ```
@@ -261,7 +263,7 @@ Generate GitHub Actions step-summary Markdown from `gate.json`:
 Generate a GitHub Checks API payload from `gate.json`:
 
 ```bash
-./bin/codex-maintainer check-run \
+./bin/shipguard check-run \
   --gate /tmp/codex-gate/gate.json \
   --head-sha "$GITHUB_SHA" \
   --out /tmp/codex-gate/check-run/payload.json
@@ -270,7 +272,7 @@ Generate a GitHub Checks API payload from `gate.json`:
 Post the payload only when the workflow has an explicit token and `checks: write` permission:
 
 ```bash
-./bin/codex-maintainer check-run post \
+./bin/shipguard check-run post \
   --payload /tmp/codex-gate/check-run/payload.json \
   --repo "$GITHUB_REPOSITORY" \
   --out /tmp/codex-gate/check-run/response.json
@@ -283,7 +285,7 @@ Use `--dry-run` to write the request metadata without contacting GitHub. The reu
 Convert an Autopsy report into SARIF 2.1.0:
 
 ```bash
-./bin/codex-maintainer sarif \
+./bin/shipguard sarif \
   --report /tmp/autopsy/report.json \
   --out /tmp/autopsy/results.sarif
 ```
@@ -295,7 +297,7 @@ Convert an Autopsy report into SARIF 2.1.0:
 Check Markdown files for broken local links:
 
 ```bash
-./bin/codex-maintainer docs-check . --out /tmp/codex-maintainer-docs-check
+./bin/shipguard docs-check . --out /tmp/shipguard-docs-check
 ```
 
 External URLs and in-page anchors are ignored. The command writes `docs-check.json` and `docs-check.md` when `--out` is provided. See `docs-check.md`.
@@ -305,7 +307,7 @@ External URLs and in-page anchors are ignored. The command writes `docs-check.js
 Build a stable public leaderboard JSON file from arena results:
 
 ```bash
-./bin/codex-maintainer leaderboard build \
+./bin/shipguard leaderboard build \
   --arena-results /tmp/arena/results.json \
   --out /tmp/leaderboard.json
 ```
@@ -317,17 +319,17 @@ See `benchmark.md` for the schema and `demo-reports.md` for checked-in generated
 Generate release proof files for a tarball:
 
 ```bash
-./bin/codex-maintainer release-manifest \
-  --tarball dist/codex-maintainer-v3.38.0.tar.gz \
-  --out /tmp/codex-maintainer-release-proof
+./bin/shipguard release-manifest \
+  --tarball dist/shipguard-v3.38.0.tar.gz \
+  --out /tmp/shipguard-release-proof
 ```
 
 Verify the manifest against the tarball:
 
 ```bash
-./bin/codex-maintainer release-manifest verify \
-  --manifest /tmp/codex-maintainer-release-proof/release-manifest.json \
-  --tarball dist/codex-maintainer-v3.38.0.tar.gz
+./bin/shipguard release-manifest verify \
+  --manifest /tmp/shipguard-release-proof/release-manifest.json \
+  --tarball dist/shipguard-v3.38.0.tar.gz
 ```
 
 The command writes `release-manifest.json` and `proof-ledger.md`. Add `--ci-run-url`, `--release-url`, and `--issue-url` after publishing to bind the local artifact digest to public release proof. See `release-manifest.md`.
@@ -335,10 +337,10 @@ The command writes `release-manifest.json` and `proof-ledger.md`. Add `--ci-run-
 Build a release proof catalog from manifests:
 
 ```bash
-./bin/codex-maintainer release-index build \
+./bin/shipguard release-index build \
   --manifest dist/release-proof-v3.5.0/release-manifest.json \
   --manifest dist/release-proof-v3.38.0/release-manifest.json \
-  --out /tmp/codex-maintainer-release-index
+  --out /tmp/shipguard-release-index
 ```
 
 The command writes `release-index.json` and `release-index.md`. See `release-index.md`.
@@ -346,12 +348,12 @@ The command writes `release-index.json` and `release-index.md`. See `release-ind
 Replay-verify downloaded release assets:
 
 ```bash
-./bin/codex-maintainer release-replay verify \
-  --manifest /tmp/codex-maintainer-release-proof/release-manifest.json \
-  --tarball /tmp/codex-maintainer-release-assets/codex-maintainer-v3.38.0.tar.gz \
-  --index /tmp/codex-maintainer-release-index/release-index.json \
-  --ledger /tmp/codex-maintainer-release-proof/proof-ledger.md \
-  --out /tmp/codex-maintainer-release-replay
+./bin/shipguard release-replay verify \
+  --manifest /tmp/shipguard-release-proof/release-manifest.json \
+  --tarball /tmp/shipguard-release-assets/shipguard-v3.38.0.tar.gz \
+  --index /tmp/shipguard-release-index/release-index.json \
+  --ledger /tmp/shipguard-release-proof/proof-ledger.md \
+  --out /tmp/shipguard-release-replay
 ```
 
 The command writes `replay-report.json` and `replay-report.md`. See `release-replay.md`.
@@ -359,10 +361,10 @@ The command writes `replay-report.json` and `replay-report.md`. See `release-rep
 Build a compact release attestation:
 
 ```bash
-./bin/codex-maintainer release-attest build \
-  --manifest /tmp/codex-maintainer-release-proof/release-manifest.json \
-  --replay /tmp/codex-maintainer-release-replay/replay-report.json \
-  --out /tmp/codex-maintainer-release-attestation
+./bin/shipguard release-attest build \
+  --manifest /tmp/shipguard-release-proof/release-manifest.json \
+  --replay /tmp/shipguard-release-replay/replay-report.json \
+  --out /tmp/shipguard-release-attestation
 ```
 
 The command writes `attestation.json`, `attestation.md`, and `attestation-badge.json`. See `release-attest.md`.
@@ -370,8 +372,8 @@ The command writes `attestation.json`, `attestation.md`, and `attestation-badge.
 Build the full release proof bundle in one command:
 
 ```bash
-./bin/codex-maintainer release-proof build \
-  --out /tmp/codex-maintainer-release-proof-bundle \
+./bin/shipguard release-proof build \
+  --out /tmp/shipguard-release-proof-bundle \
   --release-url https://github.com/owner/repo/releases/tag/v3.38.0
 ```
 
@@ -382,9 +384,9 @@ The command writes the release tarball, manifest, release index, replay report, 
 Verify a flat directory of downloaded release assets and write a consumer report:
 
 ```bash
-./bin/codex-maintainer release-consume verify \
-  --dir /tmp/codex-maintainer-v3.38.0 \
-  --out /tmp/codex-maintainer-v3.38.0/consumer-proof \
+./bin/shipguard release-consume verify \
+  --dir /tmp/shipguard-v3.38.0 \
+  --out /tmp/shipguard-v3.38.0/consumer-proof \
   --version 3.38.0
 ```
 
@@ -395,10 +397,10 @@ The command writes `consumer-report.json`, `consumer-report.md`, `asset-digests.
 Compare two release proof asset directories and write JSON/Markdown diff reports:
 
 ```bash
-./bin/codex-maintainer release-diff compare \
-  --left /tmp/codex-maintainer-old \
-  --right /tmp/codex-maintainer-v3.38.0 \
-  --out /tmp/codex-maintainer-release-diff
+./bin/shipguard release-diff compare \
+  --left /tmp/shipguard-old \
+  --right /tmp/shipguard-v3.38.0 \
+  --out /tmp/shipguard-release-diff
 ```
 
 The command accepts flat GitHub release downloads or nested `release-proof build` output. It compares release tarballs, manifests, indexes, ledgers, replay reports, attestations, and badges. Use `actions/release-diff` when this comparison should run in GitHub Actions. See `release-diff.md` and `release-diff-action.md`.
@@ -408,10 +410,10 @@ The command accepts flat GitHub release downloads or nested `release-proof build
 Export release proof reports as a static evidence page:
 
 ```bash
-./bin/codex-maintainer release-evidence site \
-  --consume /tmp/codex-maintainer-v3.38.0/consumer-proof \
-  --diff /tmp/codex-maintainer-release-diff \
-  --out /tmp/codex-maintainer-release-site
+./bin/shipguard release-evidence site \
+  --consume /tmp/shipguard-v3.38.0/consumer-proof \
+  --diff /tmp/shipguard-release-diff \
+  --out /tmp/shipguard-release-site
 ```
 
 The command writes `index.html`, `evidence.json`, `README.md`, and source JSON copies under `sources/`. Use `actions/release-evidence` when this export should run in GitHub Actions. See `release-evidence-site.md` and `release-evidence-action.md`.
@@ -419,10 +421,10 @@ The command writes `index.html`, `evidence.json`, `README.md`, and source JSON c
 Build a static index from one or more evidence site exports:
 
 ```bash
-./bin/codex-maintainer release-evidence index \
-  --site /tmp/codex-maintainer-previous-site \
-  --site /tmp/codex-maintainer-v3.38.0-site \
-  --out /tmp/codex-maintainer-release-history
+./bin/shipguard release-evidence index \
+  --site /tmp/shipguard-previous-site \
+  --site /tmp/shipguard-v3.38.0-site \
+  --out /tmp/shipguard-release-history
 ```
 
 The command writes `index.html`, `evidence-index.json`, `README.md`, and copied site exports under `sites/`. Use `actions/release-evidence` with `build-index: true` when this index should run in GitHub Actions. See `release-evidence-index.md` and `release-evidence-action.md`.
@@ -430,12 +432,12 @@ The command writes `index.html`, `evidence-index.json`, `README.md`, and copied 
 Build the full local evidence path from downloaded release assets:
 
 ```bash
-./bin/codex-maintainer release-evidence bundle \
-  --assets /tmp/codex-maintainer-v3.38.0 \
-  --left /tmp/codex-maintainer-old \
-  --out /tmp/codex-maintainer-release-evidence-bundle \
+./bin/shipguard release-evidence bundle \
+  --assets /tmp/shipguard-v3.38.0 \
+  --left /tmp/shipguard-old \
+  --out /tmp/shipguard-release-evidence-bundle \
   --version 3.38.0 \
-  --title "Codex Maintainer v3.38.0 Evidence"
+  --title "Shipguard v3.38.0 Evidence"
 ```
 
 The command writes consumer proof, optional release-diff proof, `site/index.html`, `index/evidence-index.json`, `bundle.json`, and `README.md`. See `release-evidence-bundle.md`.
@@ -443,9 +445,9 @@ The command writes consumer proof, optional release-diff proof, `site/index.html
 Verify a downloaded release evidence artifact:
 
 ```bash
-./bin/codex-maintainer release-evidence verify \
-  --dir /tmp/codex-maintainer-release-evidence \
-  --out /tmp/codex-maintainer-release-evidence-verify \
+./bin/shipguard release-evidence verify \
+  --dir /tmp/shipguard-release-evidence \
+  --out /tmp/shipguard-release-evidence-verify \
   --require-diff true \
   --require-index true
 ```
@@ -455,9 +457,9 @@ The command writes `evidence-verify.json`, `evidence-verify.md`, and `badge.json
 Run the checked-in negative fixture pack as a single guardrail index:
 
 ```bash
-./bin/codex-maintainer release-evidence negative-index \
+./bin/shipguard release-evidence negative-index \
   --fixture fixtures/release-evidence/negative \
-  --out /tmp/codex-maintainer-negative-evidence
+  --out /tmp/shipguard-negative-evidence
 ```
 
 The command reads `cases.tsv`, runs each intentionally broken fixture through `release-evidence verify`, and writes `index.html`, `negative-fixture-index.json`, `negative-fixture-index.md`, `badge.json`, and per-case verifier outputs under `runs/<case>/`. It exits successfully only when every case blocks on the expected failed check.
@@ -470,27 +472,27 @@ Download a published release bundle, verify the tarball digest, replay the proof
 
 ```bash
 gh release download v3.38.0 \
-  --repo jlekerli-source/ringly-codex-workflows \
-  --pattern 'codex-maintainer-v3.38.0.tar.gz' \
+  --repo jlekerli-source/shipguard \
+  --pattern 'shipguard-v3.38.0.tar.gz' \
   --pattern 'release-manifest.json' \
   --pattern 'release-index.json' \
   --pattern 'proof-ledger.md' \
   --pattern 'attestation-badge.json' \
-  --dir /tmp/codex-maintainer-v3.38.0
+  --dir /tmp/shipguard-v3.38.0
 
-shasum -a 256 /tmp/codex-maintainer-v3.38.0/codex-maintainer-v3.38.0.tar.gz
+shasum -a 256 /tmp/shipguard-v3.38.0/shipguard-v3.38.0.tar.gz
 
-./bin/codex-maintainer release-replay verify \
-  --manifest /tmp/codex-maintainer-v3.38.0/release-manifest.json \
-  --tarball /tmp/codex-maintainer-v3.38.0/codex-maintainer-v3.38.0.tar.gz \
-  --index /tmp/codex-maintainer-v3.38.0/release-index.json \
-  --ledger /tmp/codex-maintainer-v3.38.0/proof-ledger.md \
-  --out /tmp/codex-maintainer-v3.38.0/consumer-replay
+./bin/shipguard release-replay verify \
+  --manifest /tmp/shipguard-v3.38.0/release-manifest.json \
+  --tarball /tmp/shipguard-v3.38.0/shipguard-v3.38.0.tar.gz \
+  --index /tmp/shipguard-v3.38.0/release-index.json \
+  --ledger /tmp/shipguard-v3.38.0/proof-ledger.md \
+  --out /tmp/shipguard-v3.38.0/consumer-replay
 
-./bin/codex-maintainer release-attest build \
-  --manifest /tmp/codex-maintainer-v3.38.0/release-manifest.json \
-  --replay /tmp/codex-maintainer-v3.38.0/consumer-replay/replay-report.json \
-  --out /tmp/codex-maintainer-v3.38.0/consumer-attestation
+./bin/shipguard release-attest build \
+  --manifest /tmp/shipguard-v3.38.0/release-manifest.json \
+  --replay /tmp/shipguard-v3.38.0/consumer-replay/replay-report.json \
+  --out /tmp/shipguard-v3.38.0/consumer-attestation
 ```
 
 See `release-proof-consumption.md` for the rejection rules and trust model.
@@ -500,7 +502,7 @@ See `release-proof-consumption.md` for the rejection rules and trust model.
 Generate release-readiness proof for the toolkit itself:
 
 ```bash
-./bin/codex-maintainer self-audit --out /tmp/codex-maintainer-self-audit
+./bin/shipguard self-audit --out /tmp/shipguard-self-audit
 ```
 
 The command writes:
@@ -517,13 +519,13 @@ See `maintainer-reliability-os.md`, `command-matrix.md`, and `release-checklist.
 Generate a slash-goal style plan for the next release:
 
 ```bash
-./bin/codex-maintainer next-goal --out NEXT_GOAL.md
+./bin/shipguard next-goal --out NEXT_GOAL.md
 ```
 
 Override the target release and title when the next improvement is already known:
 
 ```bash
-./bin/codex-maintainer next-goal \
+./bin/shipguard next-goal \
   --release 2.2.0 \
   --title "SARIF Evidence Export" \
   --out /tmp/next-goal.md
@@ -536,12 +538,12 @@ The command writes a Markdown plan with a `/goal` block, release constraints, pr
 Download and extract a release package:
 
 ```bash
-tar -xzf codex-maintainer-v3.38.0.tar.gz
-cd codex-maintainer-v3.38.0
+tar -xzf shipguard-v3.38.0.tar.gz
+cd shipguard-v3.38.0
 PREFIX="$HOME/.local" ./scripts/install.sh
 ```
 
-The installer copies toolkit files into `${PREFIX:-/usr/local}/lib/codex-maintainer` and writes a `codex-maintainer` wrapper into `${PREFIX:-/usr/local}/bin`.
+The installer copies toolkit files into `${PREFIX:-/usr/local}/lib/shipguard` and writes a `shipguard` wrapper into `${PREFIX:-/usr/local}/bin`.
 
 ## Package Contents
 

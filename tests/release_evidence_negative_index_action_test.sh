@@ -14,7 +14,7 @@ workflow="examples/workflows/release-evidence-negative-index.yml"
 test -f "$action"
 test -f "$workflow"
 
-grep -q 'name: Audit Codex maintainer release evidence negative fixtures' "$action"
+grep -q 'name: Audit Shipguard release evidence negative fixtures' "$action"
 grep -q 'release-evidence negative-index' "$action"
 grep -q 'fixture:' "$action"
 grep -q 'fixture="$root/fixtures/release-evidence/negative"' "$action"
@@ -26,19 +26,19 @@ grep -q 'badge.json' "$action"
 grep -q 'mode must be fail or warn' "$action"
 grep -q 'actions/upload-artifact@v4' "$action"
 grep -q 'artifact-name:' "$action"
-grep -q 'codex-maintainer-release-evidence-negative-index' "$action"
+grep -q 'shipguard-release-evidence-negative-index' "$action"
 
-grep -q 'jlekerli-source/ringly-codex-workflows/actions/release-evidence-negative-index@v3.38.0' "$workflow"
+grep -q 'jlekerli-source/shipguard/actions/release-evidence-negative-index@v3.38.0' "$workflow"
 grep -q 'contents: read' "$workflow"
 grep -q 'mode: fail' "$workflow"
-grep -q 'artifact-name: codex-maintainer-release-evidence-negative-index' "$workflow"
+grep -q 'artifact-name: shipguard-release-evidence-negative-index' "$workflow"
 
 if command -v ruby >/dev/null 2>&1; then
   ruby -ryaml -e 'ARGV.each { |file| YAML.load_file(file) }' "$action" "$workflow"
 fi
 
-CODEX_MAINTAINER_GENERATED_AT="2026-06-16T00:00:00Z" \
-  ./bin/codex-maintainer release-evidence negative-index \
+SHIPGUARD_GENERATED_AT="2026-06-16T00:00:00Z" \
+  ./bin/shipguard release-evidence negative-index \
     --fixture fixtures/release-evidence/negative \
     --out "$tmp_dir/negative-index" \
     --title "Release Evidence Negative Index Action Test" >/dev/null

@@ -1,23 +1,23 @@
 # Policy Configuration
 
-`codex-maintainer` policy files configure how Autopsy treats risky claims, protected areas, and scope size.
+`shipguard` policy files configure how Autopsy treats risky claims, protected areas, and scope size.
 
 Create a default policy:
 
 ```bash
-./bin/codex-maintainer policy init .codex-maintainer/policy.conf
+./bin/shipguard policy init .shipguard/policy.conf
 ```
 
 Inspect a policy:
 
 ```bash
-./bin/codex-maintainer policy show .codex-maintainer/policy.conf
+./bin/shipguard policy show .shipguard/policy.conf
 ```
 
 Use it with Autopsy:
 
 ```bash
-./bin/codex-maintainer autopsy \
+./bin/shipguard autopsy \
   --run fixtures/autopsy/weak-run/run.md \
   --diff fixtures/autopsy/weak-run/diff.patch \
   --policy fixtures/policy/strict.conf \

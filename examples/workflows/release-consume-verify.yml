@@ -1,4 +1,4 @@
-name: Verify Codex maintainer release proof
+name: Verify Shipguard release proof
 
 on:
   workflow_dispatch:
@@ -16,8 +16,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Verify published proof assets
-        uses: jlekerli-source/ringly-codex-workflows/actions/release-consume@v3.38.0
+        uses: jlekerli-source/shipguard/actions/release-consume@v3.38.0
         with:
-          repo: jlekerli-source/ringly-codex-workflows
+          repo: jlekerli-source/shipguard
           release-tag: ${{ inputs.release-tag }}
           mode: fail
