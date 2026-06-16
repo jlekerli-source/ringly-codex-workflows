@@ -22,6 +22,9 @@
 | Build release proof artifact | `actions/release-proof` | Uploaded tarball, manifest, replay, and attestation bundle |
 | Adopt release proof workflows | `examples/workflows/release-proof-on-tag.yml`, `examples/workflows/release-proof-manual.yml` | Copyable GitHub Actions workflow examples |
 | Consume release proof | `release-consume verify` | SHA-256 check, local replay, attestation rebuild, and consumer report from downloaded release assets |
+| Consume release proof in CI | `actions/release-consume` | Uploaded consumer proof artifact |
+| Compare releases | `release-diff compare`, `actions/release-diff` | Release diff JSON and Markdown |
+| Export release evidence | `release-evidence site`, `release-evidence index`, `actions/release-evidence` | Static evidence site and optional history index |
 | Audit this toolkit | `self-audit` | Self-audit Markdown and JSON |
 | Continue the release loop | `next-goal` | Slash-goal Markdown plan |
 

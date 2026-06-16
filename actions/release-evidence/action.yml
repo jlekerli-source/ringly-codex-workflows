@@ -1,0 +1,182 @@
+name: Export Codex maintainer release evidence
+description: Build a static release evidence site and optional evidence index from verified release proof reports.
+
+inputs:
+  consume-dir:
+    description: Directory containing consumer-report.json and asset-digests.json.
+    required: false
+    default: artifacts/codex-maintainer-release-consume
+  diff-dir:
+    description: Directory containing release-diff.json.
+    required: false
+    default: artifacts/codex-maintainer-release-diff/report
+  out:
+    description: Root directory for generated evidence artifacts.
+    required: false
+    default: artifacts/codex-maintainer-release-evidence
+  title:
+    description: Title for the generated evidence site.
+    required: false
+    default: Codex Maintainer Release Evidence
+  include-diff:
+    description: Use true to require diff proof, false to skip it, or auto to include it when present.
+    required: false
+    default: auto
+  build-index:
+    description: Set true to also build an evidence index containing the generated site.
+    required: false
+    default: "false"
+  index-title:
+    description: Title for the generated evidence index.
+    required: false
+    default: Codex Maintainer Release Evidence Index
+  extra-index-sites:
+    description: Optional newline-separated evidence site directories to include in the index after the generated site.
+    required: false
+    default: ""
+  upload-artifact:
+    description: Set false to skip evidence artifact upload.
+    required: false
+    default: "true"
+  artifact-name:
+    description: Uploaded artifact name.
+    required: false
+    default: codex-maintainer-release-evidence
+  mode:
+    description: Use fail to fail the job on invalid evidence, or warn to emit warnings only.
+    required: false
+    default: fail
+
+outputs:
+  status:
+    description: pass or fail.
+    value: ${{ steps.release-evidence.outputs.status }}
+  site:
+    description: Path to the generated evidence site directory.
+    value: ${{ steps.release-evidence.outputs.site }}
+  evidence-json:
+    description: Path to evidence.json.
+    value: ${{ steps.release-evidence.outputs.evidence-json }}
+  site-readme:
+    description: Path to the evidence site README.md.
+    value: ${{ steps.release-evidence.outputs.site-readme }}
+  index:
+    description: Path to the generated evidence index directory when build-index is true.
+    value: ${{ steps.release-evidence.outputs.index }}
+  evidence-index-json:
+    description: Path to evidence-index.json when build-index is true.
+    value: ${{ steps.release-evidence.outputs.evidence-index-json }}
+
+runs:
+  using: composite
+  steps:
+    - name: Export release evidence
+      id: release-evidence
+      shell: bash
+      run: |
+        set -euo pipefail
+
+        root="${{ github.action_path }}/../.."
+        consume_dir="${{ inputs.consume-dir }}"
+        diff_dir="${{ inputs.diff-dir }}"
+        out="${{ inputs.out }}"
+        title="${{ inputs.title }}"
+        include_diff="${{ inputs.include-diff }}"
+        build_index="${{ inputs.build-index }}"
+        index_title="${{ inputs.index-title }}"
+        extra_index_sites="${{ inputs.extra-index-sites }}"
+        mode="${{ inputs.mode }}"
+
+        if [[ "$mode" != "fail" && "$mode" != "warn" ]]; then
+          echo "::error::mode must be fail or warn"
+          exit 2
+        fi
+
+        if [[ "$include_diff" != "auto" && "$include_diff" != "true" && "$include_diff" != "false" ]]; then
+          echo "::error::include-diff must be auto, true, or false"
+          exit 2
+        fi
+
+        if [[ "$build_index" != "true" && "$build_index" != "false" ]]; then
+          echo "::error::build-index must be true or false"
+          exit 2
+        fi
+
+        site_dir="$out/site"
+        index_dir="$out/index"
+        rm -rf "$site_dir" "$index_dir"
+        mkdir -p "$out"
+
+        site_args=(
+          release-evidence site
+          --consume "$consume_dir"
+          --out "$site_dir"
+          --title "$title"
+        )
+
+        if [[ "$include_diff" == "true" ]]; then
+          if [[ ! -f "$diff_dir/release-diff.json" ]]; then
+            echo "::error::include-diff is true but release-diff.json was not found in $diff_dir"
+            exit 2
+          fi
+          site_args+=(--diff "$diff_dir")
+        elif [[ "$include_diff" == "auto" && -f "$diff_dir/release-diff.json" ]]; then
+          site_args+=(--diff "$diff_dir")
+        fi
+
+        set +e
+        "$root/bin/codex-maintainer" "${site_args[@]}"
+        evidence_exit="$?"
+        set -e
+
+        if [[ "$evidence_exit" -eq 0 && "$build_index" == "true" ]]; then
+          index_args=(
+            release-evidence index
+            --site "$site_dir"
+            --out "$index_dir"
+            --title "$index_title"
+          )
+          if [[ -n "$extra_index_sites" ]]; then
+            while IFS= read -r extra_site; do
+              [[ -n "$extra_site" ]] || continue
+              index_args+=(--site "$extra_site")
+            done <<< "$extra_index_sites"
+          fi
+
+          set +e
+          "$root/bin/codex-maintainer" "${index_args[@]}"
+          evidence_exit="$?"
+          set -e
+        fi
+
+        status="pass"
+        if [[ "$evidence_exit" -ne 0 ]]; then
+          status="fail"
+        fi
+
+        {
+          echo "status=$status"
+          echo "site=$site_dir"
+          echo "evidence-json=$site_dir/evidence.json"
+          echo "site-readme=$site_dir/README.md"
+          echo "index=$index_dir"
+          echo "evidence-index-json=$index_dir/evidence-index.json"
+        } >> "$GITHUB_OUTPUT"
+
+        if [[ "$status" == "fail" ]]; then
+          message="release evidence export failed for $consume_dir"
+          if [[ "$mode" == "warn" ]]; then
+            echo "::warning::$message"
+          else
+            echo "::error::$message"
+            exit "$evidence_exit"
+          fi
+        fi
+
+    - name: Upload release evidence artifact
+      if: ${{ inputs.upload-artifact == 'true' && steps.release-evidence.outputs.status == 'pass' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.artifact-name }}
+        path: ${{ inputs.out }}
+        if-no-files-found: error

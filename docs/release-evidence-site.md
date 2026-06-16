@@ -6,10 +6,10 @@ Use it after running `release-consume verify`, and optionally after running `rel
 
 ```bash
 ./bin/codex-maintainer release-evidence site \
-  --consume /tmp/codex-maintainer-v3.17.0/consumer-proof \
+  --consume /tmp/codex-maintainer-v3.18.0/consumer-proof \
   --diff /tmp/codex-maintainer-release-diff \
   --out /tmp/codex-maintainer-release-site \
-  --title "Codex Maintainer v3.17.0 Evidence"
+  --title "Codex Maintainer v3.18.0 Evidence"
 ```
 
 Outputs:
@@ -26,3 +26,5 @@ The HTML page includes release metadata, artifact SHA-256, published proof cross
 The command blocks when the consumer report is not `pass` or when an included release-diff report is not `pass`.
 
 Use `codex-maintainer release-evidence index` when you want to collect multiple site exports into a release history. See `release-evidence-index.md`.
+
+For GitHub Actions, use `jlekerli-source/ringly-codex-workflows/actions/release-evidence@v3.18.0` after `actions/release-consume` and optional `actions/release-diff`. See `release-evidence-action.md`.

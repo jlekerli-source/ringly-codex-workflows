@@ -1,5 +1,11 @@
 # Changelog
 
+## v3.18.0 - Release Evidence GitHub Action
+
+- Added `actions/release-evidence` for exporting release evidence sites and optional indexes in GitHub Actions.
+- Added a copyable release-evidence workflow, docs, CI coverage, package verification, self-audit coverage, and next-goal proof.
+- The action uploads a static evidence artifact derived from release-consume and optional release-diff reports.
+
 ## v3.17.0 - Release Evidence Index
 
 - Added `codex-maintainer release-evidence index` for collecting multiple evidence site exports into one static release history.

@@ -17,8 +17,8 @@ The goal is simple: make AI-assisted coding repeatable, reviewable, and useful f
 Install from a release tarball:
 
 ```bash
-tar -xzf codex-maintainer-v3.17.0.tar.gz
-cd codex-maintainer-v3.17.0
+tar -xzf codex-maintainer-v3.18.0.tar.gz
+cd codex-maintainer-v3.18.0
 PREFIX="$HOME/.local" ./scripts/install.sh
 "$HOME/.local/bin/codex-maintainer" version
 ```
@@ -45,6 +45,7 @@ Read the guided setup first:
 - `docs/release-consume-action.md`: GitHub Action for downstream release proof consumption.
 - `docs/release-diff.md`: compare two release proof bundles across versions.
 - `docs/release-diff-action.md`: GitHub Action for release proof bundle diff audits.
+- `docs/release-evidence-action.md`: GitHub Action for static release evidence exports.
 - `docs/release-evidence-site.md`: static HTML export for release proof evidence.
 - `docs/release-evidence-index.md`: static release history index for evidence site exports.
 - `docs/release-index.md`: release proof catalog generation from manifests.
@@ -99,18 +100,19 @@ For CI-consumable findings, run `./bin/codex-maintainer sarif --report /tmp/auto
 For workflow-run summaries, run `./bin/codex-maintainer ci-summary --gate /tmp/codex-gate/gate.json --out /tmp/codex-gate/summary.md`.
 For Check Run payloads, run `./bin/codex-maintainer check-run --gate /tmp/codex-gate/gate.json --head-sha "$GITHUB_SHA" --out /tmp/codex-gate/check-run/payload.json`.
 To post a Check Run after reviewing the payload, run `./bin/codex-maintainer check-run post --payload /tmp/codex-gate/check-run/payload.json --repo "$GITHUB_REPOSITORY" --out /tmp/codex-gate/check-run/response.json`.
-For release proof files, run `./bin/codex-maintainer release-manifest --tarball dist/codex-maintainer-v3.17.0.tar.gz --out /tmp/release-proof`.
-To verify release proof files, run `./bin/codex-maintainer release-manifest verify --manifest /tmp/release-proof/release-manifest.json --tarball dist/codex-maintainer-v3.17.0.tar.gz`.
+For release proof files, run `./bin/codex-maintainer release-manifest --tarball dist/codex-maintainer-v3.18.0.tar.gz --out /tmp/release-proof`.
+To verify release proof files, run `./bin/codex-maintainer release-manifest verify --manifest /tmp/release-proof/release-manifest.json --tarball dist/codex-maintainer-v3.18.0.tar.gz`.
 To catalog release proof files, run `./bin/codex-maintainer release-index build --manifest /tmp/release-proof/release-manifest.json --out /tmp/release-index`.
-To replay release proof from downloaded assets, run `./bin/codex-maintainer release-replay verify --manifest /tmp/release-proof/release-manifest.json --tarball dist/codex-maintainer-v3.17.0.tar.gz --index /tmp/release-index/release-index.json --ledger /tmp/release-proof/proof-ledger.md --out /tmp/release-replay`.
+To replay release proof from downloaded assets, run `./bin/codex-maintainer release-replay verify --manifest /tmp/release-proof/release-manifest.json --tarball dist/codex-maintainer-v3.18.0.tar.gz --index /tmp/release-index/release-index.json --ledger /tmp/release-proof/proof-ledger.md --out /tmp/release-replay`.
 To generate a compact release attestation, run `./bin/codex-maintainer release-attest build --manifest /tmp/release-proof/release-manifest.json --replay /tmp/release-replay/replay-report.json --out /tmp/release-attestation`.
-To generate the full proof bundle in one command, run `./bin/codex-maintainer release-proof build --out /tmp/release-proof-bundle --release-url https://github.com/owner/repo/releases/tag/v3.17.0`.
-To consume a published proof bundle, run `./bin/codex-maintainer release-consume verify --dir /tmp/codex-maintainer-v3.17.0 --out /tmp/codex-maintainer-v3.17.0/consumer-proof --version 3.17.0`.
-To verify a published proof bundle in GitHub Actions, use `jlekerli-source/ringly-codex-workflows/actions/release-consume@v3.17.0`.
-To compare two release proof bundles, run `./bin/codex-maintainer release-diff compare --left /tmp/codex-maintainer-old --right /tmp/codex-maintainer-v3.17.0 --out /tmp/release-diff`.
-To compare two published proof bundles in GitHub Actions, use `jlekerli-source/ringly-codex-workflows/actions/release-diff@v3.17.0`.
-To export a static evidence page, run `./bin/codex-maintainer release-evidence site --consume /tmp/codex-maintainer-v3.17.0/consumer-proof --diff /tmp/release-diff --out /tmp/release-site`.
+To generate the full proof bundle in one command, run `./bin/codex-maintainer release-proof build --out /tmp/release-proof-bundle --release-url https://github.com/owner/repo/releases/tag/v3.18.0`.
+To consume a published proof bundle, run `./bin/codex-maintainer release-consume verify --dir /tmp/codex-maintainer-v3.18.0 --out /tmp/codex-maintainer-v3.18.0/consumer-proof --version 3.18.0`.
+To verify a published proof bundle in GitHub Actions, use `jlekerli-source/ringly-codex-workflows/actions/release-consume@v3.18.0`.
+To compare two release proof bundles, run `./bin/codex-maintainer release-diff compare --left /tmp/codex-maintainer-old --right /tmp/codex-maintainer-v3.18.0 --out /tmp/release-diff`.
+To compare two published proof bundles in GitHub Actions, use `jlekerli-source/ringly-codex-workflows/actions/release-diff@v3.18.0`.
+To export a static evidence page, run `./bin/codex-maintainer release-evidence site --consume /tmp/codex-maintainer-v3.18.0/consumer-proof --diff /tmp/release-diff --out /tmp/release-site`.
 To build a static evidence history, run `./bin/codex-maintainer release-evidence index --site /tmp/release-site --out /tmp/release-history`.
+To export release evidence in GitHub Actions, use `jlekerli-source/ringly-codex-workflows/actions/release-evidence@v3.18.0`.
 
 ## What Is Inside
 
@@ -126,6 +128,7 @@ To build a static evidence history, run `./bin/codex-maintainer release-evidence
 - `actions/release-proof/`: a reusable GitHub composite action for release proof artifacts.
 - `actions/release-consume/`: a reusable GitHub composite action for downstream release proof verification.
 - `actions/release-diff/`: a reusable GitHub composite action for release proof diff audits.
+- `actions/release-evidence/`: a reusable GitHub composite action for static release evidence exports.
 - `docs/cli.md`: command reference for the CLI.
 - `docs/arena.md`: guide for running the public maintainer fixture arena.
 - `docs/autopsy.md`: guide for auditing AI coding claims against diffs and tests.
@@ -146,6 +149,7 @@ To build a static evidence history, run `./bin/codex-maintainer release-evidence
 - `docs/release-consume-action.md`: GitHub Action for release proof consumption in CI.
 - `docs/release-diff.md`: release proof bundle diff reports.
 - `docs/release-diff-action.md`: GitHub Action for release proof bundle diff reports.
+- `docs/release-evidence-action.md`: GitHub Action for release evidence site and index exports.
 - `docs/release-evidence-site.md`: static release evidence HTML export.
 - `docs/release-evidence-index.md`: static release evidence history export.
 - `docs/release-index.md`: release proof catalog generation.
@@ -171,6 +175,7 @@ To build a static evidence history, run `./bin/codex-maintainer release-evidence
 - `examples/demo-walkthrough.md`: proof path for clone and release-package usage.
 - `examples/workflows/release-consume-verify.yml`: manual release proof consumption workflow.
 - `examples/workflows/release-diff-compare.yml`: manual release proof diff workflow.
+- `examples/workflows/release-evidence-export.yml`: manual release evidence export workflow.
 - `examples/demo-reports/`: generated demo arena reports and leaderboard JSON.
 - `examples/autopsy-report.md`: sample autopsy expectations for dangerous and clean runs.
 - `fixtures/demo-ios-repo/`: fake iOS-style repo for demo and package testing.
