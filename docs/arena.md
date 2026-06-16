@@ -53,6 +53,27 @@ The importer:
 - refuses to overwrite existing cases unless `--force` is passed
 - rejects obvious local machine paths and secret-looking strings
 
+## Sign And Verify Packs
+
+After importing a pack, write deterministic integrity metadata:
+
+```bash
+./bin/codex-maintainer arena sign \
+  --fixture /tmp/imported-arena-pack \
+  --out /tmp/imported-arena-pack/PACK.json \
+  --pack-name "external-pack"
+```
+
+Verify a pack before running it:
+
+```bash
+./bin/codex-maintainer arena verify \
+  --fixture /tmp/imported-arena-pack \
+  --manifest /tmp/imported-arena-pack/PACK.json
+```
+
+`PACK.json` includes case IDs, supported file paths, byte counts, file SHA-256 values, and a pack-level SHA-256 content digest. This is integrity metadata for reproducibility; it is not identity signing with a private key.
+
 ## Aggregate Metrics
 
 `results.json` includes:

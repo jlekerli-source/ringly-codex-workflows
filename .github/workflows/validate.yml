@@ -37,6 +37,9 @@ jobs:
       - name: Run arena import tests
         run: ./tests/arena_import_test.sh
 
+      - name: Run arena sign tests
+        run: ./tests/arena_sign_test.sh
+
       - name: Run review comment tests
         run: ./tests/review_comment_test.sh
 

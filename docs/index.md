@@ -50,6 +50,8 @@ Start here:
 10. Run `./bin/codex-maintainer check-run --gate /tmp/codex-gate/gate.json --head-sha "$GITHUB_SHA" --out /tmp/codex-gate/check-run/payload.json` after a gate run.
 11. Run `./bin/codex-maintainer arena run --fixture fixtures/arena --out /tmp/arena`.
 12. Run `./bin/codex-maintainer arena import --source fixtures/external-arena-pack --out /tmp/imported-arena`.
-13. Run `./bin/codex-maintainer leaderboard build --arena-results /tmp/arena/results.json --out /tmp/leaderboard.json`.
-14. Run `./bin/codex-maintainer self-audit --out /tmp/codex-maintainer-self-audit`.
-15. Run `./bin/codex-maintainer next-goal --out /tmp/NEXT_GOAL.md`.
+13. Run `./bin/codex-maintainer arena sign --fixture /tmp/imported-arena --out /tmp/imported-arena/PACK.json`.
+14. Run `./bin/codex-maintainer arena verify --fixture /tmp/imported-arena --manifest /tmp/imported-arena/PACK.json`.
+15. Run `./bin/codex-maintainer leaderboard build --arena-results /tmp/arena/results.json --out /tmp/leaderboard.json`.
+16. Run `./bin/codex-maintainer self-audit --out /tmp/codex-maintainer-self-audit`.
+17. Run `./bin/codex-maintainer next-goal --out /tmp/NEXT_GOAL.md`.

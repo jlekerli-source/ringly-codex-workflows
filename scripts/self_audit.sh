@@ -58,6 +58,8 @@ commands=(
   "autopsy --help"
   "arena run --help"
   "arena import --help"
+  "arena sign --help"
+  "arena verify --help"
   "review-comment --help"
   "ci-gate --help"
   "ci-summary --help"
@@ -91,6 +93,8 @@ required_artifacts=(
   "docs/template-profiles.md"
   "templates/web/AGENTS.md"
   "fixtures/external-arena-pack/imported-clean/run.md"
+  "scripts/arena_sign.sh"
+  "scripts/arena_verify.sh"
 )
 
 artifact_count=0

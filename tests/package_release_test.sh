@@ -43,6 +43,8 @@ grep -q "^$package_name/docs/template-profiles.md$" "$tar_list"
 grep -q "^$package_name/scripts/install.sh$" "$tar_list"
 grep -q "^$package_name/scripts/arena_import.sh$" "$tar_list"
 grep -q "^$package_name/scripts/arena_run.sh$" "$tar_list"
+grep -q "^$package_name/scripts/arena_sign.sh$" "$tar_list"
+grep -q "^$package_name/scripts/arena_verify.sh$" "$tar_list"
 grep -q "^$package_name/scripts/autopsy_report.sh$" "$tar_list"
 grep -q "^$package_name/scripts/build_demo_reports.sh$" "$tar_list"
 grep -q "^$package_name/scripts/check_run.sh$" "$tar_list"
@@ -57,6 +59,7 @@ grep -q "^$package_name/scripts/self_audit.sh$" "$tar_list"
 grep -q "^$package_name/tests/package_release_test.sh$" "$tar_list"
 grep -q "^$package_name/tests/action_artifact_test.sh$" "$tar_list"
 grep -q "^$package_name/tests/arena_import_test.sh$" "$tar_list"
+grep -q "^$package_name/tests/arena_sign_test.sh$" "$tar_list"
 grep -q "^$package_name/tests/arena_test.sh$" "$tar_list"
 grep -q "^$package_name/tests/autopsy_test.sh$" "$tar_list"
 grep -q "^$package_name/tests/check_run_test.sh$" "$tar_list"
@@ -128,6 +131,14 @@ grep -q 'Pack: package-imported' "$tmp_dir/package-imported-arena/PACK.md"
   --fixture "$tmp_dir/package-imported-arena" \
   --out "$tmp_dir/package-imported-results" >/dev/null
 grep -q '"case_count": 2' "$tmp_dir/package-imported-results/results.json"
+"$package_root/bin/codex-maintainer" arena sign \
+  --fixture "$tmp_dir/package-imported-arena" \
+  --out "$tmp_dir/package-imported-arena/PACK.json" \
+  --pack-name "package-imported" >/dev/null
+grep -q '"signature_type" : "sha256-content-digest"' "$tmp_dir/package-imported-arena/PACK.json"
+"$package_root/bin/codex-maintainer" arena verify \
+  --fixture "$tmp_dir/package-imported-arena" \
+  --manifest "$tmp_dir/package-imported-arena/PACK.json" >/dev/null
 "$package_root/bin/codex-maintainer" review-comment \
   --report "$tmp_dir/package-autopsy/report.json" \
   --out "$tmp_dir/package-review/comment.md" \
@@ -177,6 +188,7 @@ grep -q '"version" : "2.1.0"' "$tmp_dir/package-sarif/results.sarif"
 grep -q '/goal Implement v2.6.0 Package Proof Followup' "$tmp_dir/package-next-goal.md"
 grep -q './tests/template_profiles_test.sh' "$tmp_dir/package-next-goal.md"
 grep -q './tests/arena_import_test.sh' "$tmp_dir/package-next-goal.md"
+grep -q './tests/arena_sign_test.sh' "$tmp_dir/package-next-goal.md"
 grep -q './tests/check_run_test.sh' "$tmp_dir/package-next-goal.md"
 grep -q './tests/ci_summary_test.sh' "$tmp_dir/package-next-goal.md"
 grep -q './tests/sarif_test.sh' "$tmp_dir/package-next-goal.md"

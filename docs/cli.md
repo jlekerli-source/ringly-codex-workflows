@@ -143,6 +143,21 @@ Import an external fixture pack before running it:
 
 The import command copies supported fixture files, writes `PACK.md`, and rejects obvious local paths or secret-looking values.
 
+Sign and verify fixture-pack metadata:
+
+```bash
+./bin/codex-maintainer arena sign \
+  --fixture /tmp/imported-arena-pack \
+  --out /tmp/imported-arena-pack/PACK.json \
+  --pack-name "external-pack"
+
+./bin/codex-maintainer arena verify \
+  --fixture /tmp/imported-arena-pack \
+  --manifest /tmp/imported-arena-pack/PACK.json
+```
+
+The signature is a deterministic SHA-256 content digest for integrity checks, not identity signing with a private key.
+
 ## Review Comment
 
 Generate a PR-ready comment and Shields-compatible badge from an autopsy report:

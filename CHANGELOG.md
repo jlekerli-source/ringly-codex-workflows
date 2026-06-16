@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.7.0 - Signed Fixture Pack Metadata
+
+- Added `codex-maintainer arena sign` and `codex-maintainer arena verify`.
+- Added deterministic `PACK.json` metadata with file SHA-256 values, byte counts, and pack digest.
+- Added tamper-detection tests, docs, self-audit coverage, CI coverage, and package verification.
+
 ## v2.6.0 - External Fixture Pack Import
 
 - Added `codex-maintainer arena import` for validating and copying external Maintainer Arena fixture packs.
