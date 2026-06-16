@@ -31,6 +31,7 @@ Then:
 ./scripts/package_release.sh
 shasum -a 256 dist/codex-maintainer-vX.Y.Z.tar.gz
 ./bin/codex-maintainer release-manifest --tarball dist/codex-maintainer-vX.Y.Z.tar.gz --out /tmp/codex-maintainer-release-proof
+./bin/codex-maintainer release-manifest verify --manifest /tmp/codex-maintainer-release-proof/release-manifest.json --tarball dist/codex-maintainer-vX.Y.Z.tar.gz
 ```
 
 Before publishing, confirm:

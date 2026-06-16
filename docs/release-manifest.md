@@ -1,6 +1,6 @@
 # Release Manifest
 
-`codex-maintainer release-manifest` generates a machine-readable release manifest and a human-readable proof ledger for a release tarball.
+`codex-maintainer release-manifest` generates a machine-readable release manifest and a human-readable proof ledger for a release tarball. `codex-maintainer release-manifest verify` verifies the manifest against the tarball later.
 
 ```bash
 tarball="$(./scripts/package_release.sh)"
@@ -9,8 +9,16 @@ tarball="$(./scripts/package_release.sh)"
   --tarball "$tarball" \
   --out /tmp/codex-maintainer-release-proof \
   --ci-run-url "https://github.com/owner/repo/actions/runs/123" \
-  --release-url "https://github.com/owner/repo/releases/tag/v3.1.0" \
+  --release-url "https://github.com/owner/repo/releases/tag/v3.2.0" \
   --issue-url "https://github.com/owner/repo/issues/37"
+```
+
+Verify the manifest before using it as release evidence:
+
+```bash
+./bin/codex-maintainer release-manifest verify \
+  --manifest /tmp/codex-maintainer-release-proof/release-manifest.json \
+  --tarball "$tarball"
 ```
 
 Outputs:
@@ -30,4 +38,4 @@ The manifest records:
 
 The proof ledger is meant for release notes and maintainer audits. It lists the release artifact digest and the manual checks that must be confirmed after publishing.
 
-This command does not publish a release, close issues, or verify remote GitHub state. It creates deterministic proof files that make those release checks easier to review.
+Verification checks schema version, optional expected version and tag, commit presence, artifact name, byte count, SHA-256, and whether the artifact path is portable. It does not publish a release, close issues, or verify remote GitHub state.

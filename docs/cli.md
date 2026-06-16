@@ -259,8 +259,16 @@ Generate release proof files for a tarball:
 
 ```bash
 ./bin/codex-maintainer release-manifest \
-  --tarball dist/codex-maintainer-v3.1.0.tar.gz \
+  --tarball dist/codex-maintainer-v3.2.0.tar.gz \
   --out /tmp/codex-maintainer-release-proof
+```
+
+Verify the manifest against the tarball:
+
+```bash
+./bin/codex-maintainer release-manifest verify \
+  --manifest /tmp/codex-maintainer-release-proof/release-manifest.json \
+  --tarball dist/codex-maintainer-v3.2.0.tar.gz
 ```
 
 The command writes `release-manifest.json` and `proof-ledger.md`. Add `--ci-run-url`, `--release-url`, and `--issue-url` after publishing to bind the local artifact digest to public release proof. See `release-manifest.md`.
@@ -306,8 +314,8 @@ The command writes a Markdown plan with a `/goal` block, release constraints, pr
 Download and extract a release package:
 
 ```bash
-tar -xzf codex-maintainer-v3.1.0.tar.gz
-cd codex-maintainer-v3.1.0
+tar -xzf codex-maintainer-v3.2.0.tar.gz
+cd codex-maintainer-v3.2.0
 PREFIX="$HOME/.local" ./scripts/install.sh
 ```
 

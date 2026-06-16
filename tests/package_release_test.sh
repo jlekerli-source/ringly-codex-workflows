@@ -209,11 +209,17 @@ grep -q '"average_total": 6.25' "$tmp_dir/package-leaderboard.json"
 grep -q '"schema_version" : "1.0"' "$tmp_dir/package-release-proof/release-manifest.json"
 grep -q "\"tag\" : \"v$version\"" "$tmp_dir/package-release-proof/release-manifest.json"
 grep -q 'Artifact SHA-256:' "$tmp_dir/package-release-proof/proof-ledger.md"
+"$package_root/bin/codex-maintainer" release-manifest verify \
+  --manifest "$tmp_dir/package-release-proof/release-manifest.json" \
+  --tarball "$tarball" \
+  --version "$version" \
+  --tag "v$version" >/dev/null
 "$package_root/bin/codex-maintainer" self-audit \
   --out "$tmp_dir/package-self-audit" >/dev/null
 grep -q '"status": "pass"' "$tmp_dir/package-self-audit/self-audit.json"
 grep -q '| codex-maintainer leaderboard build --help | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 grep -q '| codex-maintainer release-manifest --help | pass |' "$tmp_dir/package-self-audit/self-audit.md"
+grep -q '| codex-maintainer release-manifest verify --help | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 "$package_root/bin/codex-maintainer" sarif \
   --report "$tmp_dir/package-autopsy/report.json" \
   --out "$tmp_dir/package-sarif/results.sarif" >/dev/null

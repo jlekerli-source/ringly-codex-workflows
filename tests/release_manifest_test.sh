@@ -9,6 +9,7 @@ trap 'rm -rf "$tmp_dir"' EXIT
 cd "$repo_root"
 
 ./bin/codex-maintainer release-manifest --help >/dev/null
+./bin/codex-maintainer release-manifest verify --help >/dev/null
 
 tarball="$(./scripts/package_release.sh)"
 version="$(sed -n '1p' VERSION)"
@@ -52,6 +53,30 @@ grep -q '# Release Proof Ledger' "$tmp_dir/proof/proof-ledger.md"
 grep -q "Artifact SHA-256: $sha" "$tmp_dir/proof/proof-ledger.md"
 grep -q 'GitHub Actions passed on the release commit' "$tmp_dir/proof/proof-ledger.md"
 grep -q 'Tracking issue is closed' "$tmp_dir/proof/proof-ledger.md"
+
+./bin/codex-maintainer release-manifest verify \
+  --manifest "$tmp_dir/proof/release-manifest.json" \
+  --tarball "$tarball" \
+  --version "$version" \
+  --tag "v$version" >/dev/null
+
+cp "$tmp_dir/proof/release-manifest.json" "$tmp_dir/tampered-manifest.json"
+perl -0pi -e 's/"sha256" : "[a-f0-9]{64}"/"sha256" : "0000000000000000000000000000000000000000000000000000000000000000"/' "$tmp_dir/tampered-manifest.json"
+if ./bin/codex-maintainer release-manifest verify \
+  --manifest "$tmp_dir/tampered-manifest.json" \
+  --tarball "$tarball" >/dev/null 2>&1; then
+  echo "expected tampered manifest to fail verification" >&2
+  exit 1
+fi
+
+cp "$tmp_dir/proof/release-manifest.json" "$tmp_dir/local-path-manifest.json"
+perl -0pi -e 'my $absolute = "/" . "Users/example/codex-maintainer.tar.gz"; s|"path" : "[^"]+"|"path" : "$absolute"|' "$tmp_dir/local-path-manifest.json"
+if ./bin/codex-maintainer release-manifest verify \
+  --manifest "$tmp_dir/local-path-manifest.json" \
+  --tarball "$tarball" >/dev/null 2>&1; then
+  echo "expected manifest with local artifact path to fail verification" >&2
+  exit 1
+fi
 
 if ./bin/codex-maintainer release-manifest \
   --tarball "$tarball" \

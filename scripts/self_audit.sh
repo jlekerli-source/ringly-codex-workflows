@@ -68,6 +68,7 @@ commands=(
   "sarif --help"
   "leaderboard build --help"
   "release-manifest --help"
+  "release-manifest verify --help"
   "self-audit --help"
   "next-goal --help"
 )

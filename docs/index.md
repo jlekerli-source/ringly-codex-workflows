@@ -56,6 +56,6 @@ Start here:
 15. Run `./bin/codex-maintainer arena sign --fixture /tmp/imported-arena --out /tmp/imported-arena/PACK.json`.
 16. Run `./bin/codex-maintainer arena verify --fixture /tmp/imported-arena --manifest /tmp/imported-arena/PACK.json`.
 17. Run `./bin/codex-maintainer leaderboard build --arena-results /tmp/arena/results.json --out /tmp/leaderboard.json`.
-18. Run `./bin/codex-maintainer release-manifest --tarball dist/codex-maintainer-v3.1.0.tar.gz --out /tmp/codex-maintainer-release-proof` after packaging.
+18. Run `./bin/codex-maintainer release-manifest --tarball dist/codex-maintainer-v3.2.0.tar.gz --out /tmp/codex-maintainer-release-proof` after packaging.
 19. Run `./bin/codex-maintainer self-audit --out /tmp/codex-maintainer-self-audit`.
 20. Run `./bin/codex-maintainer next-goal --out /tmp/NEXT_GOAL.md`.

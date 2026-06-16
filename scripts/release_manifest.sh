@@ -10,6 +10,7 @@ codex-maintainer release-manifest
 
 Usage:
   codex-maintainer release-manifest --tarball <release.tar.gz> --out <dir> [--version <version>] [--tag <tag>] [--commit <sha>] [--ci-run-url <url>] [--release-url <url>] [--issue-url <url>] [--notes <text>]
+  codex-maintainer release-manifest verify --manifest <release-manifest.json> --tarball <release.tar.gz> [--version <version>] [--tag <tag>]
 
 Outputs:
   release-manifest.json
@@ -22,6 +23,7 @@ fail() {
   exit 1
 }
 
+cmd_generate() {
 tarball=""
 out_dir=""
 version="$(sed -n '1p' "$tool_root/VERSION")"
@@ -171,3 +173,97 @@ PERL
 
 echo "wrote: $manifest_file"
 echo "wrote: $ledger_file"
+}
+
+cmd_verify() {
+  local manifest_file=""
+  local tarball=""
+  local expected_version=""
+  local expected_tag=""
+
+  while [[ "$#" -gt 0 ]]; do
+    case "$1" in
+      --manifest)
+        [[ "$#" -ge 2 && -n "${2:-}" ]] || fail "--manifest requires a value"
+        manifest_file="$2"
+        shift 2
+        ;;
+      --tarball)
+        [[ "$#" -ge 2 && -n "${2:-}" ]] || fail "--tarball requires a value"
+        tarball="$2"
+        shift 2
+        ;;
+      --version)
+        [[ "$#" -ge 2 && -n "${2:-}" ]] || fail "--version requires a value"
+        expected_version="$2"
+        shift 2
+        ;;
+      --tag)
+        [[ "$#" -ge 2 && -n "${2:-}" ]] || fail "--tag requires a value"
+        expected_tag="$2"
+        shift 2
+        ;;
+      --help|-h)
+        usage
+        exit 0
+        ;;
+      *)
+        fail "unknown verify argument: $1"
+        ;;
+    esac
+  done
+
+  [[ -n "$manifest_file" ]] || fail "--manifest is required"
+  [[ -n "$tarball" ]] || fail "--tarball is required"
+  [[ -f "$manifest_file" ]] || fail "manifest not found: $manifest_file"
+  [[ -f "$tarball" ]] || fail "tarball not found: $tarball"
+  [[ -z "$expected_version" || "$expected_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || fail "--version must be semantic"
+
+  MANIFEST_FILE="$manifest_file" TARBALL="$tarball" EXPECTED_VERSION="$expected_version" EXPECTED_TAG="$expected_tag" perl <<'PERL'
+use strict;
+use warnings;
+use Digest::SHA qw(sha256_hex);
+use JSON::PP;
+
+sub fail {
+  die "release-manifest: $_[0]\n";
+}
+
+sub file_sha {
+  my ($path) = @_;
+  open my $fh, '<:raw', $path or fail("cannot read tarball: $!");
+  my $ctx = Digest::SHA->new(256);
+  $ctx->addfile($fh);
+  close $fh;
+  return $ctx->hexdigest;
+}
+
+open my $in, '<:encoding(UTF-8)', $ENV{MANIFEST_FILE} or fail("cannot read manifest: $!");
+local $/;
+my $manifest = decode_json(<$in>);
+close $in;
+
+fail("unsupported schema") unless ($manifest->{schema_version} || '') eq '1.0';
+fail("version mismatch") if length($ENV{EXPECTED_VERSION} || '') && ($manifest->{version} || '') ne $ENV{EXPECTED_VERSION};
+fail("tag mismatch") if length($ENV{EXPECTED_TAG} || '') && ($manifest->{tag} || '') ne $ENV{EXPECTED_TAG};
+
+my $artifact = $manifest->{artifact} || fail("manifest missing artifact");
+my $actual_name = $ENV{TARBALL};
+$actual_name =~ s{.*/}{};
+fail("artifact name mismatch") unless ($artifact->{name} || '') eq $actual_name;
+fail("artifact path must be portable") if ($artifact->{path} || '') =~ m{\A/};
+fail("artifact byte count mismatch") unless ($artifact->{bytes} || 0) == (-s $ENV{TARBALL});
+fail("artifact sha mismatch") unless ($artifact->{sha256} || '') eq file_sha($ENV{TARBALL});
+fail("manifest missing tag") unless length($manifest->{tag} || '');
+fail("manifest missing commit") unless length($manifest->{commit} || '');
+PERL
+
+  echo "verified: $manifest_file"
+}
+
+if [[ "${1:-}" == "verify" ]]; then
+  shift
+  cmd_verify "$@"
+else
+  cmd_generate "$@"
+fi

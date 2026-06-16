@@ -1,5 +1,12 @@
 # Changelog
 
+## v3.2.0 - Release Manifest Verification
+
+- Added `codex-maintainer release-manifest verify`.
+- Added verification for manifest schema, version, tag, commit presence, artifact name, byte count, SHA-256, and portable artifact path.
+- Added tamper-detection tests for changed digests and local machine paths.
+- Updated release-manifest docs, self-audit coverage, package verification, CI coverage, and release proof.
+
 ## v3.1.0 - Release Manifest And Proof Ledger
 
 - Added `codex-maintainer release-manifest` for release tarball proof files.
