@@ -94,7 +94,10 @@ cat > "$out_file" <<EOF
 ./tests/arena_test.sh
 ./tests/review_comment_test.sh
 ./tests/policy_test.sh
+./tests/check_run_test.sh
 ./tests/ci_gate_test.sh
+./tests/ci_summary_test.sh
+./tests/sarif_test.sh
 ./tests/leaderboard_test.sh
 ./tests/self_audit_test.sh
 ./tests/next_goal_test.sh

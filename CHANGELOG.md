@@ -1,5 +1,10 @@
 # Changelog
 
+## v2.4.1 - Next Goal Proof List Patch
+
+- Updated `codex-maintainer next-goal` so generated release plans include check-run, CI summary, and SARIF tests.
+- Strengthened next-goal and package tests to catch stale proof-command lists.
+
 ## v2.4.0 - Check Run Payload Export
 
 - Added `codex-maintainer check-run` for GitHub Checks API payload JSON from `gate.json`.

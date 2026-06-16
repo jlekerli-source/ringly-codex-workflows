@@ -151,10 +151,13 @@ grep -q '| codex-maintainer leaderboard build --help | pass |' "$tmp_dir/package
   --out "$tmp_dir/package-sarif/results.sarif" >/dev/null
 grep -q '"version" : "2.1.0"' "$tmp_dir/package-sarif/results.sarif"
 "$package_root/bin/codex-maintainer" next-goal \
-  --release 2.3.0 \
+  --release 2.5.0 \
   --title "Package Proof Followup" \
   --out "$tmp_dir/package-next-goal.md" >/dev/null
-grep -q '/goal Implement v2.3.0 Package Proof Followup' "$tmp_dir/package-next-goal.md"
+grep -q '/goal Implement v2.5.0 Package Proof Followup' "$tmp_dir/package-next-goal.md"
+grep -q './tests/check_run_test.sh' "$tmp_dir/package-next-goal.md"
+grep -q './tests/ci_summary_test.sh' "$tmp_dir/package-next-goal.md"
+grep -q './tests/sarif_test.sh' "$tmp_dir/package-next-goal.md"
 
 install_prefix="$tmp_dir/install"
 PREFIX="$install_prefix" "$package_root/scripts/install.sh" >/dev/null
