@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.0.0 - Public AI Maintainer Reliability Benchmark
+
+- Stabilized CLI docs for `autopsy`, `arena`, `review-comment`, and `leaderboard`.
+- Added stable `leaderboard.json` schema version `1.0`.
+- Added demo reports generated from public fixtures.
+- Added benchmark and demo-report docs.
+- Added leaderboard tests and package verification.
+
 ## v0.8.0 - PR Review Bot Mode
 
 - Added `codex-maintainer review-comment` for PR-ready Markdown comments and Shields-compatible badge JSON.

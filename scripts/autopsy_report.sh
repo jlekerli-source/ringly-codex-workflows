@@ -109,7 +109,7 @@ mkdir -p "$out_dir"
 markdown_report="$out_dir/report.md"
 json_report="$out_dir/report.json"
 tool_version="$(sed -n '1p' "$tool_root/VERSION")"
-generated_at="$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
+generated_at="${CODEX_MAINTAINER_GENERATED_AT:-$(date -u '+%Y-%m-%dT%H:%M:%SZ')}"
 
 category_labels=(
   "Scope control"

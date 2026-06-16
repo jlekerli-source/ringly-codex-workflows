@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+out_root="${1:-examples/demo-reports}"
+generated_at="${CODEX_MAINTAINER_GENERATED_AT:-2026-06-16T00:00:00Z}"
+
+cd "$repo_root"
+
+rm -rf "$out_root"
+mkdir -p "$out_root"
+
+CODEX_MAINTAINER_GENERATED_AT="$generated_at" \
+  ./bin/codex-maintainer arena run \
+  --fixture fixtures/arena \
+  --out "$out_root/arena" >/dev/null
+
+CODEX_MAINTAINER_GENERATED_AT="$generated_at" \
+  ./bin/codex-maintainer leaderboard build \
+  --arena-results "$out_root/arena/results.json" \
+  --out "$out_root/leaderboard.json" >/dev/null
+
+cat > "$out_root/README.md" <<'README'
+# Demo Reports
+
+These reports are generated from the public fixture pack with:
+
+```bash
+./scripts/build_demo_reports.sh
+```
+
+The demo output is intentionally small and reproducible. It is proof of format and workflow behavior, not a claim about real-world adoption.
+README
+
+echo "wrote demo reports: $out_root"

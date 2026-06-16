@@ -16,6 +16,7 @@ Usage:
   codex-maintainer autopsy --run <run.md> [--diff <patch.diff>] [--tests <test.log>] [--task <task.md>] [--out <dir>]
   codex-maintainer arena run --fixture <fixture-dir> [--out <dir>]
   codex-maintainer review-comment --report <report.json> --out <comment.md> [--mode warn|fail]
+  codex-maintainer leaderboard build --arena-results <results.json> --out <leaderboard.json>
   codex-maintainer version
   codex-maintainer help
 
@@ -28,6 +29,7 @@ Commands:
   arena       Run multiple autopsy fixtures and aggregate benchmark results.
   review-comment
               Generate a PR-ready review comment and badge from an autopsy report.
+  leaderboard Build a stable leaderboard JSON file from arena results.
   version     Print the toolkit version from VERSION.
 USAGE
 }
@@ -198,6 +200,13 @@ cmd_review_comment() {
   "$tool_root/scripts/review_comment.sh" "$@"
 }
 
+cmd_leaderboard() {
+  local subcommand="${1:-}"
+  [[ "$subcommand" == "build" ]] || fail "leaderboard requires subcommand: build"
+  shift || true
+  "$tool_root/scripts/leaderboard_build.sh" "$@"
+}
+
 cmd_version() {
   local version_file="$tool_root/VERSION"
   [[ -f "$version_file" ]] || fail "VERSION file not found"
@@ -232,6 +241,9 @@ main() {
       ;;
     review-comment)
       cmd_review_comment "$@"
+      ;;
+    leaderboard)
+      cmd_leaderboard "$@"
       ;;
     version)
       cmd_version

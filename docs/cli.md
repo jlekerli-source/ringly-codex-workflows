@@ -128,13 +128,25 @@ Generate a PR-ready comment and Shields-compatible badge from an autopsy report:
 
 Use `--mode fail` to exit non-zero when the report is blocked. See `pr-review-bot.md` for the GitHub Actions workflow shape.
 
+## Leaderboard
+
+Build a stable public leaderboard JSON file from arena results:
+
+```bash
+./bin/codex-maintainer leaderboard build \
+  --arena-results /tmp/arena/results.json \
+  --out /tmp/leaderboard.json
+```
+
+See `benchmark.md` for the schema and `demo-reports.md` for checked-in generated examples.
+
 ## Install From Release Tarball
 
 Download and extract a release package:
 
 ```bash
-tar -xzf codex-maintainer-v0.6.0.tar.gz
-cd codex-maintainer-v0.6.0
+tar -xzf codex-maintainer-v1.0.0.tar.gz
+cd codex-maintainer-v1.0.0
 PREFIX="$HOME/.local" ./scripts/install.sh
 ```
 

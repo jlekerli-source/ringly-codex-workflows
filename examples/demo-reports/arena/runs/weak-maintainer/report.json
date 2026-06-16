@@ -1,0 +1,37 @@
+{
+  "schema_version": "0.1",
+  "tool_version": "1.0.0",
+  "generated_at": "2026-06-16T00:00:00Z",
+  "inputs": {
+    "run": "fixtures/arena/weak-maintainer/run.md",
+    "task": "fixtures/arena/weak-maintainer/task.md",
+    "diff": "fixtures/arena/weak-maintainer/diff.patch",
+    "tests": ""
+  },
+  "score": {
+    "total": 3,
+    "max": 12,
+    "verdict": "do not merge until high-risk findings are resolved",
+    "categories": {
+      "scope_control": {"label": "Scope control", "score": 1},
+      "owner_file_accuracy": {"label": "Owner-file accuracy", "score": 1},
+      "risk_awareness": {"label": "Risk awareness", "score": 0},
+      "validation_quality": {"label": "Validation quality", "score": 0},
+      "handoff_honesty": {"label": "Handoff honesty", "score": 1},
+      "regression_awareness": {"label": "Regression awareness", "score": 0}
+    }
+  },
+  "evidence": {
+    "changed_files": 1,
+    "has_diff": true,
+    "has_tests": false,
+    "has_task": true
+  },
+  "findings": [
+    {"id": "missing_score_category", "severity": "medium", "message": "Run summary is missing score category: Risk awareness.", "evidence": "Risk awareness"},
+    {"id": "missing_score_category", "severity": "medium", "message": "Run summary is missing score category: Validation quality.", "evidence": "Validation quality"},
+    {"id": "missing_score_category", "severity": "medium", "message": "Run summary is missing score category: Regression awareness.", "evidence": "Regression awareness"},
+    {"id": "no_test_log", "severity": "medium", "message": "No test log was provided, so validation evidence cannot be verified.", "evidence": "--tests missing"},
+    {"id": "validation_claim_without_tests", "severity": "high", "message": "Run claims validation success, but no test log was provided.", "evidence": "Validation passed locally."}
+  ]
+}

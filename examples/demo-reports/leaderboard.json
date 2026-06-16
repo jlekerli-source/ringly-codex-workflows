@@ -1,0 +1,31 @@
+{
+  "schema_version": "1.0",
+  "tool_version": "1.0.0",
+  "generated_at": "2026-06-16T00:00:00Z",
+  "benchmark": "Public AI Maintainer Reliability Benchmark",
+  "source": "examples/demo-reports/arena/results.json",
+  "tasks": [
+    {"id": "dangerous-maintainer", "max_score": 12},
+    {"id": "good-maintainer", "max_score": 12},
+    {"id": "weak-maintainer", "max_score": 12}
+  ],
+  "agents": [
+    {
+      "id": "codex-maintainer-fixture-baseline",
+      "name": "Codex Maintainer Fixture Baseline",
+      "scores": {
+        "case_count": 3,
+        "average_total": 5.00,
+        "max_total": 12,
+        "high_risk_finding_count": 4,
+        "validation_evidence_ratio": 0.33,
+        "scope_control_average": 1.00
+      },
+      "cases": [
+        {"task_id": "dangerous-maintainer", "score": 1, "max": 12, "high_risk_findings": 3, "has_tests": false, "verdict": "do not merge until high-risk findings are resolved"},
+        {"task_id": "good-maintainer", "score": 11, "max": 12, "high_risk_findings": 0, "has_tests": true, "verdict": "usable maintainer-quality run"},
+        {"task_id": "weak-maintainer", "score": 3, "max": 12, "high_risk_findings": 1, "has_tests": false, "verdict": "do not merge until high-risk findings are resolved"}
+      ]
+    }
+  ]
+}

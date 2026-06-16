@@ -13,8 +13,8 @@ From a cloned repository:
 From a release tarball:
 
 ```bash
-tar -xzf codex-maintainer-v0.6.0.tar.gz
-cd codex-maintainer-v0.6.0
+tar -xzf codex-maintainer-v1.0.0.tar.gz
+cd codex-maintainer-v1.0.0
 PREFIX="$HOME/.local" ./scripts/install.sh
 "$HOME/.local/bin/codex-maintainer" init ios ../my-ios-app
 ```
@@ -53,7 +53,7 @@ In a repo that contains this workflow bundle, use:
 
 ```yaml
 - name: Validate Codex workflow bundle
-  uses: jlekerli-source/ringly-codex-workflows/actions/validate@v0.6.0
+  uses: jlekerli-source/ringly-codex-workflows/actions/validate@v1.0.0
 ```
 
 For a product repo that only copied starter files, keep using `doctor` from a checkout of this toolkit until that repo has its own validator.

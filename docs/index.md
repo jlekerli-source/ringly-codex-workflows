@@ -11,6 +11,8 @@ Start here:
 - [CLI reference](cli.md)
 - [Agent Autopsy](autopsy.md)
 - [Autopsy in GitHub Actions](autopsy-github-actions.md)
+- [Benchmark Format](benchmark.md)
+- [Demo Reports](demo-reports.md)
 - [PR Review Bot Mode](pr-review-bot.md)
 - [GitHub Action](github-action.md)
 - [Changelog](../CHANGELOG.md)
@@ -20,7 +22,7 @@ Start here:
 - Root instructions for Codex in a risk-sensitive iOS repo.
 - Planning and subagent templates.
 - Reusable skills for alarm testing, notification permissions, release work, bug triage, and UI polish.
-- A small CLI for validation, starter initialization, doctor checks, run scoring, agent autopsy reports, and fixture arena runs.
+- A small CLI for validation, starter initialization, doctor checks, run scoring, autopsy reports, fixture arena runs, review comments, and leaderboard JSON.
 - Reusable GitHub Actions for validation and review-comment generation.
 - Examples and a scorecard for judging agent output quality.
 
@@ -33,3 +35,4 @@ Start here:
 5. Run `./bin/codex-maintainer doctor ../my-ios-app`.
 6. Run `./bin/codex-maintainer autopsy --run fixtures/autopsy/good-run/run.md --diff fixtures/autopsy/good-run/diff.patch --tests fixtures/autopsy/good-run/tests.log --out /tmp/autopsy-good`.
 7. Run `./bin/codex-maintainer arena run --fixture fixtures/arena --out /tmp/arena`.
+8. Run `./bin/codex-maintainer leaderboard build --arena-results /tmp/arena/results.json --out /tmp/leaderboard.json`.

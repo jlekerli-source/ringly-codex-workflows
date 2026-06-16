@@ -92,7 +92,7 @@ done < <(find "$fixture_dir" -mindepth 1 -maxdepth 1 -type d | sort)
 [[ "${#case_dirs[@]}" -gt 0 ]] || fail "fixture directory has no case subdirectories: $fixture_dir"
 
 mkdir -p "$out_dir/runs"
-generated_at="$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
+generated_at="${CODEX_MAINTAINER_GENERATED_AT:-$(date -u '+%Y-%m-%dT%H:%M:%SZ')}"
 tool_version="$(sed -n '1p' "$tool_root/VERSION")"
 
 case_ids=()
