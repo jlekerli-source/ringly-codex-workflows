@@ -9,6 +9,7 @@ trap 'rm -rf "$tmp_dir"' EXIT
 cd "$repo_root"
 
 ./bin/codex-maintainer --help >/dev/null
+test "$(./bin/codex-maintainer version)" = "$(sed -n '1p' VERSION)"
 ./bin/codex-maintainer validate
 ./bin/codex-maintainer doctor .
 

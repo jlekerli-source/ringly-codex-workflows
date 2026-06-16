@@ -6,10 +6,12 @@ root="${1:-.}"
 cd "$root"
 
 required_files=(
+  ".gitignore"
   "README.md"
   "AGENTS.md"
   "CHANGELOG.md"
   "CODEX_TASK_TEMPLATE.md"
+  "VERSION"
   "PLANS.md"
   "SUBAGENTS.md"
   "EVALUATION_SUITE.md"
@@ -29,12 +31,19 @@ required_files=(
   "docs/use-in-your-repo.md"
   "docs/workflow-diagram.md"
   "examples/adoption-checklist.md"
+  "examples/demo-walkthrough.md"
   "examples/issue-to-plan-to-validation.md"
   "examples/prompt-pack.md"
   "examples/scored-run.md"
+  "fixtures/demo-ios-repo/Package.swift"
+  "fixtures/demo-ios-repo/README.md"
+  "fixtures/demo-ios-repo/SampleRun.md"
+  "scripts/install.sh"
+  "scripts/package_release.sh"
   "templates/ios/README.md"
   "templates/ios/AGENTS.md"
   "tests/cli_smoke_test.sh"
+  "tests/package_release_test.sh"
   ".agents/skills/alarm-testing/SKILL.md"
   ".agents/skills/bug-triage/SKILL.md"
   ".agents/skills/notification-permissions/SKILL.md"
@@ -48,6 +57,11 @@ for file in "${required_files[@]}"; do
     exit 1
   fi
 done
+
+if ! grep -qxE '[0-9]+\.[0-9]+\.[0-9]+' VERSION; then
+  echo "VERSION must be a semantic version like 0.5.0" >&2
+  exit 1
+fi
 
 for skill in .agents/skills/*/SKILL.md; do
   delimiter_count=$(grep -c '^---$' "$skill")

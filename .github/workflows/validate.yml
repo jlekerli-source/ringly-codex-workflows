@@ -22,5 +22,8 @@ jobs:
       - name: Run CLI smoke tests
         run: ./tests/cli_smoke_test.sh
 
+      - name: Run release package tests
+        run: ./tests/package_release_test.sh
+
       - name: Validate through reusable action
         uses: ./actions/validate

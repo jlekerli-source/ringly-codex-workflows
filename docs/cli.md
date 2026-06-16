@@ -18,6 +18,16 @@ You can also pass a path to another checkout of this workflow bundle:
 
 Validation checks required files, skill metadata, shell syntax, executable scripts, local markdown links, YAML files, and whitespace.
 
+## Version
+
+Print the toolkit version:
+
+```bash
+./bin/codex-maintainer version
+```
+
+The command reads `VERSION`, which is also used by the release packaging script.
+
 ## Init
 
 Copy the iOS starter workflow into another project:
@@ -66,3 +76,19 @@ The score file must include these categories:
 - Regression awareness
 
 Each category should include a value from `0` to `2`.
+
+## Install From Release Tarball
+
+Download and extract a release package:
+
+```bash
+tar -xzf codex-maintainer-v0.5.0.tar.gz
+cd codex-maintainer-v0.5.0
+PREFIX="$HOME/.local" ./scripts/install.sh
+```
+
+The installer copies toolkit files into `${PREFIX:-/usr/local}/lib/codex-maintainer` and writes a `codex-maintainer` wrapper into `${PREFIX:-/usr/local}/bin`.
+
+## Package Contents
+
+Release packages include the CLI, scripts, skills, templates, examples, demo fixtures, docs, scorecard, planning templates, and license. They exclude `.git`, `dist`, generated caches, and local machine paths.

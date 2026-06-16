@@ -4,10 +4,19 @@ This page shows the minimal setup for another repository.
 
 ## 1. Initialize
 
-From this repository:
+From a cloned repository:
 
 ```bash
 ./bin/codex-maintainer init ios ../my-ios-app
+```
+
+From a release tarball:
+
+```bash
+tar -xzf codex-maintainer-v0.5.0.tar.gz
+cd codex-maintainer-v0.5.0
+PREFIX="$HOME/.local" ./scripts/install.sh
+"$HOME/.local/bin/codex-maintainer" init ios ../my-ios-app
 ```
 
 This writes:

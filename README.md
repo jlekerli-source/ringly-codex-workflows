@@ -14,6 +14,15 @@ The goal is simple: make AI-assisted coding repeatable, reviewable, and useful f
 
 ## Quick Start
 
+Install from a release tarball:
+
+```bash
+tar -xzf codex-maintainer-v0.5.0.tar.gz
+cd codex-maintainer-v0.5.0
+PREFIX="$HOME/.local" ./scripts/install.sh
+"$HOME/.local/bin/codex-maintainer" version
+```
+
 Read the guided setup first:
 
 - `docs/adoption-guide.md`: first 30 minutes with the workflow kit.
@@ -43,6 +52,7 @@ Copy the iOS starter into another project:
 6. Record blockers and proof honestly before merging or shipping.
 
 For a worked example, read `examples/issue-to-plan-to-validation.md`.
+For public proof without private app code, read `examples/demo-walkthrough.md`.
 
 ## What Is Inside
 
@@ -53,6 +63,7 @@ For a worked example, read `examples/issue-to-plan-to-validation.md`.
 - `.agents/skills/`: reusable Codex skills for alarm testing, notification permissions, UI polish, release checklists, and bug triage.
 - `scripts/`: small checklists and prompts for release handoff, bug triage, and alarm/notification validation.
 - `bin/codex-maintainer`: a dependency-light CLI for init, validation, doctor checks, and run scoring.
+- `VERSION`: the release version used by the CLI and package script.
 - `actions/validate/`: a reusable GitHub composite action for workflow-bundle validation.
 - `docs/cli.md`: command reference for the CLI.
 - `docs/github-action.md`: usage guide for the reusable action.
@@ -64,6 +75,8 @@ For a worked example, read `examples/issue-to-plan-to-validation.md`.
 - `examples/issue-to-plan-to-validation.md`: an anonymized sample from messy issue to plan, proof, and handoff.
 - `examples/prompt-pack.md`: copyable prompts for common maintainer tasks.
 - `examples/adoption-checklist.md`: copyable rollout checklist for a new project.
+- `examples/demo-walkthrough.md`: proof path for clone and release-package usage.
+- `fixtures/demo-ios-repo/`: fake iOS-style repo for demo and package testing.
 - `templates/ios/`: a starter workflow bundle for adapting these rules to another iOS app.
 - `SCORECARD.md`: a lightweight rubric for judging whether a Codex run produced usable maintainer evidence.
 - `EVALUATION_SUITE.md`: realistic benchmark tasks for future agent runs.

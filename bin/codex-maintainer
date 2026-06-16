@@ -13,6 +13,7 @@ Usage:
   codex-maintainer validate [path]
   codex-maintainer doctor [path]
   codex-maintainer score <run.md>
+  codex-maintainer version
   codex-maintainer help
 
 Commands:
@@ -20,6 +21,7 @@ Commands:
   validate    Validate this workflow bundle or another checkout of it.
   doctor      Check whether a target repo has the starter workflow files.
   score       Score a Codex run markdown file using SCORECARD.md categories.
+  version     Print the toolkit version from VERSION.
 USAGE
 }
 
@@ -174,6 +176,12 @@ cmd_score() {
   echo "Verdict: $(verdict_for_total "$total")"
 }
 
+cmd_version() {
+  local version_file="$tool_root/VERSION"
+  [[ -f "$version_file" ]] || fail "VERSION file not found"
+  sed -n '1p' "$version_file"
+}
+
 main() {
   local command="${1:-help}"
   shift || true
@@ -193,6 +201,9 @@ main() {
       ;;
     score)
       cmd_score "$@"
+      ;;
+    version)
+      cmd_version
       ;;
     help|--help|-h)
       usage

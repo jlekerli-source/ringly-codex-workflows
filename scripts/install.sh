@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+package_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+prefix="${PREFIX:-/usr/local}"
+bin_dir="$prefix/bin"
+lib_dir="$prefix/lib/codex-maintainer"
+target="$bin_dir/codex-maintainer"
+
+if [[ ! -x "$package_root/bin/codex-maintainer" ]]; then
+  echo "codex-maintainer binary not found in package root: $package_root" >&2
+  exit 1
+fi
+
+rm -rf "$lib_dir"
+mkdir -p "$lib_dir"
+tar -C "$package_root" -cf - . | tar -C "$lib_dir" -xf -
+
+mkdir -p "$bin_dir"
+cat > "$target" <<WRAPPER
+#!/usr/bin/env bash
+exec "$lib_dir/bin/codex-maintainer" "\$@"
+WRAPPER
+chmod +x "$target"
+
+echo "installed codex-maintainer to $target"
+echo "installed toolkit files to $lib_dir"

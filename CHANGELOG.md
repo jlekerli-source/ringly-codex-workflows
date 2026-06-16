@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.5.0 - Release-installable toolkit and demo fixture
+
+- Added `VERSION` and `codex-maintainer version`.
+- Added release tarball packaging with `scripts/package_release.sh`.
+- Added `scripts/install.sh` for prefix-based CLI installation from an unpacked release.
+- Added a public demo iOS-style fixture and walkthrough.
+- Added package release tests and CI coverage.
+
 ## v0.4.0 - Adoption docs and Pages shell
 
 - Added maintainer adoption guide.
