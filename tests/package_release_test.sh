@@ -297,10 +297,14 @@ grep -q '"name": "attestation-badge.json"' "$tmp_dir/package-release-consume/ass
   --out "$tmp_dir/package-release-diff" >/dev/null
 grep -q '"status" : "pass"' "$tmp_dir/package-release-diff/release-diff.json"
 grep -q '# Release Diff Audit' "$tmp_dir/package-release-diff/release-diff.md"
+test -f "$package_root/actions/release-diff/action.yml"
+grep -q 'release-diff compare' "$package_root/actions/release-diff/action.yml"
+grep -q 'actions/upload-artifact@v4' "$package_root/actions/release-diff/action.yml"
 test -f "$package_root/actions/release-consume/action.yml"
 grep -q 'release-consume verify' "$package_root/actions/release-consume/action.yml"
 grep -q 'actions/upload-artifact@v4' "$package_root/actions/release-consume/action.yml"
 "$package_root/tests/release_consume_action_test.sh" >/dev/null
+"$package_root/tests/release_diff_action_test.sh" >/dev/null
 "$package_root/tests/release_proof_consumption_test.sh" >/dev/null
 "$package_root/bin/codex-maintainer" self-audit \
   --out "$tmp_dir/package-self-audit" >/dev/null
@@ -315,9 +319,11 @@ grep -q '| codex-maintainer release-replay verify --help | pass |' "$tmp_dir/pac
 grep -q '| codex-maintainer release-consume verify --help | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 grep -q '| codex-maintainer release-diff compare --help | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 grep -q '| actions/release-consume/action.yml | pass |' "$tmp_dir/package-self-audit/self-audit.md"
+grep -q '| actions/release-diff/action.yml | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 grep -q '| actions/release-proof/action.yml | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 grep -q '| docs/release-consume-action.md | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 grep -q '| docs/release-consume.md | pass |' "$tmp_dir/package-self-audit/self-audit.md"
+grep -q '| docs/release-diff-action.md | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 grep -q '| docs/release-diff.md | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 grep -q '| docs/release-proof.md | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 grep -q '| docs/release-proof-consumption.md | pass |' "$tmp_dir/package-self-audit/self-audit.md"
@@ -326,6 +332,7 @@ grep -q '| docs/release-proof-workflows.md | pass |' "$tmp_dir/package-self-audi
 grep -q '| examples/workflows/release-proof-on-tag.yml | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 grep -q '| examples/workflows/release-proof-manual.yml | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 grep -q '| examples/workflows/release-consume-verify.yml | pass |' "$tmp_dir/package-self-audit/self-audit.md"
+grep -q '| examples/workflows/release-diff-compare.yml | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 grep -q '| examples/release-proof-consumption-checklist.md | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 "$package_root/bin/codex-maintainer" sarif \
   --report "$tmp_dir/package-autopsy/report.json" \
@@ -350,6 +357,7 @@ grep -q './tests/release_manifest_test.sh' "$tmp_dir/package-next-goal.md"
 grep -q './tests/release_consume_test.sh' "$tmp_dir/package-next-goal.md"
 grep -q './tests/release_consume_action_test.sh' "$tmp_dir/package-next-goal.md"
 grep -q './tests/release_diff_test.sh' "$tmp_dir/package-next-goal.md"
+grep -q './tests/release_diff_action_test.sh' "$tmp_dir/package-next-goal.md"
 grep -q './tests/release_proof_action_test.sh' "$tmp_dir/package-next-goal.md"
 grep -q './tests/release_proof_consumption_test.sh' "$tmp_dir/package-next-goal.md"
 grep -q './tests/release_proof_workflow_test.sh' "$tmp_dir/package-next-goal.md"

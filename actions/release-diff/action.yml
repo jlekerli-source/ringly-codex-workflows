@@ -1,0 +1,145 @@
+name: Compare Codex maintainer release proof
+description: Download two release proof asset sets, compare them, and upload a release diff audit.
+
+inputs:
+  left-tag:
+    description: Older release tag to compare.
+    required: true
+  right-tag:
+    description: Newer release tag to compare.
+    required: true
+  repo:
+    description: GitHub repository containing the release assets.
+    required: false
+    default: ""
+  left-assets-dir:
+    description: Directory for left release assets.
+    required: false
+    default: artifacts/codex-maintainer-release-diff/left
+  right-assets-dir:
+    description: Directory for right release assets.
+    required: false
+    default: artifacts/codex-maintainer-release-diff/right
+  out:
+    description: Directory for release diff output.
+    required: false
+    default: artifacts/codex-maintainer-release-diff/report
+  download-assets:
+    description: Set false to compare files already present in left-assets-dir and right-assets-dir.
+    required: false
+    default: "true"
+  upload-artifact:
+    description: Set false to skip diff artifact upload.
+    required: false
+    default: "true"
+  artifact-name:
+    description: Uploaded artifact name.
+    required: false
+    default: codex-maintainer-release-diff
+  mode:
+    description: Use fail to fail the job on invalid diff proof, or warn to emit warnings only.
+    required: false
+    default: fail
+
+outputs:
+  status:
+    description: pass or fail.
+    value: ${{ steps.release-diff.outputs.status }}
+  release-diff:
+    description: Path to release-diff.json.
+    value: ${{ steps.release-diff.outputs.release-diff }}
+  release-diff-md:
+    description: Path to release-diff.md.
+    value: ${{ steps.release-diff.outputs.release-diff-md }}
+
+runs:
+  using: composite
+  steps:
+    - name: Compare release proof assets
+      id: release-diff
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        set -euo pipefail
+
+        root="${{ github.action_path }}/../.."
+        left_tag="${{ inputs.left-tag }}"
+        right_tag="${{ inputs.right-tag }}"
+        repo="${{ inputs.repo }}"
+        left_assets_dir="${{ inputs.left-assets-dir }}"
+        right_assets_dir="${{ inputs.right-assets-dir }}"
+        out="${{ inputs.out }}"
+        download_assets="${{ inputs.download-assets }}"
+        mode="${{ inputs.mode }}"
+
+        if [[ -z "$left_tag" || -z "$right_tag" ]]; then
+          echo "::error::left-tag and right-tag are required"
+          exit 2
+        fi
+
+        if [[ -z "$repo" ]]; then
+          repo="${{ github.repository }}"
+        fi
+
+        if [[ "$mode" != "fail" && "$mode" != "warn" ]]; then
+          echo "::error::mode must be fail or warn"
+          exit 2
+        fi
+
+        if [[ "$download_assets" == "true" ]]; then
+          rm -rf "$left_assets_dir" "$right_assets_dir"
+          mkdir -p "$left_assets_dir" "$right_assets_dir"
+          gh release download "$left_tag" \
+            --repo "$repo" \
+            --dir "$left_assets_dir" \
+            --clobber
+          gh release download "$right_tag" \
+            --repo "$repo" \
+            --dir "$right_assets_dir" \
+            --clobber
+        elif [[ "$download_assets" == "false" ]]; then
+          mkdir -p "$left_assets_dir" "$right_assets_dir"
+        else
+          echo "::error::download-assets must be true or false"
+          exit 2
+        fi
+
+        mkdir -p "$out"
+
+        set +e
+        "$root/bin/codex-maintainer" release-diff compare \
+          --left "$left_assets_dir" \
+          --right "$right_assets_dir" \
+          --out "$out"
+        diff_exit="$?"
+        set -e
+
+        status="pass"
+        if [[ "$diff_exit" -ne 0 ]]; then
+          status="fail"
+        fi
+
+        {
+          echo "status=$status"
+          echo "release-diff=$out/release-diff.json"
+          echo "release-diff-md=$out/release-diff.md"
+        } >> "$GITHUB_OUTPUT"
+
+        if [[ "$status" == "fail" ]]; then
+          message="release diff audit failed for $repo $left_tag -> $right_tag"
+          if [[ "$mode" == "warn" ]]; then
+            echo "::warning::$message"
+          else
+            echo "::error::$message"
+            exit "$diff_exit"
+          fi
+        fi
+
+    - name: Upload release diff audit
+      if: ${{ inputs.upload-artifact == 'true' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.artifact-name }}
+        path: ${{ inputs.out }}
+        if-no-files-found: error

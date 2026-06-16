@@ -1,5 +1,11 @@
 # Changelog
 
+## v3.15.0 - Release Diff CI Action
+
+- Added `actions/release-diff` for comparing two published release proof asset sets in GitHub Actions.
+- Added a copyable release-diff workflow, docs, CI coverage, package verification, self-audit coverage, and next-goal proof.
+- The action uploads `release-diff.json` and `release-diff.md` as CI artifacts and supports fail/warn modes.
+
 ## v3.14.0 - Release Diff Audit
 
 - Added `codex-maintainer release-diff compare` for comparing two release proof asset directories.

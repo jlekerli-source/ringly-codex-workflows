@@ -36,6 +36,7 @@ This roadmap keeps the repo useful without pretending it is a finished framework
 - Keep release asset digest matrices explicit about every known release asset, SHA-256, byte count, and required/optional status.
 - Keep release-consume GitHub Action output aligned with the CLI consumer proof chain.
 - Keep release-diff audits useful for comparing published release proof bundles across versions.
+- Keep release-diff GitHub Action output aligned with the CLI diff audit.
 - Keep the reusable GitHub Action aligned with the CLI validator.
 - Maintain the public examples, scorecard, autopsy fixtures, and iOS starter template as the workflow evolves.
 - Keep the adoption docs and GitHub Pages shell current with each release.

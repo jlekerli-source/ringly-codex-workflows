@@ -17,8 +17,8 @@ The goal is simple: make AI-assisted coding repeatable, reviewable, and useful f
 Install from a release tarball:
 
 ```bash
-tar -xzf codex-maintainer-v3.14.0.tar.gz
-cd codex-maintainer-v3.14.0
+tar -xzf codex-maintainer-v3.15.0.tar.gz
+cd codex-maintainer-v3.15.0
 PREFIX="$HOME/.local" ./scripts/install.sh
 "$HOME/.local/bin/codex-maintainer" version
 ```
@@ -44,6 +44,7 @@ Read the guided setup first:
 - `docs/release-consume.md`: one-command verification for downloaded release proof assets.
 - `docs/release-consume-action.md`: GitHub Action for downstream release proof consumption.
 - `docs/release-diff.md`: compare two release proof bundles across versions.
+- `docs/release-diff-action.md`: GitHub Action for release proof bundle diff audits.
 - `docs/release-index.md`: release proof catalog generation from manifests.
 - `docs/release-manifest.md`: release tarball manifest and proof ledger output.
 - `docs/release-proof.md`: one-command release proof bundle generation.
@@ -96,15 +97,16 @@ For CI-consumable findings, run `./bin/codex-maintainer sarif --report /tmp/auto
 For workflow-run summaries, run `./bin/codex-maintainer ci-summary --gate /tmp/codex-gate/gate.json --out /tmp/codex-gate/summary.md`.
 For Check Run payloads, run `./bin/codex-maintainer check-run --gate /tmp/codex-gate/gate.json --head-sha "$GITHUB_SHA" --out /tmp/codex-gate/check-run/payload.json`.
 To post a Check Run after reviewing the payload, run `./bin/codex-maintainer check-run post --payload /tmp/codex-gate/check-run/payload.json --repo "$GITHUB_REPOSITORY" --out /tmp/codex-gate/check-run/response.json`.
-For release proof files, run `./bin/codex-maintainer release-manifest --tarball dist/codex-maintainer-v3.14.0.tar.gz --out /tmp/release-proof`.
-To verify release proof files, run `./bin/codex-maintainer release-manifest verify --manifest /tmp/release-proof/release-manifest.json --tarball dist/codex-maintainer-v3.14.0.tar.gz`.
+For release proof files, run `./bin/codex-maintainer release-manifest --tarball dist/codex-maintainer-v3.15.0.tar.gz --out /tmp/release-proof`.
+To verify release proof files, run `./bin/codex-maintainer release-manifest verify --manifest /tmp/release-proof/release-manifest.json --tarball dist/codex-maintainer-v3.15.0.tar.gz`.
 To catalog release proof files, run `./bin/codex-maintainer release-index build --manifest /tmp/release-proof/release-manifest.json --out /tmp/release-index`.
-To replay release proof from downloaded assets, run `./bin/codex-maintainer release-replay verify --manifest /tmp/release-proof/release-manifest.json --tarball dist/codex-maintainer-v3.14.0.tar.gz --index /tmp/release-index/release-index.json --ledger /tmp/release-proof/proof-ledger.md --out /tmp/release-replay`.
+To replay release proof from downloaded assets, run `./bin/codex-maintainer release-replay verify --manifest /tmp/release-proof/release-manifest.json --tarball dist/codex-maintainer-v3.15.0.tar.gz --index /tmp/release-index/release-index.json --ledger /tmp/release-proof/proof-ledger.md --out /tmp/release-replay`.
 To generate a compact release attestation, run `./bin/codex-maintainer release-attest build --manifest /tmp/release-proof/release-manifest.json --replay /tmp/release-replay/replay-report.json --out /tmp/release-attestation`.
-To generate the full proof bundle in one command, run `./bin/codex-maintainer release-proof build --out /tmp/release-proof-bundle --release-url https://github.com/owner/repo/releases/tag/v3.14.0`.
-To consume a published proof bundle, run `./bin/codex-maintainer release-consume verify --dir /tmp/codex-maintainer-v3.14.0 --out /tmp/codex-maintainer-v3.14.0/consumer-proof --version 3.14.0`.
-To verify a published proof bundle in GitHub Actions, use `jlekerli-source/ringly-codex-workflows/actions/release-consume@v3.14.0`.
-To compare two release proof bundles, run `./bin/codex-maintainer release-diff compare --left /tmp/codex-maintainer-old --right /tmp/codex-maintainer-v3.14.0 --out /tmp/release-diff`.
+To generate the full proof bundle in one command, run `./bin/codex-maintainer release-proof build --out /tmp/release-proof-bundle --release-url https://github.com/owner/repo/releases/tag/v3.15.0`.
+To consume a published proof bundle, run `./bin/codex-maintainer release-consume verify --dir /tmp/codex-maintainer-v3.15.0 --out /tmp/codex-maintainer-v3.15.0/consumer-proof --version 3.15.0`.
+To verify a published proof bundle in GitHub Actions, use `jlekerli-source/ringly-codex-workflows/actions/release-consume@v3.15.0`.
+To compare two release proof bundles, run `./bin/codex-maintainer release-diff compare --left /tmp/codex-maintainer-old --right /tmp/codex-maintainer-v3.15.0 --out /tmp/release-diff`.
+To compare two published proof bundles in GitHub Actions, use `jlekerli-source/ringly-codex-workflows/actions/release-diff@v3.15.0`.
 
 ## What Is Inside
 
@@ -119,6 +121,7 @@ To compare two release proof bundles, run `./bin/codex-maintainer release-diff c
 - `actions/validate/`: a reusable GitHub composite action for workflow-bundle validation.
 - `actions/release-proof/`: a reusable GitHub composite action for release proof artifacts.
 - `actions/release-consume/`: a reusable GitHub composite action for downstream release proof verification.
+- `actions/release-diff/`: a reusable GitHub composite action for release proof diff audits.
 - `docs/cli.md`: command reference for the CLI.
 - `docs/arena.md`: guide for running the public maintainer fixture arena.
 - `docs/autopsy.md`: guide for auditing AI coding claims against diffs and tests.
@@ -138,6 +141,7 @@ To compare two release proof bundles, run `./bin/codex-maintainer release-diff c
 - `docs/release-consume.md`: one-command downstream verification for downloaded release proof assets.
 - `docs/release-consume-action.md`: GitHub Action for release proof consumption in CI.
 - `docs/release-diff.md`: release proof bundle diff reports.
+- `docs/release-diff-action.md`: GitHub Action for release proof bundle diff reports.
 - `docs/release-index.md`: release proof catalog generation.
 - `docs/release-manifest.md`: release manifest and proof-ledger generation.
 - `docs/release-proof.md`: one-command release proof bundle generation.
@@ -160,6 +164,7 @@ To compare two release proof bundles, run `./bin/codex-maintainer release-diff c
 - `examples/arena-results.md`: expected aggregate output from the public arena fixture pack.
 - `examples/demo-walkthrough.md`: proof path for clone and release-package usage.
 - `examples/workflows/release-consume-verify.yml`: manual release proof consumption workflow.
+- `examples/workflows/release-diff-compare.yml`: manual release proof diff workflow.
 - `examples/demo-reports/`: generated demo arena reports and leaderboard JSON.
 - `examples/autopsy-report.md`: sample autopsy expectations for dangerous and clean runs.
 - `fixtures/demo-ios-repo/`: fake iOS-style repo for demo and package testing.

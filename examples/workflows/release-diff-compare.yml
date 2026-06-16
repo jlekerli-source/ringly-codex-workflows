@@ -1,0 +1,28 @@
+name: Compare Codex maintainer release proof
+
+on:
+  workflow_dispatch:
+    inputs:
+      left-tag:
+        description: Older release tag to compare.
+        required: true
+        default: v0.0.0
+      right-tag:
+        description: Newer release tag to compare.
+        required: true
+        default: v3.15.0
+
+permissions:
+  contents: read
+
+jobs:
+  compare-release-proof:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Compare published proof assets
+        uses: jlekerli-source/ringly-codex-workflows/actions/release-diff@v3.15.0
+        with:
+          repo: jlekerli-source/ringly-codex-workflows
+          left-tag: ${{ inputs.left-tag }}
+          right-tag: ${{ inputs.right-tag }}
+          mode: fail
