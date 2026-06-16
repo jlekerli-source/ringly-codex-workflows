@@ -24,6 +24,7 @@ grep -q "^$package_name/AGENTS.md$" "$tar_list"
 grep -q "^$package_name/.github/workflows/autopsy-artifact.yml$" "$tar_list"
 grep -q "^$package_name/actions/arena-compare/action.yml$" "$tar_list"
 grep -q "^$package_name/actions/ci-gate/action.yml$" "$tar_list"
+grep -q "^$package_name/actions/docs-check/action.yml$" "$tar_list"
 grep -q "^$package_name/actions/release-consume/action.yml$" "$tar_list"
 grep -q "^$package_name/actions/release-diff/action.yml$" "$tar_list"
 grep -q "^$package_name/actions/release-evidence/action.yml$" "$tar_list"
@@ -42,8 +43,13 @@ grep -q "^$package_name/docs/check-run.md$" "$tar_list"
 grep -q "^$package_name/docs/ci-gate.md$" "$tar_list"
 grep -q "^$package_name/docs/ci-summary.md$" "$tar_list"
 grep -q "^$package_name/docs/command-matrix.md$" "$tar_list"
+grep -q "^$package_name/docs/core-loop.md$" "$tar_list"
 grep -q "^$package_name/docs/demo-reports.md$" "$tar_list"
+grep -q "^$package_name/docs/docs-check-action.md$" "$tar_list"
 grep -q "^$package_name/docs/docs-check.md$" "$tar_list"
+grep -q "^$package_name/docs/ios-shipguard.md$" "$tar_list"
+grep -q "^$package_name/docs/ios-preview.md$" "$tar_list"
+grep -q "^$package_name/docs/shipguard-devspace.md$" "$tar_list"
 grep -q "^$package_name/docs/maintainer-reliability-os.md$" "$tar_list"
 grep -q "^$package_name/docs/next-goal.md$" "$tar_list"
 grep -q "^$package_name/docs/policy.md$" "$tar_list"
@@ -73,7 +79,29 @@ grep -q "^$package_name/docs/transcript-corpus-action.md$" "$tar_list"
 grep -q "^$package_name/docs/transcript-corpus.md$" "$tar_list"
 grep -q "^$package_name/docs/transcript-redaction.md$" "$tar_list"
 grep -q "^$package_name/docs/transcript-verify-action.md$" "$tar_list"
+grep -q "^$package_name/docs/oss-evaluation.md$" "$tar_list"
+grep -q "^$package_name/docs/superpowers/specs/2026-06-16-ios-preview-bridge-design.md$" "$tar_list"
+grep -q "^$package_name/docs/superpowers/specs/2026-06-16-shipguard-devspace-mcp-design.md$" "$tar_list"
+grep -q "^$package_name/docs/superpowers/plans/2026-06-16-oss-eval-improvements.md$" "$tar_list"
+grep -q "^$package_name/docs/superpowers/plans/2026-06-16-ios-shipguard-autonomous-loop.md$" "$tar_list"
+grep -q "^$package_name/docs/superpowers/plans/2026-06-16-ios-preview-bridge.md$" "$tar_list"
+grep -q "^$package_name/docs/superpowers/plans/2026-06-16-shipguard-devspace-mcp.md$" "$tar_list"
 grep -q "^$package_name/scripts/install.sh$" "$tar_list"
+grep -q "^$package_name/scripts/ios_doctor.py$" "$tar_list"
+grep -q "^$package_name/scripts/ios_goal_loop.py$" "$tar_list"
+grep -q "^$package_name/scripts/ios_inventory.py$" "$tar_list"
+grep -q "^$package_name/scripts/ios_preview.py$" "$tar_list"
+grep -q "^$package_name/scripts/ios_codex_handoff.py$" "$tar_list"
+grep -q "^$package_name/scripts/ios_plan.py$" "$tar_list"
+grep -q "^$package_name/scripts/ios_prove.py$" "$tar_list"
+grep -q "^$package_name/scripts/ios_target_match.py$" "$tar_list"
+grep -q "^$package_name/scripts/ios_modernize.py$" "$tar_list"
+grep -q "^$package_name/scripts/ios_app_intelligence.py$" "$tar_list"
+grep -q "^$package_name/scripts/ios_ai_readiness.py$" "$tar_list"
+grep -q "^$package_name/scripts/ios_redaction.py$" "$tar_list"
+grep -q "^$package_name/scripts/ios_shipguard_demo.py$" "$tar_list"
+grep -q "^$package_name/scripts/ios_shipguard_eval.py$" "$tar_list"
+grep -q "^$package_name/scripts/shipguard_devspace_mcp.py$" "$tar_list"
 grep -q "^$package_name/scripts/arena_import.sh$" "$tar_list"
 grep -q "^$package_name/scripts/arena_compare.sh$" "$tar_list"
 grep -q "^$package_name/scripts/arena_run.sh$" "$tar_list"
@@ -86,6 +114,7 @@ grep -q "^$package_name/scripts/ci_gate.sh$" "$tar_list"
 grep -q "^$package_name/scripts/ci_summary.sh$" "$tar_list"
 grep -q "^$package_name/scripts/docs_check.sh$" "$tar_list"
 grep -q "^$package_name/scripts/leaderboard_build.sh$" "$tar_list"
+grep -q "^$package_name/scripts/lib/safe_paths.sh$" "$tar_list"
 grep -q "^$package_name/scripts/next_goal.sh$" "$tar_list"
 grep -q "^$package_name/scripts/policy.sh$" "$tar_list"
 grep -q "^$package_name/scripts/release_attest.sh$" "$tar_list"
@@ -112,7 +141,24 @@ grep -q "^$package_name/tests/check_run_post_test.sh$" "$tar_list"
 grep -q "^$package_name/tests/check_run_test.sh$" "$tar_list"
 grep -q "^$package_name/tests/ci_gate_test.sh$" "$tar_list"
 grep -q "^$package_name/tests/ci_summary_test.sh$" "$tar_list"
+grep -q "^$package_name/tests/docs_check_action_test.sh$" "$tar_list"
 grep -q "^$package_name/tests/docs_check_test.sh$" "$tar_list"
+grep -q "^$package_name/tests/ios_doctor_test.sh$" "$tar_list"
+grep -q "^$package_name/tests/ios_goal_loop_test.sh$" "$tar_list"
+grep -q "^$package_name/tests/ios_inventory_test.sh$" "$tar_list"
+grep -q "^$package_name/tests/ios_preview_test.sh$" "$tar_list"
+grep -q "^$package_name/tests/ios_codex_handoff_test.sh$" "$tar_list"
+grep -q "^$package_name/tests/ios_plan_test.sh$" "$tar_list"
+grep -q "^$package_name/tests/ios_prove_test.sh$" "$tar_list"
+grep -q "^$package_name/tests/ios_target_match_test.sh$" "$tar_list"
+grep -q "^$package_name/tests/ios_modernize_test.sh$" "$tar_list"
+grep -q "^$package_name/tests/ios_app_intelligence_test.sh$" "$tar_list"
+grep -q "^$package_name/tests/ios_ai_readiness_test.sh$" "$tar_list"
+grep -q "^$package_name/tests/ios_redaction_test.sh$" "$tar_list"
+grep -q "^$package_name/tests/ios_shipguard_demo_test.sh$" "$tar_list"
+grep -q "^$package_name/tests/ios_shipguard_eval_test.sh$" "$tar_list"
+grep -q "^$package_name/tests/shipguard_devspace_mcp_test.sh$" "$tar_list"
+grep -q "^$package_name/tests/ios_target_risk_map_test.sh$" "$tar_list"
 grep -q "^$package_name/tests/leaderboard_test.sh$" "$tar_list"
 grep -q "^$package_name/tests/next_goal_test.sh$" "$tar_list"
 grep -q "^$package_name/tests/policy_test.sh$" "$tar_list"
@@ -134,6 +180,7 @@ grep -q "^$package_name/tests/release_proof_consumption_test.sh$" "$tar_list"
 grep -q "^$package_name/tests/release_proof_workflow_test.sh$" "$tar_list"
 grep -q "^$package_name/tests/release_replay_test.sh$" "$tar_list"
 grep -q "^$package_name/tests/review_comment_test.sh$" "$tar_list"
+grep -q "^$package_name/tests/safe_paths_test.sh$" "$tar_list"
 grep -q "^$package_name/tests/sarif_test.sh$" "$tar_list"
 grep -q "^$package_name/tests/self_audit_test.sh$" "$tar_list"
 grep -q "^$package_name/tests/template_profiles_test.sh$" "$tar_list"
@@ -150,7 +197,21 @@ grep -q "^$package_name/templates/ios/AGENTS.md$" "$tar_list"
 grep -q "^$package_name/templates/web/AGENTS.md$" "$tar_list"
 grep -q "^$package_name/templates/web/README.md$" "$tar_list"
 grep -q "^$package_name/templates/policy/default.conf$" "$tar_list"
+grep -q "^$package_name/evals/README.md$" "$tar_list"
+grep -q "^$package_name/evals/cases.jsonl$" "$tar_list"
+grep -q "^$package_name/evals/ios_shipguard_cases.jsonl$" "$tar_list"
+grep -q "^$package_name/evals/run_local.py$" "$tar_list"
 grep -q "^$package_name/fixtures/policy/strict.conf$" "$tar_list"
+grep -q "^$package_name/fixtures/demo-ios-repo/DemoCodexMaintainerApp.xcodeproj/project.pbxproj$" "$tar_list"
+grep -q "^$package_name/fixtures/demo-ios-repo/DemoCodexMaintainerApp.xcodeproj/xcshareddata/xcschemes/DemoCodexMaintainerApp.xcscheme$" "$tar_list"
+grep -q "^$package_name/fixtures/demo-ios-repo/DemoCodexMaintainerApp.xcworkspace/contents.xcworkspacedata$" "$tar_list"
+grep -q "^$package_name/fixtures/demo-ios-repo/DemoCodexMaintainerApp.xctestplan$" "$tar_list"
+grep -q "^$package_name/fixtures/demo-ios-repo/DemoProducts.storekit$" "$tar_list"
+grep -q "^$package_name/fixtures/demo-ios-repo/PrivacyInfo.xcprivacy$" "$tar_list"
+grep -q "^$package_name/fixtures/demo-ios-repo/Sources/DemoCodexMaintainerApp/DemoCodexMaintainerApp.entitlements$" "$tar_list"
+grep -q "^$package_name/fixtures/demo-ios-repo/Sources/DemoCodexMaintainerApp/DemoPermissions.swift$" "$tar_list"
+grep -q "^$package_name/fixtures/demo-ios-repo/Sources/DemoCodexMaintainerApp/Info.plist$" "$tar_list"
+grep -q "^$package_name/fixtures/demo-ios-repo/Tests/DemoCodexMaintainerAppTests/DemoPermissionsTests.swift$" "$tar_list"
 grep -q "^$package_name/fixtures/arena/good-maintainer/run.md$" "$tar_list"
 grep -q "^$package_name/fixtures/arena/backend-webhook-idempotency/run.md$" "$tar_list"
 grep -q "^$package_name/fixtures/arena/backend-webhook-idempotency/tests.log$" "$tar_list"
@@ -190,6 +251,7 @@ grep -q "^$package_name/examples/demo-reports/transcripts/badge.json$" "$tar_lis
 grep -q "^$package_name/examples/release-proof-consumption-checklist.md$" "$tar_list"
 grep -q "^$package_name/examples/redacted-transcript.md$" "$tar_list"
 grep -q "^$package_name/examples/workflows/arena-compare.yml$" "$tar_list"
+grep -q "^$package_name/examples/workflows/docs-check.yml$" "$tar_list"
 grep -q "^$package_name/examples/workflows/transcript-corpus.yml$" "$tar_list"
 grep -q "^$package_name/examples/workflows/transcript-verify.yml$" "$tar_list"
 grep -q "^$package_name/examples/workflows/release-consume-verify.yml$" "$tar_list"
@@ -201,6 +263,12 @@ grep -q "^$package_name/examples/workflows/release-evidence-negative-index.yml$"
 grep -q "^$package_name/examples/workflows/release-proof-on-tag.yml$" "$tar_list"
 grep -q "^$package_name/examples/workflows/release-proof-manual.yml$" "$tar_list"
 grep -q "^$package_name/.agents/skills/alarm-testing/SKILL.md$" "$tar_list"
+grep -q "^$package_name/.agents/plugins/marketplace.json$" "$tar_list"
+grep -q "^$package_name/plugins/ios-shipguard/.mcp.json$" "$tar_list"
+grep -q "^$package_name/plugins/ios-shipguard/.codex-plugin/plugin.json$" "$tar_list"
+grep -q "^$package_name/plugins/ios-shipguard/skills/ios-shipguard/SKILL.md$" "$tar_list"
+grep -q "^$package_name/plugins/ios-shipguard/skills/ios-shipguard/agents/openai.yaml$" "$tar_list"
+grep -q "^$package_name/plugins/ios-shipguard/skills/ios-shipguard/references/modes.md$" "$tar_list"
 
 if grep -Eq '(^|/)(\\.git|dist|DerivedData|\\.cache)(/|$)' "$tar_list"; then
   echo "package includes forbidden generated or VCS paths" >&2
@@ -219,6 +287,80 @@ fi
 test "$("$package_root/bin/codex-maintainer" version)" = "$version"
 "$package_root/bin/codex-maintainer" policy show >/dev/null
 "$package_root/bin/codex-maintainer" validate "$package_root" >/dev/null
+"$package_root/bin/codex-maintainer" ios doctor \
+  --path "$package_root/fixtures/demo-ios-repo" \
+  --out "$tmp_dir/package-ios-doctor" >/dev/null
+grep -q 'DemoCodexMaintainerApp.xcodeproj' "$tmp_dir/package-ios-doctor/ios-doctor.md"
+grep -q 'DemoProducts.storekit' "$tmp_dir/package-ios-doctor/ios-doctor.md"
+"$package_root/bin/codex-maintainer" ios inventory \
+  --path "$package_root/fixtures/demo-ios-repo" \
+  --doctor "$tmp_dir/package-ios-doctor/ios-doctor.json" \
+  --out "$tmp_dir/package-ios-inventory" >/dev/null
+grep -q 'Target Risk Map' "$tmp_dir/package-ios-inventory/ios-inventory.md"
+grep -q 'Location | needs-user-answer' "$tmp_dir/package-ios-inventory/ios-inventory.md"
+"$package_root/bin/codex-maintainer" ios preview --help >/dev/null
+"$package_root/bin/codex-maintainer" ios devspace --help >/dev/null
+"$package_root/bin/codex-maintainer" ios target-match --help >/dev/null
+"$package_root/bin/codex-maintainer" ios codex-handoff --help >/dev/null
+"$package_root/bin/codex-maintainer" ios plan \
+  --mode permission-audit \
+  --inventory "$tmp_dir/package-ios-inventory/ios-inventory.json" \
+  --out "$tmp_dir/package-ios-plan/ios-plan.md" >/dev/null
+grep -q '"mode": "permission-audit"' "$tmp_dir/package-ios-plan/ios-plan.json"
+"$package_root/bin/codex-maintainer" ios prove \
+  --plan "$tmp_dir/package-ios-plan/ios-plan.json" \
+  --out "$tmp_dir/package-ios-proof" >/dev/null
+grep -q '"tool": "codex-maintainer ios prove"' "$tmp_dir/package-ios-proof/ios-proof.json"
+"$package_root/bin/codex-maintainer" ios modernize \
+  --focus swift \
+  --path "$package_root/fixtures/demo-ios-repo" \
+  --out "$tmp_dir/package-ios-modernize" >/dev/null
+grep -q 'Swift Concurrency' "$tmp_dir/package-ios-modernize/ios-modernize.md"
+"$package_root/bin/codex-maintainer" ios app-intelligence \
+  --path "$package_root/fixtures/demo-ios-repo" \
+  --out "$tmp_dir/package-ios-app-intelligence" >/dev/null
+grep -q 'Apple Intelligence' "$tmp_dir/package-ios-app-intelligence/ios-app-intelligence.md"
+"$package_root/bin/codex-maintainer" ios ai-readiness \
+  --path "$package_root/fixtures/demo-ios-repo" \
+  --out "$tmp_dir/package-ios-ai-readiness" >/dev/null
+grep -q 'On-Device Versus Cloud Decision Matrix' "$tmp_dir/package-ios-ai-readiness/ios-ai-readiness.md"
+package_ios_report="$tmp_dir/package-ios-report.md"
+package_ios_user_prefix="/""Users"
+package_ios_user_path="$package_ios_user_prefix/runner/Developer/SecretClientApp"
+cat > "$package_ios_report" <<'RAW'
+Workspace: __PACKAGE_IOS_USER_PATH__
+DEVELOPMENT_TEAM = ABCDE12345;
+PRODUCT_BUNDLE_IDENTIFIER = com.secret.client.app;
+Authorization: Bearer abcdefghijklmnopqrstuvwxyz123456
+Apple ID: owner@example.com
+RAW
+PACKAGE_IOS_USER_PATH="$package_ios_user_path" \
+  perl -pi -e 's#__PACKAGE_IOS_USER_PATH__#$ENV{PACKAGE_IOS_USER_PATH}#g' "$package_ios_report"
+"$package_root/bin/codex-maintainer" ios redact \
+  --in "$package_ios_report" \
+  --out "$tmp_dir/package-ios-redacted.md" \
+  --report "$tmp_dir/package-ios-redaction.json" \
+  --private-term "SecretClientApp" >/dev/null
+grep -q '"status": "pass"' "$tmp_dir/package-ios-redaction.json"
+grep -q '\[REDACTED_LOCAL_PATH\]' "$tmp_dir/package-ios-redacted.md"
+grep -q '\[REDACTED_TEAM_ID\]' "$tmp_dir/package-ios-redacted.md"
+grep -q '\[REDACTED_BUNDLE_ID\]' "$tmp_dir/package-ios-redacted.md"
+grep -q '\[REDACTED_TOKEN\]' "$tmp_dir/package-ios-redacted.md"
+grep -q '\[REDACTED_ACCOUNT\]' "$tmp_dir/package-ios-redacted.md"
+"$package_root/bin/codex-maintainer" ios eval \
+  --cases "$package_root/evals/ios_shipguard_cases.jsonl" \
+  --out "$tmp_dir/package-ios-shipguard-eval" >/dev/null
+grep -q '"status": "pass"' "$tmp_dir/package-ios-shipguard-eval/ios-shipguard-eval.json"
+grep -q '"caseCount": 6' "$tmp_dir/package-ios-shipguard-eval/ios-shipguard-eval.json"
+"$package_root/bin/codex-maintainer" ios demo \
+  --out "$tmp_dir/package-ios-shipguard-demo" >/dev/null
+grep -q '"status": "pass"' "$tmp_dir/package-ios-shipguard-demo/shipguard-demo.json"
+grep -q '# iOS Shipguard First-Run Demo' "$tmp_dir/package-ios-shipguard-demo/README.md"
+grep -q '"id": "eval"' "$tmp_dir/package-ios-shipguard-demo/shipguard-demo.json"
+"$package_root/bin/codex-maintainer" ios goals init \
+  --state "$tmp_dir/package-shipguard-goals.json" \
+  --out "$tmp_dir/package-next-shipguard-goal.md" >/dev/null
+grep -q '/goal Implement shipguard-ios-doctor' "$tmp_dir/package-next-shipguard-goal.md"
 "$package_root/bin/codex-maintainer" init ios "$tmp_dir/demo-target" --force >/dev/null
 "$package_root/bin/codex-maintainer" doctor "$tmp_dir/demo-target" >/dev/null
 "$package_root/bin/codex-maintainer" init web "$tmp_dir/web-target" --force >/dev/null
@@ -483,6 +625,11 @@ grep -q 'actions/upload-artifact@v4' "$package_root/actions/release-evidence-ver
 test -f "$package_root/actions/release-consume/action.yml"
 grep -q 'release-consume verify' "$package_root/actions/release-consume/action.yml"
 grep -q 'actions/upload-artifact@v4' "$package_root/actions/release-consume/action.yml"
+test -f "$package_root/actions/docs-check/action.yml"
+grep -q 'docs-check' "$package_root/actions/docs-check/action.yml"
+grep -q 'docs-check.json' "$package_root/actions/docs-check/action.yml"
+grep -q 'docs-check.md' "$package_root/actions/docs-check/action.yml"
+grep -q 'actions/upload-artifact@v4' "$package_root/actions/docs-check/action.yml"
 "$package_root/tests/release_consume_action_test.sh" >/dev/null
 "$package_root/tests/release_diff_action_test.sh" >/dev/null
 "$package_root/tests/release_evidence_test.sh" >/dev/null
@@ -493,10 +640,16 @@ grep -q 'actions/upload-artifact@v4' "$package_root/actions/release-consume/acti
 "$package_root/tests/release_proof_consumption_test.sh" >/dev/null
 "$package_root/tests/arena_compare_action_test.sh" >/dev/null
 "$package_root/tests/transcript_redaction_test.sh" >/dev/null
+"$package_root/tests/ios_plan_test.sh" >/dev/null
+"$package_root/tests/ios_prove_test.sh" >/dev/null
+"$package_root/tests/ios_redaction_test.sh" >/dev/null
+"$package_root/tests/ios_shipguard_demo_test.sh" >/dev/null
+"$package_root/tests/ios_shipguard_eval_test.sh" >/dev/null
 "$package_root/tests/transcript_verify_test.sh" >/dev/null
 "$package_root/tests/transcript_verify_action_test.sh" >/dev/null
 "$package_root/tests/transcript_corpus_test.sh" >/dev/null
 "$package_root/tests/transcript_corpus_action_test.sh" >/dev/null
+"$package_root/tests/docs_check_action_test.sh" >/dev/null
 package_raw_transcript="$tmp_dir/package-raw-transcript.md"
 package_home_prefix="/""home"
 package_home_path="$package_home_prefix/runner/AcmePrivateApp"
@@ -555,6 +708,7 @@ grep -q '| codex-maintainer release-evidence bundle --help | pass |' "$tmp_dir/p
 grep -q '| codex-maintainer release-evidence verify --help | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 grep -q '| codex-maintainer release-evidence negative-index --help | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 grep -q '| codex-maintainer docs-check --help | pass |' "$tmp_dir/package-self-audit/self-audit.md"
+grep -q '| actions/docs-check/action.yml | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 grep -q '| actions/release-consume/action.yml | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 grep -q '| actions/release-diff/action.yml | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 grep -q '| actions/release-evidence/action.yml | pass |' "$tmp_dir/package-self-audit/self-audit.md"
@@ -564,6 +718,7 @@ grep -q '| actions/release-proof/action.yml | pass |' "$tmp_dir/package-self-aud
 grep -q '| actions/transcript-corpus/action.yml | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 grep -q '| actions/transcript-verify/action.yml | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 grep -q '| docs/arena-compare-action.md | pass |' "$tmp_dir/package-self-audit/self-audit.md"
+grep -q '| docs/docs-check-action.md | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 grep -q '| docs/transcript-corpus-action.md | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 grep -q '| docs/transcript-corpus.md | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 grep -q '| docs/transcript-redaction.md | pass |' "$tmp_dir/package-self-audit/self-audit.md"
@@ -584,6 +739,7 @@ grep -q '| docs/release-proof-action.md | pass |' "$tmp_dir/package-self-audit/s
 grep -q '| docs/release-proof-workflows.md | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 grep -q '| examples/workflows/release-proof-on-tag.yml | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 grep -q '| examples/workflows/arena-compare.yml | pass |' "$tmp_dir/package-self-audit/self-audit.md"
+grep -q '| examples/workflows/docs-check.yml | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 grep -q '| examples/workflows/transcript-corpus.yml | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 grep -q '| examples/workflows/transcript-verify.yml | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 grep -q '| examples/workflows/release-proof-manual.yml | pass |' "$tmp_dir/package-self-audit/self-audit.md"
@@ -597,6 +753,12 @@ grep -q '| fixtures/release-evidence/negative/README.md | pass |' "$tmp_dir/pack
 grep -q '| fixtures/release-evidence/negative/cases.tsv | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 grep -q '| examples/demo-reports/transcripts/corpus.json | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 grep -q '| docs/docs-check.md | pass |' "$tmp_dir/package-self-audit/self-audit.md"
+grep -q '| docs/ios-preview.md | pass |' "$tmp_dir/package-self-audit/self-audit.md"
+grep -q '| docs/shipguard-devspace.md | pass |' "$tmp_dir/package-self-audit/self-audit.md"
+grep -q '| docs/superpowers/specs/2026-06-16-ios-preview-bridge-design.md | pass |' "$tmp_dir/package-self-audit/self-audit.md"
+grep -q '| docs/superpowers/specs/2026-06-16-shipguard-devspace-mcp-design.md | pass |' "$tmp_dir/package-self-audit/self-audit.md"
+grep -q '| docs/superpowers/plans/2026-06-16-ios-preview-bridge.md | pass |' "$tmp_dir/package-self-audit/self-audit.md"
+grep -q '| docs/superpowers/plans/2026-06-16-shipguard-devspace-mcp.md | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 grep -q '| examples/release-proof-consumption-checklist.md | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 grep -q '| examples/redacted-transcript.md | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 grep -q '| fixtures/transcripts/ios-notification-triage/transcript.md | pass |' "$tmp_dir/package-self-audit/self-audit.md"
@@ -605,6 +767,30 @@ grep -q '| scripts/transcript_redact.sh | pass |' "$tmp_dir/package-self-audit/s
 grep -q '| scripts/transcript_verify.sh | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 grep -q '| scripts/transcript_corpus.sh | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 grep -q '| scripts/docs_check.sh | pass |' "$tmp_dir/package-self-audit/self-audit.md"
+grep -q '| scripts/ios_preview.py | pass |' "$tmp_dir/package-self-audit/self-audit.md"
+grep -q '| scripts/ios_codex_handoff.py | pass |' "$tmp_dir/package-self-audit/self-audit.md"
+grep -q '| scripts/ios_plan.py | pass |' "$tmp_dir/package-self-audit/self-audit.md"
+grep -q '| scripts/ios_prove.py | pass |' "$tmp_dir/package-self-audit/self-audit.md"
+grep -q '| scripts/ios_target_match.py | pass |' "$tmp_dir/package-self-audit/self-audit.md"
+grep -q '| scripts/ios_modernize.py | pass |' "$tmp_dir/package-self-audit/self-audit.md"
+grep -q '| scripts/ios_app_intelligence.py | pass |' "$tmp_dir/package-self-audit/self-audit.md"
+grep -q '| scripts/ios_ai_readiness.py | pass |' "$tmp_dir/package-self-audit/self-audit.md"
+grep -q '| scripts/ios_redaction.py | pass |' "$tmp_dir/package-self-audit/self-audit.md"
+grep -q '| scripts/ios_shipguard_demo.py | pass |' "$tmp_dir/package-self-audit/self-audit.md"
+grep -q '| scripts/ios_shipguard_eval.py | pass |' "$tmp_dir/package-self-audit/self-audit.md"
+grep -q '| scripts/shipguard_devspace_mcp.py | pass |' "$tmp_dir/package-self-audit/self-audit.md"
+grep -q '| tests/ios_codex_handoff_test.sh | pass |' "$tmp_dir/package-self-audit/self-audit.md"
+grep -q '| tests/ios_plan_test.sh | pass |' "$tmp_dir/package-self-audit/self-audit.md"
+grep -q '| tests/ios_prove_test.sh | pass |' "$tmp_dir/package-self-audit/self-audit.md"
+grep -q '| tests/ios_target_match_test.sh | pass |' "$tmp_dir/package-self-audit/self-audit.md"
+grep -q '| tests/ios_modernize_test.sh | pass |' "$tmp_dir/package-self-audit/self-audit.md"
+grep -q '| tests/ios_app_intelligence_test.sh | pass |' "$tmp_dir/package-self-audit/self-audit.md"
+grep -q '| tests/ios_ai_readiness_test.sh | pass |' "$tmp_dir/package-self-audit/self-audit.md"
+grep -q '| tests/ios_redaction_test.sh | pass |' "$tmp_dir/package-self-audit/self-audit.md"
+grep -q '| tests/ios_shipguard_demo_test.sh | pass |' "$tmp_dir/package-self-audit/self-audit.md"
+grep -q '| tests/ios_shipguard_eval_test.sh | pass |' "$tmp_dir/package-self-audit/self-audit.md"
+grep -q '| tests/shipguard_devspace_mcp_test.sh | pass |' "$tmp_dir/package-self-audit/self-audit.md"
+grep -q '| plugins/ios-shipguard/.mcp.json | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 "$package_root/bin/codex-maintainer" sarif \
   --report "$tmp_dir/package-autopsy/report.json" \
   --out "$tmp_dir/package-sarif/results.sarif" >/dev/null
@@ -624,6 +810,7 @@ grep -q './tests/check_run_post_test.sh' "$tmp_dir/package-next-goal.md"
 grep -q './tests/ci_summary_test.sh' "$tmp_dir/package-next-goal.md"
 grep -q './tests/sarif_test.sh' "$tmp_dir/package-next-goal.md"
 grep -q './tests/docs_check_test.sh' "$tmp_dir/package-next-goal.md"
+grep -q './tests/docs_check_action_test.sh' "$tmp_dir/package-next-goal.md"
 grep -q './tests/transcript_redaction_test.sh' "$tmp_dir/package-next-goal.md"
 grep -q './tests/transcript_verify_test.sh' "$tmp_dir/package-next-goal.md"
 grep -q './tests/transcript_verify_action_test.sh' "$tmp_dir/package-next-goal.md"
