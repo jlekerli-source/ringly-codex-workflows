@@ -14,5 +14,6 @@
 | Enforce in CI | `ci-gate` | Gate bundle and optional failure |
 | Publish benchmark data | `leaderboard build` | Stable leaderboard JSON |
 | Audit this toolkit | `self-audit` | Self-audit Markdown and JSON |
+| Continue the release loop | `next-goal` | Slash-goal Markdown plan |
 
 The commands are dependency-light Bash so release packages remain portable.

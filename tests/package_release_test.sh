@@ -32,6 +32,7 @@ grep -q "^$package_name/docs/ci-gate.md$" "$tar_list"
 grep -q "^$package_name/docs/command-matrix.md$" "$tar_list"
 grep -q "^$package_name/docs/demo-reports.md$" "$tar_list"
 grep -q "^$package_name/docs/maintainer-reliability-os.md$" "$tar_list"
+grep -q "^$package_name/docs/next-goal.md$" "$tar_list"
 grep -q "^$package_name/docs/policy.md$" "$tar_list"
 grep -q "^$package_name/docs/pr-review-bot.md$" "$tar_list"
 grep -q "^$package_name/docs/release-checklist.md$" "$tar_list"
@@ -41,6 +42,7 @@ grep -q "^$package_name/scripts/autopsy_report.sh$" "$tar_list"
 grep -q "^$package_name/scripts/build_demo_reports.sh$" "$tar_list"
 grep -q "^$package_name/scripts/ci_gate.sh$" "$tar_list"
 grep -q "^$package_name/scripts/leaderboard_build.sh$" "$tar_list"
+grep -q "^$package_name/scripts/next_goal.sh$" "$tar_list"
 grep -q "^$package_name/scripts/policy.sh$" "$tar_list"
 grep -q "^$package_name/scripts/review_comment.sh$" "$tar_list"
 grep -q "^$package_name/scripts/self_audit.sh$" "$tar_list"
@@ -50,6 +52,7 @@ grep -q "^$package_name/tests/arena_test.sh$" "$tar_list"
 grep -q "^$package_name/tests/autopsy_test.sh$" "$tar_list"
 grep -q "^$package_name/tests/ci_gate_test.sh$" "$tar_list"
 grep -q "^$package_name/tests/leaderboard_test.sh$" "$tar_list"
+grep -q "^$package_name/tests/next_goal_test.sh$" "$tar_list"
 grep -q "^$package_name/tests/policy_test.sh$" "$tar_list"
 grep -q "^$package_name/tests/review_comment_test.sh$" "$tar_list"
 grep -q "^$package_name/tests/self_audit_test.sh$" "$tar_list"
@@ -120,6 +123,11 @@ grep -q '"average_total": 6.50' "$tmp_dir/package-leaderboard.json"
   --out "$tmp_dir/package-self-audit" >/dev/null
 grep -q '"status": "pass"' "$tmp_dir/package-self-audit/self-audit.json"
 grep -q '| codex-maintainer leaderboard build --help | pass |' "$tmp_dir/package-self-audit/self-audit.md"
+"$package_root/bin/codex-maintainer" next-goal \
+  --release 2.2.0 \
+  --title "Package Proof Followup" \
+  --out "$tmp_dir/package-next-goal.md" >/dev/null
+grep -q '/goal Implement v2.2.0 Package Proof Followup' "$tmp_dir/package-next-goal.md"
 
 install_prefix="$tmp_dir/install"
 PREFIX="$install_prefix" "$package_root/scripts/install.sh" >/dev/null

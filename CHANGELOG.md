@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.1.0 - Next Goal Generator
+
+- Added `codex-maintainer next-goal` for deterministic slash-goal release planning.
+- Added next-goal docs, command matrix coverage, and Maintainer Reliability OS loop updates.
+- Added next-goal tests, CI coverage, self-audit coverage, and package verification.
+
 ## v2.0.0 - Maintainer Reliability OS
 
 - Added `codex-maintainer self-audit` for toolkit readiness proof.

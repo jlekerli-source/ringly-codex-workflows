@@ -34,6 +34,7 @@ Read the guided setup first:
 - `docs/command-matrix.md`: one-page map from maintainer jobs to CLI commands.
 - `docs/demo-reports.md`: checked-in demo reports generated from public fixtures.
 - `docs/maintainer-reliability-os.md`: the full policy-to-self-audit evidence loop.
+- `docs/next-goal.md`: generate the next slash-goal release plan.
 - `docs/policy.md`: configure protected paths, risky claims, and scope limits.
 - `docs/pr-review-bot.md`: generate PR-ready review comments and badge JSON from autopsy reports.
 - `docs/release-checklist.md`: release proof commands and publishing checks.
@@ -67,6 +68,7 @@ For public proof without private app code, read `examples/demo-walkthrough.md`.
 For agent-claim auditing, run `./bin/codex-maintainer autopsy` against `fixtures/autopsy/`.
 For aggregate benchmark proof, run `./bin/codex-maintainer arena run --fixture fixtures/arena --out /tmp/arena`.
 For toolkit release readiness, run `./bin/codex-maintainer self-audit --out /tmp/codex-maintainer-audit`.
+For the next improvement loop, run `./bin/codex-maintainer next-goal --out NEXT_GOAL.md`.
 
 ## What Is Inside
 
@@ -88,6 +90,7 @@ For toolkit release readiness, run `./bin/codex-maintainer self-audit --out /tmp
 - `docs/command-matrix.md`: command surface map for maintainer jobs.
 - `docs/demo-reports.md`: generated reports from the fixture pack.
 - `docs/maintainer-reliability-os.md`: policy, audit, arena, PR, CI, leaderboard, and self-audit loop.
+- `docs/next-goal.md`: slash-goal release planning for the next improvement loop.
 - `docs/policy.md`: plain policy config for project-specific risk rules.
 - `docs/pr-review-bot.md`: warn/fail PR review comment mode for autopsy reports.
 - `docs/release-checklist.md`: release validation and publishing checklist.

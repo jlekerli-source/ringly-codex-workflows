@@ -13,6 +13,7 @@ Use this checklist for every release after `v2.0.0`.
 ./tests/ci_gate_test.sh
 ./tests/leaderboard_test.sh
 ./tests/self_audit_test.sh
+./tests/next_goal_test.sh
 ./tests/package_release_test.sh
 ```
 

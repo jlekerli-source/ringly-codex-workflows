@@ -3,7 +3,7 @@
 The toolkit now has a full evidence loop:
 
 ```text
-policy -> autopsy -> arena -> review-comment -> ci-gate -> leaderboard -> self-audit
+policy -> autopsy -> arena -> review-comment -> ci-gate -> leaderboard -> self-audit -> next-goal
 ```
 
 That loop gives maintainers a way to:
@@ -15,5 +15,6 @@ That loop gives maintainers a way to:
 - fail CI only when the project opts in
 - publish stable leaderboard data
 - audit the toolkit itself before release
+- generate the next slash-goal plan after release verification
 
 The project remains deliberately small: public fixtures, plain config, Bash scripts, markdown docs, and release tarballs.

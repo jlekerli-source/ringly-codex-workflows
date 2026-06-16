@@ -61,6 +61,7 @@ commands=(
   "ci-gate --help"
   "leaderboard build --help"
   "self-audit --help"
+  "next-goal --help"
 )
 
 missing=0
@@ -79,6 +80,7 @@ required_artifacts=(
   "actions/review-comment/action.yml"
   "examples/demo-reports/leaderboard.json"
   "examples/demo-reports/arena/results.json"
+  "docs/next-goal.md"
 )
 
 artifact_count=0

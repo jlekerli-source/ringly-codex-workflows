@@ -16,6 +16,7 @@ Start here:
 - [Command Matrix](command-matrix.md)
 - [Demo Reports](demo-reports.md)
 - [Maintainer Reliability OS](maintainer-reliability-os.md)
+- [Next Goal Generator](next-goal.md)
 - [Policy Configuration](policy.md)
 - [PR Review Bot Mode](pr-review-bot.md)
 - [Release Checklist](release-checklist.md)
@@ -27,7 +28,7 @@ Start here:
 - Root instructions for Codex in a risk-sensitive iOS repo.
 - Planning and subagent templates.
 - Reusable skills for alarm testing, notification permissions, release work, bug triage, and UI polish.
-- A small CLI for validation, starter initialization, doctor checks, run scoring, autopsy reports, fixture arena runs, review comments, CI gates, leaderboard JSON, and toolkit self-audits.
+- A small CLI for validation, starter initialization, doctor checks, run scoring, autopsy reports, fixture arena runs, review comments, CI gates, leaderboard JSON, toolkit self-audits, and next-goal generation.
 - Reusable GitHub Actions for validation and review-comment generation.
 - Examples and a scorecard for judging agent output quality.
 
@@ -42,3 +43,4 @@ Start here:
 7. Run `./bin/codex-maintainer arena run --fixture fixtures/arena --out /tmp/arena`.
 8. Run `./bin/codex-maintainer leaderboard build --arena-results /tmp/arena/results.json --out /tmp/leaderboard.json`.
 9. Run `./bin/codex-maintainer self-audit --out /tmp/codex-maintainer-self-audit`.
+10. Run `./bin/codex-maintainer next-goal --out /tmp/NEXT_GOAL.md`.

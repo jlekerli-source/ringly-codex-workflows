@@ -184,6 +184,25 @@ It checks stable command availability and the core artifacts that make the Maint
 
 See `maintainer-reliability-os.md`, `command-matrix.md`, and `release-checklist.md`.
 
+## Next Goal
+
+Generate a slash-goal style plan for the next release:
+
+```bash
+./bin/codex-maintainer next-goal --out NEXT_GOAL.md
+```
+
+Override the target release and title when the next improvement is already known:
+
+```bash
+./bin/codex-maintainer next-goal \
+  --release 2.2.0 \
+  --title "SARIF Evidence Export" \
+  --out /tmp/next-goal.md
+```
+
+The command writes a Markdown plan with a `/goal` block, release constraints, proof commands, publishing checks, and the command to generate the following goal. See `next-goal.md`.
+
 ## Install From Release Tarball
 
 Download and extract a release package:
