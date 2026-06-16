@@ -1,0 +1,115 @@
+name: Verify Codex maintainer release evidence
+description: Verify a downloaded release evidence artifact and produce machine-readable consumption proof.
+
+inputs:
+  dir:
+    description: Directory containing the downloaded release evidence artifact.
+    required: false
+    default: artifacts/codex-maintainer-release-evidence
+  out:
+    description: Directory for verification reports.
+    required: false
+    default: artifacts/codex-maintainer-release-evidence-verify
+  require-diff:
+    description: Use true to require release diff evidence, false to skip the requirement, or auto to accept either.
+    required: false
+    default: auto
+  require-index:
+    description: Use true to require evidence-index.json, false to skip the requirement, or auto to accept either.
+    required: false
+    default: auto
+  upload-artifact:
+    description: Set false to skip verification artifact upload.
+    required: false
+    default: "true"
+  artifact-name:
+    description: Uploaded verification artifact name.
+    required: false
+    default: codex-maintainer-release-evidence-verify
+  mode:
+    description: Use fail to fail the job on invalid evidence, or warn to emit warnings only.
+    required: false
+    default: fail
+
+outputs:
+  status:
+    description: pass or blocked.
+    value: ${{ steps.verify-evidence.outputs.status }}
+  report-json:
+    description: Path to evidence-verify.json.
+    value: ${{ steps.verify-evidence.outputs.report-json }}
+  report-md:
+    description: Path to evidence-verify.md.
+    value: ${{ steps.verify-evidence.outputs.report-md }}
+  badge:
+    description: Path to Shields-compatible badge JSON.
+    value: ${{ steps.verify-evidence.outputs.badge }}
+
+runs:
+  using: composite
+  steps:
+    - name: Verify release evidence artifact
+      id: verify-evidence
+      shell: bash
+      run: |
+        set -euo pipefail
+
+        root="${{ github.action_path }}/../.."
+        evidence_dir="${{ inputs.dir }}"
+        out="${{ inputs.out }}"
+        require_diff="${{ inputs.require-diff }}"
+        require_index="${{ inputs.require-index }}"
+        mode="${{ inputs.mode }}"
+
+        if [[ "$mode" != "fail" && "$mode" != "warn" ]]; then
+          echo "::error::mode must be fail or warn"
+          exit 2
+        fi
+        if [[ "$require_diff" != "auto" && "$require_diff" != "true" && "$require_diff" != "false" ]]; then
+          echo "::error::require-diff must be auto, true, or false"
+          exit 2
+        fi
+        if [[ "$require_index" != "auto" && "$require_index" != "true" && "$require_index" != "false" ]]; then
+          echo "::error::require-index must be auto, true, or false"
+          exit 2
+        fi
+
+        verify_exit=0
+        set +e
+        "$root/bin/codex-maintainer" release-evidence verify \
+          --dir "$evidence_dir" \
+          --out "$out" \
+          --require-diff "$require_diff" \
+          --require-index "$require_index"
+        verify_exit="$?"
+        set -e
+
+        status="pass"
+        if [[ "$verify_exit" -ne 0 ]]; then
+          status="blocked"
+        fi
+
+        {
+          echo "status=$status"
+          echo "report-json=$out/evidence-verify.json"
+          echo "report-md=$out/evidence-verify.md"
+          echo "badge=$out/badge.json"
+        } >> "$GITHUB_OUTPUT"
+
+        if [[ "$status" == "blocked" ]]; then
+          message="release evidence verification failed"
+          if [[ "$mode" == "warn" ]]; then
+            echo "::warning::$message"
+          else
+            echo "::error::$message"
+            exit "$verify_exit"
+          fi
+        fi
+
+    - name: Upload release evidence verification artifact
+      if: ${{ inputs.upload-artifact == 'true' && steps.verify-evidence.outputs.status == 'pass' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.artifact-name }}
+        path: ${{ inputs.out }}
+        if-no-files-found: error

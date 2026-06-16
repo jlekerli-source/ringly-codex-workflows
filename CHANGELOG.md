@@ -1,5 +1,11 @@
 # Changelog
 
+## v3.21.0 - Release Evidence Action Consumption Proof
+
+- Added `codex-maintainer release-evidence verify` to consume downloaded release evidence artifacts and verify their static evidence, copied source reports, optional index, and optional bundle metadata.
+- Added `actions/release-evidence-verify` plus a two-job workflow example that builds a release evidence artifact, downloads it, and verifies it as a downstream consumer.
+- Added package, self-audit, docs, and CI coverage for release evidence artifact verification.
+
 ## v3.20.0 - Release Evidence Bundle CI Action Mode
 
 - Added bundle mode to `actions/release-evidence` so CI can download release assets and run the one-command evidence bundle path.

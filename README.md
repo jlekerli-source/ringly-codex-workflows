@@ -17,8 +17,8 @@ The goal is simple: make AI-assisted coding repeatable, reviewable, and useful f
 Install from a release tarball:
 
 ```bash
-tar -xzf codex-maintainer-v3.20.0.tar.gz
-cd codex-maintainer-v3.20.0
+tar -xzf codex-maintainer-v3.21.0.tar.gz
+cd codex-maintainer-v3.21.0
 PREFIX="$HOME/.local" ./scripts/install.sh
 "$HOME/.local/bin/codex-maintainer" version
 ```
@@ -49,6 +49,7 @@ Read the guided setup first:
 - `docs/release-evidence-bundle.md`: one-command local release evidence bundle.
 - `docs/release-evidence-site.md`: static HTML export for release proof evidence.
 - `docs/release-evidence-index.md`: static release history index for evidence site exports.
+- `docs/release-evidence-verify.md`: consume and verify downloaded release evidence artifacts.
 - `docs/release-index.md`: release proof catalog generation from manifests.
 - `docs/release-manifest.md`: release tarball manifest and proof ledger output.
 - `docs/release-proof.md`: one-command release proof bundle generation.
@@ -101,20 +102,22 @@ For CI-consumable findings, run `./bin/codex-maintainer sarif --report /tmp/auto
 For workflow-run summaries, run `./bin/codex-maintainer ci-summary --gate /tmp/codex-gate/gate.json --out /tmp/codex-gate/summary.md`.
 For Check Run payloads, run `./bin/codex-maintainer check-run --gate /tmp/codex-gate/gate.json --head-sha "$GITHUB_SHA" --out /tmp/codex-gate/check-run/payload.json`.
 To post a Check Run after reviewing the payload, run `./bin/codex-maintainer check-run post --payload /tmp/codex-gate/check-run/payload.json --repo "$GITHUB_REPOSITORY" --out /tmp/codex-gate/check-run/response.json`.
-For release proof files, run `./bin/codex-maintainer release-manifest --tarball dist/codex-maintainer-v3.20.0.tar.gz --out /tmp/release-proof`.
-To verify release proof files, run `./bin/codex-maintainer release-manifest verify --manifest /tmp/release-proof/release-manifest.json --tarball dist/codex-maintainer-v3.20.0.tar.gz`.
+For release proof files, run `./bin/codex-maintainer release-manifest --tarball dist/codex-maintainer-v3.21.0.tar.gz --out /tmp/release-proof`.
+To verify release proof files, run `./bin/codex-maintainer release-manifest verify --manifest /tmp/release-proof/release-manifest.json --tarball dist/codex-maintainer-v3.21.0.tar.gz`.
 To catalog release proof files, run `./bin/codex-maintainer release-index build --manifest /tmp/release-proof/release-manifest.json --out /tmp/release-index`.
-To replay release proof from downloaded assets, run `./bin/codex-maintainer release-replay verify --manifest /tmp/release-proof/release-manifest.json --tarball dist/codex-maintainer-v3.20.0.tar.gz --index /tmp/release-index/release-index.json --ledger /tmp/release-proof/proof-ledger.md --out /tmp/release-replay`.
+To replay release proof from downloaded assets, run `./bin/codex-maintainer release-replay verify --manifest /tmp/release-proof/release-manifest.json --tarball dist/codex-maintainer-v3.21.0.tar.gz --index /tmp/release-index/release-index.json --ledger /tmp/release-proof/proof-ledger.md --out /tmp/release-replay`.
 To generate a compact release attestation, run `./bin/codex-maintainer release-attest build --manifest /tmp/release-proof/release-manifest.json --replay /tmp/release-replay/replay-report.json --out /tmp/release-attestation`.
-To generate the full proof bundle in one command, run `./bin/codex-maintainer release-proof build --out /tmp/release-proof-bundle --release-url https://github.com/owner/repo/releases/tag/v3.20.0`.
-To consume a published proof bundle, run `./bin/codex-maintainer release-consume verify --dir /tmp/codex-maintainer-v3.20.0 --out /tmp/codex-maintainer-v3.20.0/consumer-proof --version 3.20.0`.
-To verify a published proof bundle in GitHub Actions, use `jlekerli-source/ringly-codex-workflows/actions/release-consume@v3.20.0`.
-To compare two release proof bundles, run `./bin/codex-maintainer release-diff compare --left /tmp/codex-maintainer-old --right /tmp/codex-maintainer-v3.20.0 --out /tmp/release-diff`.
-To compare two published proof bundles in GitHub Actions, use `jlekerli-source/ringly-codex-workflows/actions/release-diff@v3.20.0`.
-To export a static evidence page, run `./bin/codex-maintainer release-evidence site --consume /tmp/codex-maintainer-v3.20.0/consumer-proof --diff /tmp/release-diff --out /tmp/release-site`.
+To generate the full proof bundle in one command, run `./bin/codex-maintainer release-proof build --out /tmp/release-proof-bundle --release-url https://github.com/owner/repo/releases/tag/v3.21.0`.
+To consume a published proof bundle, run `./bin/codex-maintainer release-consume verify --dir /tmp/codex-maintainer-v3.21.0 --out /tmp/codex-maintainer-v3.21.0/consumer-proof --version 3.21.0`.
+To verify a published proof bundle in GitHub Actions, use `jlekerli-source/ringly-codex-workflows/actions/release-consume@v3.21.0`.
+To compare two release proof bundles, run `./bin/codex-maintainer release-diff compare --left /tmp/codex-maintainer-old --right /tmp/codex-maintainer-v3.21.0 --out /tmp/release-diff`.
+To compare two published proof bundles in GitHub Actions, use `jlekerli-source/ringly-codex-workflows/actions/release-diff@v3.21.0`.
+To export a static evidence page, run `./bin/codex-maintainer release-evidence site --consume /tmp/codex-maintainer-v3.21.0/consumer-proof --diff /tmp/release-diff --out /tmp/release-site`.
 To build a static evidence history, run `./bin/codex-maintainer release-evidence index --site /tmp/release-site --out /tmp/release-history`.
-To build the local release evidence proof path in one command, run `./bin/codex-maintainer release-evidence bundle --assets /tmp/codex-maintainer-v3.20.0 --left /tmp/codex-maintainer-old --out /tmp/release-evidence-bundle --version 3.20.0`.
-To export release evidence in GitHub Actions, use `jlekerli-source/ringly-codex-workflows/actions/release-evidence@v3.20.0`.
+To build the local release evidence proof path in one command, run `./bin/codex-maintainer release-evidence bundle --assets /tmp/codex-maintainer-v3.21.0 --left /tmp/codex-maintainer-old --out /tmp/release-evidence-bundle --version 3.21.0`.
+To export release evidence in GitHub Actions, use `jlekerli-source/ringly-codex-workflows/actions/release-evidence@v3.21.0`.
+To consume a downloaded release evidence artifact, run `./bin/codex-maintainer release-evidence verify --dir /tmp/codex-maintainer-release-evidence --out /tmp/codex-maintainer-release-evidence-verify --require-diff true --require-index true`.
+To verify release evidence artifacts in GitHub Actions, use `jlekerli-source/ringly-codex-workflows/actions/release-evidence-verify@v3.21.0`.
 
 ## What Is Inside
 
@@ -131,6 +134,7 @@ To export release evidence in GitHub Actions, use `jlekerli-source/ringly-codex-
 - `actions/release-consume/`: a reusable GitHub composite action for downstream release proof verification.
 - `actions/release-diff/`: a reusable GitHub composite action for release proof diff audits.
 - `actions/release-evidence/`: a reusable GitHub composite action for static release evidence exports.
+- `actions/release-evidence-verify/`: a reusable GitHub composite action for downloaded release evidence artifact verification.
 - `docs/cli.md`: command reference for the CLI.
 - `docs/arena.md`: guide for running the public maintainer fixture arena.
 - `docs/autopsy.md`: guide for auditing AI coding claims against diffs and tests.
@@ -155,6 +159,7 @@ To export release evidence in GitHub Actions, use `jlekerli-source/ringly-codex-
 - `docs/release-evidence-bundle.md`: one-command local release evidence bundle.
 - `docs/release-evidence-site.md`: static release evidence HTML export.
 - `docs/release-evidence-index.md`: static release evidence history export.
+- `docs/release-evidence-verify.md`: release evidence artifact consumption and verification.
 - `docs/release-index.md`: release proof catalog generation.
 - `docs/release-manifest.md`: release manifest and proof-ledger generation.
 - `docs/release-proof.md`: one-command release proof bundle generation.
@@ -179,6 +184,7 @@ To export release evidence in GitHub Actions, use `jlekerli-source/ringly-codex-
 - `examples/workflows/release-consume-verify.yml`: manual release proof consumption workflow.
 - `examples/workflows/release-diff-compare.yml`: manual release proof diff workflow.
 - `examples/workflows/release-evidence-bundle.yml`: manual one-action release evidence bundle workflow.
+- `examples/workflows/release-evidence-consume.yml`: two-job workflow that exports and verifies release evidence.
 - `examples/workflows/release-evidence-export.yml`: manual release evidence export workflow.
 - `examples/demo-reports/`: generated demo arena reports and leaderboard JSON.
 - `examples/autopsy-report.md`: sample autopsy expectations for dangerous and clean runs.

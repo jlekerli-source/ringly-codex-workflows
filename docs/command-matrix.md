@@ -25,6 +25,7 @@
 | Consume release proof in CI | `actions/release-consume` | Uploaded consumer proof artifact |
 | Compare releases | `release-diff compare`, `actions/release-diff` | Release diff JSON and Markdown |
 | Export release evidence | `release-evidence site`, `release-evidence index`, `release-evidence bundle`, `actions/release-evidence` | Static evidence site, optional history index, and one-command local evidence bundle |
+| Consume release evidence | `release-evidence verify`, `actions/release-evidence-verify` | Evidence artifact verification report, Markdown summary, and badge JSON |
 | Audit this toolkit | `self-audit` | Self-audit Markdown and JSON |
 | Continue the release loop | `next-goal` | Slash-goal Markdown plan |
 

@@ -1,0 +1,49 @@
+name: Build and verify Codex maintainer release evidence
+
+on:
+  workflow_dispatch:
+    inputs:
+      previous-tag:
+        description: Previous release tag to compare.
+        required: true
+        default: v3.20.0
+      release-tag:
+        description: Release tag to verify and export.
+        required: true
+        default: v3.21.0
+
+permissions:
+  contents: read
+
+jobs:
+  build-release-evidence:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build release evidence bundle
+        uses: jlekerli-source/ringly-codex-workflows/actions/release-evidence@v3.21.0
+        with:
+          run: bundle
+          repo: jlekerli-source/ringly-codex-workflows
+          release-tag: ${{ inputs.release-tag }}
+          previous-tag: ${{ inputs.previous-tag }}
+          download-assets: true
+          artifact-name: codex-maintainer-release-evidence
+          mode: fail
+
+  verify-release-evidence:
+    runs-on: ubuntu-latest
+    needs: build-release-evidence
+    steps:
+      - name: Download release evidence artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: codex-maintainer-release-evidence
+          path: artifacts/codex-maintainer-release-evidence
+
+      - name: Verify release evidence artifact
+        uses: jlekerli-source/ringly-codex-workflows/actions/release-evidence-verify@v3.21.0
+        with:
+          dir: artifacts/codex-maintainer-release-evidence
+          require-diff: true
+          require-index: true
+          mode: fail

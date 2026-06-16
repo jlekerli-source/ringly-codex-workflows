@@ -41,6 +41,7 @@ Usage:
   codex-maintainer release-evidence site --consume <consumer-proof-dir> --out <dir> [--diff <release-diff-dir>] [--title <title>]
   codex-maintainer release-evidence index --site <evidence-site-dir> [--site <evidence-site-dir> ...] --out <dir> [--title <title>]
   codex-maintainer release-evidence bundle --assets <release-assets-dir> --out <dir> [--version <version>] [--left <previous-release-assets-dir>] [--title <title>] [--index-title <title>]
+  codex-maintainer release-evidence verify --dir <evidence-artifact-dir> --out <dir> [--require-diff auto|true|false] [--require-index auto|true|false]
   codex-maintainer self-audit [--out <dir>]
   codex-maintainer next-goal [--out <file>] [--release <version>] [--title <title>]
   codex-maintainer version
@@ -76,7 +77,7 @@ Commands:
   release-diff
               Compare two release proof asset directories and report what changed.
   release-evidence
-              Export release proof reports as a static evidence site or index.
+              Export or verify release proof evidence sites, indexes, and bundles.
   self-audit  Generate toolkit readiness proof.
   next-goal   Generate a slash-goal release objective for the next improvement loop.
   version     Print the toolkit version from VERSION.

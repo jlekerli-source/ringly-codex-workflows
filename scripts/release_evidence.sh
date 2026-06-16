@@ -12,6 +12,7 @@ Usage:
   codex-maintainer release-evidence site --consume <consumer-proof-dir> --out <dir> [--diff <release-diff-dir>] [--title <title>]
   codex-maintainer release-evidence index --site <evidence-site-dir> [--site <evidence-site-dir> ...] --out <dir> [--title <title>]
   codex-maintainer release-evidence bundle --assets <release-assets-dir> --out <dir> [--version <version>] [--left <previous-release-assets-dir>] [--title <title>] [--index-title <title>]
+  codex-maintainer release-evidence verify --dir <evidence-artifact-dir> --out <dir> [--require-diff auto|true|false] [--require-index auto|true|false]
 
 Inputs:
   --consume must contain consumer-report.json and asset-digests.json.
@@ -41,6 +42,11 @@ Bundle outputs:
   index/evidence-index.json
   bundle.json
   README.md
+
+Verify outputs:
+  evidence-verify.json
+  evidence-verify.md
+  badge.json
 USAGE
 }
 
@@ -804,8 +810,327 @@ cmd_bundle() {
   echo "status: pass"
 }
 
+cmd_verify() {
+  local evidence_dir=""
+  local out_dir=""
+  local require_diff="auto"
+  local require_index="auto"
+
+  while [[ "$#" -gt 0 ]]; do
+    case "$1" in
+      --dir)
+        [[ "$#" -ge 2 && -n "${2:-}" ]] || fail "--dir requires a value"
+        evidence_dir="$2"
+        shift 2
+        ;;
+      --out)
+        [[ "$#" -ge 2 && -n "${2:-}" ]] || fail "--out requires a value"
+        out_dir="$2"
+        shift 2
+        ;;
+      --require-diff)
+        [[ "$#" -ge 2 && -n "${2:-}" ]] || fail "--require-diff requires a value"
+        require_diff="$2"
+        shift 2
+        ;;
+      --require-index)
+        [[ "$#" -ge 2 && -n "${2:-}" ]] || fail "--require-index requires a value"
+        require_index="$2"
+        shift 2
+        ;;
+      --help|-h)
+        usage
+        exit 0
+        ;;
+      *)
+        fail "unknown verify argument: $1"
+        ;;
+    esac
+  done
+
+  [[ -n "$evidence_dir" ]] || fail "--dir is required"
+  [[ -n "$out_dir" ]] || fail "--out is required"
+  [[ -d "$evidence_dir" ]] || fail "evidence artifact directory not found: $evidence_dir"
+  [[ "$require_diff" == "auto" || "$require_diff" == "true" || "$require_diff" == "false" ]] || fail "--require-diff must be auto, true, or false"
+  [[ "$require_index" == "auto" || "$require_index" == "true" || "$require_index" == "false" ]] || fail "--require-index must be auto, true, or false"
+
+  mkdir -p "$out_dir"
+  local tool_version
+  tool_version="$(sed -n '1p' "$tool_root/VERSION")"
+  local generated_at="${CODEX_MAINTAINER_GENERATED_AT:-$(date -u '+%Y-%m-%dT%H:%M:%SZ')}"
+
+  EVIDENCE_DIR="$evidence_dir" OUT_DIR="$out_dir" REQUIRE_DIFF="$require_diff" \
+    REQUIRE_INDEX="$require_index" TOOL_VERSION="$tool_version" GENERATED_AT="$generated_at" perl <<'PERL'
+use strict;
+use warnings;
+use File::Spec;
+use JSON::PP;
+
+sub read_json {
+  my ($path) = @_;
+  open my $fh, '<:encoding(UTF-8)', $path or die "release-evidence: cannot read $path: $!\n";
+  local $/;
+  my $raw = <$fh>;
+  close $fh;
+  return decode_json($raw);
+}
+
+sub write_text {
+  my ($path, $text) = @_;
+  open my $fh, '>:encoding(UTF-8)', $path or die "release-evidence: cannot write $path: $!\n";
+  print {$fh} $text;
+  close $fh;
+}
+
+sub bool_value {
+  my ($value) = @_;
+  return $value ? JSON::PP::true : JSON::PP::false;
+}
+
+sub display {
+  my ($value) = @_;
+  return '-' if !defined($value) || ref($value);
+  return "$value";
+}
+
+sub rel_file {
+  my ($base, $rel) = @_;
+  return undef unless defined($rel) && !ref($rel) && length($rel);
+  return File::Spec->catfile($base, split m{/}, $rel);
+}
+
+sub rel_exists {
+  my ($base, $rel) = @_;
+  my $path = rel_file($base, $rel);
+  return defined($path) && -f $path;
+}
+
+my $root = $ENV{EVIDENCE_DIR};
+my $out_dir = $ENV{OUT_DIR};
+my $require_diff = $ENV{REQUIRE_DIFF};
+my $require_index = $ENV{REQUIRE_INDEX};
+my @checks;
+
+sub check {
+  my ($name, $passed, $detail) = @_;
+  push @checks, {
+    name => $name,
+    status => $passed ? 'pass' : 'fail',
+    detail => defined($detail) ? $detail : '',
+  };
+}
+
+my $site_dir = -f File::Spec->catfile($root, 'site', 'evidence.json')
+  ? File::Spec->catdir($root, 'site')
+  : (-f File::Spec->catfile($root, 'evidence.json') ? $root : '');
+check('evidence json present', length($site_dir) > 0, length($site_dir) ? $site_dir : 'missing site/evidence.json');
+
+my ($evidence, $consumer, $digests, $diff, $index, $bundle);
+if (length($site_dir)) {
+  $evidence = read_json(File::Spec->catfile($site_dir, 'evidence.json'));
+  check('evidence schema', (($evidence->{schema_version} || '') eq '1.0'), 'schema_version must be 1.0');
+  check('evidence status', (($evidence->{status} || '') eq 'pass'), 'status must be pass');
+  check('evidence html present', -f File::Spec->catfile($site_dir, 'index.html'), 'index.html');
+
+  my $sources = $evidence->{sources} || {};
+  my $consumer_path = rel_file($site_dir, $sources->{consumer_report});
+  my $digests_path = rel_file($site_dir, $sources->{asset_digests});
+  check('consumer report source present', defined($consumer_path) && -f $consumer_path, display($sources->{consumer_report}));
+  check('asset digests source present', defined($digests_path) && -f $digests_path, display($sources->{asset_digests}));
+
+  if (defined($consumer_path) && -f $consumer_path) {
+    $consumer = read_json($consumer_path);
+    check('consumer schema', (($consumer->{schema_version} || '') eq '1.0'), 'schema_version must be 1.0');
+    check('consumer status', (($consumer->{status} || '') eq 'pass'), 'status must be pass');
+  }
+  if (defined($digests_path) && -f $digests_path) {
+    $digests = read_json($digests_path);
+    check('asset digest schema', (($digests->{schema_version} || '') eq '1.0'), 'schema_version must be 1.0');
+  }
+
+  my $release = $evidence->{release} || {};
+  my $artifact = $release->{artifact} || {};
+  check('release identity present', length($release->{version} || '') && length($release->{tag} || ''), 'version and tag');
+  check('artifact digest present', length($artifact->{name} || '') && length($artifact->{sha256} || ''), 'artifact name and sha256');
+
+  if ($consumer) {
+    my $consumer_artifact = $consumer->{artifact} || {};
+    check('consumer release matches evidence',
+      display($consumer->{version}) eq display($release->{version}) &&
+      display($consumer->{tag}) eq display($release->{tag}),
+      display($consumer->{version}) . ' / ' . display($release->{version}));
+    check('consumer artifact matches evidence',
+      display($consumer_artifact->{name}) eq display($artifact->{name}) &&
+      display($consumer_artifact->{sha256}) eq display($artifact->{sha256}),
+      display($consumer_artifact->{name}) . ' / ' . display($artifact->{name}));
+  }
+
+  if ($digests) {
+    my @assets = @{ $digests->{assets} || [] };
+    my $present = 0;
+    my $missing = 0;
+    my $required_missing = 0;
+    for my $asset (@assets) {
+      if (($asset->{status} || '') eq 'present') {
+        $present++;
+      } else {
+        $missing++;
+        $required_missing++ if $asset->{required};
+      }
+    }
+    my $summary = $evidence->{asset_digest_summary} || {};
+    check('asset digest summary matches',
+      display($summary->{asset_count}) eq display(scalar(@assets)) &&
+      display($summary->{present}) eq display($present) &&
+      display($summary->{missing}) eq display($missing) &&
+      display($summary->{required_missing}) eq display($required_missing),
+      "$present/" . scalar(@assets) . " present");
+    check('required assets present', $required_missing == 0, "$required_missing required missing");
+  }
+
+  my $diff_state = $evidence->{release_diff} || {};
+  my $diff_present = $diff_state->{present} ? 1 : 0;
+  my $diff_source = $sources->{release_diff};
+  if ($require_diff eq 'true') {
+    check('release diff required', $diff_present, 'release_diff.present must be true');
+  }
+  if ($diff_present) {
+    my $diff_path = rel_file($site_dir, $diff_source);
+    check('release diff source present', defined($diff_path) && -f $diff_path, display($diff_source));
+    if (defined($diff_path) && -f $diff_path) {
+      $diff = read_json($diff_path);
+      check('release diff schema', (($diff->{schema_version} || '') eq '1.0'), 'schema_version must be 1.0');
+      check('release diff status', (($diff->{status} || '') eq 'pass'), 'status must be pass');
+      check('release diff matches evidence',
+        display($diff->{status}) eq display($diff_state->{status}),
+        display($diff->{status}) . ' / ' . display($diff_state->{status}));
+    }
+  }
+}
+
+my $index_file = -f File::Spec->catfile($root, 'index', 'evidence-index.json')
+  ? File::Spec->catfile($root, 'index', 'evidence-index.json')
+  : (-f File::Spec->catfile($root, 'evidence-index.json') ? File::Spec->catfile($root, 'evidence-index.json') : '');
+if ($require_index eq 'true') {
+  check('evidence index required', length($index_file) > 0, 'evidence-index.json');
+}
+if (length($index_file)) {
+  $index = read_json($index_file);
+  check('evidence index schema', (($index->{schema_version} || '') eq '1.0'), 'schema_version must be 1.0');
+  check('evidence index status', (($index->{status} || '') eq 'pass'), 'status must be pass');
+  check('evidence index has releases', scalar(@{ $index->{releases} || [] }) > 0, 'at least one release');
+  if ($evidence) {
+    my $release = $evidence->{release} || {};
+    my $matched = 0;
+    for my $entry (@{ $index->{releases} || [] }) {
+      if (display($entry->{version}) eq display($release->{version}) && display($entry->{tag}) eq display($release->{tag})) {
+        $matched = 1;
+        last;
+      }
+    }
+    check('evidence index contains release', $matched, display($release->{tag}));
+  }
+}
+
+my $bundle_file = File::Spec->catfile($root, 'bundle.json');
+if (-f $bundle_file) {
+  $bundle = read_json($bundle_file);
+  check('bundle schema', (($bundle->{schema_version} || '') eq '1.0'), 'schema_version must be 1.0');
+  check('bundle status', (($bundle->{status} || '') eq 'pass'), 'status must be pass');
+  my $outputs = $bundle->{outputs} || {};
+  for my $pair (
+    ['bundle consumer report output', $outputs->{consumer_report}],
+    ['bundle evidence json output', $outputs->{evidence_json}],
+    ['bundle evidence index output', $outputs->{evidence_index}],
+  ) {
+    check($pair->[0], rel_exists($root, $pair->[1]), display($pair->[1]));
+  }
+  if ($bundle->{diff_included}) {
+    check('bundle release diff output', rel_exists($root, $outputs->{release_diff}), display($outputs->{release_diff}));
+  }
+  if ($evidence) {
+    my $diff_present = ($evidence->{release_diff} || {})->{present} ? 1 : 0;
+    check('bundle diff flag matches evidence', ($bundle->{diff_included} ? 1 : 0) == $diff_present, 'diff_included');
+  }
+}
+
+my $failed = 0;
+for my $check (@checks) {
+  $failed++ if ($check->{status} || '') ne 'pass';
+}
+my $status = $failed ? 'blocked' : 'pass';
+my $release = $evidence ? ($evidence->{release} || {}) : {};
+my $artifact = $release->{artifact} || {};
+
+my $report = {
+  schema_version => '1.0',
+  tool_version => $ENV{TOOL_VERSION},
+  generated_at => $ENV{GENERATED_AT},
+  status => $status,
+  input_dir => $root,
+  require_diff => $require_diff,
+  require_index => $require_index,
+  release => {
+    version => $release->{version},
+    tag => $release->{tag},
+    commit => $release->{commit},
+    artifact => {
+      name => $artifact->{name},
+      sha256 => $artifact->{sha256},
+      bytes => $artifact->{bytes},
+    },
+  },
+  summary => {
+    checks => scalar(@checks),
+    failed => $failed,
+    site_present => bool_value(length($site_dir) > 0),
+    index_present => bool_value(length($index_file) > 0),
+    bundle_present => bool_value(-f $bundle_file),
+    diff_present => bool_value($diff ? 1 : 0),
+  },
+  checks => \@checks,
+};
+
+my $json = JSON::PP->new->utf8->canonical(1)->pretty;
+write_text(File::Spec->catfile($out_dir, 'evidence-verify.json'), $json->encode($report));
+
+my $md = "# Release Evidence Verification\n\n"
+  . "- Generated: $ENV{GENERATED_AT}\n"
+  . "- Status: $status\n"
+  . "- Version: " . display($release->{version}) . "\n"
+  . "- Tag: " . display($release->{tag}) . "\n"
+  . "- Artifact: " . display($artifact->{name}) . "\n"
+  . "- Artifact SHA-256: " . display($artifact->{sha256}) . "\n"
+  . "- Checks: " . scalar(@checks) . "\n"
+  . "- Failed checks: $failed\n\n"
+  . "## Checks\n\n"
+  . "| Check | Status | Detail |\n"
+  . "| --- | --- | --- |\n";
+for my $check (@checks) {
+  my $detail = display($check->{detail});
+  $detail =~ s/\|/\\|/g;
+  $md .= "| $check->{name} | $check->{status} | $detail |\n";
+}
+write_text(File::Spec->catfile($out_dir, 'evidence-verify.md'), $md);
+
+my $badge = {
+  schemaVersion => 1,
+  label => 'release evidence',
+  message => ($status eq 'pass' ? 'pass ' . display($release->{tag}) : 'blocked'),
+  color => ($status eq 'pass' ? 'brightgreen' : 'red'),
+};
+write_text(File::Spec->catfile($out_dir, 'badge.json'), $json->encode($badge));
+
+print "wrote: " . File::Spec->catfile($out_dir, 'evidence-verify.json') . "\n";
+print "wrote: " . File::Spec->catfile($out_dir, 'evidence-verify.md') . "\n";
+print "wrote: " . File::Spec->catfile($out_dir, 'badge.json') . "\n";
+print "status: $status\n";
+exit($status eq 'pass' ? 0 : 1);
+PERL
+}
+
 subcommand="${1:-}"
-[[ "$subcommand" == "site" || "$subcommand" == "index" || "$subcommand" == "bundle" ]] || fail "release-evidence requires subcommand: site, index, or bundle"
+[[ "$subcommand" == "site" || "$subcommand" == "index" || "$subcommand" == "bundle" || "$subcommand" == "verify" ]] || fail "release-evidence requires subcommand: site, index, bundle, or verify"
 shift || true
 case "$subcommand" in
   site)
@@ -816,5 +1141,8 @@ case "$subcommand" in
     ;;
   bundle)
     cmd_bundle "$@"
+    ;;
+  verify)
+    cmd_verify "$@"
     ;;
 esac

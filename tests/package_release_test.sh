@@ -26,6 +26,7 @@ grep -q "^$package_name/actions/ci-gate/action.yml$" "$tar_list"
 grep -q "^$package_name/actions/release-consume/action.yml$" "$tar_list"
 grep -q "^$package_name/actions/release-diff/action.yml$" "$tar_list"
 grep -q "^$package_name/actions/release-evidence/action.yml$" "$tar_list"
+grep -q "^$package_name/actions/release-evidence-verify/action.yml$" "$tar_list"
 grep -q "^$package_name/actions/release-proof/action.yml$" "$tar_list"
 grep -q "^$package_name/actions/review-comment/action.yml$" "$tar_list"
 grep -q "^$package_name/actions/validate/action.yml$" "$tar_list"
@@ -51,6 +52,7 @@ grep -q "^$package_name/docs/release-evidence-action.md$" "$tar_list"
 grep -q "^$package_name/docs/release-evidence-bundle.md$" "$tar_list"
 grep -q "^$package_name/docs/release-evidence-index.md$" "$tar_list"
 grep -q "^$package_name/docs/release-evidence-site.md$" "$tar_list"
+grep -q "^$package_name/docs/release-evidence-verify.md$" "$tar_list"
 grep -q "^$package_name/docs/release-proof.md$" "$tar_list"
 grep -q "^$package_name/docs/release-proof-consumption.md$" "$tar_list"
 grep -q "^$package_name/docs/release-index.md$" "$tar_list"
@@ -102,6 +104,8 @@ grep -q "^$package_name/tests/release_diff_action_test.sh$" "$tar_list"
 grep -q "^$package_name/tests/release_diff_test.sh$" "$tar_list"
 grep -q "^$package_name/tests/release_evidence_action_test.sh$" "$tar_list"
 grep -q "^$package_name/tests/release_evidence_test.sh$" "$tar_list"
+grep -q "^$package_name/tests/release_evidence_verify_action_test.sh$" "$tar_list"
+grep -q "^$package_name/tests/release_evidence_verify_test.sh$" "$tar_list"
 grep -q "^$package_name/tests/release_proof_test.sh$" "$tar_list"
 grep -q "^$package_name/tests/release_index_test.sh$" "$tar_list"
 grep -q "^$package_name/tests/release_manifest_test.sh$" "$tar_list"
@@ -137,6 +141,7 @@ grep -q "^$package_name/examples/release-proof-consumption-checklist.md$" "$tar_
 grep -q "^$package_name/examples/workflows/release-consume-verify.yml$" "$tar_list"
 grep -q "^$package_name/examples/workflows/release-diff-compare.yml$" "$tar_list"
 grep -q "^$package_name/examples/workflows/release-evidence-bundle.yml$" "$tar_list"
+grep -q "^$package_name/examples/workflows/release-evidence-consume.yml$" "$tar_list"
 grep -q "^$package_name/examples/workflows/release-evidence-export.yml$" "$tar_list"
 grep -q "^$package_name/examples/workflows/release-proof-on-tag.yml$" "$tar_list"
 grep -q "^$package_name/examples/workflows/release-proof-manual.yml$" "$tar_list"
@@ -344,6 +349,17 @@ test -f "$tmp_dir/package-release-evidence-bundle/site/index.html"
 test -f "$tmp_dir/package-release-evidence-bundle/index/evidence-index.json"
 grep -q '"status": "pass"' "$tmp_dir/package-release-evidence-bundle/bundle.json"
 grep -q '"diff_included": true' "$tmp_dir/package-release-evidence-bundle/bundle.json"
+"$package_root/bin/codex-maintainer" release-evidence verify \
+  --dir "$tmp_dir/package-release-evidence-bundle" \
+  --out "$tmp_dir/package-release-evidence-verify" \
+  --require-diff true \
+  --require-index true >/dev/null
+test -f "$tmp_dir/package-release-evidence-verify/evidence-verify.json"
+test -f "$tmp_dir/package-release-evidence-verify/evidence-verify.md"
+test -f "$tmp_dir/package-release-evidence-verify/badge.json"
+grep -q '"status" : "pass"' "$tmp_dir/package-release-evidence-verify/evidence-verify.json"
+grep -q '"bundle_present" : true' "$tmp_dir/package-release-evidence-verify/evidence-verify.json"
+grep -q '"message" : "pass v'"$version"'"' "$tmp_dir/package-release-evidence-verify/badge.json"
 test -f "$package_root/actions/release-diff/action.yml"
 grep -q 'release-diff compare' "$package_root/actions/release-diff/action.yml"
 grep -q 'actions/upload-artifact@v4' "$package_root/actions/release-diff/action.yml"
@@ -354,6 +370,10 @@ grep -q 'release-evidence bundle' "$package_root/actions/release-evidence/action
 grep -q 'download-assets:' "$package_root/actions/release-evidence/action.yml"
 grep -q 'gh release download "$release_tag"' "$package_root/actions/release-evidence/action.yml"
 grep -q 'actions/upload-artifact@v4' "$package_root/actions/release-evidence/action.yml"
+test -f "$package_root/actions/release-evidence-verify/action.yml"
+grep -q 'release-evidence verify' "$package_root/actions/release-evidence-verify/action.yml"
+grep -q 'require-diff:' "$package_root/actions/release-evidence-verify/action.yml"
+grep -q 'actions/upload-artifact@v4' "$package_root/actions/release-evidence-verify/action.yml"
 test -f "$package_root/actions/release-consume/action.yml"
 grep -q 'release-consume verify' "$package_root/actions/release-consume/action.yml"
 grep -q 'actions/upload-artifact@v4' "$package_root/actions/release-consume/action.yml"
@@ -361,6 +381,8 @@ grep -q 'actions/upload-artifact@v4' "$package_root/actions/release-consume/acti
 "$package_root/tests/release_diff_action_test.sh" >/dev/null
 "$package_root/tests/release_evidence_test.sh" >/dev/null
 "$package_root/tests/release_evidence_action_test.sh" >/dev/null
+"$package_root/tests/release_evidence_verify_test.sh" >/dev/null
+"$package_root/tests/release_evidence_verify_action_test.sh" >/dev/null
 "$package_root/tests/release_proof_consumption_test.sh" >/dev/null
 "$package_root/bin/codex-maintainer" self-audit \
   --out "$tmp_dir/package-self-audit" >/dev/null
@@ -377,9 +399,11 @@ grep -q '| codex-maintainer release-diff compare --help | pass |' "$tmp_dir/pack
 grep -q '| codex-maintainer release-evidence site --help | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 grep -q '| codex-maintainer release-evidence index --help | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 grep -q '| codex-maintainer release-evidence bundle --help | pass |' "$tmp_dir/package-self-audit/self-audit.md"
+grep -q '| codex-maintainer release-evidence verify --help | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 grep -q '| actions/release-consume/action.yml | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 grep -q '| actions/release-diff/action.yml | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 grep -q '| actions/release-evidence/action.yml | pass |' "$tmp_dir/package-self-audit/self-audit.md"
+grep -q '| actions/release-evidence-verify/action.yml | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 grep -q '| actions/release-proof/action.yml | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 grep -q '| docs/release-consume-action.md | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 grep -q '| docs/release-consume.md | pass |' "$tmp_dir/package-self-audit/self-audit.md"
@@ -389,6 +413,7 @@ grep -q '| docs/release-evidence-action.md | pass |' "$tmp_dir/package-self-audi
 grep -q '| docs/release-evidence-bundle.md | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 grep -q '| docs/release-evidence-index.md | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 grep -q '| docs/release-evidence-site.md | pass |' "$tmp_dir/package-self-audit/self-audit.md"
+grep -q '| docs/release-evidence-verify.md | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 grep -q '| docs/release-proof.md | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 grep -q '| docs/release-proof-consumption.md | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 grep -q '| docs/release-proof-action.md | pass |' "$tmp_dir/package-self-audit/self-audit.md"
@@ -398,6 +423,7 @@ grep -q '| examples/workflows/release-proof-manual.yml | pass |' "$tmp_dir/packa
 grep -q '| examples/workflows/release-consume-verify.yml | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 grep -q '| examples/workflows/release-diff-compare.yml | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 grep -q '| examples/workflows/release-evidence-bundle.yml | pass |' "$tmp_dir/package-self-audit/self-audit.md"
+grep -q '| examples/workflows/release-evidence-consume.yml | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 grep -q '| examples/workflows/release-evidence-export.yml | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 grep -q '| examples/release-proof-consumption-checklist.md | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 "$package_root/bin/codex-maintainer" sarif \
