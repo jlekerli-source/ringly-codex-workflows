@@ -259,15 +259,40 @@ def write_state(path: Path, state: dict[str, Any]) -> None:
     path.write_text(json.dumps(state, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
 
-def new_state() -> dict[str, Any]:
+def new_state(
+    completed_through: str | None = None,
+    completion_evidence: str | None = None,
+    notes: str | None = None,
+) -> dict[str, Any]:
     goals = []
+    completed_through_index: int | None = None
+    if completed_through is not None:
+        for index, goal in enumerate(GOALS):
+            if goal["id"] == completed_through:
+                completed_through_index = index
+                break
+        if completed_through_index is None:
+            fail(f"unknown goal: {completed_through}")
+        if completion_evidence is None or not completion_evidence.strip():
+            fail("--completion-evidence is required with --completed-through")
+
     for index, goal in enumerate(GOALS):
         item = dict(goal)
         item["index"] = index
         item["status"] = "pending"
         item["receipts"] = []
+        if completed_through_index is not None and index <= completed_through_index:
+            receipt = {
+                "completed_at": utc_now(),
+                "evidence": completion_evidence,
+                "bootstrap": True,
+            }
+            if notes:
+                receipt["notes"] = notes
+            item["status"] = "completed"
+            item["receipts"] = [receipt]
         goals.append(item)
-    return {
+    state = {
         "schema_version": SCHEMA_VERSION,
         "catalog_digest": catalog_digest(),
         "generated_at": utc_now(),
@@ -275,6 +300,8 @@ def new_state() -> dict[str, Any]:
         "current_index": 0,
         "goals": goals,
     }
+    advance_to_next_pending(state)
+    return state
 
 
 def current_goal(state: dict[str, Any]) -> dict[str, Any] | None:
@@ -376,7 +403,11 @@ def command_init(args: argparse.Namespace) -> None:
     state_path = Path(args.state)
     if state_path.exists() and not args.force:
         fail(f"state file already exists: {state_path}; use --force to overwrite")
-    state = new_state()
+    state = new_state(
+        completed_through=args.completed_through,
+        completion_evidence=args.completion_evidence,
+        notes=args.notes,
+    )
     write_state(state_path, state)
     print(f"wrote: {state_path}")
     if args.out:
@@ -450,6 +481,15 @@ def build_parser() -> argparse.ArgumentParser:
     init.add_argument("--state", default=".shipguard/goals.json")
     init.add_argument("--out")
     init.add_argument("--force", action="store_true")
+    init.add_argument(
+        "--completed-through",
+        help="Mark catalog goals through this id completed while bootstrapping from existing proof.",
+    )
+    init.add_argument(
+        "--completion-evidence",
+        help="Proof receipt to attach to goals marked by --completed-through.",
+    )
+    init.add_argument("--notes")
     init.set_defaults(func=command_init)
 
     status = subparsers.add_parser("status", help="Print goal loop status")

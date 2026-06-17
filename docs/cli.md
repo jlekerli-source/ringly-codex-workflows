@@ -123,7 +123,7 @@ The iOS namespace also includes:
 - `ios redact`: redact local iOS reports before sharing.
 - `ios eval`: run deterministic ShipGuard behavior evals.
 - `ios demo`: run the clean first-run iOS ShipGuard loop without Xcode, Simulator, credentials, or an API key.
-- `ios goals`: emit and complete evidence-gated ShipGuard slash-goals.
+- `ios goals`: emit and complete evidence-gated ShipGuard slash-goals; use `ios goals init --completed-through <goal-id> --completion-evidence <proof>` to bootstrap a loop from already-proven shipped work without replaying stale goals one by one.
 
 See `ios-shipguard.md`, `ios-preview.md`, and `shipguard-devspace.md`.
 

@@ -28,6 +28,29 @@ grep -q '/goal Implement shipguard-ios-doctor' "$next_goal"
 grep -q 'Completed: 0/13' "$tmp_dir/status.md"
 grep -q 'Current goal: `shipguard-ios-doctor`' "$tmp_dir/status.md"
 
+if ./bin/shipguard ios goals init \
+  --state "$tmp_dir/bootstrap-missing-evidence.json" \
+  --completed-through shipguard-devspace-mcp >/dev/null 2>&1; then
+  echo "expected completed-through without completion evidence to fail" >&2
+  exit 1
+fi
+
+bootstrap_state="$tmp_dir/bootstrap-goals.json"
+bootstrap_goal="$tmp_dir/bootstrap-next.md"
+./bin/shipguard ios goals init \
+  --state "$bootstrap_state" \
+  --completed-through shipguard-devspace-mcp \
+  --completion-evidence "$evidence" \
+  --notes "bootstrapped from current upgrade proof" \
+  --out "$bootstrap_goal" >/dev/null
+
+grep -q '"current_index": 6' "$bootstrap_state"
+grep -q '"id": "shipguard-devspace-mcp"' "$bootstrap_state"
+grep -q '"bootstrap": true' "$bootstrap_state"
+grep -q '"evidence": "'"$evidence"'"' "$bootstrap_state"
+grep -q '# iOS ShipGuard Goal: Supervise Codex Handoffs' "$bootstrap_goal"
+grep -q '/goal Implement shipguard-codex-handoff-supervisor' "$bootstrap_goal"
+
 ./bin/shipguard ios goals emit \
   --goal shipguard-guided-plan \
   --out "$tmp_dir/guided-plan-goal.md" >/dev/null
