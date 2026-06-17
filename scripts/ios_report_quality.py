@@ -36,6 +36,20 @@ SPEC_WORKFLOW_REQUIRED_ARTIFACTS = {
     "json",
     "markdown",
 }
+SPEC_WORKFLOW_ARTIFACT_MARKERS = {
+    "constitution": ["# ShipGuard Constitution", "Read-only product QA", "Devspace is a planning bridge"],
+    "devspaceGuardrails": [
+        "# Devspace Guardrails",
+        "ios devspace-check",
+        "model selection happens in ChatGPT, not ShipGuard",
+        "## Boundary",
+    ],
+    "markdown": ["# iOS ShipGuard Spec Workflow", "## Slash Plan", "## Slash Goal"],
+    "plan": ["# Implementation Plan", "## Phases", "## Validation", "## Analysis Gates"],
+    "spec": ["# Feature Spec", "## User Outcomes", "## Acceptance Criteria", "## Clarifying Questions"],
+    "tasks": ["# Tasks", "`S001`", "`S006`", "Proof:"],
+}
+SPEC_WORKFLOW_PLACEHOLDER_RE = re.compile(r"(?im)^\s*(?:[-*]\s*)?(?:TODO|TBD|FIXME)\b")
 TOKEN_RISK_PATTERNS = {
     "bearer-token": re.compile(r"(?i)\bBearer\s+[A-Za-z0-9._~+/=-]{12,}"),
     "query-token": re.compile(
@@ -394,6 +408,30 @@ def spec_workflow_quality_issues(report: dict[str, Any], *, path: Path, path_nam
                     evidence=f"{path_name} artifact {artifact_name} is empty: {raw_value}",
                     recommendation="Regenerate spec-workflow artifacts so every declared file contains reviewable content.",
                 )
+                continue
+            markers = SPEC_WORKFLOW_ARTIFACT_MARKERS.get(artifact_name, [])
+            if markers:
+                artifact_text = local_artifact_path.read_text(encoding="utf-8", errors="ignore")
+                missing_markers = [marker for marker in markers if marker not in artifact_text]
+                if missing_markers:
+                    add_issue(
+                        issues,
+                        severity="review",
+                        rule_id="spec-workflow-artifact-content-incomplete",
+                        evidence=(
+                            f"{path_name} artifact {artifact_name} missing content markers in {raw_value}: "
+                            f"{', '.join(missing_markers[:4])}"
+                        ),
+                        recommendation="Regenerate the spec workflow so every declared artifact contains its expected headings, proof cues, and guardrails.",
+                    )
+                if SPEC_WORKFLOW_PLACEHOLDER_RE.search(artifact_text):
+                    add_issue(
+                        issues,
+                        severity="review",
+                        rule_id="spec-workflow-artifact-placeholder-content",
+                        evidence=f"{path_name} artifact {artifact_name} still contains placeholder content in {raw_value}",
+                        recommendation="Replace placeholder-only spec-workflow content with reviewable tasks, proof lanes, and guardrails before scoring.",
+                    )
 
     section_checks = [
         ("constitution", "spec-workflow-constitution-missing"),

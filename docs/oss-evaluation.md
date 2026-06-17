@@ -95,6 +95,8 @@ A follow-up misuse probe showed a shareable spec workflow generated without `--f
 
 The next spec-workflow completeness probe removed a declared generated file from an otherwise valid bundle. Report-quality now dereferences the spec-workflow artifact manifest and emits `spec-workflow-artifact-file-missing` for incomplete bundles while keeping shareable output free of local absolute paths.
 
+The next content-quality probe replaced valid `tasks.md` and `devspace-guardrails.md` files with placeholder text. Report-quality now emits `spec-workflow-artifact-content-incomplete` and `spec-workflow-artifact-placeholder-content`, so present-but-useless generated files no longer pass adoption scoring.
+
 The installed Codex cache now has `ios-shipguard` metadata version `0.2.0+codex.20260617011237`, repository `https://github.com/jlekerli-source/ShipGuard`, display name `iOS ShipGuard`, and no stale `ringly-codex-workflows`, `Shipguard`, or primary `codex-maintainer` guidance. The tracked checkout includes `plugins/ios-shipguard`, and package proof requires that plugin source.
 
 ## Verdict

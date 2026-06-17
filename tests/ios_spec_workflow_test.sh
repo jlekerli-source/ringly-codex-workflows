@@ -84,6 +84,23 @@ if grep -R -F -q "$tmp_dir" "$tmp_dir/missing-artifact-quality"; then
   exit 1
 fi
 
+cp -R "$tmp_dir/spec" "$tmp_dir/weak-content-spec"
+printf '# Tasks\n\n- TODO\n' > "$tmp_dir/weak-content-spec/tasks.md"
+printf '# Devspace Guardrails\n\n- TODO\n' > "$tmp_dir/weak-content-spec/devspace-guardrails.md"
+./bin/shipguard ios report-quality \
+  --reports "$tmp_dir/weak-content-spec" \
+  --out "$tmp_dir/weak-content-quality" \
+  --shareable >/dev/null
+grep -q '"status": "review"' "$tmp_dir/weak-content-quality/ios-report-quality.json"
+grep -q '"ruleId": "spec-workflow-artifact-content-incomplete"' "$tmp_dir/weak-content-quality/ios-report-quality.json"
+grep -q '"ruleId": "spec-workflow-artifact-placeholder-content"' "$tmp_dir/weak-content-quality/ios-report-quality.json"
+grep -q 'tasks.md' "$tmp_dir/weak-content-quality/ios-report-quality.json"
+grep -q 'devspace-guardrails.md' "$tmp_dir/weak-content-quality/ios-report-quality.json"
+if grep -R -F -q "$tmp_dir" "$tmp_dir/weak-content-quality"; then
+  echo "shareable weak-content quality output must not include temp absolute paths" >&2
+  exit 1
+fi
+
 ./bin/shipguard ios spec-workflow \
   --path fixtures/demo-ios-repo \
   --feature "No report context spec" \
