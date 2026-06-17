@@ -43,7 +43,7 @@ Read the guided setup first:
 - `docs/ios-shipguard.md`: Codex plugin, skill, and CLI workflow for risky iOS app maintenance.
 - `docs/ios-preview.md`: local simulator preview bridge for Codex browser comments and event receipts.
 - `docs/maintainer-reliability-os.md`: the full policy-to-self-audit evidence loop.
-- `docs/next-goal.md`: generate the next slash-goal release plan.
+- `docs/next-goal.md`: generate the next slash-plan and slash-goal release plan.
 - `docs/oss-evaluation.md`: current usefulness, refinement, and plugin evaluation.
 - `docs/security-threat-model.md`: local CLI, plugin, Devspace, GitHub, and release-proof trust boundaries.
 - `docs/shipguard-devspace.md`: MCP/App bridge for ShipGuard preview, target matching, and Codex handoff preparation.
@@ -119,7 +119,7 @@ To verify a checked transcript corpus in GitHub Actions, use `jlekerli-source/Sh
 For external benchmark packs, run `./bin/shipguard arena import --source external-pack --out /tmp/imported-arena`.
 For fixture-pack integrity metadata, run `./bin/shipguard arena sign --fixture /tmp/imported-arena --out /tmp/imported-arena/PACK.json --signer "Example Maintainers" --signer-url "https://github.com/example/repo"`.
 For toolkit release readiness, run `./bin/shipguard self-audit --out /tmp/shipguard-audit`.
-For the next improvement loop, run `./bin/shipguard next-goal --out NEXT_GOAL.md`.
+For the next improvement loop, run `./bin/shipguard next-goal --out NEXT_GOAL.md` to emit reviewable `/plan` and `/goal` blocks.
 For CI-consumable findings, run `./bin/shipguard sarif --report /tmp/autopsy/report.json --out /tmp/results.sarif`.
 For docs-heavy releases, run `./bin/shipguard docs-check . --out /tmp/shipguard-docs-check`.
 For workflow-run summaries, run `./bin/shipguard ci-summary --gate /tmp/codex-gate/gate.json --out /tmp/codex-gate/summary.md`.
@@ -183,7 +183,7 @@ To publish the negative fixture index in GitHub Actions, use `jlekerli-source/Sh
 - `docs/demo-reports.md`: generated reports from the fixture pack.
 - `docs/docs-check.md`: dependency-free local Markdown link audit.
 - `docs/maintainer-reliability-os.md`: policy, audit, arena, PR, CI, leaderboard, and self-audit loop.
-- `docs/next-goal.md`: slash-goal release planning for the next improvement loop.
+- `docs/next-goal.md`: slash-plan and slash-goal release planning for the next improvement loop.
 - `docs/policy.md`: plain policy config for project-specific risk rules.
 - `docs/pr-review-bot.md`: warn/fail PR review comment mode for autopsy reports.
 - `docs/release-checklist.md`: release validation and publishing checklist.

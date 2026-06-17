@@ -1,6 +1,6 @@
 # Next Goal Generator
 
-`shipguard next-goal` emits a deterministic slash-goal style release plan.
+`shipguard next-goal` emits deterministic slash-plan and slash-goal release guidance.
 
 Use it after a release is verified:
 
@@ -10,6 +10,7 @@ Use it after a release is verified:
 
 The generated file includes:
 
+- an exact `/plan` block for the next release
 - an exact `/goal` block for the next release
 - release constraints
 - required proof commands
@@ -25,4 +26,4 @@ Override the target release or title when needed:
   --out /tmp/next-goal.md
 ```
 
-The command does not open issues, commit, push, or publish releases. It creates an auditable plan that a maintainer can review before starting the next loop.
+The command does not open issues, commit, push, or publish releases. It creates auditable `/plan` and `/goal` blocks that a maintainer can review before starting the next loop.

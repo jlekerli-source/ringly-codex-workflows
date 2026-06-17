@@ -105,7 +105,7 @@ Commands:
   release-evidence
               Export or verify release proof evidence sites, indexes, and bundles.
   self-audit  Generate toolkit readiness proof.
-  next-goal   Generate a slash-goal release objective for the next improvement loop.
+  next-goal   Generate slash-plan and slash-goal guidance for the next improvement loop.
   version     Print the toolkit version from VERSION.
 USAGE
 }

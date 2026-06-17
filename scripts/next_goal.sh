@@ -12,7 +12,7 @@ Usage:
   shipguard next-goal [--out <file>] [--release <version>] [--title <title>]
 
 Outputs:
-  Markdown file containing a slash-goal style release objective and checklist.
+  Markdown file containing slash-plan and slash-goal release guidance.
 USAGE
 }
 
@@ -73,8 +73,20 @@ cat > "$out_file" <<EOF
 - Target release: v$release_version
 - Title: $title
 
+## Slash Plan
+
 \`\`\`text
-/goal Implement v$release_version $title for jlekerli-source/ShipGuard: choose one high-signal maintainer reliability improvement from ROADMAP.md, add CLI/docs/tests/package proof, push main, verify GitHub Actions, publish the release tarball, verify asset SHA-256 and clean git status, then run shipguard next-goal again for the following release.
+/plan v$release_version $title for jlekerli-source/ShipGuard:
+1. Pick exactly one high-signal maintainer reliability improvement from ROADMAP.md and write the bounded scope before editing.
+2. Implement the CLI, docs, tests, and package proof needed for that improvement.
+3. Run the required proof commands, treat blocked or timed-out commands as failures, and record exact blockers.
+4. Push main, verify GitHub Actions, publish and consume release proof, verify asset SHA-256 and clean git status, then generate the following goal.
+\`\`\`
+
+## Slash Goal
+
+\`\`\`text
+/goal Implement v$release_version $title for jlekerli-source/ShipGuard: follow the /plan above, finish one high-signal maintainer reliability improvement from ROADMAP.md with CLI/docs/tests/package proof, push main, verify GitHub Actions, publish the release tarball, verify asset SHA-256 and clean git status, then run shipguard next-goal again for the following release.
 \`\`\`
 
 ## Constraints

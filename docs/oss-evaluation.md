@@ -133,4 +133,5 @@ Status: started.
 
 - Added `fixtures/arena/storekit-entitlement-regression` to exercise regression-awareness and proof honesty around subscription restore behavior.
 - Improved first-run adoption docs around CLI versus plugin usage.
+- Upgraded `shipguard next-goal` so the next improvement loop emits a reviewable `/plan` before the `/goal`.
 - Keep Agents SDK deferred unless ShipGuard becomes a runnable agent service with a concrete eval target.

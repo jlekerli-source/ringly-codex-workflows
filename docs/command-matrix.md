@@ -45,6 +45,6 @@
 | Consume release evidence | `release-evidence verify`, `actions/release-evidence-verify` | Evidence artifact verification report, Markdown summary, and badge JSON |
 | Audit release evidence failures | `release-evidence negative-index`, `actions/release-evidence-negative-index` | Index of intentionally broken evidence fixtures and expected blocked checks |
 | Audit this toolkit | `self-audit` | Self-audit Markdown and JSON |
-| Continue the release loop | `next-goal` | Slash-goal Markdown plan |
+| Continue the release loop | `next-goal` | Slash-plan and slash-goal Markdown plan |
 
 The commands are dependency-light Bash so release packages remain portable.

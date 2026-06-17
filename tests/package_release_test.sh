@@ -750,7 +750,10 @@ grep -q '"version" : "2.1.0"' "$tmp_dir/package-sarif/results.sarif"
   --release 2.6.0 \
   --title "Package Proof Followup" \
   --out "$tmp_dir/package-next-goal.md" >/dev/null
+grep -q '/plan v2.6.0 Package Proof Followup' "$tmp_dir/package-next-goal.md"
+grep -q 'Pick exactly one high-signal maintainer reliability improvement from ROADMAP.md' "$tmp_dir/package-next-goal.md"
 grep -q '/goal Implement v2.6.0 Package Proof Followup' "$tmp_dir/package-next-goal.md"
+grep -q 'follow the /plan above' "$tmp_dir/package-next-goal.md"
 grep -q './tests/template_profiles_test.sh' "$tmp_dir/package-next-goal.md"
 grep -q './tests/arena_import_test.sh' "$tmp_dir/package-next-goal.md"
 grep -q './tests/arena_compare_test.sh' "$tmp_dir/package-next-goal.md"

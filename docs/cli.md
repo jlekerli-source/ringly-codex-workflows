@@ -559,7 +559,7 @@ See `maintainer-reliability-os.md`, `command-matrix.md`, and `release-checklist.
 
 ## Next Goal
 
-Generate a slash-goal style plan for the next release:
+Generate slash-plan and slash-goal guidance for the next release:
 
 ```bash
 ./bin/shipguard next-goal --out NEXT_GOAL.md
@@ -574,7 +574,7 @@ Override the target release and title when the next improvement is already known
   --out /tmp/next-goal.md
 ```
 
-The command writes a Markdown plan with a `/goal` block, release constraints, proof commands, publishing checks, and the command to generate the following goal. See `next-goal.md`.
+The command writes a Markdown plan with `/plan` and `/goal` blocks, release constraints, proof commands, publishing checks, and the command to generate the following goal. See `next-goal.md`.
 
 ## Install From Release Tarball
 

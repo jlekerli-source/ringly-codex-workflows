@@ -30,6 +30,6 @@ That loop gives maintainers a way to:
 - build the release proof chain through a reusable GitHub Action
 - consume published release proof from downloaded assets before trusting it
 - audit the toolkit itself before release
-- generate the next slash-goal plan after release verification
+- generate the next slash-plan and slash-goal after release verification
 
 The project remains deliberately small: public fixtures, plain config, Bash scripts, markdown docs, and release tarballs.
