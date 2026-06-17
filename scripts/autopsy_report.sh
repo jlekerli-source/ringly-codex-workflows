@@ -111,6 +111,64 @@ while (my $line = <$fh>) {
 PERL
 }
 
+github_token_scope_gap_evidence() {
+  local label="$1"
+  local file="$2"
+  perl -CS - "$label" "$file" <<'PERL'
+use strict;
+use warnings;
+
+my ($label, $file) = @ARGV;
+open my $fh, '<:encoding(UTF-8)', $file or exit 0;
+while (my $line = <$fh>) {
+  if ($line =~ /^\s*[+ ]?\s*permissions\s*:\s*write-all\b/i) {
+    print "$label grants broad GitHub token write permissions near line $.\n";
+    exit 0;
+  }
+  if ($line =~ /\b(?:classic\s+PAT|personal\s+access\s+token|GITHUB_TOKEN|GH_TOKEN)\b.*\b(?:repo|workflow|admin:org|write-all)\b/i) {
+    print "$label requests broad GitHub token scope near line $.\n";
+    exit 0;
+  }
+}
+PERL
+}
+
+network_mutation_without_dry_run_evidence() {
+  local label="$1"
+  local file="$2"
+  perl -CS - "$label" "$file" <<'PERL'
+use strict;
+use warnings;
+
+my ($label, $file) = @ARGV;
+open my $fh, '<:encoding(UTF-8)', $file or exit 0;
+my ($mutation_line, $mutation_no);
+my ($bypass_line, $bypass_no);
+while (my $line = <$fh>) {
+  if (!defined $mutation_line && $line =~ /\b(?:curl\b.*(?:-X|--request)\s*(?:POST|PUT|PATCH|DELETE)|gh\s+(?:api|release|issue|pr|check-run)\b.*\b(?:POST|PUT|PATCH|DELETE|create|edit|delete|upload|comment)\b)/i) {
+    $mutation_line = $line;
+    $mutation_no = $.;
+  }
+  if (!defined $bypass_line && $line =~ /\b(?:dry[-_ ]?run|payload[-_ ]?review|posting[-_ ]?enabled|post[-_ ]?check[-_ ]?run|network[-_ ]?posting)[A-Za-z0-9_-]*\s*[:=]\s*(?:false|0|no|true|1|yes)\b/i) {
+    my $candidate = $line;
+    if ($candidate =~ /\b(?:dry[-_ ]?run|payload[-_ ]?review)[A-Za-z0-9_-]*\s*[:=]\s*(?:false|0|no)\b/i ||
+        $candidate =~ /\b(?:posting[-_ ]?enabled|post[-_ ]?check[-_ ]?run|network[-_ ]?posting)[A-Za-z0-9_-]*\s*[:=]\s*(?:true|1|yes)\b/i) {
+      $bypass_line = $candidate;
+      $bypass_no = $.;
+    }
+  }
+  if (!defined $bypass_line && $line =~ /\b(?:--no-dry-run|--post-now|--publish-now|--skip-payload-review)\b/i) {
+    $bypass_line = $line;
+    $bypass_no = $.;
+  }
+}
+if (defined $mutation_line && defined $bypass_line) {
+  print "$label enables network mutation without dry-run review near line $bypass_no\n";
+  exit 0;
+}
+PERL
+}
+
 run_file=""
 diff_file=""
 tests_file=""
@@ -302,6 +360,30 @@ for input_index in "${!input_labels[@]}"; do
   if [[ -n "$release_gap_line" ]]; then
     add_finding "release_artifact_trust_gap" "high" "Input evidence disables or bypasses release artifact digest, manifest, attestation, or replay verification." "$release_gap_line"
     release_gap_reported=1
+  fi
+done
+
+github_scope_reported=0
+for input_index in "${!input_labels[@]}"; do
+  [[ "$github_scope_reported" -eq 0 ]] || break
+  input_label="${input_labels[$input_index]}"
+  input_path="${input_paths[$input_index]}"
+  github_scope_line="$(github_token_scope_gap_evidence "$input_label" "$input_path" || true)"
+  if [[ -n "$github_scope_line" ]]; then
+    add_finding "github_token_scope_gap" "high" "Input evidence requests broad GitHub token permissions instead of the narrow scopes needed for the operation." "$github_scope_line"
+    github_scope_reported=1
+  fi
+done
+
+network_mutation_reported=0
+for input_index in "${!input_labels[@]}"; do
+  [[ "$network_mutation_reported" -eq 0 ]] || break
+  input_label="${input_labels[$input_index]}"
+  input_path="${input_paths[$input_index]}"
+  network_mutation_line="$(network_mutation_without_dry_run_evidence "$input_label" "$input_path" || true)"
+  if [[ -n "$network_mutation_line" ]]; then
+    add_finding "network_mutation_without_dry_run" "high" "Input evidence enables a mutating network or GitHub API call without dry-run and payload-review safeguards." "$network_mutation_line"
+    network_mutation_reported=1
   fi
 done
 

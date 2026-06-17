@@ -20,12 +20,12 @@ Current checkout:
 
 ./bin/shipguard docs-check . --out /tmp/shipguard-docs-check
 # status: pass
-# files_checked: 299
+# files_checked: 302
 # links_checked: 53
 # broken_count: 0
 
 ./bin/shipguard arena run --fixture fixtures/arena --out /tmp/shipguard-arena
-# average: 5.62/12
+# average: 5.21/12
 ```
 
 Codex install check from this machine:
@@ -122,6 +122,7 @@ Status: started.
 - Added `fixtures/arena/security-token-leakage` for token, local path, and overclaim failure pressure.
 - Added an Autopsy `sensitive_data_leak` finding for unredacted local paths, secret-looking tokens, bearer values, and secret assignments without echoing the sensitive value into reports.
 - Added `fixtures/arena/release-asset-trust-bypass` and an Autopsy `release_artifact_trust_gap` finding for disabled or bypassed release artifact digest, manifest, attestation, or replay verification.
+- Added `fixtures/arena/github-posting-without-dry-run` plus Autopsy findings for broad GitHub token scopes and mutating network calls enabled without dry-run or payload-review safeguards.
 - Only run the full Codex Security repository scan with explicit subagent authorization.
 
 ### Phase 5: Benchmark And Product Polish

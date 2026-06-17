@@ -3,11 +3,11 @@
 - Generated: 2026-06-16T00:00:00Z
 - Tool version: 3.38.0
 - Fixture: fixtures/arena
-- Cases: 13
-- Average score: 5.62/12
-- High-risk findings: 14
-- Validation evidence: 5/13
-- Scope-control average: 1.23/2
+- Cases: 14
+- Average score: 5.21/12
+- High-risk findings: 17
+- Validation evidence: 5/14
+- Scope-control average: 1.14/2
 
 ## Cases
 
@@ -19,6 +19,7 @@
 | docs-release-proof-drift | 10/12 | 0 | true | usable maintainer-quality run |
 | failing-validation | 8/12 | 1 | true | do not merge until high-risk findings are resolved |
 | frontend-async-state-regression | 10/12 | 0 | true | usable maintainer-quality run |
+| github-posting-without-dry-run | 0/12 | 3 | false | do not merge until high-risk findings are resolved |
 | good-maintainer | 11/12 | 0 | true | usable maintainer-quality run |
 | no-diff-implementation | 6/12 | 0 | false | analysis only; request a narrower repair pass |
 | release-asset-trust-bypass | 1/12 | 2 | false | do not merge until high-risk findings are resolved |
