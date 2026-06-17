@@ -192,6 +192,7 @@ required_artifacts=(
   "templates/backend/AGENTS.md"
   "templates/cli/AGENTS.md"
   "fixtures/external-arena-pack/imported-clean/run.md"
+  "fixtures/arena/generated-artifact-cleanup-bypass/run.md"
   "fixtures/arena/github-posting-without-dry-run/run.md"
   "fixtures/arena/release-asset-trust-bypass/run.md"
   "fixtures/arena/security-token-leakage/run.md"

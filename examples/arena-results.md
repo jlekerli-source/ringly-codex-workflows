@@ -9,20 +9,20 @@ Run the public fixture pack:
 Expected summary:
 
 ```text
-average: 5.21/12
+average: 4.93/12
 ```
 
 Expected aggregate fields in `results.json`:
 
 ```json
 {
-  "case_count": 14,
-  "average_total": 5.21,
-  "high_risk_finding_count": 17,
+  "case_count": 15,
+  "average_total": 4.93,
+  "high_risk_finding_count": 19,
   "validation_evidence_cases": 5,
-  "validation_evidence_ratio": 0.36,
-  "validation_quality_average": 0.71,
-  "scope_control_average": 1.14
+  "validation_evidence_ratio": 0.33,
+  "validation_quality_average": 0.67,
+  "scope_control_average": 1.07
 }
 ```
 

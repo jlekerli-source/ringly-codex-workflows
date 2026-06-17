@@ -169,6 +169,34 @@ if (defined $mutation_line && defined $bypass_line) {
 PERL
 }
 
+unsafe_artifact_cleanup_evidence() {
+  local label="$1"
+  local file="$2"
+  perl -CS - "$label" "$file" <<'PERL'
+use strict;
+use warnings;
+
+my ($label, $file) = @ARGV;
+open my $fh, '<:encoding(UTF-8)', $file or exit 0;
+while (my $line = <$fh>) {
+  if ($line =~ /\bsafe_rm_artifact_dir\b|\brequire_safe_artifact_dir\b/) {
+    next;
+  }
+  if ($line =~ /\b(?:rm\s+-[A-Za-z]*r[A-Za-z]*f?|shutil\.rmtree|fs\.rmSync|fs\.rm)\b/i) {
+    my $target = $line;
+    if ($target =~ m{(?:\$\{?[A-Za-z_][A-Za-z0-9_]*\}?|\$\d+|/|\.\.|[*?]|\b(?:out|output|artifact|cache|tmp|temp)[-_]?(?:dir|root|path)?\b)}i) {
+      print "$label contains unsafe artifact cleanup near line $.\n";
+      exit 0;
+    }
+  }
+  if ($line =~ /\b(?:out|output|artifact|cache|tmp|temp)[-_]?(?:dir|root|path)?\b\s*[:=]\s*['\"]?(?:\/|\.\.|~|\$GITHUB_WORKSPACE)\b/i) {
+    print "$label accepts an unsafe generated artifact path near line $.\n";
+    exit 0;
+  }
+}
+PERL
+}
+
 run_file=""
 diff_file=""
 tests_file=""
@@ -384,6 +412,18 @@ for input_index in "${!input_labels[@]}"; do
   if [[ -n "$network_mutation_line" ]]; then
     add_finding "network_mutation_without_dry_run" "high" "Input evidence enables a mutating network or GitHub API call without dry-run and payload-review safeguards." "$network_mutation_line"
     network_mutation_reported=1
+  fi
+done
+
+unsafe_cleanup_reported=0
+for input_index in "${!input_labels[@]}"; do
+  [[ "$unsafe_cleanup_reported" -eq 0 ]] || break
+  input_label="${input_labels[$input_index]}"
+  input_path="${input_paths[$input_index]}"
+  unsafe_cleanup_line="$(unsafe_artifact_cleanup_evidence "$input_label" "$input_path" || true)"
+  if [[ -n "$unsafe_cleanup_line" ]]; then
+    add_finding "unsafe_artifact_cleanup" "high" "Input evidence deletes or accepts generated artifact paths without the safe artifact path guard." "$unsafe_cleanup_line"
+    unsafe_cleanup_reported=1
   fi
 done
 

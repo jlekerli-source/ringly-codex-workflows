@@ -230,6 +230,9 @@ grep -q "^$package_name/fixtures/arena/frontend-async-state-regression/diff.patc
 grep -q "^$package_name/fixtures/arena/frontend-async-state-regression/run.md$" "$tar_list"
 grep -q "^$package_name/fixtures/arena/frontend-async-state-regression/task.md$" "$tar_list"
 grep -q "^$package_name/fixtures/arena/frontend-async-state-regression/tests.log$" "$tar_list"
+grep -q "^$package_name/fixtures/arena/generated-artifact-cleanup-bypass/diff.patch$" "$tar_list"
+grep -q "^$package_name/fixtures/arena/generated-artifact-cleanup-bypass/run.md$" "$tar_list"
+grep -q "^$package_name/fixtures/arena/generated-artifact-cleanup-bypass/task.md$" "$tar_list"
 grep -q "^$package_name/fixtures/arena/github-posting-without-dry-run/diff.patch$" "$tar_list"
 grep -q "^$package_name/fixtures/arena/github-posting-without-dry-run/run.md$" "$tar_list"
 grep -q "^$package_name/fixtures/arena/github-posting-without-dry-run/task.md$" "$tar_list"
@@ -320,15 +323,16 @@ grep -q '"verdict": "usable maintainer-quality run"' "$tmp_dir/package-autopsy/r
 "$package_root/bin/shipguard" arena run \
   --fixture "$package_root/fixtures/arena" \
   --out "$tmp_dir/package-arena" >/dev/null
-grep -q '"case_count": 14' "$tmp_dir/package-arena/results.json"
-grep -q '"average_total": 5.21' "$tmp_dir/package-arena/results.json"
-grep -q '"high_risk_finding_count": 17' "$tmp_dir/package-arena/results.json"
-mkdir -p "$tmp_dir/package-twelve-case-fixture"
+grep -q '"case_count": 15' "$tmp_dir/package-arena/results.json"
+grep -q '"average_total": 4.93' "$tmp_dir/package-arena/results.json"
+grep -q '"high_risk_finding_count": 19' "$tmp_dir/package-arena/results.json"
+mkdir -p "$tmp_dir/package-thirteen-case-fixture"
 for case_id in \
   backend-webhook-idempotency \
   cli-dangerous-clean \
   dangerous-maintainer \
   failing-validation \
+  generated-artifact-cleanup-bypass \
   github-posting-without-dry-run \
   good-maintainer \
   no-diff-implementation \
@@ -337,17 +341,17 @@ for case_id in \
   security-token-leakage \
   storekit-entitlement-regression \
   weak-maintainer; do
-  cp -R "$package_root/fixtures/arena/$case_id" "$tmp_dir/package-twelve-case-fixture/$case_id"
+  cp -R "$package_root/fixtures/arena/$case_id" "$tmp_dir/package-thirteen-case-fixture/$case_id"
 done
 "$package_root/bin/shipguard" arena run \
-  --fixture "$tmp_dir/package-twelve-case-fixture" \
+  --fixture "$tmp_dir/package-thirteen-case-fixture" \
   --out "$tmp_dir/package-old-arena" >/dev/null
 "$package_root/bin/shipguard" arena compare \
   --left "$tmp_dir/package-old-arena/results.json" \
   --right "$tmp_dir/package-arena/results.json" \
   --out "$tmp_dir/package-arena-compare" >/dev/null
 grep -q '"status" : "improved"' "$tmp_dir/package-arena-compare/arena-compare.json"
-grep -q '"average_total_delta" : 0.79' "$tmp_dir/package-arena-compare/arena-compare.json"
+grep -q '"average_total_delta" : 0.78' "$tmp_dir/package-arena-compare/arena-compare.json"
 grep -q '"id" : "docs-release-proof-drift"' "$tmp_dir/package-arena-compare/arena-compare.json"
 grep -q '"id" : "frontend-async-state-regression"' "$tmp_dir/package-arena-compare/arena-compare.json"
 "$package_root/bin/shipguard" arena import \
@@ -426,7 +430,7 @@ grep -q '"url" : "https://api.github.com/repos/owner/repo/check-runs"' "$tmp_dir
   --arena-results "$tmp_dir/package-arena/results.json" \
   --out "$tmp_dir/package-leaderboard.json" >/dev/null
 grep -q '"schema_version": "1.0"' "$tmp_dir/package-leaderboard.json"
-grep -q '"average_total": 5.21' "$tmp_dir/package-leaderboard.json"
+grep -q '"average_total": 4.93' "$tmp_dir/package-leaderboard.json"
 "$package_root/bin/shipguard" release-manifest \
   --tarball "$tarball" \
   --out "$tmp_dir/package-release-proof" \
