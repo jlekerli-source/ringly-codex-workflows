@@ -1,15 +1,15 @@
 # Next Goal
 
-- Generated: 2026-06-17T18:24:05Z
-- Current toolkit version: 3.38.0
-- Target release: v3.59.0
-- Title: Spec Workflow Analysis Gate Coverage Gate
+- Generated: 2026-06-17T18:44:28Z
+- Current toolkit version: 3.59.0
+- Target release: v3.60.0
+- Title: Spec Workflow Slash Handoff Coverage Gate
 
 ## Slash Plan
 
 ```text
-/plan v3.59.0 Spec Workflow Analysis Gate Coverage Gate for jlekerli-source/ShipGuard:
-1. Implement this bounded improvement: Make ios report-quality flag spec-workflow bundles whose analysisGates or implementation-plan.md drops the required pre-implementation analysis gates.
+/plan v3.60.0 Spec Workflow Slash Handoff Coverage Gate for jlekerli-source/ShipGuard:
+1. Implement this bounded improvement: Make ios report-quality flag spec-workflow bundles whose slashPlan, slashGoal, or ios-spec-workflow.md drops the next-loop slash handoff.
 2. Implement the CLI, docs, tests, and package proof needed for that improvement.
 3. Run the required proof commands, treat blocked or timed-out commands as failures, and record exact blockers.
 4. Push main, verify GitHub Actions, publish and consume release proof, verify asset SHA-256 and clean git status, then generate the following goal.
@@ -18,40 +18,13 @@
 ## Slash Goal
 
 ```text
-/goal Implement v3.59.0 Spec Workflow Analysis Gate Coverage Gate for jlekerli-source/ShipGuard: follow the /plan above, deliver this bounded improvement: Make ios report-quality flag spec-workflow bundles whose analysisGates or implementation-plan.md drops the required pre-implementation analysis gates, push main, verify GitHub Actions, publish the release tarball, verify asset SHA-256 and clean git status, then run shipguard next-goal again for the following release.
+/goal Implement v3.60.0 Spec Workflow Slash Handoff Coverage Gate for jlekerli-source/ShipGuard: follow the /plan above, deliver this bounded improvement: Make ios report-quality flag spec-workflow bundles whose slashPlan, slashGoal, or ios-spec-workflow.md drops the next-loop slash handoff, push main, verify GitHub Actions, publish the release tarball, verify asset SHA-256 and clean git status, then run shipguard next-goal again for the following release.
 ```
 
 
 ## Bounded Scope
 
-Make ios report-quality flag spec-workflow bundles whose analysisGates or implementation-plan.md drops the required pre-implementation analysis gates.
-
-## Completion Receipt
-
-- Completed scope: Make ios report-quality flag spec-workflow bundles whose analysisGates or implementation-plan.md drops the required pre-implementation analysis gates.
-- Evidence: A fixture product-QA probe showed a report-grounded spec workflow could pass report-quality after analysisGates and implementation-plan.md were reduced to a generic maintainer-selection placeholder. After the change, report-quality emits spec-workflow-analysis-coverage-missing plus spec-workflow-analysis-artifact-missing when required analysis gates are stripped from JSON or implementation-plan.md. A read-only Ringly/Ilmify ShipGuard product-QA loop produced shareable design/performance reports, generated a report-grounded spec workflow, passed report-quality for the complete bundle with 5 analysis gates preserved, and flagged the intentionally analysis-stripped bundle without leaking private app paths. Validated with python3 -m py_compile scripts/ios_report_quality.py scripts/ios_spec_workflow.py; ./tests/ios_spec_workflow_test.sh; ./tests/ios_report_quality_test.sh; and the read-only Ringly/Ilmify spec-workflow analysis gate coverage loop.
-
-## Following Slash Plan
-
-```text
-/plan v3.60.0 Spec Workflow Slash Handoff Coverage Gate for jlekerli-source/ShipGuard:
-1. Review ROADMAP.md, docs/oss-evaluation.md, and the latest read-only ShipGuard product-QA evidence.
-2. Pick one bounded improvement that makes ShipGuard reports more useful without turning private-app findings into app work.
-3. Implement the CLI, docs, tests, package proof, and plugin-refresh proof needed for that improvement.
-4. Generate the next completion receipt and following /plan plus /goal after validation passes.
-```
-
-## Following Slash Goal
-
-```text
-/goal Implement v3.60.0 Spec Workflow Slash Handoff Coverage Gate for jlekerli-source/ShipGuard: follow the following /plan above, choose one bounded ShipGuard report-quality improvement from ROADMAP.md and docs/oss-evaluation.md, implement it with proof, and generate the next completion receipt plus following /plan and /goal after validation passes.
-```
-
-Generate that follow-up file with:
-
-```bash
-./bin/shipguard next-goal --release 3.60.0 --title "Spec Workflow Slash Handoff Coverage Gate" --out NEXT_GOAL.md
-```
+Make ios report-quality flag spec-workflow bundles whose slashPlan, slashGoal, or ios-spec-workflow.md drops the next-loop slash handoff.
 
 ## Constraints
 
@@ -131,12 +104,12 @@ Generate that follow-up file with:
 
 ## Release Loop
 
-1. Open or update the tracking issue for v3.59.0.
+1. Open or update the tracking issue for v3.60.0.
 2. Implement the smallest complete improvement that makes the toolkit more useful.
 3. Update README, CLI docs, changelog, roadmap, and package verification.
 4. Commit with an issue-closing reference.
 5. Push `main` and verify GitHub Actions success.
-6. Create release `v3.59.0` and upload `dist/shipguard-v3.59.0.tar.gz`.
+6. Create release `v3.60.0` and upload `dist/shipguard-v3.60.0.tar.gz`.
 7. Verify release asset digest, closed issue, tag target, and clean git status.
 8. Generate the next goal:
 

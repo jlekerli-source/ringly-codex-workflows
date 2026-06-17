@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- In progress: spec-workflow slash handoff coverage for the v3.60 loop.
+
+## v3.59.0 - iOS Product QA and Spec Workflow Gates
+
 - Added scoped `shipguard next-goal` output with bounded scope, completion receipt, and following `/goal` handoff support.
 - Added iOS `performance-audit` mode and `shipguard ios performance` source scanner for FPS, hitches, profiler fallback, sampled stacks, before/after comparison, ranked SwiftUI/runtime hotspots, physical-device smoothness proof boundaries, and `--shipguard-eval` product-QA runs.
 - Added `shipguard ios design` for genre-aware UI/UX coherence, motion, haptics, preview routing, and ChatGPT ImageGen app-icon handoff reports.

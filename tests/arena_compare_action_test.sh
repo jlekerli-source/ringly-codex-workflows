@@ -27,7 +27,7 @@ grep -q 'exit "$exit_code"' "$action"
 grep -q 'actions/upload-artifact@v4' "$action"
 grep -q 'shipguard-arena-compare' "$action"
 
-grep -q 'jlekerli-source/ShipGuard/actions/arena-compare@v3.38.0' "$workflow"
+grep -q 'jlekerli-source/ShipGuard/actions/arena-compare@v3.59.0' "$workflow"
 grep -q 'contents: read' "$workflow"
 grep -q 'mode: fail' "$workflow"
 grep -q 'artifact-name: shipguard-arena-compare' "$workflow"

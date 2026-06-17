@@ -28,7 +28,7 @@ grep -q 'actions/upload-artifact@v4' "$action"
 grep -q 'artifact-name:' "$action"
 grep -q 'shipguard-release-evidence-negative-index' "$action"
 
-grep -q 'jlekerli-source/ShipGuard/actions/release-evidence-negative-index@v3.38.0' "$workflow"
+grep -q 'jlekerli-source/ShipGuard/actions/release-evidence-negative-index@v3.59.0' "$workflow"
 grep -q 'contents: read' "$workflow"
 grep -q 'mode: fail' "$workflow"
 grep -q 'artifact-name: shipguard-release-evidence-negative-index' "$workflow"
