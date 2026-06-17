@@ -572,7 +572,29 @@ Override the target release and title when the next improvement is already known
   --out /tmp/next-goal.md
 ```
 
-The command writes a Markdown plan with `/plan` and `/goal` blocks, release constraints, proof commands, publishing checks, and the command to generate the following goal. See `next-goal.md`.
+When the scope is already chosen, include it in the generated `/plan` and `/goal`:
+
+```bash
+./bin/shipguard next-goal \
+  --release 2.2.0 \
+  --title "Scoped Goal Handoff" \
+  --scope "Make next-goal emit scoped plans and completion receipts." \
+  --out /tmp/scoped-next-goal.md
+```
+
+After the slice is complete, add caller-supplied proof evidence and the title for the following goal:
+
+```bash
+./bin/shipguard next-goal \
+  --release 2.2.0 \
+  --title "Scoped Goal Handoff" \
+  --scope "Make next-goal emit scoped plans and completion receipts." \
+  --completion-evidence "./tests/next_goal_test.sh and ./tests/package_release_test.sh passed" \
+  --following-title "Next Reliability Slice" \
+  --out NEXT_GOAL.md
+```
+
+The command writes a Markdown plan with `/plan` and `/goal` blocks, optional bounded scope and completion receipt sections, release constraints, proof commands, publishing checks, and the command to generate the following goal. See `next-goal.md`.
 
 ## Install From Release Tarball
 

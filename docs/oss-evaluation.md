@@ -135,6 +135,6 @@ Status: started.
 - Added `fixtures/arena/storekit-entitlement-regression` to exercise regression-awareness and proof honesty around subscription restore behavior.
 - Added `fixtures/arena/data-migration-loss-regression` plus an Autopsy `destructive_migration_risk` finding for migrations that drop persistent user data without backup, rollback, or rehearsal proof.
 - Improved first-run adoption docs around CLI versus plugin usage.
-- Upgraded `shipguard next-goal` so the next improvement loop emits a reviewable `/plan` before the `/goal`.
+- Upgraded `shipguard next-goal` so the next improvement loop emits a reviewable `/plan` before the `/goal`, and can now carry bounded scope, completion evidence, and the following `/goal` handoff.
 - Moved legacy command-wrapper guidance out of primary README and CLI flow into `docs/compatibility.md`.
 - Keep Agents SDK deferred unless ShipGuard becomes a runnable agent service with a concrete eval target.

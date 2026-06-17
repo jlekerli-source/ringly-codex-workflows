@@ -61,6 +61,27 @@ grep -q './tests/release_proof_workflow_test.sh' "$tmp_dir/NEXT_GOAL.md"
 grep -q './tests/release_replay_test.sh' "$tmp_dir/NEXT_GOAL.md"
 grep -q './bin/shipguard next-goal --out NEXT_GOAL.md' "$tmp_dir/NEXT_GOAL.md"
 
+SHIPGUARD_GENERATED_AT="2026-06-16T00:00:00Z" \
+  ./bin/shipguard next-goal \
+    --out "$tmp_dir/SCOPED_NEXT_GOAL.md" \
+    --release 2.6.0 \
+    --title "Scoped Goal Handoff" \
+    --scope "Make next-goal emit scoped plans and completion receipts." \
+    --completion-evidence "validated with next_goal_test and package proof" \
+    --following-title "Next Reliability Slice" >/dev/null
+
+grep -q '/plan v2.6.0 Scoped Goal Handoff' "$tmp_dir/SCOPED_NEXT_GOAL.md"
+grep -q 'Implement this bounded improvement: Make next-goal emit scoped plans and completion receipts.' "$tmp_dir/SCOPED_NEXT_GOAL.md"
+grep -q '## Bounded Scope' "$tmp_dir/SCOPED_NEXT_GOAL.md"
+grep -q '/goal Implement v2.6.0 Scoped Goal Handoff' "$tmp_dir/SCOPED_NEXT_GOAL.md"
+grep -q 'deliver this bounded improvement: Make next-goal emit scoped plans and completion receipts, push main' "$tmp_dir/SCOPED_NEXT_GOAL.md"
+grep -q '## Completion Receipt' "$tmp_dir/SCOPED_NEXT_GOAL.md"
+grep -q 'Completed scope: Make next-goal emit scoped plans and completion receipts.' "$tmp_dir/SCOPED_NEXT_GOAL.md"
+grep -q 'Evidence: validated with next_goal_test and package proof' "$tmp_dir/SCOPED_NEXT_GOAL.md"
+grep -q '## Following Slash Goal' "$tmp_dir/SCOPED_NEXT_GOAL.md"
+grep -q '/goal Prepare v2.7.0 Next Reliability Slice' "$tmp_dir/SCOPED_NEXT_GOAL.md"
+grep -q './bin/shipguard next-goal --release 2.7.0 --title "Next Reliability Slice" --out NEXT_GOAL.md' "$tmp_dir/SCOPED_NEXT_GOAL.md"
+
 if ./bin/shipguard next-goal --release nope >/dev/null 2>&1; then
   echo "expected invalid release to fail" >&2
   exit 1

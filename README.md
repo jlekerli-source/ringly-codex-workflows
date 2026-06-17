@@ -118,7 +118,7 @@ To verify a checked transcript corpus in GitHub Actions, use `jlekerli-source/Sh
 For external benchmark packs, run `./bin/shipguard arena import --source external-pack --out /tmp/imported-arena`.
 For fixture-pack integrity metadata, run `./bin/shipguard arena sign --fixture /tmp/imported-arena --out /tmp/imported-arena/PACK.json --signer "Example Maintainers" --signer-url "https://github.com/example/repo"`.
 For toolkit release readiness, run `./bin/shipguard self-audit --out /tmp/shipguard-audit`.
-For the next improvement loop, run `./bin/shipguard next-goal --out NEXT_GOAL.md` to emit reviewable `/plan` and `/goal` blocks.
+For the next improvement loop, run `./bin/shipguard next-goal --out NEXT_GOAL.md` to emit reviewable `/plan` and `/goal` blocks; add `--scope` and `--completion-evidence` when the slice is already chosen or finished.
 For CI-consumable findings, run `./bin/shipguard sarif --report /tmp/autopsy/report.json --out /tmp/results.sarif`.
 For docs-heavy releases, run `./bin/shipguard docs-check . --out /tmp/shipguard-docs-check`.
 For workflow-run summaries, run `./bin/shipguard ci-summary --gate /tmp/codex-gate/gate.json --out /tmp/codex-gate/summary.md`.

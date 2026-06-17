@@ -65,7 +65,7 @@ Usage:
   shipguard release-evidence verify --dir <evidence-artifact-dir> --out <dir> [--require-diff auto|true|false] [--require-index auto|true|false]
   shipguard release-evidence negative-index --fixture <negative-fixture-dir> --out <dir> [--title <title>]
   shipguard self-audit [--out <dir>]
-  shipguard next-goal [--out <file>] [--release <version>] [--title <title>]
+  shipguard next-goal [--out <file>] [--release <version>] [--title <title>] [--scope <text>] [--completion-evidence <text>] [--following-title <title>]
   shipguard version
   shipguard help
 

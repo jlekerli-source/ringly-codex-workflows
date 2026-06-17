@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Added scoped `shipguard next-goal` output with bounded scope, completion receipt, and following `/goal` handoff support.
+
 ## v3.38.0 - Docs Link Audit
 
 - Added `shipguard docs-check` for dependency-free local Markdown link audits.

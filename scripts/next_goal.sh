@@ -9,7 +9,7 @@ usage() {
 shipguard next-goal
 
 Usage:
-  shipguard next-goal [--out <file>] [--release <version>] [--title <title>]
+  shipguard next-goal [--out <file>] [--release <version>] [--title <title>] [--scope <text>] [--completion-evidence <text>] [--following-title <title>]
 
 Outputs:
   Markdown file containing slash-plan and slash-goal release guidance.
@@ -33,6 +33,9 @@ out_file="NEXT_GOAL.md"
 current_version="$(sed -n '1p' "$tool_root/VERSION")"
 release_version="$(next_minor_version "$current_version")"
 title="Next Maintainer Reliability Upgrade"
+scope=""
+completion_evidence=""
+following_title="Following Maintainer Reliability Upgrade"
 generated_at="${SHIPGUARD_GENERATED_AT:-${CODEX_MAINTAINER_GENERATED_AT:-$(date -u '+%Y-%m-%dT%H:%M:%SZ')}}"
 
 while [[ "$#" -gt 0 ]]; do
@@ -53,6 +56,21 @@ while [[ "$#" -gt 0 ]]; do
       title="$2"
       shift 2
       ;;
+    --scope)
+      [[ "$#" -ge 2 && -n "${2:-}" ]] || fail "--scope requires a value"
+      scope="$2"
+      shift 2
+      ;;
+    --completion-evidence)
+      [[ "$#" -ge 2 && -n "${2:-}" ]] || fail "--completion-evidence requires a value"
+      completion_evidence="$2"
+      shift 2
+      ;;
+    --following-title)
+      [[ "$#" -ge 2 && -n "${2:-}" ]] || fail "--following-title requires a value"
+      following_title="$2"
+      shift 2
+      ;;
     --help|-h)
       usage
       exit 0
@@ -64,6 +82,17 @@ while [[ "$#" -gt 0 ]]; do
 done
 
 mkdir -p "$(dirname "$out_file")"
+
+if [[ -n "$scope" ]]; then
+  scope_sentence="${scope%[.!?]}"
+  plan_step_one="1. Implement this bounded improvement: $scope"
+  goal_detail="deliver this bounded improvement: $scope_sentence"
+else
+  plan_step_one="1. Pick exactly one high-signal maintainer reliability improvement from ROADMAP.md and write the bounded scope before editing."
+  goal_detail="finish one high-signal maintainer reliability improvement from ROADMAP.md with CLI/docs/tests/package proof"
+fi
+
+following_version="$(next_minor_version "$release_version")"
 
 cat > "$out_file" <<EOF
 # Next Goal
@@ -77,7 +106,7 @@ cat > "$out_file" <<EOF
 
 \`\`\`text
 /plan v$release_version $title for jlekerli-source/ShipGuard:
-1. Pick exactly one high-signal maintainer reliability improvement from ROADMAP.md and write the bounded scope before editing.
+$plan_step_one
 2. Implement the CLI, docs, tests, and package proof needed for that improvement.
 3. Run the required proof commands, treat blocked or timed-out commands as failures, and record exact blockers.
 4. Push main, verify GitHub Actions, publish and consume release proof, verify asset SHA-256 and clean git status, then generate the following goal.
@@ -86,8 +115,47 @@ cat > "$out_file" <<EOF
 ## Slash Goal
 
 \`\`\`text
-/goal Implement v$release_version $title for jlekerli-source/ShipGuard: follow the /plan above, finish one high-signal maintainer reliability improvement from ROADMAP.md with CLI/docs/tests/package proof, push main, verify GitHub Actions, publish the release tarball, verify asset SHA-256 and clean git status, then run shipguard next-goal again for the following release.
+/goal Implement v$release_version $title for jlekerli-source/ShipGuard: follow the /plan above, $goal_detail, push main, verify GitHub Actions, publish the release tarball, verify asset SHA-256 and clean git status, then run shipguard next-goal again for the following release.
 \`\`\`
+
+EOF
+
+if [[ -n "$scope" ]]; then
+  cat >> "$out_file" <<EOF
+
+## Bounded Scope
+
+$scope
+EOF
+fi
+
+if [[ -n "$completion_evidence" ]]; then
+  completed_scope="$title"
+  if [[ -n "$scope" ]]; then
+    completed_scope="$scope"
+  fi
+  cat >> "$out_file" <<EOF
+
+## Completion Receipt
+
+- Completed scope: $completed_scope
+- Evidence: $completion_evidence
+
+## Following Slash Goal
+
+\`\`\`text
+/goal Prepare v$following_version $following_title for jlekerli-source/ShipGuard: create a fresh /plan with shipguard next-goal, choose one bounded ROADMAP.md improvement, implement it with proof, and generate the next goal after completion.
+\`\`\`
+
+Generate that follow-up file with:
+
+\`\`\`bash
+./bin/shipguard next-goal --release $following_version --title "$following_title" --out NEXT_GOAL.md
+\`\`\`
+EOF
+fi
+
+cat >> "$out_file" <<EOF
 
 ## Constraints
 

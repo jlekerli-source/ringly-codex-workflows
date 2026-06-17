@@ -27,7 +27,7 @@ This roadmap keeps the repo useful without pretending it is a finished framework
 - Keep external arena fixture import strict about supported files and obvious secret leakage.
 - Keep fixture-pack integrity and optional signer metadata deterministic and verifiable.
 - Keep self-audit output stable enough to prove release readiness from source and extracted packages.
-- Keep next-goal output deterministic enough to restart the improvement loop after each release.
+- Keep next-goal output deterministic enough to restart the improvement loop after each release, including scoped plans, completion receipts, and following-goal handoffs when evidence is supplied.
 - Keep iOS, web, backend, and CLI starter profiles stable for external repository adoption.
 - Keep release packaging and installer scripts reproducible.
 - Keep release manifests and proof ledgers reproducible from local release artifacts.

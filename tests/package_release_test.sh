@@ -796,6 +796,19 @@ grep -q './tests/release_proof_action_test.sh' "$tmp_dir/package-next-goal.md"
 grep -q './tests/release_proof_consumption_test.sh' "$tmp_dir/package-next-goal.md"
 grep -q './tests/release_proof_workflow_test.sh' "$tmp_dir/package-next-goal.md"
 grep -q './tests/release_replay_test.sh' "$tmp_dir/package-next-goal.md"
+"$package_root/bin/shipguard" next-goal \
+  --release 2.6.0 \
+  --title "Scoped Package Proof Followup" \
+  --scope "Make package next-goal proof emit scoped completion receipts." \
+  --completion-evidence "package release test passed" \
+  --following-title "Package Followup Two" \
+  --out "$tmp_dir/package-scoped-next-goal.md" >/dev/null
+grep -q '/plan v2.6.0 Scoped Package Proof Followup' "$tmp_dir/package-scoped-next-goal.md"
+grep -q 'Implement this bounded improvement: Make package next-goal proof emit scoped completion receipts.' "$tmp_dir/package-scoped-next-goal.md"
+grep -q '## Completion Receipt' "$tmp_dir/package-scoped-next-goal.md"
+grep -q 'Evidence: package release test passed' "$tmp_dir/package-scoped-next-goal.md"
+grep -q '/goal Prepare v2.7.0 Package Followup Two' "$tmp_dir/package-scoped-next-goal.md"
+grep -q './bin/shipguard next-goal --release 2.7.0 --title "Package Followup Two" --out NEXT_GOAL.md' "$tmp_dir/package-scoped-next-goal.md"
 
 install_prefix="$tmp_dir/install"
 PREFIX="$install_prefix" "$package_root/scripts/install.sh" >/dev/null
