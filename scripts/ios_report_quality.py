@@ -148,6 +148,27 @@ def token_risk_labels(text: str) -> list[str]:
     return sorted(label for label, pattern in TOKEN_RISK_PATTERNS.items() if pattern.search(text))
 
 
+def report_questions(report: dict[str, Any], *, report_path: str, tool: str) -> list[dict[str, str]]:
+    questions = report.get("reportQualityQuestions")
+    if not isinstance(questions, list):
+        return []
+    rows: list[dict[str, str]] = []
+    for question in questions[:8]:
+        if not isinstance(question, str):
+            continue
+        text = question.strip()
+        if not text:
+            continue
+        rows.append(
+            {
+                "tool": tool,
+                "report": report_path,
+                "question": text,
+            }
+        )
+    return rows
+
+
 def add_issue(
     issues: list[dict[str, str]],
     *,
@@ -262,6 +283,7 @@ def grade_report(path: Path, *, input_paths: list[Path], shareable: bool, cwd: P
             "markdownPath": display_markdown_path,
             "tool": None,
             "intent": None,
+            "actionabilityQuestions": [],
             "status": "blocked",
             "score": score_for(issues),
             "issues": issues,
@@ -388,6 +410,7 @@ def grade_report(path: Path, *, input_paths: list[Path], shareable: bool, cwd: P
         "tool": tool,
         "intent": intent or None,
         "reportStatus": loaded.get("status"),
+        "actionabilityQuestions": report_questions(loaded, report_path=display_path, tool=tool),
         "score": score,
         "status": report_status(issues),
         "issues": issues,
@@ -436,9 +459,11 @@ def build_report(inputs: list[str], *, shareable: bool = False) -> dict[str, Any
     cwd = Path.cwd().resolve()
     graded = [grade_report(path, input_paths=input_paths, shareable=shareable, cwd=cwd) for path in paths]
     issues = []
+    actionability_questions = []
     for item in graded:
         for issue in item["issues"]:
             issues.append({**issue, "report": item["path"], "tool": item.get("tool")})
+        actionability_questions.extend(item.get("actionabilityQuestions", []))
     average = round(sum(item["score"] for item in graded) / len(graded), 1)
     status = "pass"
     if any(item["status"] == "blocked" for item in graded):
@@ -467,8 +492,10 @@ def build_report(inputs: list[str], *, shareable: bool = False) -> dict[str, Any
         },
         "reports": graded,
         "findings": issues,
+        "actionabilityQuestions": actionability_questions[:30],
         "nextActions": [
             "Fix high report-quality issues before using the report as product QA evidence.",
+            "Answer the actionability questions above to decide which ShipGuard rule, report section, fixture, or doc should improve next.",
             "Convert repeated report-quality weaknesses into public fixtures or eval cases.",
             "Run private-app reports with --shipguard-eval and keep unredacted reports local.",
             "Use shipguard ios redact before sharing reports outside the local development loop.",
@@ -506,6 +533,16 @@ def render_markdown(report: dict[str, Any]) -> str:
             )
     else:
         lines.append("No report-quality issues were detected.")
+
+    lines.extend(["", "## Actionability Questions", ""])
+    if report["actionabilityQuestions"]:
+        lines.extend(["| Tool | Report | Question |", "| --- | --- | --- |"])
+        for item in report["actionabilityQuestions"][:12]:
+            lines.append(
+                f"| `{table_cell(item.get('tool') or 'unknown', 40)}` | `{Path(item['report']).name}` | {table_cell(item['question'], 140)} |"
+            )
+    else:
+        lines.append("No report-quality questions were found in the input reports.")
 
     plan = report["redactionPlan"]
     lines.extend(["", "## Redaction Plan", ""])

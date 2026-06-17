@@ -29,9 +29,11 @@ python3 -m json.tool "$tmp_dir/quality/ios-report-quality.json" >/dev/null
 grep -q '"tool": "shipguard ios report-quality"' "$tmp_dir/quality/ios-report-quality.json"
 grep -q '"reportCount": 2' "$tmp_dir/quality/ios-report-quality.json"
 grep -q '"purpose": "Grade ShipGuard report usefulness; do not convert target-app findings into app work."' "$tmp_dir/quality/ios-report-quality.json"
+grep -q '"actionabilityQuestions":' "$tmp_dir/quality/ios-report-quality.json"
 grep -q '# iOS ShipGuard Report Quality' "$tmp_dir/quality/ios-report-quality.md"
 grep -q 'shipguard ios performance' "$tmp_dir/quality/ios-report-quality.md"
 grep -q 'shipguard ios design' "$tmp_dir/quality/ios-report-quality.md"
+grep -q 'Actionability Questions' "$tmp_dir/quality/ios-report-quality.md"
 grep -q 'local-path-shareability-warning' "$tmp_dir/quality/ios-report-quality.json"
 grep -q '"redactionPlan":' "$tmp_dir/quality/ios-report-quality.json"
 grep -q 'Redaction Plan' "$tmp_dir/quality/ios-report-quality.md"
@@ -51,10 +53,23 @@ grep -q '"localAbsolutePathsIncluded": false' "$tmp_dir/shareable-quality/ios-re
 grep -q '"path": "<report-input-1>/ios-design.json"' "$tmp_dir/shareable-quality/ios-report-quality.json"
 grep -q '"markdownPath": "<report-input-1>/ios-design.md"' "$tmp_dir/shareable-quality/ios-report-quality.json"
 grep -q 'Shareability mode: `shareable`' "$tmp_dir/shareable-quality/ios-report-quality.md"
+grep -q 'Actionability Questions' "$tmp_dir/shareable-quality/ios-report-quality.md"
 if grep -R -F -q "$tmp_dir" "$tmp_dir/shareable-quality"; then
   echo "shareable report-quality output must not include local absolute temp paths" >&2
   exit 1
 fi
+
+actionability_fixture="fixtures/ios-report-quality/actionability"
+./bin/shipguard ios report-quality \
+  --reports "$actionability_fixture" \
+  --out "$tmp_dir/actionability-quality" \
+  --shareable >/dev/null
+grep -q '"status": "pass"' "$tmp_dir/actionability-quality/ios-report-quality.json"
+grep -q '"report": "fixtures/ios-report-quality/actionability/ios-ai-readiness-report.json"' "$tmp_dir/actionability-quality/ios-report-quality.json"
+grep -q '"question": "Does the report explain which AI path is the safest default for this app type?"' "$tmp_dir/actionability-quality/ios-report-quality.json"
+grep -q 'Actionability Questions' "$tmp_dir/actionability-quality/ios-report-quality.md"
+grep -q 'safest default for this app type' "$tmp_dir/actionability-quality/ios-report-quality.md"
+grep -q 'Answer the actionability questions above' "$tmp_dir/actionability-quality/ios-report-quality.md"
 if grep -q 'local-path-shareability-warning' "$tmp_dir/shareable-quality/ios-report-quality.json"; then
   echo "shareable report-quality output should not add local-path warnings for shareable inputs" >&2
   exit 1

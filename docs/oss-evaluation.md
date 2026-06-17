@@ -81,6 +81,8 @@ A subsequent read-only Ringly/Ilmify report-quality pass showed `ios design --sh
 
 The next read-only loop showed the report-quality artifact itself still carried absolute input/report paths even when its source design reports were shareable. `ios report-quality --shareable` now omits local absolute input and report paths from its own JSON, Markdown, findings, and redaction commands before ChatGPT/GitHub/docs/release-evidence sharing.
 
+A follow-up read-only loop over the full Ringly/Ilmify report set showed another report-quality gap: the source reports carried useful `reportQualityQuestions`, but the quality artifact ended with only generic next actions. `ios report-quality` now aggregates those questions into an `Actionability Questions` section so the next ShipGuard rule, fixture, report section, or docs improvement is explicit.
+
 The installed Codex cache now has `ios-shipguard` metadata version `0.2.0+codex.20260617011237`, repository `https://github.com/jlekerli-source/ShipGuard`, display name `iOS ShipGuard`, and no stale `ringly-codex-workflows`, `Shipguard`, or primary `codex-maintainer` guidance. The tracked checkout includes `plugins/ios-shipguard`, and package proof requires that plugin source.
 
 ## Verdict
@@ -200,6 +202,7 @@ Status: started.
 - Added `ios devspace-check --shareable` after report-quality showed otherwise-clean Devspace-check reports still needed local-path redaction before external sharing.
 - Added `ios design --shareable` after the same shareability issue showed up in design/product-QA reports with local app and preview paths.
 - Added `ios report-quality --shareable` after read-only Ringly/Ilmify design evals showed the quality artifact itself could carry local input/report paths even when the source reports were already shareable.
+- Added a public report-quality actionability fixture and aggregated `Actionability Questions` output after full Ringly/Ilmify read-only evals showed useful source questions were not surfaced in the quality artifact.
 - Added modernization rule summaries and capped Markdown for modernize, app-intelligence, and AI-readiness reports so private-app findings stay useful for improving ShipGuard without becoming app remediation tasks.
 - Improved first-run adoption docs around CLI versus plugin usage.
 - Upgraded `shipguard next-goal` so the next improvement loop emits a reviewable `/plan` before the `/goal`, and can now carry bounded scope, completion evidence, and the following `/goal` handoff.

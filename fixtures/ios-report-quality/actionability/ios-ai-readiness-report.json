@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "tool": "shipguard ios ai-readiness",
+  "intent": "shipguard-evaluation",
+  "generatedAt": "2026-06-17T00:00:00Z",
+  "status": "review",
+  "scopeBoundary": {
+    "shipguardOnly": true,
+    "targetAppsReadOnly": true
+  },
+  "summary": {
+    "sourceFiles": 12,
+    "foundationModels": 3,
+    "coreML": 0,
+    "scanScope": {
+      "skippedDirectoryCount": 0,
+      "skippedDirectories": []
+    }
+  },
+  "findings": [
+    {
+      "severity": "review",
+      "ruleId": "foundation-models-availability-gate",
+      "evidence": "Demo fixture detected Foundation Models references.",
+      "recommendation": "Gate model-backed features on availability and keep a non-AI fallback.",
+      "proofGuidance": "Check supported OS, language, device availability, fallback copy, and fixture behavior."
+    }
+  ],
+  "reportQualityQuestions": [
+    "Does the report explain which AI path is the safest default for this app type?",
+    "Which repeated AI-readiness observation should become a public fixture rule?",
+    "Is the fallback guidance specific enough for a solo developer to implement?"
+  ]
+}
