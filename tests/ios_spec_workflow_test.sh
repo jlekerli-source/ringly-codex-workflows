@@ -101,6 +101,47 @@ if grep -R -F -q "$tmp_dir" "$tmp_dir/weak-content-quality"; then
   exit 1
 fi
 
+cp -R "$tmp_dir/spec" "$tmp_dir/missing-questions-spec"
+python3 - <<'PY' "$tmp_dir/missing-questions-spec/ios-spec-workflow.json"
+import json
+import sys
+path = sys.argv[1]
+data = json.load(open(path, encoding="utf-8"))
+data["featureSpec"]["clarifyingQuestions"] = ["Which maintainer outcome is most important?"]
+open(path, "w", encoding="utf-8").write(json.dumps(data, indent=2, sort_keys=True) + "\n")
+PY
+python3 - <<'PY' "$tmp_dir/missing-questions-spec/feature-spec.md" "$tmp_dir/missing-questions-spec/ios-spec-workflow.md"
+from pathlib import Path
+import sys
+
+feature = Path(sys.argv[1])
+main = Path(sys.argv[2])
+feature.write_text(
+    "# Feature Spec\n\n"
+    "## Summary\n\nSpec-driven Devspace workflow integration\n\n"
+    "## User Outcomes\n\n- ShipGuard can plan work.\n\n"
+    "## Non-Goals\n\n- Do not edit private apps.\n\n"
+    "## Acceptance Criteria\n\n- Report-quality passes.\n\n"
+    "## Clarifying Questions\n\n- Which maintainer outcome is most important?\n",
+    encoding="utf-8",
+)
+main_text = main.read_text(encoding="utf-8")
+head = main_text.split("## Clarifying Questions", 1)[0]
+tail = "## Clarifying Questions\n\n- Which maintainer outcome is most important?\n\n## Scan Scope\n" + main_text.split("## Scan Scope", 1)[1]
+main.write_text(head + tail, encoding="utf-8")
+PY
+./bin/shipguard ios report-quality \
+  --reports "$tmp_dir/missing-questions-spec" \
+  --out "$tmp_dir/missing-questions-quality" \
+  --shareable >/dev/null
+grep -q '"status": "review"' "$tmp_dir/missing-questions-quality/ios-report-quality.json"
+grep -q '"ruleId": "spec-workflow-question-coverage-missing"' "$tmp_dir/missing-questions-quality/ios-report-quality.json"
+grep -q '"ruleId": "spec-workflow-question-artifact-missing"' "$tmp_dir/missing-questions-quality/ios-report-quality.json"
+if grep -R -F -q "$tmp_dir" "$tmp_dir/missing-questions-quality"; then
+  echo "shareable missing-questions quality output must not include temp absolute paths" >&2
+  exit 1
+fi
+
 ./bin/shipguard ios spec-workflow \
   --path fixtures/demo-ios-repo \
   --feature "No report context spec" \

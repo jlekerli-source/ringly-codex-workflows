@@ -241,6 +241,27 @@ def add_issue(
     )
 
 
+def normalized_question_text(value: object) -> str:
+    return re.sub(r"\s+", " ", str(value)).strip().lower()
+
+
+def spec_workflow_expected_questions(inputs: dict[str, Any], limit: int = 8) -> list[str]:
+    raw_questions = inputs.get("actionabilityQuestions")
+    if not isinstance(raw_questions, list):
+        return []
+    questions: list[str] = []
+    for item in raw_questions:
+        if isinstance(item, dict):
+            question = str(item.get("question") or "").strip()
+        else:
+            question = str(item).strip()
+        if question:
+            questions.append(question)
+        if len(questions) >= limit:
+            break
+    return questions
+
+
 def score_for(issues: list[dict[str, str]]) -> int:
     score = 100
     for issue in issues:
@@ -345,6 +366,30 @@ def spec_workflow_quality_issues(report: dict[str, Any], *, path: Path, path_nam
             recommendation="Feed report-quality output into spec-workflow so real actionability questions become clarifying questions and tasks.",
         )
 
+    expected_questions = spec_workflow_expected_questions(inputs)
+    if expected_questions:
+        feature_spec = report.get("featureSpec")
+        clarifying_questions = feature_spec.get("clarifyingQuestions") if isinstance(feature_spec, dict) else None
+        normalized_clarifying = {
+            normalized_question_text(item)
+            for item in clarifying_questions
+            if isinstance(item, str) and item.strip()
+        } if isinstance(clarifying_questions, list) else set()
+        missing_question_count = sum(
+            1 for question in expected_questions if normalized_question_text(question) not in normalized_clarifying
+        )
+        if missing_question_count:
+            add_issue(
+                issues,
+                severity="review",
+                rule_id="spec-workflow-question-coverage-missing",
+                evidence=(
+                    f"{path_name} featureSpec.clarifyingQuestions missing "
+                    f"{missing_question_count} of {len(expected_questions)} report actionability questions"
+                ),
+                recommendation="Regenerate the spec workflow so report-quality actionability questions become clarifying questions in JSON.",
+            )
+
     artifacts = report.get("artifacts")
     if not isinstance(artifacts, dict):
         add_issue(
@@ -410,8 +455,11 @@ def spec_workflow_quality_issues(report: dict[str, Any], *, path: Path, path_nam
                 )
                 continue
             markers = SPEC_WORKFLOW_ARTIFACT_MARKERS.get(artifact_name, [])
-            if markers:
+            needs_question_coverage = artifact_name in {"markdown", "spec"} and bool(expected_questions)
+            artifact_text = ""
+            if markers or needs_question_coverage:
                 artifact_text = local_artifact_path.read_text(encoding="utf-8", errors="ignore")
+            if markers:
                 missing_markers = [marker for marker in markers if marker not in artifact_text]
                 if missing_markers:
                     add_issue(
@@ -431,6 +479,22 @@ def spec_workflow_quality_issues(report: dict[str, Any], *, path: Path, path_nam
                         rule_id="spec-workflow-artifact-placeholder-content",
                         evidence=f"{path_name} artifact {artifact_name} still contains placeholder content in {raw_value}",
                         recommendation="Replace placeholder-only spec-workflow content with reviewable tasks, proof lanes, and guardrails before scoring.",
+                    )
+            if needs_question_coverage:
+                normalized_artifact_text = normalized_question_text(artifact_text)
+                missing_question_count = sum(
+                    1 for question in expected_questions if normalized_question_text(question) not in normalized_artifact_text
+                )
+                if missing_question_count:
+                    add_issue(
+                        issues,
+                        severity="review",
+                        rule_id="spec-workflow-question-artifact-missing",
+                        evidence=(
+                            f"{path_name} artifact {artifact_name} missing "
+                            f"{missing_question_count} of {len(expected_questions)} report actionability questions in {raw_value}"
+                        ),
+                        recommendation="Regenerate the spec workflow so feature-spec and main Markdown preserve the report-quality questions.",
                     )
 
     section_checks = [
