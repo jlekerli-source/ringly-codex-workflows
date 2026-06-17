@@ -49,10 +49,12 @@ grep -q '"intent": "app-development"' "$tmp_dir/performance/ios-performance.json
 grep -q '"ruleId": "swiftui-periodic-timeline"' "$tmp_dir/performance/ios-performance.json"
 grep -q '"ruleId": "notification-removal-ui-stall"' "$tmp_dir/performance/ios-performance.json"
 grep -q '"ruleId": "formatter-created-in-view"' "$tmp_dir/performance/ios-performance.json"
+grep -q '"impact":' "$tmp_dir/performance/ios-performance.json"
 grep -q '"scanScope"' "$tmp_dir/performance/ios-performance.json"
 grep -q '"release-artifacts"' "$tmp_dir/performance/ios-performance.json"
 grep -q 'Scan Scope' "$tmp_dir/performance/ios-performance.md"
 grep -q 'release-artifacts' "$tmp_dir/performance/ios-performance.md"
+grep -q 'Why it matters' "$tmp_dir/performance/ios-performance.md"
 if grep -q 'GeneratedPerformanceNoise.swift' "$tmp_dir/performance/ios-performance.json"; then
   echo "ios performance should skip generated proof artifacts" >&2
   exit 1
@@ -64,6 +66,11 @@ grep -q '"shipguardOnly": true' "$tmp_dir/eval-performance/ios-performance.json"
 grep -q 'ShipGuard Evaluation Boundary' "$tmp_dir/eval-performance/ios-performance.md"
 grep -q 'Do not edit the scanned app' "$tmp_dir/eval-performance/ios-performance.md"
 grep -q 'Report Quality Questions' "$tmp_dir/eval-performance/ios-performance.md"
+grep -q 'Were repeated rules grouped enough to stay scannable?' "$tmp_dir/eval-performance/ios-performance.json"
+if grep -q 'Did the report explain why each finding matters without requiring private app context?' "$tmp_dir/eval-performance/ios-performance.json"; then
+  echo "ios performance should not keep a satisfied explanation gate as the first actionability question" >&2
+  exit 1
+fi
 grep -q '"mode": "shareable"' "$tmp_dir/shareable-performance/ios-performance.json"
 grep -q '"localAbsolutePathsIncluded": false' "$tmp_dir/shareable-performance/ios-performance.json"
 grep -q '"project": "."' "$tmp_dir/shareable-performance/ios-performance.json"

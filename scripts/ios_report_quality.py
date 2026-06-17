@@ -415,6 +415,40 @@ def finding_quality_issues(report: dict[str, Any]) -> list[dict[str, str]]:
     return issues
 
 
+def performance_finding_explanation_issues(report: dict[str, Any], *, markdown: str, path_name: str) -> list[dict[str, str]]:
+    issues: list[dict[str, str]] = []
+    findings = report.get("findings")
+    if not isinstance(findings, list) or not findings:
+        return issues
+    for index, item in enumerate(findings[:20], start=1):
+        if not isinstance(item, dict):
+            continue
+        if not (item.get("impact") or item.get("whyItMatters")):
+            add_issue(
+                issues,
+                severity="review",
+                rule_id="performance-finding-impact-missing",
+                evidence=f"{path_name} finding #{index} has no impact or whyItMatters field",
+                recommendation="Explain why each performance finding matters so solo developers can prioritize without private app context.",
+            )
+    if issues:
+        return issues
+    impact_markdown_visible = bool(
+        "Why it matters" in markdown
+        or re.search(r"(?im)^\s*#{1,6}\s+Impact\b", markdown)
+        or re.search(r"(?im)\|\s*Impact\s*\|", markdown)
+    )
+    if not impact_markdown_visible:
+        add_issue(
+            issues,
+            severity="review",
+            rule_id="performance-markdown-impact-missing",
+            evidence=f"{path_name} has performance findings but Markdown does not surface why they matter",
+            recommendation="Show the finding impact in Markdown, not only JSON, so Codex and review readers see the prioritization reason.",
+        )
+    return issues
+
+
 def spec_workflow_quality_issues(report: dict[str, Any], *, path: Path, path_name: str) -> list[dict[str, str]]:
     issues: list[dict[str, str]] = []
     inputs = report.get("reportInputs")
@@ -946,6 +980,8 @@ def grade_report(path: Path, *, input_paths: list[Path], shareable: bool, cwd: P
             recommendation="Group repeated rules so Markdown stays scannable while JSON keeps full detail.",
         )
     issues.extend(finding_quality_issues(loaded))
+    if tool == "shipguard ios performance":
+        issues.extend(performance_finding_explanation_issues(loaded, markdown=markdown, path_name=path.name))
 
     if has_local_path(raw_text):
         add_issue(

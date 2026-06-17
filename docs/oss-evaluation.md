@@ -83,6 +83,8 @@ The next read-only loop showed the report-quality artifact itself still carried 
 
 A follow-up read-only loop over the full Ringly/Ilmify report set showed another report-quality gap: the source reports carried useful `reportQualityQuestions`, but the quality artifact ended with only generic next actions. `ios report-quality` now aggregates those questions into an `Actionability Questions` section so the next ShipGuard rule, fixture, report section, or docs improvement is explicit.
 
+The next performance explanation pass showed the quality loop could keep prioritizing "why does this matter?" even when `ios performance` already emitted an impact column. Report-quality now verifies `ios performance` findings have an `impact` or `whyItMatters` field and that Markdown surfaces the explanation, while the performance product-QA questions move on to grouping, evidence, proof, and fixture usefulness.
+
 The next read-only performance pass showed `ios performance --shipguard-eval` still carried absolute local project roots, so report-quality correctly raised a local-path shareability warning. `ios performance --shareable` now omits local absolute project paths from JSON and Markdown before report-quality scoring or external planning, while default local reports keep operator paths.
 
 The next remaining-shareability pass over modernize, app-intelligence, and AI-readiness showed no local path leaks in real-app reports, but those reports had no explicit shareability contract. `ios modernize --shareable`, `ios app-intelligence --shareable`, and `ios ai-readiness --shareable` now record shareability metadata and Markdown mode lines so report-quality passes are intentional rather than accidental.

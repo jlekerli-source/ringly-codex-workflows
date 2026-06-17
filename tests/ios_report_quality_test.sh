@@ -149,6 +149,7 @@ cat > "$priority_fixture/ios-performance.json" <<'JSON'
       "ruleId": "performance-higher-priority",
       "severity": "high",
       "evidence": "Performance fixture has a blocked source finding.",
+      "impact": "This fixture should stay first because blocked performance reports should outrank lower-status source reports.",
       "recommendation": "Prioritize blocked performance report questions.",
       "proofGuidance": "Run report-quality on the fixture."
     }
@@ -168,6 +169,12 @@ This fixture is ShipGuard product QA only.
 ## Scan Scope
 
 No skipped directories.
+
+## Top Findings
+
+| Severity | Rule | Why it matters |
+| --- | --- | --- |
+| high | `performance-higher-priority` | This fixture should stay first because blocked performance reports should outrank lower-status source reports. |
 MD
 ./bin/shipguard ios report-quality \
   --reports "$priority_fixture" \
@@ -194,6 +201,113 @@ if ranked[0]["tool"] != "shipguard ios performance":
 PY
 grep -q 'Priority Action' "$tmp_dir/priority-quality/ios-report-quality.md"
 grep -q 'Performance priority question should be first.' "$tmp_dir/priority-quality/ios-report-quality.md"
+
+missing_impact_dir="$tmp_dir/missing-impact"
+mkdir -p "$missing_impact_dir"
+cat > "$missing_impact_dir/ios-performance.json" <<'JSON'
+{
+  "schemaVersion": 1,
+  "tool": "shipguard ios performance",
+  "intent": "shipguard-evaluation",
+  "generatedAt": "2026-06-17T00:00:00Z",
+  "status": "review",
+  "shareability": {
+    "mode": "shareable",
+    "localAbsolutePathsIncluded": false
+  },
+  "scopeBoundary": {
+    "shipguardOnly": true,
+    "targetAppsReadOnly": true
+  },
+  "scanScope": {
+    "skippedDirectoryCount": 0,
+    "skippedDirectories": []
+  },
+  "findings": [
+    {
+      "ruleId": "performance-missing-impact",
+      "severity": "review",
+      "evidence": "Performance fixture has evidence and proof but no why-it-matters explanation.",
+      "recommendation": "Keep the report actionable.",
+      "proofGuidance": "Run report-quality on the fixture."
+    }
+  ],
+  "reportQualityQuestions": [
+    "Does report-quality enforce performance finding explanations?"
+  ]
+}
+JSON
+cat > "$missing_impact_dir/ios-performance.md" <<'MD'
+# Missing Impact Performance Fixture
+
+## ShipGuard Evaluation Boundary
+
+This fixture is ShipGuard product QA only.
+
+## Scan Scope
+
+No skipped directories.
+MD
+./bin/shipguard ios report-quality \
+  --reports "$missing_impact_dir" \
+  --out "$tmp_dir/missing-impact-quality" \
+  --shareable >/dev/null
+grep -q '"status": "review"' "$tmp_dir/missing-impact-quality/ios-report-quality.json"
+grep -q '"ruleId": "performance-finding-impact-missing"' "$tmp_dir/missing-impact-quality/ios-report-quality.json"
+
+missing_markdown_impact_dir="$tmp_dir/missing-markdown-impact"
+mkdir -p "$missing_markdown_impact_dir"
+cat > "$missing_markdown_impact_dir/ios-performance.json" <<'JSON'
+{
+  "schemaVersion": 1,
+  "tool": "shipguard ios performance",
+  "intent": "shipguard-evaluation",
+  "generatedAt": "2026-06-17T00:00:00Z",
+  "status": "review",
+  "shareability": {
+    "mode": "shareable",
+    "localAbsolutePathsIncluded": false
+  },
+  "scopeBoundary": {
+    "shipguardOnly": true,
+    "targetAppsReadOnly": true
+  },
+  "scanScope": {
+    "skippedDirectoryCount": 0,
+    "skippedDirectories": []
+  },
+  "findings": [
+    {
+      "ruleId": "performance-hidden-impact",
+      "severity": "review",
+      "evidence": "Performance fixture has impact in JSON only.",
+      "impact": "Readers need the impact explanation in Markdown too.",
+      "recommendation": "Keep human-readable reports useful.",
+      "proofGuidance": "Run report-quality on the fixture."
+    }
+  ],
+  "reportQualityQuestions": [
+    "Does report-quality enforce Markdown explanation visibility?"
+  ]
+}
+JSON
+cat > "$missing_markdown_impact_dir/ios-performance.md" <<'MD'
+# Hidden Impact Performance Fixture
+
+## ShipGuard Evaluation Boundary
+
+This fixture is ShipGuard product QA only.
+
+## Scan Scope
+
+No skipped directories.
+MD
+./bin/shipguard ios report-quality \
+  --reports "$missing_markdown_impact_dir" \
+  --out "$tmp_dir/missing-markdown-impact-quality" \
+  --shareable >/dev/null
+grep -q '"status": "review"' "$tmp_dir/missing-markdown-impact-quality/ios-report-quality.json"
+grep -q '"ruleId": "performance-markdown-impact-missing"' "$tmp_dir/missing-markdown-impact-quality/ios-report-quality.json"
 
 local_contract_reports="$tmp_dir/local-contract-reports"
 ./bin/shipguard ios modernize \

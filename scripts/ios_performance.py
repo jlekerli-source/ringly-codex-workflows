@@ -364,10 +364,10 @@ def shipguard_eval_boundary() -> dict[str, Any]:
 
 def shipguard_eval_questions() -> list[str]:
     return [
-        "Did the report explain why each finding matters without requiring private app context?",
         "Were repeated rules grouped enough to stay scannable?",
         "Were high findings justified by evidence instead of broad suspicion?",
         "Did proof guidance name what Codex can verify locally and what remains device/manual proof?",
+        "Were finding impact explanations specific enough to make prioritization obvious without private app context?",
         "Which observation should become a public fixture or eval case before changing the rule again?",
     ]
 
