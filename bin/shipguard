@@ -540,6 +540,11 @@ main() {
   local command="${1:-help}"
   shift || true
 
+  if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
+    usage
+    return 0
+  fi
+
   case "$command" in
     init)
       local kind="${1:-}"

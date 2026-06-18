@@ -73,7 +73,7 @@ COMMANDS: list[dict[str, str]] = [
 ]
 
 REPORT_QUALITY_QUESTIONS = [
-    "Should runtime output probing expand into a broader command-family matrix so every major ShipGuard surface gets executed over time?",
+    "Should ShipGuard add skill/plugin runtime receipt fixtures so Codex guidance is tested through realistic invoked workflows, not only command help paths?",
     "Does every useful-looking surface have docs, tests, package proof, and a concrete proof boundary rather than only a branded name?",
     "Do plugin skills and starter skills give Codex actionable routing and validation commands, not just vague advice?",
     "Should repeated low-value patterns become public fixtures or eval cases so ShipGuard cannot regress into decorative output?",
@@ -561,6 +561,103 @@ def runtime_negative_fixture_probe(root: Path) -> dict[str, Any]:
             "Expand runtimeOutputProbe from representative command samples into broader command-family execution coverage."
             if cases and passed == len(cases)
             else "Fix runtime-output scoring or fixture expectations so decorative reports cannot pass."
+        ),
+    }
+
+
+def runtime_help_command(command: str) -> list[str]:
+    return command.replace("shipguard ", "", 1).split() + ["--help"]
+
+
+def run_runtime_command_help(root: Path, item: dict[str, str]) -> dict[str, Any]:
+    command = item["command"]
+    args = runtime_help_command(command)
+    started = time.monotonic()
+    try:
+        completed = subprocess.run(
+            [str(root / "bin" / "shipguard"), *args],
+            cwd=root,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            timeout=20,
+            check=False,
+        )
+        exit_code: int | str = completed.returncode
+        stdout = completed.stdout or ""
+        stderr = completed.stderr or ""
+        timed_out = False
+    except subprocess.TimeoutExpired as exc:
+        exit_code = "timeout"
+        stdout = exc.stdout if isinstance(exc.stdout, str) else ""
+        stderr = exc.stderr if isinstance(exc.stderr, str) else ""
+        timed_out = True
+    duration_ms = round((time.monotonic() - started) * 1000)
+    output = f"{stdout}\n{stderr}".strip()
+    tokens = [token for token in command_tokens(command) if token not in {"ios"}]
+    token_hits = sum(1 for token in tokens if token.lower() in output.lower())
+    checks = [
+        runtime_probe_check("exitZero", exit_code == 0, f"exit code {exit_code}"),
+        runtime_probe_check("helpOutput", bool(output), "help output present" if output else "help output missing"),
+        runtime_probe_check(
+            "commandMention",
+            "shipguard" in output.lower() or token_hits >= 1,
+            f"{token_hits}/{len(tokens)} command token(s) mentioned",
+        ),
+    ]
+    score = score_from_checks(checks)
+    missing = [check["id"] for check in checks if not check["passed"]]
+    status = "pass" if score == 100 and exit_code == 0 and not timed_out else "blocked" if exit_code != 0 or timed_out else "review"
+    return {
+        "command": f"./bin/shipguard {' '.join(args)}",
+        "surface": item["surface"],
+        "family": item["family"],
+        "durationMs": duration_ms,
+        "exitCode": exit_code,
+        "timedOut": timed_out,
+        "score": score,
+        "status": status,
+        "checks": checks,
+        "missing": missing,
+        "stdoutLineCount": len(stdout.splitlines()),
+        "stderrLineCount": len(stderr.splitlines()),
+        "errorSummary": compact_error(stderr or stdout) if exit_code != 0 or timed_out else "",
+    }
+
+
+def runtime_command_family_probe(root: Path) -> dict[str, Any]:
+    rows = [run_runtime_command_help(root, item) for item in COMMANDS]
+    passed = sum(1 for row in rows if row["status"] == "pass")
+    blocked = sum(1 for row in rows if row["status"] == "blocked")
+    review = sum(1 for row in rows if row["status"] == "review")
+    families: dict[str, dict[str, int]] = {}
+    for row in rows:
+        family = str(row["family"])
+        families.setdefault(family, {"commandCount": 0, "passCount": 0, "reviewCount": 0, "blockedCount": 0})
+        families[family]["commandCount"] += 1
+        if row["status"] == "pass":
+            families[family]["passCount"] += 1
+        elif row["status"] == "blocked":
+            families[family]["blockedCount"] += 1
+        else:
+            families[family]["reviewCount"] += 1
+    status = "blocked" if blocked else "review" if review else "pass"
+    return {
+        "status": status,
+        "commandCount": len(rows),
+        "passedCommandCount": passed,
+        "purpose": "Execute `--help` for every public ShipGuard command family so the toolkit catches unwired or confusing command entry points at runtime.",
+        "scopeBoundary": {
+            "shipguardOnly": True,
+            "targetAppsReadOnly": True,
+            "inputs": ["ShipGuard public command registry"],
+        },
+        "families": families,
+        "commands": rows,
+        "nextAction": (
+            "Add skill/plugin runtime receipt fixtures that exercise realistic Codex guidance workflows beyond command help paths."
+            if status == "pass"
+            else "Fix public commands whose top-level help path does not execute cleanly."
         ),
     }
 
@@ -1057,6 +1154,7 @@ def lowest_value_surface_probe(
     docs: list[dict[str, Any]],
     runtime_probe: dict[str, Any],
     negative_fixture_probe: dict[str, Any],
+    command_family_probe: dict[str, Any],
 ) -> dict[str, Any]:
     self_audit_text = read_text(root / "scripts" / "self_audit.sh")
     package_text = read_text(root / "tests" / "package_release_test.sh")
@@ -1082,29 +1180,64 @@ def lowest_value_surface_probe(
         if runtime_passed:
             negative_fixtures_passed = negative_fixture_probe.get("status") == "pass"
             if negative_fixtures_passed:
-                answer = surface_probe_row(
-                    surface_type="cross-cutting",
-                    identifier="shipguard value-gauntlet runtime-command-coverage",
-                    name="Runtime command-family coverage",
-                    base_score=100,
-                    base_status="pass",
-                    depth_checks=[
-                        depth_check("staticSurfaceCoverage", True, f"{len(ranked)} command/skill/plugin/action/doc surfaces passed static depth checks"),
-                        depth_check(
-                            "runtimeOutputProbe",
-                            True,
-                            f"{runtime_probe.get('commandCount') or 0} representative runtime outputs scored {runtime_probe.get('averageScore')}/100",
-                        ),
-                        depth_check(
-                            "runtimeRegressionFixtures",
-                            True,
-                            f"{negative_fixture_probe.get('passedFixtureCount') or 0}/{negative_fixture_probe.get('fixtureCount') or 0} negative runtime-output fixtures rejected decorative output",
-                        ),
-                        depth_check("runtimeCommandCoverage", False, "runtime output probing still covers only a representative sample, not every major command family"),
-                    ],
-                    recommendation="Expand runtimeOutputProbe into a broader command-family matrix so every major ShipGuard surface is executed over time, not only statically scored.",
-                    proof="Run value-gauntlet, report-quality, and focused command-family probe tests after adding the next command family.",
-                )
+                command_family_passed = command_family_probe.get("status") == "pass"
+                if command_family_passed:
+                    answer = surface_probe_row(
+                        surface_type="cross-cutting",
+                        identifier="shipguard value-gauntlet skill-plugin-runtime-receipts",
+                        name="Skill and plugin runtime receipts",
+                        base_score=100,
+                        base_status="pass",
+                        depth_checks=[
+                            depth_check("staticSurfaceCoverage", True, f"{len(ranked)} command/skill/plugin/action/doc surfaces passed static depth checks"),
+                            depth_check(
+                                "runtimeOutputProbe",
+                                True,
+                                f"{runtime_probe.get('commandCount') or 0} representative runtime outputs scored {runtime_probe.get('averageScore')}/100",
+                            ),
+                            depth_check(
+                                "runtimeRegressionFixtures",
+                                True,
+                                f"{negative_fixture_probe.get('passedFixtureCount') or 0}/{negative_fixture_probe.get('fixtureCount') or 0} negative runtime-output fixtures rejected decorative output",
+                            ),
+                            depth_check(
+                                "runtimeCommandCoverage",
+                                True,
+                                f"{command_family_probe.get('passedCommandCount') or 0}/{command_family_probe.get('commandCount') or 0} public command help paths executed",
+                            ),
+                            depth_check("runtimeSkillPluginReceipts", False, "skills and plugin guidance still lack realistic runtime receipt fixtures"),
+                        ],
+                        recommendation="Add skill/plugin runtime receipt fixtures that prove Codex guidance invokes useful ShipGuard workflows, not only static skill prose.",
+                        proof="Run value-gauntlet, report-quality, codex status, and focused skill/plugin receipt fixture tests after adding the receipts.",
+                    )
+                else:
+                    answer = surface_probe_row(
+                        surface_type="cross-cutting",
+                        identifier="shipguard value-gauntlet runtime-command-coverage",
+                        name="Runtime command-family coverage",
+                        base_score=100,
+                        base_status="pass",
+                        depth_checks=[
+                            depth_check("staticSurfaceCoverage", True, f"{len(ranked)} command/skill/plugin/action/doc surfaces passed static depth checks"),
+                            depth_check(
+                                "runtimeOutputProbe",
+                                True,
+                                f"{runtime_probe.get('commandCount') or 0} representative runtime outputs scored {runtime_probe.get('averageScore')}/100",
+                            ),
+                            depth_check(
+                                "runtimeRegressionFixtures",
+                                True,
+                                f"{negative_fixture_probe.get('passedFixtureCount') or 0}/{negative_fixture_probe.get('fixtureCount') or 0} negative runtime-output fixtures rejected decorative output",
+                            ),
+                            depth_check(
+                                "runtimeCommandCoverage",
+                                False,
+                                f"{command_family_probe.get('passedCommandCount') or 0}/{command_family_probe.get('commandCount') or 0} public command help paths passed",
+                            ),
+                        ],
+                        recommendation="Expand runtimeOutputProbe into a broader command-family matrix so every major ShipGuard surface is executed over time, not only statically scored.",
+                        proof="Run value-gauntlet, report-quality, and focused command-family probe tests after adding the next command family.",
+                    )
             else:
                 answer = surface_probe_row(
                     surface_type="cross-cutting",
@@ -1209,6 +1342,7 @@ def build_report(root: Path, strict: bool) -> dict[str, Any]:
     docs = evaluate_docs(root, findings)
     runtime_probe = runtime_output_probe(root)
     negative_fixture_probe = runtime_negative_fixture_probe(root)
+    command_family_probe = runtime_command_family_probe(root)
     probe = lowest_value_surface_probe(
         root,
         text_index,
@@ -1219,6 +1353,7 @@ def build_report(root: Path, strict: bool) -> dict[str, Any]:
         docs=docs,
         runtime_probe=runtime_probe,
         negative_fixture_probe=negative_fixture_probe,
+        command_family_probe=command_family_probe,
     )
     all_scores = [item["score"] for group in (commands, skills, plugins, actions, docs) for item in group]
     high_count = sum(1 for finding in findings if finding["severity"] == "high")
@@ -1255,6 +1390,7 @@ def build_report(root: Path, strict: bool) -> dict[str, Any]:
         "docs": docs,
         "runtimeOutputProbe": runtime_probe,
         "runtimeOutputNegativeFixtures": negative_fixture_probe,
+        "runtimeCommandFamilyCoverage": command_family_probe,
         "lowestValueSurfaceProbe": probe,
         "findings": findings,
         "priorityActions": priority_actions(findings, probe),
@@ -1337,6 +1473,26 @@ def render_markdown(report: dict[str, Any]) -> str:
         lines.append(
             f"| `{table_cell(item.get('fixturePath'), 64)}` | {item.get('score')} | {item.get('status')} | {str(item.get('fixturePassed')).lower()} | {table_cell(', '.join(item.get('expectedMissing') or []) or '-', 90)} | {table_cell(', '.join(item.get('missing') or []) or '-', 90)} |"
         )
+    command_family_probe = report.get("runtimeCommandFamilyCoverage") or {}
+    lines.extend(["", "## Runtime Command-Family Coverage", ""])
+    lines.append(f"- Status: {command_family_probe.get('status') or 'unknown'}")
+    lines.append(f"- Commands: {command_family_probe.get('passedCommandCount', 0)}/{command_family_probe.get('commandCount', 0)} help paths passed")
+    if command_family_probe.get("nextAction"):
+        lines.append(f"- Next action: {command_family_probe['nextAction']}")
+    lines.extend(["", "| Family | Commands | Pass | Review | Blocked |", "| --- | ---: | ---: | ---: | ---: |"])
+    families = command_family_probe.get("families") if isinstance(command_family_probe.get("families"), dict) else {}
+    for family in sorted(families):
+        item = families[family]
+        lines.append(
+            f"| {family} | {item.get('commandCount', 0)} | {item.get('passCount', 0)} | {item.get('reviewCount', 0)} | {item.get('blockedCount', 0)} |"
+        )
+    failing_commands = [item for item in command_family_probe.get("commands", []) if item.get("status") != "pass"]
+    if failing_commands:
+        lines.extend(["", "| Status | Command | Missing | Error |", "| --- | --- | --- | --- |"])
+        for item in failing_commands[:20]:
+            lines.append(
+                f"| {item.get('status')} | `{table_cell(item.get('command'), 80)}` | {table_cell(', '.join(item.get('missing') or []) or '-', 80)} | {table_cell(item.get('errorSummary') or '-', 90)} |"
+            )
     lines.extend(
         [
             "",

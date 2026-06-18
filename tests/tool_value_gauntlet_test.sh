@@ -30,6 +30,7 @@ grep -q '"plugins":' "$tmp_dir/gauntlet/tool-value-gauntlet.json"
 grep -q '"lowestValueSurfaceProbe":' "$tmp_dir/gauntlet/tool-value-gauntlet.json"
 grep -q '"runtimeOutputProbe":' "$tmp_dir/gauntlet/tool-value-gauntlet.json"
 grep -q '"runtimeOutputNegativeFixtures":' "$tmp_dir/gauntlet/tool-value-gauntlet.json"
+grep -q '"runtimeCommandFamilyCoverage":' "$tmp_dir/gauntlet/tool-value-gauntlet.json"
 grep -q '"priorityActions":' "$tmp_dir/gauntlet/tool-value-gauntlet.json"
 grep -q '"reportQualityQuestions":' "$tmp_dir/gauntlet/tool-value-gauntlet.json"
 grep -q '"command": "shipguard score"' "$tmp_dir/gauntlet/tool-value-gauntlet.json"
@@ -55,8 +56,9 @@ grep -q 'Actions' "$tmp_dir/gauntlet/tool-value-gauntlet.md"
 grep -q 'Docs' "$tmp_dir/gauntlet/tool-value-gauntlet.md"
 grep -q 'Runtime Output Probe' "$tmp_dir/gauntlet/tool-value-gauntlet.md"
 grep -q 'Runtime Output Negative Fixtures' "$tmp_dir/gauntlet/tool-value-gauntlet.md"
+grep -q 'Runtime Command-Family Coverage' "$tmp_dir/gauntlet/tool-value-gauntlet.md"
 grep -q 'Report Quality Questions' "$tmp_dir/gauntlet/tool-value-gauntlet.md"
-grep -q 'broader command-family matrix' "$tmp_dir/gauntlet/tool-value-gauntlet.md"
+grep -q 'skill/plugin runtime receipt fixtures' "$tmp_dir/gauntlet/tool-value-gauntlet.md"
 python3 - <<'PY' "$tmp_dir/gauntlet/tool-value-gauntlet.json"
 import json
 import sys
@@ -66,15 +68,16 @@ probe = data.get("lowestValueSurfaceProbe") or {}
 answer = probe.get("answer") or {}
 runtime = data.get("runtimeOutputProbe") or {}
 negative = data.get("runtimeOutputNegativeFixtures") or {}
+command_family = data.get("runtimeCommandFamilyCoverage") or {}
 if probe.get("question") != "Which ShipGuard command, skill, plugin, or action has the lowest developer-value score and should be upgraded next?":
     raise SystemExit(f"unexpected probe question: {probe!r}")
 for key in ("surfaceType", "identifier", "name", "baseScore", "depthScore", "depthChecks", "recommendation", "proofGuidance", "reason"):
     if key not in answer:
         raise SystemExit(f"probe answer missing {key}: {answer!r}")
-if answer.get("surfaceType") != "cross-cutting" or answer.get("identifier") != "shipguard value-gauntlet runtime-command-coverage":
-    raise SystemExit(f"passing negative runtime fixtures should escalate to command-family coverage: {answer!r}")
-if "runtimeCommandCoverage" not in answer.get("missingDepthSignals", []):
-    raise SystemExit(f"runtime command coverage gap should be explicit: {answer!r}")
+if answer.get("surfaceType") != "cross-cutting" or answer.get("identifier") != "shipguard value-gauntlet skill-plugin-runtime-receipts":
+    raise SystemExit(f"passing command-family coverage should escalate to skill/plugin runtime receipts: {answer!r}")
+if "runtimeSkillPluginReceipts" not in answer.get("missingDepthSignals", []):
+    raise SystemExit(f"runtime skill/plugin receipt gap should be explicit: {answer!r}")
 if not isinstance(probe.get("rankedSurfaces"), list) or not probe["rankedSurfaces"]:
     raise SystemExit("lowest-value surface probe should rank surfaces")
 if runtime.get("status") != "pass":
@@ -98,16 +101,24 @@ if case_ids != {"decorative-empty-report", "boundaryless-design-report"}:
 for item in negative.get("cases") or []:
     if item.get("status") == "pass" or item.get("fixturePassed") is not True:
         raise SystemExit(f"negative fixture should fail report scoring but pass fixture expectation: {item!r}")
+if command_family.get("status") != "pass":
+    raise SystemExit(f"runtime command-family coverage should pass: {command_family!r}")
+if command_family.get("commandCount") != 51 or command_family.get("passedCommandCount") != 51:
+    raise SystemExit(f"expected all public command help paths to pass: {command_family!r}")
+for item in command_family.get("commands") or []:
+    if item.get("status") != "pass" or item.get("missing"):
+        raise SystemExit(f"command help path should pass without missing checks: {item!r}")
 if "Which ShipGuard command" in data.get("reportQualityQuestions", []):
     raise SystemExit("the answered lowest-value question should not remain a report-quality question")
 retired_phrases = (
     "execute representative commands and compare actual output",
     "decorative but low-value reports so output scoring cannot become ceremonial",
+    "command-family matrix so every major ShipGuard surface gets executed over time",
 )
 if any(any(phrase in question for phrase in retired_phrases) for question in data.get("reportQualityQuestions", [])):
-    raise SystemExit(f"runtime-output and negative-fixture questions should be retired after implementation: {data.get('reportQualityQuestions')!r}")
-if not any("command-family matrix" in question for question in data.get("reportQualityQuestions", [])):
-    raise SystemExit(f"expected command-family runtime coverage quality question: {data.get('reportQualityQuestions')!r}")
+    raise SystemExit(f"runtime-output, negative-fixture, and command-family questions should be retired after implementation: {data.get('reportQualityQuestions')!r}")
+if not any("skill/plugin runtime receipt fixtures" in question for question in data.get("reportQualityQuestions", [])):
+    raise SystemExit(f"expected skill/plugin runtime receipt quality question: {data.get('reportQualityQuestions')!r}")
 PY
 
 json_stdout="$(./bin/shipguard value-gauntlet --path . --json)"
@@ -124,6 +135,6 @@ printf '%s\n' "$markdown_stdout" | grep -q '# ShipGuard Tool Value Gauntlet'
 grep -q '"tool": "shipguard ios report-quality"' "$tmp_dir/quality/ios-report-quality.json"
 grep -q '"tool": "shipguard value-gauntlet"' "$tmp_dir/quality/ios-report-quality.json"
 grep -q 'ShipGuard Tool Value Gauntlet' "$tmp_dir/quality/ios-report-quality.md"
-grep -q 'broader command-family matrix' "$tmp_dir/quality/ios-report-quality.md"
+grep -q 'skill/plugin runtime receipt fixtures' "$tmp_dir/quality/ios-report-quality.md"
 
 echo "tool value gauntlet tests passed"
