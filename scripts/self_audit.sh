@@ -71,6 +71,7 @@ commands=(
   "check-run post --help"
   "sarif --help"
   "docs-check --help"
+  "brand --help"
   "ios doctor --help"
   "ios inventory --help"
   "ios preview --help"

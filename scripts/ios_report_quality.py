@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Grade ShipGuard iOS reports for usefulness as product-QA artifacts."""
+"""Grade ShipGuard reports for usefulness as product-QA artifacts."""
 
 from __future__ import annotations
 
@@ -90,15 +90,17 @@ SPEC_WORKFLOW_REQUIRED_ANALYSIS_GATES = [
 SEVERITY_PRIORITY = {"high": 0, "review": 1, "opportunity": 2}
 STATUS_PRIORITY = {"blocked": 0, "review": 1, "pass": 2}
 TOOL_NEXT_ACTION_PRIORITY = {
-    "shipguard ios launchdeck": 0,
-    "shipguard ios performance": 1,
-    "shipguard ios design": 2,
-    "shipguard ios modernize": 3,
-    "shipguard ios app-intelligence": 4,
-    "shipguard ios ai-readiness": 5,
-    "shipguard ios external-audit": 6,
-    "shipguard ios spec-workflow": 7,
-    "shipguard ios devspace-check": 8,
+    "shipguard brand": 0,
+    "shipguard ios brand": 0,
+    "shipguard ios launchdeck": 1,
+    "shipguard ios performance": 2,
+    "shipguard ios design": 3,
+    "shipguard ios modernize": 4,
+    "shipguard ios app-intelligence": 5,
+    "shipguard ios ai-readiness": 6,
+    "shipguard ios external-audit": 7,
+    "shipguard ios spec-workflow": 8,
+    "shipguard ios devspace-check": 9,
 }
 SPEC_WORKFLOW_PLACEHOLDER_RE = re.compile(r"(?im)^\s*(?:[-*]\s*)?(?:TODO|TBD|FIXME)\b")
 TOKEN_RISK_PATTERNS = {
@@ -1244,13 +1246,13 @@ def grade_report(path: Path, *, input_paths: list[Path], shareable: bool, cwd: P
 
     tool = str(loaded.get("tool") or "")
     intent = str(loaded.get("intent") or "")
-    if not tool.startswith("shipguard ios "):
+    if tool != "shipguard brand" and not tool.startswith("shipguard ios "):
         add_issue(
             issues,
             severity="high",
             rule_id="report-tool-missing",
             evidence=f"{path.name} has tool={tool or 'missing'}",
-            recommendation="Set a stable ShipGuard iOS tool name in every report JSON.",
+            recommendation="Set a stable ShipGuard tool name in every report JSON.",
         )
     if tool == REPORT_QUALITY_TOOL:
         add_issue(

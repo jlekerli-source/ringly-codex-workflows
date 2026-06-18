@@ -2,7 +2,10 @@
 
 ## Unreleased
 
-- Added `shipguard ios brand` as ShipGuard Brand Deck: a strict naming-contract audit that registers the full branded surface scheme, future naming checklist, stale active wording checks, docs coverage, package proof, self-audit coverage, and routing eval support for brand/naming requests.
+- Expanded ShipGuard Brand Deck into a toolkit-wide naming system with `shipguard brand`, 50 public command-family surface names, compatibility for `shipguard ios brand`, public-command coverage checks, docs coverage, package proof, self-audit coverage, and routing eval support for funny/vibey/techy naming requests.
+- Added ShipGuard ShipYard as the workshop-level product place for the toolkit bundle, with Brand Deck JSON/Markdown proof and docs/plugin guidance while keeping repository and automation paths unchanged.
+- Added Brand Deck nitty-gritty call signs for script, scanner, test, action, fixture, JSON, Markdown, log, package, and plugin file families so human-facing output can feel ShipGuard-native without renaming automation-sensitive paths.
+- Added Brand Deck actionability questions so `shipguard ios report-quality` can turn read-only `shipguard brand` output into prioritized naming-system improvements instead of the generic "add reportQualityQuestions" fallback; `next-goal` required proof now includes Brand Deck strict proof and `tests/ios_branding_test.sh`.
 - Renamed the iOS build/debug/preview/profiler front door to `shipguard ios launchdeck`, with `ios-launchdeck.*` outputs, LaunchDeck receipt rules, LaunchDeck report-quality fixtures, and LaunchDeck routing eval modes replacing the previous generic naming.
 - Added report-quality source-finding visibility: source report findings now appear in `sourceFindings`, `sourceIssueVisibility`, and a Markdown `Source Report Findings` section, while report-quality's own `findings` still only represent report-quality defects.
 - Promoted LaunchDeck receipt gaps into first-class report-quality fixture work: weak `ios launchdeck` receipt reports now prioritize receipt-specific actionability questions and materialize `ios-launchdeck-receipt-quality-fixture` starter fixtures instead of generic performance/preview candidates.

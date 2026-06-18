@@ -16,6 +16,7 @@ The generated file includes:
 - an optional following `/plan` and `/goal` handoff after completion evidence is supplied
 - release constraints
 - required proof commands
+- Brand Deck strict proof so public surface naming changes stay covered by `shipguard brand`
 - the iOS report-quality proof lane for `ios performance`, `ios design`, modernize, app-intelligence, AI-readiness, eval, demo, and goal-loop helpers
 - the publish-and-verify loop
 - the command to generate the following goal

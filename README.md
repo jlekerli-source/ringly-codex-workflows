@@ -9,9 +9,9 @@ It gives AI-assisted development a repeatable operating loop:
 - Run read-only product-QA reports against real apps without turning findings into accidental app work.
 - Score report quality, redact/share safely, promote public-safe fixtures, and package release evidence.
 
-ShipGuard is not tied to any single app. This repo ships reusable CLI commands, Codex skills, plugin metadata, fixtures, tests, and GitHub Actions for developers who want agent work to be reviewable instead of vague.
+ShipGuard is not tied to any single app. This repo is the ShipGuard ShipYard: the workshop for reusable CLI commands, Codex skills, plugin metadata, fixtures, tests, and GitHub Actions for developers who want agent work to be reviewable instead of vague.
 
-The naming style is intentional: stable commands stay literal, while product surfaces get branded names like ShipGuard LaunchDeck, ShipGuard PulseRadar, ShipGuard VibeCheck, ShipGuard UpgradeForge, ShipGuard SourceScout, and ShipGuard ReleaseDock. See `docs/shipguard-naming.md` or run `./bin/shipguard ios brand --strict` before adding new surfaces.
+The naming style is intentional: stable commands and paths stay literal, while product surfaces get branded names like ShipGuard StarterBay, ShipGuard LaunchDeck, ShipGuard PulseRadar, ShipGuard VibeCheck, ShipGuard ReleaseDock, ShipGuard PluginRadar, and ShipGuard NextRail. The nitty-gritty gets call signs too: Deckhand Scripts, Gauntlet Runs, Blackbox Receipts, Bridge Notes, Engine Tapes, Cargo Crates, and Docking Gear. See `docs/shipguard-naming.md` or run `./bin/shipguard brand --strict` before adding new surfaces.
 
 ## Who This Is For
 
@@ -72,7 +72,7 @@ Common loops:
 | --- | --- |
 | Audit an AI coding run | `./bin/shipguard autopsy --help` |
 | Inspect risky iOS surfaces | `./bin/shipguard ios doctor --help` |
-| Check the branded naming scheme | `./bin/shipguard ios brand --help` |
+| Check the branded naming scheme | `./bin/shipguard brand --help` |
 | Route and grade iOS build, debug, preview, and profiler proof | `./bin/shipguard ios launchdeck --help` |
 | Review iOS performance evidence | `./bin/shipguard ios performance --help` |
 | Review UI/UX, motion, haptics, and icon direction | `./bin/shipguard ios design --help` |

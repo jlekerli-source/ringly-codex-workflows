@@ -77,6 +77,27 @@ grep -q 'Actionability Questions' "$tmp_dir/actionability-quality/ios-report-qua
 grep -q 'safest default for this app type' "$tmp_dir/actionability-quality/ios-report-quality.md"
 grep -q 'Answer the actionability questions above' "$tmp_dir/actionability-quality/ios-report-quality.md"
 
+./bin/shipguard brand \
+  --path . \
+  --out "$tmp_dir/brand-report" \
+  --strict >/dev/null
+./bin/shipguard ios report-quality \
+  --reports "$tmp_dir/brand-report" \
+  --out "$tmp_dir/brand-quality" \
+  --shareable >/dev/null
+grep -q '"status": "pass"' "$tmp_dir/brand-quality/ios-report-quality.json"
+grep -q '"tool": "shipguard brand"' "$tmp_dir/brand-quality/ios-report-quality.json"
+grep -q '"kind": "answer-actionability-question"' "$tmp_dir/brand-quality/ios-report-quality.json"
+grep -q 'Does every public ShipGuard surface have a branded name' "$tmp_dir/brand-quality/ios-report-quality.json"
+grep -q 'ShipGuard Brand Deck' "$tmp_dir/brand-report/ios-branding.md"
+grep -q 'Report Quality Questions' "$tmp_dir/brand-report/ios-branding.md"
+grep -q 'Actionability Questions' "$tmp_dir/brand-quality/ios-report-quality.md"
+grep -q 'Does every public ShipGuard surface have a branded name' "$tmp_dir/brand-quality/ios-report-quality.md"
+if grep -q 'add-actionability-questions' "$tmp_dir/brand-quality/ios-report-quality.json"; then
+  echo "Brand Deck reports must carry concrete actionability questions into report-quality" >&2
+  exit 1
+fi
+
 launchdeck_receipt_fixture="fixtures/ios-report-quality/launchdeck-receipts"
 ./bin/shipguard ios report-quality \
   --reports "$launchdeck_receipt_fixture" \

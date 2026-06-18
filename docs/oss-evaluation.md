@@ -290,5 +290,7 @@ Status: started.
 - Added modernization rule summaries and capped Markdown for modernize, app-intelligence, and AI-readiness reports so private-app findings stay useful for improving ShipGuard without becoming app remediation tasks.
 - Improved first-run adoption docs around CLI versus plugin usage.
 - Upgraded `shipguard next-goal` so the next improvement loop emits a reviewable `/plan` before the `/goal`, and can now carry bounded scope, completion evidence, and the following `/goal` handoff.
+- Added Brand Deck actionability questions after a read-only `shipguard brand` plus `ios report-quality` pass showed the naming report was structurally clean but still produced the generic "add reportQualityQuestions" priority action instead of a concrete naming-system improvement.
+- Expanded Brand Deck from an iOS-heavy surface list to a toolkit-wide naming contract after the full-renaming request showed root commands, release commands, CI tools, transcript tools, plugin status, and smaller preview handoff helpers also needed branded names and future coverage checks.
 - Moved legacy command-wrapper guidance out of primary README and CLI flow into `docs/compatibility.md`.
 - Keep Agents SDK deferred unless ShipGuard becomes a runnable agent service with a concrete eval target.

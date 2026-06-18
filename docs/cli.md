@@ -93,7 +93,7 @@ Run iOS-specific topology, inventory, planning, proof, preview, and privacy help
 ./bin/shipguard ios plan --mode permission-audit --inventory /tmp/ios-shipguard-inventory/ios-inventory.json --out /tmp/ios-shipguard-plan
 ./bin/shipguard ios plan --mode performance-audit --inventory /tmp/ios-shipguard-inventory/ios-inventory.json --out /tmp/ios-shipguard-performance-plan
 ./bin/shipguard ios prove --plan /tmp/ios-shipguard-plan/ios-plan.json --out /tmp/ios-shipguard-proof
-./bin/shipguard ios brand --path . --out /tmp/ios-shipguard-brand --strict
+./bin/shipguard brand --path . --out /tmp/shipguard-brand --strict
 ./bin/shipguard ios launchdeck --path ../my-ios-app --out /tmp/ios-shipguard-launchdeck
 ./bin/shipguard ios performance --path ../my-ios-app --out /tmp/ios-shipguard-performance
 ./bin/shipguard ios design --path ../my-ios-app --out /tmp/ios-shipguard-design --icon-brief
@@ -112,7 +112,7 @@ Run iOS-specific topology, inventory, planning, proof, preview, and privacy help
 
 The iOS namespace also includes:
 
-- `ios brand`: run ShipGuard Brand Deck, the naming contract for future surfaces. It audits the branded surface scheme, active docs coverage, stale active wording, and the rule that fun names must sit beside plain purpose and proof boundaries.
+- `brand` or `ios brand`: run ShipGuard Brand Deck, the toolkit-wide naming contract for future surfaces. It audits the branded surface scheme, public-command coverage, active docs coverage, stale active wording, and the rule that fun names must sit beside plain purpose and proof boundaries.
 - `ios preview`: serve a local simulator screenshot preview for the Codex in-app browser.
 - `ios devspace`: expose the preview bridge as a local MCP/App surface.
 - `ios devspace-check`: statically grade ShipGuard Devspace connector readiness, public URL safety, widget metadata, handoff boundaries, and preview evidence without starting the server or grading a target app; add `--shareable` to omit local absolute paths before external sharing.
@@ -621,7 +621,7 @@ After the slice is complete, add caller-supplied proof evidence and the title fo
   --out NEXT_GOAL.md
 ```
 
-The command writes a Markdown plan with `/plan` and `/goal` blocks, optional bounded scope and completion receipt sections, release constraints, proof commands, publishing checks, and the command to generate the following goal. See `next-goal.md`.
+The command writes a Markdown plan with `/plan` and `/goal` blocks, optional bounded scope and completion receipt sections, release constraints, Brand Deck strict proof for public surface naming changes, proof commands, publishing checks, and the command to generate the following goal. See `next-goal.md`.
 
 ## Install From Release Tarball
 

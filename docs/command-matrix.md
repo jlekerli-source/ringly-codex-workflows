@@ -1,6 +1,6 @@
 # Command Matrix
 
-`shipguard` is organized around the core maintainer jobs below.
+`shipguard` is organized around the core maintainer jobs below. The whole toolkit workspace is the ShipGuard ShipYard; individual command families keep literal CLI names plus branded surface names and proof boundaries.
 
 | Job | Command | Output |
 | --- | --- | --- |
@@ -9,7 +9,7 @@
 | Check target repo setup | `doctor ios`, `doctor web`, `doctor backend`, `doctor cli` | Missing file report |
 | Install local Codex plugin source | `codex plugin marketplace add .`, `codex plugin add ios-shipguard@shipguard` | Local plugin cache entry; new Codex thread required to load refreshed skill text |
 | Check local Codex plugin install | `codex status` | Installed plugin metadata, stale branding, and missing-source report |
-| Keep ShipGuard naming coherent | `ios brand` | ShipGuard Brand Deck: branded surface scheme, active-doc coverage, stale wording checks, and future naming contract |
+| Keep ShipGuard naming coherent | `brand`, `ios brand` | ShipGuard Brand Deck: toolkit-wide branded surface scheme, nitty-gritty file-family call signs, public-command coverage, active-doc coverage, stale wording checks, and future naming contract |
 | Inspect iOS app topology | `ios doctor` | Xcode, SwiftPM, scheme, target, StoreKit, privacy manifest, and proof-readiness report |
 | Inventory risky iOS surfaces | `ios inventory` | Permission, entitlement, target risk, modernization, and ask-before-editing report |
 | Generate Codex iOS brief | `ios plan` | Mode, owner files, blocked questions, proof route, and task brief |

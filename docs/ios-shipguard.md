@@ -4,13 +4,13 @@
 
 The existing `shipguard` CLI remains the engine. ShipGuard is the iOS-focused workflow that makes the engine easier to use.
 
-ShipGuard uses a branded surface scheme so the tool feels coherent without making the CLI cryptic. Run ShipGuard Brand Deck before adding or renaming public surfaces:
+ShipGuard uses a toolkit-wide branded surface scheme so the tool feels coherent without making the CLI cryptic. Run ShipGuard Brand Deck before adding or renaming public surfaces:
 
 ```bash
-./bin/shipguard ios brand --path . --out /tmp/ios-shipguard-brand --strict
+./bin/shipguard brand --path . --out /tmp/shipguard-brand --strict
 ```
 
-The command writes `ios-branding.json` and `ios-branding.md` with the current naming rules, future naming contract, and surface names such as ShipGuard DockCheck, ShipGuard CargoScan, ShipGuard BriefForge, ShipGuard ProofVault, ShipGuard LaunchDeck, ShipGuard PulseRadar, ShipGuard VibeCheck, ShipGuard UpgradeForge, ShipGuard SignalLens, ShipGuard ModelDock, ShipGuard SourceScout, ShipGuard SpecForge, ShipGuard QualityRadar, ShipGuard MirrorPort, ShipGuard Devspace Bridge, ShipGuard RedactionBay, ShipGuard EvalArena, ShipGuard GoalEngine, ShipGuard ReleaseDock, ShipGuard AutopsyLab, and ShipGuard ArenaBench.
+The command writes `ios-branding.json` and `ios-branding.md` with the current naming rules, future naming contract, public command coverage, and surface names such as ShipGuard StarterBay, ShipGuard RigCheck, ShipGuard DockCheck, ShipGuard LaunchDeck, ShipGuard PulseRadar, ShipGuard VibeCheck, ShipGuard BridgeWatch, ShipGuard HandoffRail, ShipGuard ReleaseDock, ShipGuard PluginRadar, ShipGuard SelfScan, and ShipGuard NextRail. `shipguard ios brand` remains available as a compatibility route.
 
 ## What Codex Already Does
 

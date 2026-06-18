@@ -8,8 +8,9 @@ trap 'rm -rf "$tmp_dir"' EXIT
 
 cd "$repo_root"
 
+./bin/shipguard brand --help >/dev/null
 ./bin/shipguard ios brand --help >/dev/null
-./bin/shipguard ios brand \
+./bin/shipguard brand \
   --path . \
   --out "$tmp_dir/brand" \
   --strict >/dev/null
@@ -20,51 +21,111 @@ python3 -m json.tool "$tmp_dir/brand/ios-branding.json" >/dev/null
 
 grep -q '# ShipGuard Brand Deck' "$tmp_dir/brand/ios-branding.md"
 grep -q 'Naming Rules' "$tmp_dir/brand/ios-branding.md"
+grep -q 'Product Places' "$tmp_dir/brand/ios-branding.md"
 grep -q 'Surface Scheme' "$tmp_dir/brand/ios-branding.md"
+grep -q 'Nitty-Gritty Call Signs' "$tmp_dir/brand/ios-branding.md"
 grep -q 'Future Naming Contract' "$tmp_dir/brand/ios-branding.md"
-grep -q 'ShipGuard LaunchDeck' "$tmp_dir/brand/ios-branding.md"
-grep -q 'ShipGuard PulseRadar' "$tmp_dir/brand/ios-branding.md"
-grep -q 'ShipGuard VibeCheck' "$tmp_dir/brand/ios-branding.md"
-grep -q 'ShipGuard UpgradeForge' "$tmp_dir/brand/ios-branding.md"
-grep -q 'ShipGuard SourceScout' "$tmp_dir/brand/ios-branding.md"
-grep -q 'ShipGuard ReleaseDock' "$tmp_dir/brand/ios-branding.md"
+grep -q 'Report Quality Questions' "$tmp_dir/brand/ios-branding.md"
 grep -q 'Plain Purpose' "$tmp_dir/brand/ios-branding.md"
 grep -q 'proof boundary' "$tmp_dir/brand/ios-branding.md"
 
-grep -q '"tool": "shipguard ios brand"' "$tmp_dir/brand/ios-branding.json"
+grep -q '"tool": "shipguard brand"' "$tmp_dir/brand/ios-branding.json"
+grep -q '"compatibilityCommands":' "$tmp_dir/brand/ios-branding.json"
+grep -q '"shipguard ios brand"' "$tmp_dir/brand/ios-branding.json"
 grep -q '"status": "pass"' "$tmp_dir/brand/ios-branding.json"
-grep -q '"surfaceCount": 22' "$tmp_dir/brand/ios-branding.json"
-grep -q '"surfaceName": "ShipGuard Brand Deck"' "$tmp_dir/brand/ios-branding.json"
-grep -q '"surfaceName": "ShipGuard DockCheck"' "$tmp_dir/brand/ios-branding.json"
-grep -q '"surfaceName": "ShipGuard CargoScan"' "$tmp_dir/brand/ios-branding.json"
-grep -q '"surfaceName": "ShipGuard BriefForge"' "$tmp_dir/brand/ios-branding.json"
-grep -q '"surfaceName": "ShipGuard ProofVault"' "$tmp_dir/brand/ios-branding.json"
-grep -q '"surfaceName": "ShipGuard LaunchDeck"' "$tmp_dir/brand/ios-branding.json"
-grep -q '"surfaceName": "ShipGuard PulseRadar"' "$tmp_dir/brand/ios-branding.json"
-grep -q '"surfaceName": "ShipGuard VibeCheck"' "$tmp_dir/brand/ios-branding.json"
-grep -q '"surfaceName": "ShipGuard UpgradeForge"' "$tmp_dir/brand/ios-branding.json"
-grep -q '"surfaceName": "ShipGuard SignalLens"' "$tmp_dir/brand/ios-branding.json"
-grep -q '"surfaceName": "ShipGuard ModelDock"' "$tmp_dir/brand/ios-branding.json"
-grep -q '"surfaceName": "ShipGuard SourceScout"' "$tmp_dir/brand/ios-branding.json"
-grep -q '"surfaceName": "ShipGuard SpecForge"' "$tmp_dir/brand/ios-branding.json"
-grep -q '"surfaceName": "ShipGuard QualityRadar"' "$tmp_dir/brand/ios-branding.json"
-grep -q '"surfaceName": "ShipGuard MirrorPort"' "$tmp_dir/brand/ios-branding.json"
-grep -q '"surfaceName": "ShipGuard Devspace Bridge"' "$tmp_dir/brand/ios-branding.json"
-grep -q '"surfaceName": "ShipGuard RedactionBay"' "$tmp_dir/brand/ios-branding.json"
-grep -q '"surfaceName": "ShipGuard EvalArena"' "$tmp_dir/brand/ios-branding.json"
-grep -q '"surfaceName": "ShipGuard GoalEngine"' "$tmp_dir/brand/ios-branding.json"
-grep -q '"surfaceName": "ShipGuard ReleaseDock"' "$tmp_dir/brand/ios-branding.json"
-grep -q '"surfaceName": "ShipGuard AutopsyLab"' "$tmp_dir/brand/ios-branding.json"
-grep -q '"surfaceName": "ShipGuard ArenaBench"' "$tmp_dir/brand/ios-branding.json"
+grep -q '"intent": "shipguard-product-qa"' "$tmp_dir/brand/ios-branding.json"
+grep -q '"shipguardOnly": true' "$tmp_dir/brand/ios-branding.json"
+grep -q '"targetAppsReadOnly": true' "$tmp_dir/brand/ios-branding.json"
+grep -q '"productPlaces":' "$tmp_dir/brand/ios-branding.json"
+grep -q '"name": "ShipGuard ShipYard"' "$tmp_dir/brand/ios-branding.json"
+grep -q 'ShipYard names the workspace experience' "$tmp_dir/brand/ios-branding.json"
+grep -q '"surfaceCount": 50' "$tmp_dir/brand/ios-branding.json"
+grep -q '"artifactCallsigns":' "$tmp_dir/brand/ios-branding.json"
+grep -q '"callSign": "Deckhand Scripts"' "$tmp_dir/brand/ios-branding.json"
+grep -q '"callSign": "Gauntlet Runs"' "$tmp_dir/brand/ios-branding.json"
+grep -q '"callSign": "Engine Tapes"' "$tmp_dir/brand/ios-branding.json"
+grep -q '"callSign": "Cargo Crates"' "$tmp_dir/brand/ios-branding.json"
+grep -q '"callSign": "Docking Gear"' "$tmp_dir/brand/ios-branding.json"
+grep -q '"command": "shipguard brand"' "$tmp_dir/brand/ios-branding.json"
+grep -q '"command": "shipguard init"' "$tmp_dir/brand/ios-branding.json"
 grep -q '"command": "shipguard ios launchdeck"' "$tmp_dir/brand/ios-branding.json"
-grep -q '"command": "shipguard ios performance"' "$tmp_dir/brand/ios-branding.json"
-grep -q '"command": "shipguard ios design"' "$tmp_dir/brand/ios-branding.json"
+grep -q '"command": "shipguard release-evidence"' "$tmp_dir/brand/ios-branding.json"
+grep -q '"command": "shipguard next-goal"' "$tmp_dir/brand/ios-branding.json"
 grep -q '"toneGuardrail":' "$tmp_dir/brand/ios-branding.json"
 grep -q '"publicInterfacePolicy":' "$tmp_dir/brand/ios-branding.json"
+grep -q '"reportQualityQuestions":' "$tmp_dir/brand/ios-branding.json"
+grep -q 'Does every public ShipGuard surface have a branded name' "$tmp_dir/brand/ios-branding.json"
+grep -q 'Does ShipGuard ShipYard appear as the workshop-level product place' "$tmp_dir/brand/ios-branding.json"
 
-json_stdout="$(./bin/shipguard ios brand --path . --json)"
+surface_names=(
+  "ShipGuard Brand Deck"
+  "ShipGuard StarterBay"
+  "ShipGuard RigCheck"
+  "ShipGuard RepoVitals"
+  "ShipGuard RuleHarbor"
+  "ShipGuard RunScore"
+  "ShipGuard TraceVault"
+  "ShipGuard ReviewBeacon"
+  "ShipGuard GateTower"
+  "ShipGuard BriefBeacon"
+  "ShipGuard CheckPilot"
+  "ShipGuard AlertBeacon"
+  "ShipGuard LinkSweep"
+  "ShipGuard DockCheck"
+  "ShipGuard CargoScan"
+  "ShipGuard BriefForge"
+  "ShipGuard ProofVault"
+  "ShipGuard LaunchDeck"
+  "ShipGuard PulseRadar"
+  "ShipGuard VibeCheck"
+  "ShipGuard UpgradeForge"
+  "ShipGuard SignalLens"
+  "ShipGuard ModelDock"
+  "ShipGuard SourceScout"
+  "ShipGuard SpecForge"
+  "ShipGuard QualityRadar"
+  "ShipGuard MirrorPort"
+  "ShipGuard Devspace Bridge"
+  "ShipGuard BridgeWatch"
+  "ShipGuard TapCompass"
+  "ShipGuard HandoffRail"
+  "ShipGuard RedactionBay"
+  "ShipGuard EvalArena"
+  "ShipGuard DemoDock"
+  "ShipGuard GoalEngine"
+  "ShipGuard ReleaseDock"
+  "ShipGuard ManifestForge"
+  "ShipGuard ReleaseAtlas"
+  "ShipGuard ReplayRig"
+  "ShipGuard TrustStamp"
+  "ShipGuard ConsumerDock"
+  "ShipGuard DiffLens"
+  "ShipGuard EvidenceHarbor"
+  "ShipGuard AutopsyLab"
+  "ShipGuard ArenaBench"
+  "ShipGuard PluginRadar"
+  "ShipGuard ScoreTower"
+  "ShipGuard SelfScan"
+  "ShipGuard NextRail"
+  "ShipGuard VersionBeacon"
+)
+
+for surface_name in "${surface_names[@]}"; do
+  grep -q "$surface_name" "$tmp_dir/brand/ios-branding.json"
+  grep -q "$surface_name" "$tmp_dir/brand/ios-branding.md"
+done
+
+for call_sign in "Deckhand Scripts" "Sonar Modules" "Gauntlet Runs" "Blackbox Receipts" "Bridge Notes" "Engine Tapes" "Cargo Crates" "Docking Gear"; do
+  grep -q "$call_sign" "$tmp_dir/brand/ios-branding.md"
+done
+
+json_stdout="$(./bin/shipguard brand --path . --json)"
 printf '%s\n' "$json_stdout" | python3 -m json.tool >/dev/null
-printf '%s\n' "$json_stdout" | grep -q '"tool": "shipguard ios brand"'
+printf '%s\n' "$json_stdout" | grep -q '"tool": "shipguard brand"'
+
+compat_stdout="$(./bin/shipguard ios brand --path . --json)"
+printf '%s\n' "$compat_stdout" | python3 -m json.tool >/dev/null
+printf '%s\n' "$compat_stdout" | grep -q '"tool": "shipguard brand"'
 
 if rg -n 'Shipyard|Shipcard|Illumify|InweFi|Build iOS Apps bridge|Build iOS Apps front door' \
   README.md docs/cli.md docs/command-matrix.md docs/ios-shipguard.md docs/shipguard-naming.md \

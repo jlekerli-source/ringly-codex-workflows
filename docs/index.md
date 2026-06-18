@@ -90,7 +90,7 @@ Start here:
 17. Run `./bin/shipguard ios inventory --path fixtures/demo-ios-repo --out /tmp/ios-shipguard-inventory`.
 18. Run `./bin/shipguard ios performance --path fixtures/demo-ios-repo --out /tmp/ios-shipguard-performance`.
 19. Run `./bin/shipguard ios design --path fixtures/demo-ios-repo --out /tmp/ios-shipguard-design --icon-brief`.
-20. Run `./bin/shipguard ios brand --path . --out /tmp/ios-shipguard-brand --strict` before adding or renaming public ShipGuard surfaces.
+20. Run `./bin/shipguard brand --path . --out /tmp/shipguard-brand --strict` before adding or renaming public ShipGuard surfaces.
 21. Use `--shipguard-eval` with `ios performance`, `ios design`, `ios modernize`, `ios app-intelligence`, or `ios ai-readiness` only when a private app is a read-only sample for improving ShipGuard.
 22. Run `./bin/shipguard ios report-quality --reports /tmp/ios-shipguard-performance --reports /tmp/ios-shipguard-design --out /tmp/ios-shipguard-report-quality` to grade ShipGuard report usefulness.
 23. Run `./bin/shipguard ios external-audit --path . --source-url https://github.com/github/spec-kit --source-url https://github.com/rebel0789/codexpro --source-url https://github.com/expo/expo --out /tmp/ios-shipguard-external-audit --shareable` before treating external workflow ideas as integrated.

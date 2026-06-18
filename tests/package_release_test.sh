@@ -391,10 +391,17 @@ grep -q 'CLI Tool ShipGuard Instructions' "$tmp_dir/cli-target/AGENTS.md"
 grep -q '"tool": "shipguard ios demo"' "$tmp_dir/package-ios-demo/shipguard-demo.json"
 grep -q '"status": "pass"' "$tmp_dir/package-ios-demo/shipguard-demo.json"
 grep -q 'codex plugin add ios-shipguard@shipguard' "$tmp_dir/package-ios-demo/README.md"
-"$package_root/bin/shipguard" ios brand --path "$package_root" --out "$tmp_dir/package-brand" --strict >/dev/null
-grep -q '"tool": "shipguard ios brand"' "$tmp_dir/package-brand/ios-branding.json"
+"$package_root/bin/shipguard" brand --path "$package_root" --out "$tmp_dir/package-brand" --strict >/dev/null
+grep -q '"tool": "shipguard brand"' "$tmp_dir/package-brand/ios-branding.json"
 grep -q '"status": "pass"' "$tmp_dir/package-brand/ios-branding.json"
+grep -q '"reportQualityQuestions":' "$tmp_dir/package-brand/ios-branding.json"
+grep -q '"artifactCallsigns":' "$tmp_dir/package-brand/ios-branding.json"
+grep -q '"name": "ShipGuard ShipYard"' "$tmp_dir/package-brand/ios-branding.json"
 grep -q 'ShipGuard VibeCheck' "$tmp_dir/package-brand/ios-branding.md"
+grep -q 'ShipGuard PluginRadar' "$tmp_dir/package-brand/ios-branding.md"
+grep -q 'ShipGuard ShipYard' "$tmp_dir/package-brand/ios-branding.md"
+grep -q 'Nitty-Gritty Call Signs' "$tmp_dir/package-brand/ios-branding.md"
+grep -q 'Engine Tapes' "$tmp_dir/package-brand/ios-branding.md"
 "$package_root/bin/shipguard" autopsy \
   --run "$package_root/fixtures/autopsy/good-run/run.md" \
   --task "$package_root/fixtures/autopsy/good-run/task.md" \

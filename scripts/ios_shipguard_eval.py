@@ -19,7 +19,7 @@ MODE_COMMANDS = {
     "permission-audit": ["shipguard ios inventory --path . --out /tmp/ios-shipguard-inventory"],
     "simulator-debug": ["XcodeBuildMCP session_show_defaults", "XcodeBuildMCP build/run and UI snapshot proof"],
     "brand-audit": [
-        "shipguard ios brand --path . --out /tmp/ios-shipguard-brand --strict",
+        "shipguard brand --path . --out /tmp/shipguard-brand --strict",
         "Update docs/shipguard-naming.md, docs/command-matrix.md, and plugin skill routing for new public surfaces",
         "Run tests/ios_branding_test.sh, CLI smoke, self-audit, package proof, and docs-check before claiming the naming scheme is complete",
     ],
@@ -68,7 +68,7 @@ MODE_PROOF = {
     ],
     "simulator-debug": ["build and launch", "UI hierarchy, screenshot, logs, or LLDB evidence", "rerun reproduction path"],
     "brand-audit": [
-        "ShipGuard Brand Deck report with registered surfaces, plain purposes, proof boundaries, and active-doc coverage",
+        "ShipGuard Brand Deck report with registered public commands, plain purposes, proof boundaries, and active-doc coverage",
         "docs and skill guidance updated for the branded surface names",
         "focused branding test plus package, self-audit, CLI smoke, and docs-check coverage",
     ],

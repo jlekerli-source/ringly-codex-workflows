@@ -49,7 +49,7 @@ Ask:
 
 Proof:
 
-- `shipguard ios brand --path . --out /tmp/ios-shipguard-brand --strict`
+- `shipguard brand --path . --out /tmp/shipguard-brand --strict`
 - active docs and skill guidance mention the branded surface names
 - focused test such as `tests/ios_branding_test.sh`
 - package, self-audit, CLI smoke, and docs-check coverage before claiming the naming scheme is complete

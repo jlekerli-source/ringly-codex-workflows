@@ -5,7 +5,7 @@ description: Solo iOS development workflow for Codex. Use when planning, impleme
 
 # iOS ShipGuard
 
-Use this skill to make Codex behave like a careful iOS release assistant instead of a generic coding agent. The goal is to force the missing product and proof questions before edits, then let Codex use its native iOS simulator, Git, worktree, and inline comment features for execution.
+Use this skill to make Codex behave like a careful iOS release assistant instead of a generic coding agent. The ShipGuard ShipYard is the toolkit workshop around that assistant: CLI commands, skills, plugin metadata, reports, fixtures, tests, packages, and proof loops. The goal is to force the missing product and proof questions before edits, then let Codex use its native iOS simulator, Git, worktree, and inline comment features for execution.
 
 ## Start Here
 
@@ -44,7 +44,7 @@ Default routing:
 
 - `permission-audit`: Info.plist usage descriptions, entitlements, authorization copy, denied states.
 - `simulator-debug`: UI reproduction, navigation bugs, screenshots, logs, UI hierarchy, LLDB.
-- `brand-audit`: ShipGuard Brand Deck naming scheme, branded surface labels, active-doc wording, and future naming contract.
+- `brand-audit`: ShipGuard Brand Deck naming scheme, branded surface labels, nitty-gritty call signs for scripts/logs/reports, public-command coverage, active-doc wording, and future naming contract.
 - `launchdeck`: ShipGuard-native routing into LaunchDeck for XcodeBuildMCP build/run, debugger/log capture, simulator browser, SwiftUI preview hot reload, and profiler proof.
 - `release-proof`: TestFlight/App Store handoff, physical device evidence, release claims.
 - `storekit-commerce`: product IDs, purchases, restore, current entitlements, sandbox account proof.
@@ -75,7 +75,7 @@ Do not turn a missing answer into an assumption. Ask one short question, wait, t
 Use the smallest proof that matches the mode:
 
 - Inventory/plan/proof: run `ios inventory`, then `ios plan`, then `ios prove` for blocked questions, owner files, proof routes, and honest local-vs-manual evidence.
-- Brand Deck: run `ios brand --path . --out /tmp/ios-shipguard-brand --strict` before adding or renaming public ShipGuard surfaces. Keep literal CLI commands stable, make branded names visible beside plain purpose and proof boundaries, and update docs/tests/package proof before claiming a naming scheme is complete.
+- Brand Deck: run `shipguard brand --path . --out /tmp/shipguard-brand --strict` before adding or renaming public ShipGuard surfaces; `shipguard ios brand` remains a compatibility route. Keep literal CLI commands and filesystem paths stable, make branded names and file-family call signs visible beside plain purpose and proof boundaries, and update docs/tests/package proof before claiming a naming scheme is complete.
 - LaunchDeck: run `ios launchdeck --path . --out /tmp/ios-shipguard-launchdeck` before build/run/debug/preview/performance investigation when the route is unclear. Add `--workflow build-run|debug|preview|performance` when the user already named the lane. After Codex executes the LaunchDeck route or XcodeBuildMCP tools, rerun with `--receipt <proof-file-or-dir>` so ShipGuard grades whether build/run, UI, preview, log, or profiler proof is actually present. Add `--shipguard-eval --shareable` when a private app is only a read-only sample for improving ShipGuard.
 - Existing Xcode project: use the `ios launchdeck` report to choose XcodeBuildMCP defaults, then use XcodeBuildMCP to confirm project/workspace, scheme, and simulator before building or running.
 - Source reports: use `ios performance`, `ios design`, `ios modernize`, `ios app-intelligence`, or `ios ai-readiness` before related work. Add `--shareable` before report-quality scoring or external planning. Performance smoothness still needs matching route proof and physical-device Instruments evidence before 10/10 claims.
