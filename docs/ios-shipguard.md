@@ -106,6 +106,13 @@ Use `ios build-apps` when the user wants ShipGuard to be the one command they re
   --shipguard-eval \
   --shareable \
   --out /tmp/ios-shipguard-build-apps-eval
+./bin/shipguard ios build-apps \
+  --path . \
+  --workflow performance \
+  --receipt /tmp/codex-build-ios-apps-proof \
+  --shipguard-eval \
+  --shareable \
+  --out /tmp/ios-shipguard-build-apps-receipts
 ```
 
 The command is read-only against `--path` and writes only to `--out`. It creates `ios-build-apps.json` and `ios-build-apps.md`. The report discovers Xcode projects, workspaces, Swift packages, schemes, test plans, StoreKit configs, privacy manifests, SwiftUI preview declarations, and skipped generated/proof/cache directories. It then recommends one Build iOS Apps route:
@@ -118,7 +125,9 @@ The command is read-only against `--path` and writes only to `--out`. It creates
 
 ShipGuard owns the front door: topology discovery, workflow selection, report quality, proof boundaries, redaction/shareability, and next-action text. Build iOS Apps owns execution inside Codex: simulator build/run, UI inspection, simulator browser streaming, SwiftUI preview hosting, logs, debugger, and profiler captures. A plain CLI process cannot call Codex MCP tools by itself, so the report names the MCP/tool route Codex should execute instead of pretending the shell already performed simulator work.
 
-Use `--workflow auto|build-run|debug|preview|performance` when the desired proof lane is known. Use `--shipguard-eval --shareable` when a private app is only a read-only sample for improving ShipGuard's Build iOS Apps bridge output, then score the report with `ios report-quality --shareable`.
+Use `--workflow auto|build-run|debug|preview|performance` when the desired proof lane is known. After Codex or Build iOS Apps executes the route, add one or more `--receipt <file-or-dir>` inputs to grade whether the actual proof bundle contains the right signals for the selected lane: build/run logs and UI proof for build-run, log plus UI proof for debug, `serve-sim` plus screenshot proof for simulator browser, SwiftUI preview hot-reload output for preview lanes, and Animation Hitches, Time Profiler, `xctrace`, ETTrace, or sample proof for performance lanes. No `--receipt` means the report is only a route plan; supplied but incomplete receipts make the report status `review`.
+
+Use `--shipguard-eval --shareable` when a private app is only a read-only sample for improving ShipGuard's Build iOS Apps bridge output, then score the report with `ios report-quality --shareable`.
 
 ## Performance Audit Mode
 

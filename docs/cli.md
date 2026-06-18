@@ -97,6 +97,7 @@ Run iOS-specific topology, inventory, planning, proof, preview, and privacy help
 ./bin/shipguard ios performance --path ../my-ios-app --out /tmp/ios-shipguard-performance
 ./bin/shipguard ios design --path ../my-ios-app --out /tmp/ios-shipguard-design --icon-brief
 ./bin/shipguard ios build-apps --path ../my-ios-app --workflow performance --out /tmp/ios-shipguard-build-apps-eval --shipguard-eval --shareable
+./bin/shipguard ios build-apps --path ../my-ios-app --workflow performance --receipt /tmp/codex-build-ios-apps-proof --out /tmp/ios-shipguard-build-apps-receipts --shipguard-eval --shareable
 ./bin/shipguard ios performance --path ../my-ios-app --out /tmp/ios-shipguard-performance-eval --shipguard-eval --shareable
 ./bin/shipguard ios design --path ../my-ios-app --out /tmp/ios-shipguard-design-eval --shipguard-eval --shareable
 ./bin/shipguard ios modernize --focus swift --path ../my-ios-app --out /tmp/ios-shipguard-modernize-eval --shipguard-eval --shareable
@@ -116,7 +117,7 @@ The iOS namespace also includes:
 - `ios target-match`: rank visual preview events against XcodeBuildMCP UI snapshots.
 - `ios codex-handoff`: prepare a guarded Codex app-server handoff.
 - `ios plan --mode performance-audit`: route FPS, hitches, launch/scroll stutter, profiler fallback, and device-vs-simulator proof gaps.
-- `ios build-apps`: make ShipGuard the front door for the Build iOS Apps plugin. It inspects project/workspace/package/scheme topology, selects the right bridge workflow, and emits XcodeBuildMCP build/run, simulator browser, SwiftUI preview hot reload, debugger, and performance-profiler handoff steps plus proof boundaries. ShipGuard owns routing and receipts; Build iOS Apps owns execution inside Codex.
+- `ios build-apps`: make ShipGuard the front door for the Build iOS Apps plugin. It inspects project/workspace/package/scheme topology, selects the right bridge workflow, and emits XcodeBuildMCP build/run, simulator browser, SwiftUI preview hot reload, debugger, and performance-profiler handoff steps plus proof boundaries. Add `--receipt <file-or-dir>` after Codex or Build iOS Apps execution to grade whether build/run, UI, preview, log, or profiler proof is actually present. ShipGuard owns routing and receipt grading; Build iOS Apps owns execution inside Codex.
 - `ios performance`: scan Swift source for ranked app-side performance hotspots before Codex edits; findings include impact/why-it-matters explanations, high-severity reasons, local/manual proof boundaries, and grouped next actions for repeated rule clusters in JSON and Markdown. Add `--shareable` when performance reports will move into ChatGPT, GitHub, docs, benchmark fixtures, release evidence, or report-quality scoring.
 - `ios design`: audit app-type-specific UI/UX coherence, motion, haptics, preview routing, and ImageGen app-icon handoff before visual work; it emits native `motionQualityGates` for frequency, purpose, keyboard, Reduce Motion, AI-slop, and performance checks. Add `--shareable` when design reports will move into ChatGPT, GitHub, docs, benchmark fixtures, release evidence, or report-quality scoring.
 - iOS source scanners skip generated/proof/cache directories such as build output, release artifacts, scratch folders, web assets, and plugin/editor caches; reports include a scan-scope summary so private-app product QA stays auditable.
