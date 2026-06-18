@@ -14,6 +14,12 @@ cd "$repo_root"
 grep -q 'AGENTS.md Template For iOS App Work' "$tmp_dir/ios-app/AGENTS.md"
 grep -q 'iOS Codex Workflow Starter' "$tmp_dir/ios-app/SHIPGUARD_PROFILE.md"
 grep -q 'shipguard doctor ios' "$tmp_dir/ios-app/SHIPGUARD_PROFILE.md"
+grep -q 'User-visible outcome' "$tmp_dir/ios-app/PLANS.md"
+grep -q 'ShipGuard Subagent Workflow' "$tmp_dir/ios-app/SUBAGENTS.md"
+if rg -n 'ShipGuard outcome|report-quality logic|alarm-runtime|Alarm runtime|Ringly' "$tmp_dir/ios-app/PLANS.md" "$tmp_dir/ios-app/SUBAGENTS.md" >/dev/null; then
+  echo "common starter planning files must not copy ShipGuard-maintainer-only guidance" >&2
+  exit 1
+fi
 test -f "$tmp_dir/ios-app/scripts/bug-triage/prompts.md"
 if rg -n 'Ringly' "$tmp_dir/ios-app/.agents/skills" "$tmp_dir/ios-app/scripts/bug-triage" >/dev/null; then
   echo "starter skills must not leak Ringly-specific branding" >&2

@@ -66,9 +66,9 @@ For a risky change, start with the proof-gated task loop:
 ./bin/shipguard verify --task /tmp/shipguard-task/shipguard-task.json --diff /tmp/change.diff --evidence /tmp/validation-receipt.json --out /tmp/shipguard-verdict
 ```
 
-1. Start each non-trivial Codex thread from `CODEX_TASK_TEMPLATE.md`.
-2. Copy `AGENTS.md` into your repo root and replace the sample project names, paths, commands, and protected areas with your own.
-3. Use `PLANS.md` before risky work, release work, or changes that touch persistence, notifications, payments, or app lifecycle code.
+1. Initialize the repo with `shipguard init <profile> <target>`.
+2. Replace the generated `AGENTS.md` placeholders with real project names, paths, commands, and protected areas.
+3. Use the generated `PLANS.md` before risky work, release work, or changes that touch persistence, notifications, payments, migrations, or app lifecycle code.
 4. Pick the relevant skill under `.agents/skills/` and paste it into your Codex task context.
 5. Run the narrowest validation lane that proves the change.
 6. Record blockers and proof honestly before merging or shipping.

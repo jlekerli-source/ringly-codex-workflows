@@ -9,7 +9,7 @@ usage() {
 shipguard next-goal
 
 Usage:
-  shipguard next-goal [--out <file>] [--release <version>] [--title <title>] [--scope <text>] [--completion-evidence <text>] [--following-title <title>]
+  shipguard next-goal [--out <file>] [--release <version>] [--title <title>] [--scope <text>] [--completed-scope <text>] [--completion-evidence <text>] [--following-title <title>]
 
 Outputs:
   Markdown file containing slash-plan and slash-goal release guidance.
@@ -34,6 +34,7 @@ current_version="$(sed -n '1p' "$tool_root/VERSION")"
 release_version="$(next_minor_version "$current_version")"
 title="Next Maintainer Reliability Upgrade"
 scope=""
+completed_scope_override=""
 completion_evidence=""
 following_title="Following Maintainer Reliability Upgrade"
 generated_at="${SHIPGUARD_GENERATED_AT:-${CODEX_MAINTAINER_GENERATED_AT:-$(date -u '+%Y-%m-%dT%H:%M:%SZ')}}"
@@ -59,6 +60,11 @@ while [[ "$#" -gt 0 ]]; do
     --scope)
       [[ "$#" -ge 2 && -n "${2:-}" ]] || fail "--scope requires a value"
       scope="$2"
+      shift 2
+      ;;
+    --completed-scope)
+      [[ "$#" -ge 2 && -n "${2:-}" ]] || fail "--completed-scope requires a value"
+      completed_scope_override="$2"
       shift 2
       ;;
     --completion-evidence)
@@ -131,7 +137,9 @@ fi
 
 if [[ -n "$completion_evidence" ]]; then
   completed_scope="$title"
-  if [[ -n "$scope" ]]; then
+  if [[ -n "$completed_scope_override" ]]; then
+    completed_scope="$completed_scope_override"
+  elif [[ -n "$scope" ]]; then
     completed_scope="$scope"
   fi
   cat >> "$out_file" <<EOF

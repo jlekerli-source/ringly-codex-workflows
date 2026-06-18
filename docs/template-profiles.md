@@ -2,7 +2,7 @@
 
 `shipguard init` supports workflow starter profiles for different app types.
 
-Every profile writes a target-repo `SHIPGUARD_PROFILE.md` next to `AGENTS.md`. That file is the developer-facing handoff for the selected starter profile: first commands, profile intent, and the next local customization work before using Codex on production code.
+Every profile writes a target-repo `SHIPGUARD_PROFILE.md` next to `AGENTS.md`. That file is the developer-facing handoff for the selected starter profile: first commands, profile intent, and the next local customization work before using Codex on production code. Shared starter files such as `PLANS.md` and `SUBAGENTS.md` come from `templates/common/` so initialized target repos do not receive ShipGuard-maintainer-only guidance.
 
 ## iOS
 

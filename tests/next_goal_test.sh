@@ -109,6 +109,21 @@ grep -q '/goal Implement v2.7.0 Next Reliability Slice' "$tmp_dir/SCOPED_NEXT_GO
 grep -q 'following /plan above' "$tmp_dir/SCOPED_NEXT_GOAL.md"
 grep -q './bin/shipguard next-goal --release 2.7.0 --title "Next Reliability Slice" --out NEXT_GOAL.md' "$tmp_dir/SCOPED_NEXT_GOAL.md"
 
+SHIPGUARD_GENERATED_AT="2026-06-16T00:00:00Z" \
+  ./bin/shipguard next-goal \
+    --out "$tmp_dir/COMPLETED_SCOPE_NEXT_GOAL.md" \
+    --release 2.7.0 \
+    --title "Notification Permission Workflow" \
+    --scope "Build the next notification permission workflow." \
+    --completed-scope "v2.6.0 diff-first verification verdict shipped." \
+    --completion-evidence "release proof and consumer verification passed" \
+    --following-title "External Pilot Verdict Bench" >/dev/null
+
+grep -q 'Completed scope: v2.6.0 diff-first verification verdict shipped.' "$tmp_dir/COMPLETED_SCOPE_NEXT_GOAL.md"
+grep -q 'Build the next notification permission workflow.' "$tmp_dir/COMPLETED_SCOPE_NEXT_GOAL.md"
+grep -q 'Evidence: release proof and consumer verification passed' "$tmp_dir/COMPLETED_SCOPE_NEXT_GOAL.md"
+grep -q '/plan v2.8.0 External Pilot Verdict Bench' "$tmp_dir/COMPLETED_SCOPE_NEXT_GOAL.md"
+
 if ./bin/shipguard next-goal --release nope >/dev/null 2>&1; then
   echo "expected invalid release to fail" >&2
   exit 1

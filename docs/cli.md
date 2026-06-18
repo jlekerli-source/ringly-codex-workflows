@@ -53,8 +53,8 @@ Copy a starter workflow profile into another project:
 The command writes:
 
 - `AGENTS.md`
-- `PLANS.md`
-- `SUBAGENTS.md`
+- `PLANS.md` from `templates/common/PLANS.md`
+- `SUBAGENTS.md` from `templates/common/SUBAGENTS.md`
 - `SCORECARD.md`
 - `.agents/skills/`
 

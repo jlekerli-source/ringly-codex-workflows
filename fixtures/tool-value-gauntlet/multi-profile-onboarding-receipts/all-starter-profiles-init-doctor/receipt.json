@@ -11,6 +11,8 @@
     "templates/web/README.md",
     "templates/backend/README.md",
     "templates/cli/README.md",
+    "templates/common/PLANS.md",
+    "templates/common/SUBAGENTS.md",
     "templates/ios/AGENTS.md",
     "templates/web/AGENTS.md",
     "templates/backend/AGENTS.md",
@@ -64,7 +66,23 @@
             "iOS Codex Workflow Starter",
             "shipguard init ios",
             "shipguard doctor ios",
-            "Recommended Next Copies"
+            "Recommended Next Steps"
+          ]
+        },
+        {
+          "path": "target-ios/PLANS.md",
+          "type": "markdown",
+          "requiredPhrases": [
+            "User-visible outcome",
+            "Manual/device/browser proof"
+          ]
+        },
+        {
+          "path": "target-ios/SUBAGENTS.md",
+          "type": "markdown",
+          "requiredPhrases": [
+            "ShipGuard Subagent Workflow",
+            "Large Task Sequence"
           ]
         }
       ]

@@ -55,3 +55,16 @@ After a slice is complete, pass the proof receipt to emit the completion record 
 ```
 
 The completion receipt is caller-supplied evidence. It does not mark work complete by itself; the maintainer still has to run and review the proof commands.
+
+When you are generating the next release goal after finishing a previous release, keep the next bounded scope separate from the completed scope:
+
+```bash
+./bin/shipguard next-goal \
+  --release 2.3.0 \
+  --title "Notification Permission Workflow" \
+  --scope "Add the next notification permission workflow." \
+  --completed-scope "v2.2.0 diff-first verification verdict shipped." \
+  --completion-evidence "release proof and consumer verification passed" \
+  --following-title "External Pilot Verdict Bench" \
+  --out NEXT_GOAL.md
+```

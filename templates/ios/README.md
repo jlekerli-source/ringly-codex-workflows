@@ -21,9 +21,9 @@ shipguard doctor ios ../my-ios-app
 4. Add protected files only when those files genuinely require extra care.
 5. Keep the completion checklist strict: no validation, no proof claim.
 
-## Recommended Next Copies
+## Recommended Next Steps
 
-After adapting `AGENTS.md`, copy from the root of this repository:
+`shipguard init ios` already copies the shared planning template, subagent workflow, scorecard, skills, and bug-triage prompts. After adapting `AGENTS.md`, review:
 
 - `PLANS.md`
 - `SUBAGENTS.md`
