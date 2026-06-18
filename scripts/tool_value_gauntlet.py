@@ -83,7 +83,7 @@ COMMANDS: list[dict[str, str]] = [
 ]
 
 REPORT_QUALITY_QUESTIONS = [
-    "Should ShipGuard add command-family runtime-output receipts so every major public family proves useful JSON/Markdown output, not only --help wiring?",
+    "Should ShipGuard add trust-hardening receipts for GitHub Action input interpolation, Devspace URL and response caps, deletion/archive extraction, and release provenance?",
     "Does every useful-looking surface have docs, tests, package proof, and a concrete proof boundary rather than only a branded name?",
     "Do plugin skills and starter skills give Codex actionable routing and validation commands, not just vague advice?",
     "Should repeated low-value patterns become public fixtures or eval cases so ShipGuard cannot regress into decorative output?",
@@ -164,6 +164,7 @@ PROFILE_NATIVE_FIX_PLAN_RECEIPT_ROOT = Path("fixtures") / "tool-value-gauntlet" 
 PROFILE_NATIVE_VALIDATION_RECEIPT_ROOT = Path("fixtures") / "tool-value-gauntlet" / "profile-native-validation-receipts"
 PROFILE_NATIVE_VALIDATION_RERUN_RECEIPT_ROOT = Path("fixtures") / "tool-value-gauntlet" / "profile-native-validation-rerun-receipts"
 PROFILE_NATIVE_PROOF_HANDOFF_RECEIPT_ROOT = Path("fixtures") / "tool-value-gauntlet" / "profile-native-proof-handoff-receipts"
+COMMAND_FAMILY_RUNTIME_OUTPUT_RECEIPT_ROOT = Path("fixtures") / "tool-value-gauntlet" / "command-family-runtime-output-receipts"
 
 PLACEHOLDER_PATTERNS = [
     re.compile(r"\bTODO\b", re.IGNORECASE),
@@ -841,6 +842,18 @@ def load_profile_native_validation_rerun_receipts(root: Path) -> list[tuple[Path
 
 def load_profile_native_proof_handoff_receipts(root: Path) -> list[tuple[Path, dict[str, Any]]]:
     fixture_root = root / PROFILE_NATIVE_PROOF_HANDOFF_RECEIPT_ROOT
+    receipts: list[tuple[Path, dict[str, Any]]] = []
+    if not fixture_root.is_dir():
+        return receipts
+    for meta_path in sorted(fixture_root.glob("*/receipt.json")):
+        meta = load_json(meta_path)
+        if meta:
+            receipts.append((meta_path.parent, meta))
+    return receipts
+
+
+def load_command_family_runtime_output_receipts(root: Path) -> list[tuple[Path, dict[str, Any]]]:
+    fixture_root = root / COMMAND_FAMILY_RUNTIME_OUTPUT_RECEIPT_ROOT
     receipts: list[tuple[Path, dict[str, Any]]] = []
     if not fixture_root.is_dir():
         return receipts
@@ -1922,6 +1935,34 @@ def profile_native_proof_handoff_receipt_probe(root: Path) -> dict[str, Any]:
     }
 
 
+def command_family_runtime_output_receipt_probe(root: Path) -> dict[str, Any]:
+    receipts = [run_skill_plugin_receipt(root, fixture_dir, meta) for fixture_dir, meta in load_command_family_runtime_output_receipts(root)]
+    passed = sum(1 for receipt in receipts if receipt.get("status") == "pass")
+    blocked = sum(1 for receipt in receipts if receipt.get("status") == "blocked")
+    review = sum(1 for receipt in receipts if receipt.get("status") == "review")
+    command_count = sum(len(receipt.get("commands") or []) for receipt in receipts)
+    status = "blocked" if blocked else "review" if review or not receipts else "pass"
+    return {
+        "status": status,
+        "receiptCount": len(receipts),
+        "passedReceiptCount": passed,
+        "commandCount": command_count,
+        "purpose": "Run public command-family runtime-output receipts that prove major ShipGuard families emit useful JSON/Markdown reports, not only --help output.",
+        "fixtureRoot": COMMAND_FAMILY_RUNTIME_OUTPUT_RECEIPT_ROOT.as_posix(),
+        "scopeBoundary": {
+            "shipguardOnly": True,
+            "targetAppsReadOnly": True,
+            "inputs": ["public command-family runtime-output receipt fixtures", "fixtures/demo-ios-repo", "temporary synthetic web targets", "synthetic release tarballs"],
+        },
+        "receipts": receipts,
+        "nextAction": (
+            "Add trust-hardening receipts for GitHub Action input interpolation, Devspace URL/response limits, deletion/archive extraction, and release provenance."
+            if status == "pass"
+            else "Fix command-family runtime-output receipts so each major report-producing family proves actionable JSON/Markdown output."
+        ),
+    }
+
+
 def command_has_test(command: str, text_index: dict[str, str]) -> bool:
     slug = command_slug(command)
     tokens = command_tokens(command)
@@ -2428,6 +2469,7 @@ def lowest_value_surface_probe(
     profile_native_validation_receipts: dict[str, Any],
     profile_native_validation_rerun_receipts: dict[str, Any],
     profile_native_proof_handoff_receipts: dict[str, Any],
+    command_family_runtime_output_receipts: dict[str, Any],
 ) -> dict[str, Any]:
     self_audit_text = read_text(root / "scripts" / "self_audit.sh")
     package_text = read_text(root / "tests" / "package_release_test.sh")
@@ -2481,35 +2523,68 @@ def lowest_value_surface_probe(
                                                                 if profile_native_validation_rerun_receipts_passed:
                                                                     profile_native_proof_handoff_receipts_passed = profile_native_proof_handoff_receipts.get("status") == "pass"
                                                                     if profile_native_proof_handoff_receipts_passed:
-                                                                        answer = surface_probe_row(
-                                                                            surface_type="cross-cutting",
-                                                                            identifier="shipguard value-gauntlet command-family-runtime-output-receipts",
-                                                                            name="Command-family runtime output receipts",
-                                                                            base_score=100,
-                                                                            base_status="pass",
-                                                                            depth_checks=[
-                                                                                depth_check("staticSurfaceCoverage", True, f"{len(ranked)} command/skill/plugin/action/doc surfaces passed static depth checks"),
-                                                                                depth_check("runtimeOutputProbe", True, f"{runtime_probe.get('commandCount') or 0} representative runtime outputs scored {runtime_probe.get('averageScore')}/100"),
-                                                                                depth_check("runtimeRegressionFixtures", True, f"{negative_fixture_probe.get('passedFixtureCount') or 0}/{negative_fixture_probe.get('fixtureCount') or 0} negative runtime-output fixtures rejected decorative output"),
-                                                                                depth_check("runtimeCommandCoverage", True, f"{command_family_probe.get('passedCommandCount') or 0}/{command_family_probe.get('commandCount') or 0} public command help paths executed"),
-                                                                                depth_check("runtimeSkillPluginReceipts", True, f"{skill_plugin_receipts.get('passedReceiptCount') or 0}/{skill_plugin_receipts.get('receiptCount') or 0} skill/plugin receipts executed"),
-                                                                                depth_check("runtimeWorkflowChainReceipts", True, f"{workflow_chain_receipts.get('passedReceiptCount') or 0}/{workflow_chain_receipts.get('receiptCount') or 0} workflow-chain receipts executed"),
-                                                                                depth_check("runtimeScenarioMatrixReceipts", True, f"{scenario_matrix_receipts.get('passedReceiptCount') or 0}/{scenario_matrix_receipts.get('receiptCount') or 0} scenario-matrix receipts executed"),
-                                                                                depth_check("runtimeScenarioFailureReceipts", True, f"{scenario_failure_receipts.get('passedReceiptCount') or 0}/{scenario_failure_receipts.get('receiptCount') or 0} scenario-failure receipts executed"),
-                                                                                depth_check("runtimeScenarioRemediationReceipts", True, f"{scenario_remediation_receipts.get('passedRemediationPairCount') or 0}/{scenario_remediation_receipts.get('remediationPairCount') or 0} remediation pairs executed"),
-                                                                                depth_check("runtimeAdoptionReceipts", True, f"{adoption_receipts.get('passedReceiptCount') or 0}/{adoption_receipts.get('receiptCount') or 0} fresh-user adoption receipts executed"),
-                                                                                depth_check("runtimeTargetOnboardingReceipts", True, f"{target_onboarding_receipts.get('passedReceiptCount') or 0}/{target_onboarding_receipts.get('receiptCount') or 0} target-onboarding receipts executed"),
-                                                                                depth_check("runtimeMultiProfileOnboardingReceipts", True, f"{multi_profile_onboarding_receipts.get('passedReceiptCount') or 0}/{multi_profile_onboarding_receipts.get('receiptCount') or 0} multi-profile onboarding receipts executed"),
-                                                                                depth_check("runtimeProfileNativeFirstAuditReceipts", True, f"{profile_native_first_audit_receipts.get('passedReceiptCount') or 0}/{profile_native_first_audit_receipts.get('receiptCount') or 0} profile-native first-audit receipts executed"),
-                                                                                depth_check("runtimeProfileNativeFixPlanReceipts", True, f"{profile_native_fix_plan_receipts.get('passedReceiptCount') or 0}/{profile_native_fix_plan_receipts.get('receiptCount') or 0} profile-native fix-plan receipts executed"),
-                                                                                depth_check("runtimeProfileNativeValidationReceipts", True, f"{profile_native_validation_receipts.get('passedReceiptCount') or 0}/{profile_native_validation_receipts.get('receiptCount') or 0} profile-native validation receipts executed"),
-                                                                                depth_check("runtimeProfileNativeValidationRerunReceipts", True, f"{profile_native_validation_rerun_receipts.get('passedRemediationPairCount') or 0}/{profile_native_validation_rerun_receipts.get('remediationPairCount') or 0} validation rerun pairs executed"),
-                                                                                depth_check("runtimeProfileNativeProofHandoffReceipts", True, f"{profile_native_proof_handoff_receipts.get('passedReceiptCount') or 0}/{profile_native_proof_handoff_receipts.get('receiptCount') or 0} proof handoff receipts executed"),
-                                                                                depth_check("runtimeCommandFamilyOutputReceipts", False, "only representative commands produce real report-output receipts; most public families are still help-only in the runtime matrix"),
-                                                                            ],
-                                                                            recommendation="Add command-family runtime-output receipts so every major ShipGuard family proves useful JSON/Markdown output, not only a working --help path.",
-                                                                            proof="Run value-gauntlet plus focused command-family runtime-output receipts that execute one real report per family and reject decorative output.",
-                                                                        )
+                                                                        command_family_output_receipts_passed = command_family_runtime_output_receipts.get("status") == "pass"
+                                                                        if command_family_output_receipts_passed:
+                                                                            answer = surface_probe_row(
+                                                                                surface_type="cross-cutting",
+                                                                                identifier="shipguard trust-hardening action-input-devspace-release-receipts",
+                                                                                name="Trust-hardening regression receipts",
+                                                                                base_score=100,
+                                                                                base_status="pass",
+                                                                                depth_checks=[
+                                                                                    depth_check("staticSurfaceCoverage", True, f"{len(ranked)} command/skill/plugin/action/doc surfaces passed static depth checks"),
+                                                                                    depth_check("runtimeOutputProbe", True, f"{runtime_probe.get('commandCount') or 0} representative runtime outputs scored {runtime_probe.get('averageScore')}/100"),
+                                                                                    depth_check("runtimeRegressionFixtures", True, f"{negative_fixture_probe.get('passedFixtureCount') or 0}/{negative_fixture_probe.get('fixtureCount') or 0} negative runtime-output fixtures rejected decorative output"),
+                                                                                    depth_check("runtimeCommandCoverage", True, f"{command_family_probe.get('passedCommandCount') or 0}/{command_family_probe.get('commandCount') or 0} public command help paths executed"),
+                                                                                    depth_check("runtimeSkillPluginReceipts", True, f"{skill_plugin_receipts.get('passedReceiptCount') or 0}/{skill_plugin_receipts.get('receiptCount') or 0} skill/plugin receipts executed"),
+                                                                                    depth_check("runtimeWorkflowChainReceipts", True, f"{workflow_chain_receipts.get('passedReceiptCount') or 0}/{workflow_chain_receipts.get('receiptCount') or 0} workflow-chain receipts executed"),
+                                                                                    depth_check("runtimeScenarioMatrixReceipts", True, f"{scenario_matrix_receipts.get('passedReceiptCount') or 0}/{scenario_matrix_receipts.get('receiptCount') or 0} scenario-matrix receipts executed"),
+                                                                                    depth_check("runtimeScenarioFailureReceipts", True, f"{scenario_failure_receipts.get('passedReceiptCount') or 0}/{scenario_failure_receipts.get('receiptCount') or 0} scenario-failure receipts executed"),
+                                                                                    depth_check("runtimeScenarioRemediationReceipts", True, f"{scenario_remediation_receipts.get('passedRemediationPairCount') or 0}/{scenario_remediation_receipts.get('remediationPairCount') or 0} remediation pairs executed"),
+                                                                                    depth_check("runtimeAdoptionReceipts", True, f"{adoption_receipts.get('passedReceiptCount') or 0}/{adoption_receipts.get('receiptCount') or 0} fresh-user adoption receipts executed"),
+                                                                                    depth_check("runtimeTargetOnboardingReceipts", True, f"{target_onboarding_receipts.get('passedReceiptCount') or 0}/{target_onboarding_receipts.get('receiptCount') or 0} target-onboarding receipts executed"),
+                                                                                    depth_check("runtimeMultiProfileOnboardingReceipts", True, f"{multi_profile_onboarding_receipts.get('passedReceiptCount') or 0}/{multi_profile_onboarding_receipts.get('receiptCount') or 0} multi-profile onboarding receipts executed"),
+                                                                                    depth_check("runtimeProfileNativeFirstAuditReceipts", True, f"{profile_native_first_audit_receipts.get('passedReceiptCount') or 0}/{profile_native_first_audit_receipts.get('receiptCount') or 0} profile-native first-audit receipts executed"),
+                                                                                    depth_check("runtimeProfileNativeFixPlanReceipts", True, f"{profile_native_fix_plan_receipts.get('passedReceiptCount') or 0}/{profile_native_fix_plan_receipts.get('receiptCount') or 0} profile-native fix-plan receipts executed"),
+                                                                                    depth_check("runtimeProfileNativeValidationReceipts", True, f"{profile_native_validation_receipts.get('passedReceiptCount') or 0}/{profile_native_validation_receipts.get('receiptCount') or 0} profile-native validation receipts executed"),
+                                                                                    depth_check("runtimeProfileNativeValidationRerunReceipts", True, f"{profile_native_validation_rerun_receipts.get('passedRemediationPairCount') or 0}/{profile_native_validation_rerun_receipts.get('remediationPairCount') or 0} validation rerun pairs executed"),
+                                                                                    depth_check("runtimeProfileNativeProofHandoffReceipts", True, f"{profile_native_proof_handoff_receipts.get('passedReceiptCount') or 0}/{profile_native_proof_handoff_receipts.get('receiptCount') or 0} proof handoff receipts executed"),
+                                                                                    depth_check("runtimeCommandFamilyOutputReceipts", True, f"{command_family_runtime_output_receipts.get('passedReceiptCount') or 0}/{command_family_runtime_output_receipts.get('receiptCount') or 0} command-family output receipts executed"),
+                                                                                    depth_check("runtimeTrustHardeningReceipts", False, "eval-found trust risks still need public regression receipts for action interpolation, Devspace caps, destructive archive handling, and release provenance"),
+                                                                                ],
+                                                                                recommendation="Add trust-hardening receipts for GitHub Action input interpolation, Devspace URL and response caps, deletion/archive extraction, and release provenance so eval-found risks cannot regress.",
+                                                                                proof="Run value-gauntlet plus focused trust-hardening receipts that prove unsafe inputs block, capped connector responses stay bounded, archive extraction is safe, and release provenance checks cannot be bypassed.",
+                                                                            )
+                                                                        else:
+                                                                            answer = surface_probe_row(
+                                                                                surface_type="cross-cutting",
+                                                                                identifier="shipguard value-gauntlet command-family-runtime-output-receipts",
+                                                                                name="Command-family runtime output receipts",
+                                                                                base_score=100,
+                                                                                base_status="pass",
+                                                                                depth_checks=[
+                                                                                    depth_check("staticSurfaceCoverage", True, f"{len(ranked)} command/skill/plugin/action/doc surfaces passed static depth checks"),
+                                                                                    depth_check("runtimeOutputProbe", True, f"{runtime_probe.get('commandCount') or 0} representative runtime outputs scored {runtime_probe.get('averageScore')}/100"),
+                                                                                    depth_check("runtimeRegressionFixtures", True, f"{negative_fixture_probe.get('passedFixtureCount') or 0}/{negative_fixture_probe.get('fixtureCount') or 0} negative runtime-output fixtures rejected decorative output"),
+                                                                                    depth_check("runtimeCommandCoverage", True, f"{command_family_probe.get('passedCommandCount') or 0}/{command_family_probe.get('commandCount') or 0} public command help paths executed"),
+                                                                                    depth_check("runtimeSkillPluginReceipts", True, f"{skill_plugin_receipts.get('passedReceiptCount') or 0}/{skill_plugin_receipts.get('receiptCount') or 0} skill/plugin receipts executed"),
+                                                                                    depth_check("runtimeWorkflowChainReceipts", True, f"{workflow_chain_receipts.get('passedReceiptCount') or 0}/{workflow_chain_receipts.get('receiptCount') or 0} workflow-chain receipts executed"),
+                                                                                    depth_check("runtimeScenarioMatrixReceipts", True, f"{scenario_matrix_receipts.get('passedReceiptCount') or 0}/{scenario_matrix_receipts.get('receiptCount') or 0} scenario-matrix receipts executed"),
+                                                                                    depth_check("runtimeScenarioFailureReceipts", True, f"{scenario_failure_receipts.get('passedReceiptCount') or 0}/{scenario_failure_receipts.get('receiptCount') or 0} scenario-failure receipts executed"),
+                                                                                    depth_check("runtimeScenarioRemediationReceipts", True, f"{scenario_remediation_receipts.get('passedRemediationPairCount') or 0}/{scenario_remediation_receipts.get('remediationPairCount') or 0} remediation pairs executed"),
+                                                                                    depth_check("runtimeAdoptionReceipts", True, f"{adoption_receipts.get('passedReceiptCount') or 0}/{adoption_receipts.get('receiptCount') or 0} fresh-user adoption receipts executed"),
+                                                                                    depth_check("runtimeTargetOnboardingReceipts", True, f"{target_onboarding_receipts.get('passedReceiptCount') or 0}/{target_onboarding_receipts.get('receiptCount') or 0} target-onboarding receipts executed"),
+                                                                                    depth_check("runtimeMultiProfileOnboardingReceipts", True, f"{multi_profile_onboarding_receipts.get('passedReceiptCount') or 0}/{multi_profile_onboarding_receipts.get('receiptCount') or 0} multi-profile onboarding receipts executed"),
+                                                                                    depth_check("runtimeProfileNativeFirstAuditReceipts", True, f"{profile_native_first_audit_receipts.get('passedReceiptCount') or 0}/{profile_native_first_audit_receipts.get('receiptCount') or 0} profile-native first-audit receipts executed"),
+                                                                                    depth_check("runtimeProfileNativeFixPlanReceipts", True, f"{profile_native_fix_plan_receipts.get('passedReceiptCount') or 0}/{profile_native_fix_plan_receipts.get('receiptCount') or 0} profile-native fix-plan receipts executed"),
+                                                                                    depth_check("runtimeProfileNativeValidationReceipts", True, f"{profile_native_validation_receipts.get('passedReceiptCount') or 0}/{profile_native_validation_receipts.get('receiptCount') or 0} profile-native validation receipts executed"),
+                                                                                    depth_check("runtimeProfileNativeValidationRerunReceipts", True, f"{profile_native_validation_rerun_receipts.get('passedRemediationPairCount') or 0}/{profile_native_validation_rerun_receipts.get('remediationPairCount') or 0} validation rerun pairs executed"),
+                                                                                    depth_check("runtimeProfileNativeProofHandoffReceipts", True, f"{profile_native_proof_handoff_receipts.get('passedReceiptCount') or 0}/{profile_native_proof_handoff_receipts.get('receiptCount') or 0} proof handoff receipts executed"),
+                                                                                    depth_check("runtimeCommandFamilyOutputReceipts", False, f"{command_family_runtime_output_receipts.get('passedReceiptCount') or 0}/{command_family_runtime_output_receipts.get('receiptCount') or 0} command-family output receipts passed"),
+                                                                                ],
+                                                                                recommendation="Add command-family runtime-output receipts so every major ShipGuard family proves useful JSON/Markdown output, not only a working --help path.",
+                                                                                proof="Run value-gauntlet plus focused command-family runtime-output receipts that execute one real report per family and reject decorative output.",
+                                                                            )
                                                                     else:
                                                                         answer = surface_probe_row(
                                                                             surface_type="cross-cutting",
@@ -3015,6 +3090,7 @@ def build_report(root: Path, strict: bool) -> dict[str, Any]:
     profile_native_validation_receipts = profile_native_validation_receipt_probe(root)
     profile_native_validation_rerun_receipts = profile_native_validation_rerun_receipt_probe(root)
     profile_native_proof_handoff_receipts = profile_native_proof_handoff_receipt_probe(root)
+    command_family_runtime_output_receipts = command_family_runtime_output_receipt_probe(root)
     probe = lowest_value_surface_probe(
         root,
         text_index,
@@ -3039,6 +3115,7 @@ def build_report(root: Path, strict: bool) -> dict[str, Any]:
         profile_native_validation_receipts=profile_native_validation_receipts,
         profile_native_validation_rerun_receipts=profile_native_validation_rerun_receipts,
         profile_native_proof_handoff_receipts=profile_native_proof_handoff_receipts,
+        command_family_runtime_output_receipts=command_family_runtime_output_receipts,
     )
     all_scores = [item["score"] for group in (commands, skills, plugins, actions, docs) for item in group]
     high_count = sum(1 for finding in findings if finding["severity"] == "high")
@@ -3089,6 +3166,7 @@ def build_report(root: Path, strict: bool) -> dict[str, Any]:
         "profileNativeValidationReceipts": profile_native_validation_receipts,
         "profileNativeValidationRerunReceipts": profile_native_validation_rerun_receipts,
         "profileNativeProofHandoffReceipts": profile_native_proof_handoff_receipts,
+        "commandFamilyRuntimeOutputReceipts": command_family_runtime_output_receipts,
         "lowestValueSurfaceProbe": probe,
         "findings": findings,
         "priorityActions": priority_actions(findings, probe),
@@ -3528,6 +3606,30 @@ def render_markdown(report: dict[str, Any]) -> str:
     if failing_profile_native_proof_handoff_commands:
         lines.extend(["", "| Receipt | Status | Command | Missing | Error |", "| --- | --- | --- | --- | --- |"])
         for receipt, command in failing_profile_native_proof_handoff_commands[:20]:
+            lines.append(
+                f"| `{table_cell(receipt.get('id'), 52)}` | {command.get('status')} | `{table_cell(command.get('command'), 80)}` | {table_cell(', '.join(command.get('missing') or []) or '-', 80)} | {table_cell(command.get('errorSummary') or '-', 90)} |"
+            )
+    command_family_runtime_output_receipts = report.get("commandFamilyRuntimeOutputReceipts") or {}
+    lines.extend(["", "## Command-Family Runtime Output Receipts", ""])
+    lines.append(f"- Status: {command_family_runtime_output_receipts.get('status') or 'unknown'}")
+    lines.append(f"- Receipts: {command_family_runtime_output_receipts.get('passedReceiptCount', 0)}/{command_family_runtime_output_receipts.get('receiptCount', 0)} passed")
+    lines.append(f"- Commands executed: {command_family_runtime_output_receipts.get('commandCount', 0)}")
+    if command_family_runtime_output_receipts.get("nextAction"):
+        lines.append(f"- Next action: {command_family_runtime_output_receipts['nextAction']}")
+    lines.extend(["", "| Status | Score | Receipt | Kind | Commands | Missing |", "| --- | ---: | --- | --- | ---: | --- |"])
+    for item in command_family_runtime_output_receipts.get("receipts", []):
+        lines.append(
+            f"| {item.get('status')} | {item.get('score')} | `{table_cell(item.get('id'), 64)}` | {table_cell(item.get('kind'), 44)} | {len(item.get('commands') or [])} | {table_cell(', '.join(item.get('missing') or []) or '-', 90)} |"
+        )
+    failing_command_family_output_commands = [
+        (receipt, command)
+        for receipt in command_family_runtime_output_receipts.get("receipts", [])
+        for command in receipt.get("commands", [])
+        if command.get("status") != "pass"
+    ]
+    if failing_command_family_output_commands:
+        lines.extend(["", "| Receipt | Status | Command | Missing | Error |", "| --- | --- | --- | --- | --- |"])
+        for receipt, command in failing_command_family_output_commands[:20]:
             lines.append(
                 f"| `{table_cell(receipt.get('id'), 52)}` | {command.get('status')} | `{table_cell(command.get('command'), 80)}` | {table_cell(', '.join(command.get('missing') or []) or '-', 80)} | {table_cell(command.get('errorSummary') or '-', 90)} |"
             )

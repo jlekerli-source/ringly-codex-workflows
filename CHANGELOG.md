@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Added `docs/product-strategy.md` from the 5.5 Pro roadmap critique: ShipGuard's product center is now the proof-gated Codex change loop with a persistent task object, `prepare`/`verify` direction, iOS notification/permission wedge, trust-hardening priority, and a narrower public-command expansion rule.
+- Packaged `NEXT_GOAL.md` and added it to validation/self-audit proof so extracted release packages preserve the same value-gauntlet doc surface as the source checkout.
+- Added `commandFamilyRuntimeOutputReceipts` to `shipguard value-gauntlet`: a public major-family receipt now runs Brand Deck, DockCheck, VibeCheck, WebScan, WebForge, LinkSweep, and ManifestForge against public/synthetic inputs, verifies useful JSON/Markdown artifacts beyond `--help`, and advances the next priority to trust-hardening receipts for GitHub Actions, Devspace, archive/deletion safety, and release provenance.
 - Added `proofHandoff` to `shipguard web plan`, `shipguard backend plan`, and `shipguard cli plan`: repaired WebForge, ServiceForge, and CommandForge plans now emit copy-ready evidence packets with validation status, commands to capture, attachment guidance, local-path-safe Markdown, and explicit no-implementation/no-validation-authorization boundaries.
 - Added `profileNativeProofHandoffReceipts` to `shipguard value-gauntlet`: a public web/backend/CLI receipt now proves repaired plans produce shareable copy-ready proof handoffs, then advances the next priority to command-family runtime-output receipts so ShipGuard keeps moving from help-path coverage toward real output proof for every major family.
 - Fixed profile-native first audits so ShipGuard starter files are profile-health evidence only: WebScan, ServiceRadar, and CommandLens now exclude generated starter handoffs from target framework, validation, and risk signals, expose scan-transparency metadata, and require real target source/config/test evidence before reporting proof readiness.

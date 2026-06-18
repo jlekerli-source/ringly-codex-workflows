@@ -24,8 +24,8 @@ The naming style is intentional: stable commands and paths stay literal, while p
 Install from a release tarball, then validate the bundle:
 
 ```bash
-tar -xzf shipguard-v3.104.0.tar.gz
-cd shipguard-v3.104.0
+tar -xzf shipguard-v3.105.0.tar.gz
+cd shipguard-v3.105.0
 PREFIX="$HOME/.local" ./scripts/install.sh
 "$HOME/.local/bin/shipguard" version
 ./bin/shipguard validate
@@ -100,7 +100,7 @@ Read `docs/cli.md` for the full command reference and `examples/demo-walkthrough
 - `plugins/ios-shipguard/`: the Codex plugin bundle for the iOS ShipGuard skill and metadata.
 - `.agents/skills/`: reusable skill templates for risky app maintenance workflows.
 - `templates/`: starter profiles for adapting ShipGuard into another app.
-- `docs/`: command reference, adoption guide, iOS workflow docs, Devspace docs, security model, and release-proof docs.
+- `docs/`: product strategy, command reference, adoption guide, iOS workflow docs, Devspace docs, security model, and release-proof docs.
 - `examples/` and `fixtures/`: public demo runs, benchmark fixtures, and regression cases used to prove behavior without private app code.
 - `actions/`: reusable GitHub Actions for validation, report comparison, transcript checks, and release evidence.
 - `evals/`: deterministic behavior checks for the ShipGuard workflow itself.
@@ -126,7 +126,7 @@ This repository turns those habits into public templates that developers can ada
 
 ## Current Status
 
-This is an early public workflow kit. The next priorities are documented in `ROADMAP.md`, and contribution guidance lives in `CONTRIBUTING.md`.
+This is an early public workflow kit. The focused product direction is documented in `docs/product-strategy.md`: ShipGuard should become the local policy, context, and evidence layer for high-risk Codex changes, starting with production iOS apps. The next priorities are documented in `ROADMAP.md`, and contribution guidance lives in `CONTRIBUTING.md`.
 
 The repository is also configured as a GitHub template, so you can start from it directly and then replace the sample project profile with your own app's workflow.
 

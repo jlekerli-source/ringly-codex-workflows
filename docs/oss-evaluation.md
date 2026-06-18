@@ -10,7 +10,7 @@ Current checkout:
 
 ```bash
 ./bin/shipguard version
-# 3.104.0
+# 3.105.0
 
 ./bin/shipguard validate
 # workflow bundle validation passed
@@ -157,7 +157,7 @@ The next read-only Ringly/Ilmify report-quality pass still left a manual gap: it
 
 The next read-only full-report pass showed report-quality could score all source reports as structurally valid while leaving 21 actionability questions unranked and even suggesting "fix high report-quality issues" when there were no findings. `ios report-quality` now emits `priorityAction` and `prioritizedActionabilityQuestions`, ranks report-quality findings before questions, and ranks questions from blocked/review source reports before lower-risk output so the next ShipGuard improvement is concrete.
 
-The installed Codex cache now has `ios-shipguard` metadata version `0.2.19+codex.20260618124500`, repository `https://github.com/jlekerli-source/ShipGuard`, display name `iOS ShipGuard`, and no stale `ringly-codex-workflows`, `Shipguard`, source-path MCP sidecar, or primary `codex-maintainer` guidance. The tracked checkout includes `plugins/ios-shipguard`, and package proof requires that plugin source.
+The installed Codex cache now has `ios-shipguard` metadata version `0.2.20+codex.20260618135000`, repository `https://github.com/jlekerli-source/ShipGuard`, display name `iOS ShipGuard`, and no stale `ringly-codex-workflows`, `Shipguard`, source-path MCP sidecar, or primary `codex-maintainer` guidance. The tracked checkout includes `plugins/ios-shipguard`, and package proof requires that plugin source.
 
 The next value-gauntlet pass scored the ShipYard at 100.0 but still prioritized whether low-value patterns should become public fixtures. That question is now promoted into `fixtures/ios-report-quality/value-gauntlet-actionability`, a synthetic report-quality fixture that keeps `shipguard value-gauntlet` actionability visible while proving materialized fixtures do not recursively emit more fixture candidates.
 
@@ -195,7 +195,9 @@ The profile-native validation receipt slice adds a public fixture under `fixture
 
 The profile-native validation rerun receipt slice adds a public fixture under `fixtures/tool-value-gauntlet/profile-native-validation-rerun-receipts`. `profileNativeValidationRerunReceipts` starts WebForge, ServiceForge, and CommandForge with one blocked synthetic validation lane each, applies the fixture-local smallest repair, reruns the plan, and requires `blockedCount` plus `validationRerunReceipts.pairCount` to clear.
 
-The profile-native proof handoff receipt slice adds a public fixture under `fixtures/tool-value-gauntlet/profile-native-proof-handoff-receipts`. `profileNativeProofHandoffReceipts` runs repaired WebForge, ServiceForge, and CommandForge plans and requires `proofHandoff.copyReady=true`, local-path-safe copy-ready Markdown, validation status, commands to capture, and explicit no-implementation/no-validation-authorization boundaries. With those proof handoffs green, the next weakness is command-family runtime-output receipts so every major ShipGuard family proves useful JSON/Markdown output, not only `--help` wiring.
+The profile-native proof handoff receipt slice adds a public fixture under `fixtures/tool-value-gauntlet/profile-native-proof-handoff-receipts`. `profileNativeProofHandoffReceipts` runs repaired WebForge, ServiceForge, and CommandForge plans and requires `proofHandoff.copyReady=true`, local-path-safe copy-ready Markdown, validation status, commands to capture, and explicit no-implementation/no-validation-authorization boundaries.
+
+The command-family runtime-output receipt slice adds a public fixture under `fixtures/tool-value-gauntlet/command-family-runtime-output-receipts`. `commandFamilyRuntimeOutputReceipts` runs Brand Deck, DockCheck, VibeCheck, WebScan, WebForge, LinkSweep, and ManifestForge against public or synthetic inputs, then requires useful JSON/Markdown artifacts, local-path-safe shareable reports where applicable, and machine-readable proof that each command produced actionable output beyond `--help`. With those receipts green, the next weakness is trust-hardening receipts for GitHub Action input interpolation, Devspace URL and response caps, deletion/archive extraction, and release provenance.
 
 ## Verdict
 

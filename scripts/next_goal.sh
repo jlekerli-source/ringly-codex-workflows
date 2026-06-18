@@ -203,6 +203,7 @@ cat >> "$out_file" <<EOF
 ./tests/profile_validation_receipts_test.sh
 ./tests/profile_validation_rerun_receipts_test.sh
 ./tests/profile_proof_handoff_receipts_test.sh
+./tests/command_family_runtime_output_receipts_test.sh
 ./tests/tool_value_gauntlet_test.sh
 ./tests/ios_doctor_test.sh
 ./tests/ios_inventory_test.sh

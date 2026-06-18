@@ -1,0 +1,226 @@
+{
+  "id": "major-family-report-outputs",
+  "kind": "command-family-runtime-output-receipt",
+  "surface": "ShipGuard major report-producing command families",
+  "selectedMode": "value-gauntlet command-family runtime output",
+  "trigger": "Prove that ShipGuard's major public report-producing families emit useful JSON and Markdown artifacts, not only successful --help output.",
+  "sourcePaths": [
+    "scripts/tool_value_gauntlet.py",
+    "fixtures/tool-value-gauntlet/command-family-runtime-output-receipts/major-family-report-outputs/receipt.json",
+    "tests/command_family_runtime_output_receipts_test.sh",
+    "docs/command-matrix.md",
+    "ROADMAP.md"
+  ],
+  "expectedSourcePhrases": [
+    "commandFamilyRuntimeOutputReceipts",
+    "Command-Family Runtime Output Receipts",
+    "trust-hardening receipts"
+  ],
+  "scopeBoundary": {
+    "shipguardOnly": true,
+    "targetAppsReadOnly": true,
+    "privateAppsUsed": false,
+    "inputs": [
+      "ShipGuard checkout",
+      "fixtures/demo-ios-repo",
+      "temporary synthetic web target",
+      "temporary synthetic docs target",
+      "temporary synthetic release tarball"
+    ]
+  },
+  "prepareFiles": [
+    {
+      "path": "web-target/package.json",
+      "text": "{\"scripts\":{\"lint\":\"eslint .\",\"test\":\"vitest run\",\"build\":\"next build\"},\"dependencies\":{\"next\":\"latest\",\"stripe\":\"latest\"},\"devDependencies\":{\"vitest\":\"latest\"}}\n"
+    },
+    {
+      "path": "web-target/src/AuthPanel.tsx",
+      "text": "export function AuthPanel() { return <button aria-label=\"Sign in\">Sign in</button>; }\n"
+    },
+    {
+      "path": "docs-target/README.md",
+      "text": "# Demo Docs\n\nThis synthetic docs target proves ShipGuard LinkSweep emits JSON and Markdown without private paths.\n"
+    }
+  ],
+  "commands": [
+    {
+      "id": "brand-output",
+      "display": "./bin/shipguard brand --path . --out <out>/brand --strict",
+      "args": ["brand", "--path", ".", "--out", "{out}/brand", "--strict"],
+      "artifacts": [
+        {
+          "path": "brand/ios-branding.json",
+          "type": "json",
+          "requiredJsonKeys": ["tool", "status", "surface", "surfaces", "reportQualityQuestions"],
+          "requiredNonEmptyJsonPaths": ["surfaces", "reportQualityQuestions"],
+          "requiredValues": [
+            {"path": "tool", "equals": "shipguard brand"},
+            {"path": "status", "equals": "pass"}
+          ]
+        },
+        {
+          "path": "brand/ios-branding.md",
+          "type": "markdown",
+          "requiredPhrases": ["# ShipGuard Brand Deck", "Surface Scheme", "Report Quality Questions"],
+          "forbidLocalPaths": true
+        }
+      ]
+    },
+    {
+      "id": "ios-doctor-output",
+      "display": "./bin/shipguard ios doctor --path fixtures/demo-ios-repo --out <out>/ios-doctor",
+      "args": ["ios", "doctor", "--path", "fixtures/demo-ios-repo", "--out", "{out}/ios-doctor"],
+      "artifacts": [
+        {
+          "path": "ios-doctor/ios-doctor.json",
+          "type": "json",
+          "requiredJsonKeys": ["tool", "status", "projects", "packages", "schemes", "next_actions"],
+          "requiredNonEmptyJsonPaths": ["projects", "packages", "schemes", "next_actions"],
+          "requiredValues": [
+            {"path": "tool", "equals": "shipguard ios doctor"},
+            {"path": "status", "equals": "pass"}
+          ]
+        },
+        {
+          "path": "ios-doctor/ios-doctor.md",
+          "type": "markdown",
+          "requiredPhrases": ["# iOS Doctor", "Project Evidence", "Next Codex Actions"]
+        }
+      ]
+    },
+    {
+      "id": "ios-design-output",
+      "display": "./bin/shipguard ios design --path fixtures/demo-ios-repo --out <out>/ios-design --shipguard-eval --shareable",
+      "args": ["ios", "design", "--path", "fixtures/demo-ios-repo", "--out", "{out}/ios-design", "--shipguard-eval", "--shareable"],
+      "artifacts": [
+        {
+          "path": "ios-design/ios-design.json",
+          "type": "json",
+          "requiredJsonKeys": ["tool", "status", "appType", "designDNA", "findings", "motionBlueprint", "hapticsBlueprint", "scopeBoundary", "reportQualityQuestions"],
+          "requiredNonEmptyJsonPaths": ["appType", "designDNA", "findings", "motionBlueprint", "hapticsBlueprint", "reportQualityQuestions"],
+          "requiredValues": [
+            {"path": "tool", "equals": "shipguard ios design"}
+          ]
+        },
+        {
+          "path": "ios-design/ios-design.md",
+          "type": "markdown",
+          "requiredPhrases": ["# iOS Design QA Audit", "ShipGuard Evaluation Boundary", "Motion Blueprint", "Haptics Blueprint", "Report Quality Questions"],
+          "forbidLocalPaths": true
+        }
+      ]
+    },
+    {
+      "id": "web-audit-output",
+      "display": "./bin/shipguard web audit --path <out>/web-target --out <out>/web-audit --shipguard-eval --shareable",
+      "args": ["web", "audit", "--path", "{out}/web-target", "--out", "{out}/web-audit", "--shipguard-eval", "--shareable"],
+      "artifacts": [
+        {
+          "path": "web-audit/web-audit.json",
+          "type": "json",
+          "requiredJsonKeys": ["tool", "status", "profile", "signals", "scan", "recommendedFirstCommands", "reportQualityQuestions"],
+          "requiredNonEmptyJsonPaths": ["signals", "scan", "recommendedFirstCommands", "reportQualityQuestions"],
+          "requiredValues": [
+            {"path": "tool", "equals": "shipguard web audit"},
+            {"path": "profile", "equals": "web"}
+          ]
+        },
+        {
+          "path": "web-audit/web-audit.md",
+          "type": "markdown",
+          "requiredPhrases": ["# ShipGuard WebScan", "Scan Transparency", "Recommended First Commands", "Report Quality Questions"],
+          "forbidLocalPaths": true
+        }
+      ]
+    },
+    {
+      "id": "web-plan-output",
+      "display": "./bin/shipguard web plan --report <out>/web-audit --target <out>/web-target --out <out>/web-plan --shipguard-eval --shareable",
+      "args": ["web", "plan", "--report", "{out}/web-audit", "--target", "{out}/web-target", "--out", "{out}/web-plan", "--shipguard-eval", "--shareable"],
+      "artifacts": [
+        {
+          "path": "web-plan/web-plan.json",
+          "type": "json",
+          "requiredJsonKeys": ["tool", "status", "fixPlan", "validationCommands", "validationReceipts", "proofHandoff", "reportQualityQuestions"],
+          "requiredNonEmptyJsonPaths": ["fixPlan.tasks", "validationCommands", "validationReceipts.receipts", "proofHandoff", "reportQualityQuestions"],
+          "requiredValues": [
+            {"path": "tool", "equals": "shipguard web plan"}
+          ]
+        },
+        {
+          "path": "web-plan/web-plan.md",
+          "type": "markdown",
+          "requiredPhrases": ["# ShipGuard WebForge", "Validation Receipts", "Proof Handoff Packet", "Report Quality Questions"],
+          "forbidLocalPaths": true
+        }
+      ]
+    },
+    {
+      "id": "docs-check-output",
+      "display": "./bin/shipguard docs-check <out>/docs-target --out <out>/docs-check",
+      "args": ["docs-check", "{out}/docs-target", "--out", "{out}/docs-check"],
+      "artifacts": [
+        {
+          "path": "docs-check/docs-check.json",
+          "type": "json",
+          "requiredJsonKeys": ["status", "files_checked", "links_checked", "broken_count"],
+          "requiredValues": [
+            {"path": "status", "equals": "pass"},
+            {"path": "broken_count", "equals": 0}
+          ]
+        },
+        {
+          "path": "docs-check/docs-check.md",
+          "type": "markdown",
+          "requiredPhrases": ["# Docs Check", "Files checked", "Broken links"],
+          "forbidLocalPaths": true
+        }
+      ]
+    },
+    {
+      "id": "release-manifest-output",
+      "display": "./bin/shipguard release-manifest --tarball <out>/release/shipguard-v9.9.9.tar.gz --out <out>/release-manifest --version 9.9.9 --tag v9.9.9",
+      "args": [
+        "release-manifest",
+        "--tarball",
+        "{out}/release/shipguard-v9.9.9.tar.gz",
+        "--out",
+        "{out}/release-manifest",
+        "--version",
+        "9.9.9",
+        "--tag",
+        "v9.9.9",
+        "--commit",
+        "0123456789abcdef0123456789abcdef01234567",
+        "--release-url",
+        "https://github.com/example/repo/releases/tag/v9.9.9"
+      ],
+      "prepareTarballs": [
+        {
+          "path": "release/shipguard-v9.9.9.tar.gz",
+          "entries": [
+            {"path": "VERSION", "text": "9.9.9\n"},
+            {"path": "README.md", "text": "# Synthetic ShipGuard Release\n"}
+          ]
+        }
+      ],
+      "artifacts": [
+        {
+          "path": "release-manifest/release-manifest.json",
+          "type": "json",
+          "requiredJsonKeys": ["schema_version", "version", "tag", "commit", "artifact", "proofs"],
+          "requiredNonEmptyJsonPaths": ["artifact.sha256", "proofs.release_url"],
+          "requiredValues": [
+            {"path": "version", "equals": "9.9.9"},
+            {"path": "tag", "equals": "v9.9.9"}
+          ]
+        },
+        {
+          "path": "release-manifest/proof-ledger.md",
+          "type": "markdown",
+          "requiredPhrases": ["# Release Proof Ledger", "Required Release Proof", "Artifact SHA-256"]
+        }
+      ]
+    }
+  ]
+}

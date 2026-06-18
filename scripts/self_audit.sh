@@ -134,6 +134,7 @@ done
 
 required_artifacts=(
   "README.md"
+  "NEXT_GOAL.md"
   "LICENSE"
   "CODE_OF_CONDUCT.md"
   "CONTRIBUTING.md"
@@ -204,6 +205,7 @@ required_artifacts=(
   "docs/oss-evaluation.md"
   "docs/open-source.md"
   "docs/privacy.md"
+  "docs/product-strategy.md"
   "docs/security-threat-model.md"
   "examples/workflows/release-proof-on-tag.yml"
   "examples/workflows/arena-compare.yml"
@@ -257,6 +259,7 @@ required_artifacts=(
   "fixtures/tool-value-gauntlet/profile-native-validation-receipts/web-backend-cli-validation-receipts/receipt.json"
   "fixtures/tool-value-gauntlet/profile-native-validation-rerun-receipts/web-backend-cli-validation-rerun-receipts/receipt.json"
   "fixtures/tool-value-gauntlet/profile-native-proof-handoff-receipts/web-backend-cli-proof-handoffs/receipt.json"
+  "fixtures/tool-value-gauntlet/command-family-runtime-output-receipts/major-family-report-outputs/receipt.json"
   "fixtures/demo-ios-repo/DemoShipGuardApp.xcodeproj/project.pbxproj"
   "fixtures/demo-ios-repo/DemoShipGuardApp.xcodeproj/xcshareddata/xcschemes/DemoShipGuardApp.xcscheme"
   "fixtures/demo-ios-repo/DemoShipGuardApp.xctestplan"
@@ -312,6 +315,7 @@ required_artifacts=(
   "tests/profile_validation_receipts_test.sh"
   "tests/profile_validation_rerun_receipts_test.sh"
   "tests/profile_proof_handoff_receipts_test.sh"
+  "tests/command_family_runtime_output_receipts_test.sh"
   "tests/tool_value_gauntlet_test.sh"
   "tests/ios_devspace_check_test.sh"
   "tests/ios_spec_workflow_test.sh"

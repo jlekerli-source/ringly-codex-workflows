@@ -1,15 +1,15 @@
 # Next Goal
 
-- Generated: 2026-06-18T12:45:00Z
-- Current toolkit version: 3.104.0
-- Target release: v3.104.0
-- Title: ShipGuard Profile-Native Proof Handoffs And Starter Evidence Guard
+- Generated: 2026-06-18T13:10:08Z
+- Current toolkit version: 3.105.0
+- Target release: v3.105.0
+- Title: ShipGuard Command-Family Output Receipts And Product Strategy
 
 ## Slash Plan
 
 ```text
-/plan v3.104.0 ShipGuard Profile-Native Proof Handoffs And Starter Evidence Guard for jlekerli-source/ShipGuard:
-1. Implement this bounded improvement: Add proofHandoff to web/backend/CLI plans, add public profileNativeProofHandoffReceipts value-gauntlet proof, stop profile audits from counting ShipGuard starter files as target evidence, replace root sample-app operating notes with ShipGuard maintainer instructions, and move the next priority to command-family runtime-output receipts.
+/plan v3.105.0 ShipGuard Command-Family Output Receipts And Product Strategy for jlekerli-source/ShipGuard:
+1. Implement this bounded improvement: Add commandFamilyRuntimeOutputReceipts to value-gauntlet, add public major-family report-output receipt proof, advance the next weak surface to trust-hardening receipts, add product-strategy guidance from the 5.5 Pro roadmap critique, package NEXT_GOAL.md, and keep extracted packages aligned with source value-gauntlet proof.
 2. Implement the CLI, docs, tests, and package proof needed for that improvement.
 3. Run the required proof commands, treat blocked or timed-out commands as failures, and record exact blockers.
 4. Push main, verify GitHub Actions, publish and consume release proof, verify asset SHA-256 and clean git status, then generate the following goal.
@@ -18,23 +18,23 @@
 ## Slash Goal
 
 ```text
-/goal Implement v3.104.0 ShipGuard Profile-Native Proof Handoffs And Starter Evidence Guard for jlekerli-source/ShipGuard: follow the /plan above, deliver this bounded improvement: Add proofHandoff to web/backend/CLI plans, add public profileNativeProofHandoffReceipts value-gauntlet proof, stop profile audits from counting ShipGuard starter files as target evidence, replace root sample-app operating notes with ShipGuard maintainer instructions, and move the next priority to command-family runtime-output receipts, push main, verify GitHub Actions, publish the release tarball, verify asset SHA-256 and clean git status, then run shipguard next-goal again for the following release.
+/goal Implement v3.105.0 ShipGuard Command-Family Output Receipts And Product Strategy for jlekerli-source/ShipGuard: follow the /plan above, deliver this bounded improvement: Add commandFamilyRuntimeOutputReceipts to value-gauntlet, add public major-family report-output receipt proof, advance the next weak surface to trust-hardening receipts, add product-strategy guidance from the 5.5 Pro roadmap critique, package NEXT_GOAL.md, and keep extracted packages aligned with source value-gauntlet proof, push main, verify GitHub Actions, publish the release tarball, verify asset SHA-256 and clean git status, then run shipguard next-goal again for the following release.
 ```
 
 
 ## Bounded Scope
 
-Add proofHandoff to web/backend/CLI plans, add public profileNativeProofHandoffReceipts value-gauntlet proof, stop profile audits from counting ShipGuard starter files as target evidence, replace root sample-app operating notes with ShipGuard maintainer instructions, and move the next priority to command-family runtime-output receipts.
+Add commandFamilyRuntimeOutputReceipts to value-gauntlet, add public major-family report-output receipt proof, advance the next weak surface to trust-hardening receipts, add product-strategy guidance from the 5.5 Pro roadmap critique, package NEXT_GOAL.md, and keep extracted packages aligned with source value-gauntlet proof.
 
 ## Completion Receipt
 
-- Completed scope: Add proofHandoff to web/backend/CLI plans, add public profileNativeProofHandoffReceipts value-gauntlet proof, stop profile audits from counting ShipGuard starter files as target evidence, replace root sample-app operating notes with ShipGuard maintainer instructions, and move the next priority to command-family runtime-output receipts.
-- Evidence: Implemented proofHandoff in scripts/profile_fix_plan.py; added tests/profile_proof_handoff_receipts_test.sh and fixtures/tool-value-gauntlet/profile-native-proof-handoff-receipts/web-backend-cli-proof-handoffs/receipt.json; hardened scripts/profile_audit.py with scan transparency and starter-file exclusion; updated AGENTS.md and PLANS.md to be ShipGuard-native; value-gauntlet status pass shows profileNativeProofHandoffReceipts pass 1/1 with three commands and lowestValueSurfaceProbe now escalates to shipguard value-gauntlet command-family-runtime-output-receipts.
+- Completed scope: Add commandFamilyRuntimeOutputReceipts to value-gauntlet, add public major-family report-output receipt proof, advance the next weak surface to trust-hardening receipts, add product-strategy guidance from the 5.5 Pro roadmap critique, package NEXT_GOAL.md, and keep extracted packages aligned with source value-gauntlet proof.
+- Evidence: Implemented scripts/tool_value_gauntlet.py commandFamilyRuntimeOutputReceipts with fixtures/tool-value-gauntlet/command-family-runtime-output-receipts/major-family-report-outputs/receipt.json; added tests/command_family_runtime_output_receipts_test.sh and updated tests/tool_value_gauntlet_test.sh; added docs/product-strategy.md and roadmap/docs/skill guidance; packaged NEXT_GOAL.md; validation passed: git diff --check, ./bin/shipguard validate, ./tests/command_family_runtime_output_receipts_test.sh, ./tests/tool_value_gauntlet_test.sh, ./tests/self_audit_test.sh, ./tests/next_goal_test.sh, ./tests/cli_smoke_test.sh, ./bin/shipguard docs-check . --out /tmp/shipguard-docs-check-v3105b, and ./tests/package_release_test.sh.
 
 ## Following Slash Plan
 
 ```text
-/plan v3.105.0 ShipGuard Command-Family Runtime Output Receipts for jlekerli-source/ShipGuard:
+/plan v3.106.0 ShipGuard Trust-Hardening Receipts And Proof-Gated Task Contract for jlekerli-source/ShipGuard:
 1. Review ROADMAP.md, docs/oss-evaluation.md, and the latest read-only ShipGuard product-QA evidence.
 2. Pick one bounded improvement that makes ShipGuard reports more useful without turning private-app findings into app work.
 3. Implement the CLI, docs, tests, package proof, and plugin-refresh proof needed for that improvement.
@@ -44,13 +44,13 @@ Add proofHandoff to web/backend/CLI plans, add public profileNativeProofHandoffR
 ## Following Slash Goal
 
 ```text
-/goal Implement v3.105.0 ShipGuard Command-Family Runtime Output Receipts for jlekerli-source/ShipGuard: follow the following /plan above, choose one bounded ShipGuard report-quality improvement from ROADMAP.md and docs/oss-evaluation.md, implement it with proof, and generate the next completion receipt plus following /plan and /goal after validation passes.
+/goal Implement v3.106.0 ShipGuard Trust-Hardening Receipts And Proof-Gated Task Contract for jlekerli-source/ShipGuard: follow the following /plan above, choose one bounded ShipGuard report-quality improvement from ROADMAP.md and docs/oss-evaluation.md, implement it with proof, and generate the next completion receipt plus following /plan and /goal after validation passes.
 ```
 
 Generate that follow-up file with:
 
 ```bash
-./bin/shipguard next-goal --release 3.105.0 --title "ShipGuard Command-Family Runtime Output Receipts" --out NEXT_GOAL.md
+./bin/shipguard next-goal --release 3.106.0 --title "ShipGuard Trust-Hardening Receipts And Proof-Gated Task Contract" --out NEXT_GOAL.md
 ```
 
 ## Constraints
@@ -89,6 +89,7 @@ Generate that follow-up file with:
 ./tests/profile_validation_receipts_test.sh
 ./tests/profile_validation_rerun_receipts_test.sh
 ./tests/profile_proof_handoff_receipts_test.sh
+./tests/command_family_runtime_output_receipts_test.sh
 ./tests/tool_value_gauntlet_test.sh
 ./tests/ios_doctor_test.sh
 ./tests/ios_inventory_test.sh
@@ -141,12 +142,12 @@ Generate that follow-up file with:
 
 ## Release Loop
 
-1. Open or update the tracking issue for v3.104.0.
+1. Open or update the tracking issue for v3.105.0.
 2. Implement the smallest complete improvement that makes the toolkit more useful.
 3. Update README, CLI docs, changelog, roadmap, and package verification.
 4. Commit with an issue-closing reference.
 5. Push `main` and verify GitHub Actions success.
-6. Create release `v3.104.0` and upload `dist/shipguard-v3.104.0.tar.gz`.
+6. Create release `v3.105.0` and upload `dist/shipguard-v3.105.0.tar.gz`.
 7. Verify release asset digest, closed issue, tag target, and clean git status.
 8. Generate the next goal:
 

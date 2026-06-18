@@ -23,6 +23,7 @@ paths=(
   ".gitignore"
   ".github"
   "VERSION"
+  "NEXT_GOAL.md"
   "AGENTS.md"
   "README.md"
   "CHANGELOG.md"
