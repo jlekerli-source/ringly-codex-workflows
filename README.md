@@ -1,5 +1,13 @@
 # ShipGuard
 
+<p align="center">
+  <img src="assets/shipguard-icon.png" alt="ShipGuard icon" width="128" height="128">
+</p>
+
+<p align="center">
+  <strong>Local-first guardrails for Codex and AI-assisted iOS maintenance.</strong>
+</p>
+
 ShipGuard is a local-first workflow kit for using Codex on production iOS apps without losing control of scope, proof, or release risk.
 
 It gives AI-assisted development a repeatable operating loop:
