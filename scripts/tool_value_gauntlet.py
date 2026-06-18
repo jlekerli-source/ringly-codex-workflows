@@ -77,7 +77,7 @@ COMMANDS: list[dict[str, str]] = [
 ]
 
 REPORT_QUALITY_QUESTIONS = [
-    "Should ShipGuard add adoption receipts that prove a fresh user can install the package, refresh the Codex plugin, run the first useful audit, and understand the next command without maintainer context?",
+    "Should ShipGuard add target-onboarding receipts that prove a fresh app repo can install starter files, run doctor/validate, and get the first scoped plan without maintainer context?",
     "Does every useful-looking surface have docs, tests, package proof, and a concrete proof boundary rather than only a branded name?",
     "Do plugin skills and starter skills give Codex actionable routing and validation commands, not just vague advice?",
     "Should repeated low-value patterns become public fixtures or eval cases so ShipGuard cannot regress into decorative output?",
@@ -150,6 +150,7 @@ WORKFLOW_CHAIN_RECEIPT_ROOT = Path("fixtures") / "tool-value-gauntlet" / "workfl
 SCENARIO_MATRIX_RECEIPT_ROOT = Path("fixtures") / "tool-value-gauntlet" / "scenario-matrix-receipts"
 SCENARIO_FAILURE_RECEIPT_ROOT = Path("fixtures") / "tool-value-gauntlet" / "scenario-failure-receipts"
 SCENARIO_REMEDIATION_RECEIPT_ROOT = Path("fixtures") / "tool-value-gauntlet" / "scenario-remediation-receipts"
+ADOPTION_RECEIPT_ROOT = Path("fixtures") / "tool-value-gauntlet" / "adoption-receipts"
 
 PLACEHOLDER_PATTERNS = [
     re.compile(r"\bTODO\b", re.IGNORECASE),
@@ -451,6 +452,11 @@ def run_runtime_output_spec(root: Path, probe_root: Path, spec: dict[str, Any]) 
         stdout = exc.stdout if isinstance(exc.stdout, str) else ""
         stderr = exc.stderr if isinstance(exc.stderr, str) else ""
         timed_out = True
+    except OSError as exc:
+        exit_code = "oserror"
+        stdout = ""
+        stderr = str(exc)
+        timed_out = False
     duration_ms = round((time.monotonic() - started) * 1000)
 
     json_path = probe_root / str(spec["jsonPath"])
@@ -601,6 +607,11 @@ def run_runtime_command_help(root: Path, item: dict[str, str]) -> dict[str, Any]
         stdout = exc.stdout if isinstance(exc.stdout, str) else ""
         stderr = exc.stderr if isinstance(exc.stderr, str) else ""
         timed_out = True
+    except OSError as exc:
+        exit_code = "oserror"
+        stdout = ""
+        stderr = str(exc)
+        timed_out = False
     duration_ms = round((time.monotonic() - started) * 1000)
     output = f"{stdout}\n{stderr}".strip()
     tokens = [token for token in command_tokens(command) if token not in {"ios"}]
@@ -721,6 +732,18 @@ def load_scenario_failure_receipts(root: Path) -> list[tuple[Path, dict[str, Any
 
 def load_scenario_remediation_receipts(root: Path) -> list[tuple[Path, dict[str, Any]]]:
     fixture_root = root / SCENARIO_REMEDIATION_RECEIPT_ROOT
+    receipts: list[tuple[Path, dict[str, Any]]] = []
+    if not fixture_root.is_dir():
+        return receipts
+    for meta_path in sorted(fixture_root.glob("*/receipt.json")):
+        meta = load_json(meta_path)
+        if meta:
+            receipts.append((meta_path.parent, meta))
+    return receipts
+
+
+def load_adoption_receipts(root: Path) -> list[tuple[Path, dict[str, Any]]]:
+    fixture_root = root / ADOPTION_RECEIPT_ROOT
     receipts: list[tuple[Path, dict[str, Any]]] = []
     if not fixture_root.is_dir():
         return receipts
@@ -1166,6 +1189,356 @@ def scenario_remediation_receipt_probe(root: Path) -> dict[str, Any]:
             "Add adoption receipts so a fresh user journey proves install, plugin refresh, first audit, and next-command handoff from package artifacts."
             if status == "pass"
             else "Fix scenario-remediation receipts so every blocking path also proves the smallest repair step and successful rerun."
+        ),
+    }
+
+
+def adoption_expected_exit_check(exit_code: int | str, expected_exit: int | str) -> tuple[str, bool, str]:
+    if str(expected_exit) == "nonzero":
+        passed = isinstance(exit_code, int) and exit_code != 0
+        return ("exitExpected", passed, f"exit code {exit_code}, expected nonzero")
+    expected_exit_int = int(expected_exit or 0)
+    passed = exit_code == expected_exit_int
+    check_id = "exitZero" if expected_exit_int == 0 else "exitExpected"
+    return (check_id, passed, f"exit code {exit_code}, expected {expected_exit_int}")
+
+
+def run_adoption_process(
+    *,
+    command_id: str,
+    display: str,
+    command: list[str],
+    cwd: Path,
+    expected_exit: int | str = 0,
+    expected_output_phrases: list[str] | None = None,
+    env: dict[str, str] | None = None,
+    timeout_seconds: int = 120,
+) -> dict[str, Any]:
+    started = time.monotonic()
+    try:
+        completed = subprocess.run(
+            command,
+            cwd=cwd,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            timeout=timeout_seconds,
+            check=False,
+            env=env,
+        )
+        exit_code: int | str = completed.returncode
+        stdout = completed.stdout or ""
+        stderr = completed.stderr or ""
+        timed_out = False
+    except subprocess.TimeoutExpired as exc:
+        exit_code = "timeout"
+        stdout = exc.stdout if isinstance(exc.stdout, str) else ""
+        stderr = exc.stderr if isinstance(exc.stderr, str) else ""
+        timed_out = True
+    duration_ms = round((time.monotonic() - started) * 1000)
+    exit_check_id, exit_expected, exit_evidence = adoption_expected_exit_check(exit_code, expected_exit)
+    checks = [runtime_probe_check(exit_check_id, exit_expected, exit_evidence)]
+    combined_output = f"{stdout}\n{stderr}"
+    for phrase in expected_output_phrases or []:
+        present = str(phrase).lower() in combined_output.lower()
+        checks.append(runtime_probe_check(f"stdout:{phrase}", present, f"{phrase!r} present" if present else f"{phrase!r} missing"))
+    score = score_from_checks(checks)
+    missing = [check["id"] for check in checks if not check["passed"]]
+    status = "pass" if score == 100 and exit_expected and not timed_out else "blocked" if not exit_expected or timed_out else "review"
+    return {
+        "id": command_id,
+        "command": display,
+        "durationMs": duration_ms,
+        "exitCode": exit_code,
+        "timedOut": timed_out,
+        "score": score,
+        "status": status,
+        "checks": checks,
+        "missing": missing,
+        "stdoutLineCount": len(stdout.splitlines()),
+        "stderrLineCount": len(stderr.splitlines()),
+        "errorSummary": compact_error(stderr or stdout) if not exit_expected or timed_out else "",
+        "stdout": stdout,
+        "stderr": stderr,
+    }
+
+
+def public_adoption_command(command: dict[str, Any]) -> dict[str, Any]:
+    return {key: value for key, value in command.items() if key not in {"stdout", "stderr"}}
+
+
+def copy_checkout_for_adoption(root: Path, target: Path) -> None:
+    shutil.copytree(
+        root,
+        target,
+        ignore=shutil.ignore_patterns(".git", "dist", ".DS_Store", ".cache", "DerivedData", "__pycache__", "*.pyc"),
+    )
+
+
+def safe_extract_tarball(tarball: Path, extract_dir: Path) -> tuple[bool, str]:
+    try:
+        extract_dir.mkdir(parents=True, exist_ok=True)
+        with tarfile.open(tarball, "r:gz") as archive:
+            for member in archive.getmembers():
+                member_path = extract_dir / member.name
+                try:
+                    member_path.resolve().relative_to(extract_dir.resolve())
+                except ValueError:
+                    return False, f"unsafe tar member path: {member.name}"
+            archive.extractall(extract_dir)
+    except (tarfile.TarError, OSError) as exc:
+        return False, str(exc)
+    return True, "tarball extracted"
+
+
+def adoption_artifact_checks(root: Path, out_dir: Path, artifacts: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    checks: list[dict[str, Any]] = []
+    for artifact in artifacts:
+        artifact_path = Path(format_receipt_value(artifact.get("path") or "", out_dir=out_dir, cache_dir=out_dir))
+        if not artifact_path.is_absolute():
+            artifact_path = out_dir / artifact_path
+        checks.extend(receipt_artifact_checks(artifact_path, artifact, root=root, out_dir=out_dir))
+    return checks
+
+
+def adoption_shareability_checks(out_dir: Path, artifact_paths: list[Path]) -> list[dict[str, Any]]:
+    checks: list[dict[str, Any]] = []
+    forbidden = [out_dir.as_posix(), "/" + "Users/", "/" + "private/tmp/", "/" + "var/folders/"]
+    for artifact_path in artifact_paths:
+        relative = rel(artifact_path, out_dir) if artifact_path.exists() else artifact_path.as_posix()
+        text = read_text(artifact_path)
+        leaked = next((needle for needle in forbidden if needle and needle in text), "")
+        checks.append(
+            runtime_probe_check(
+                f"shareable:{relative}",
+                artifact_path.is_file() and not leaked,
+                f"{relative} omits local absolute paths" if artifact_path.is_file() and not leaked else f"{relative} leaked {leaked or 'missing file'}",
+            )
+        )
+    return checks
+
+
+def run_adoption_receipt(root: Path, fixture_dir: Path, meta: dict[str, Any]) -> dict[str, Any]:
+    source_paths = [str(path) for path in meta.get("sourcePaths") or []]
+    source_text = "\n".join(read_text(root / path) for path in source_paths)
+    source_checks = [
+        runtime_probe_check(
+            "sourcePaths",
+            bool(source_paths) and all((root / path).is_file() for path in source_paths),
+            f"{len(source_paths)} source path(s) present",
+        ),
+        runtime_probe_check("trigger", bool(str(meta.get("trigger") or "").strip()), "trigger present" if meta.get("trigger") else "trigger missing"),
+        runtime_probe_check(
+            "scopeBoundary",
+            (meta.get("scopeBoundary") or {}).get("shipguardOnly") is True and (meta.get("scopeBoundary") or {}).get("targetAppsReadOnly") is True,
+            "ShipGuard-only read-only boundary present",
+        ),
+    ]
+    for phrase in meta.get("expectedSourcePhrases") or []:
+        present = str(phrase).lower() in source_text.lower()
+        source_checks.append(runtime_probe_check(f"source:{phrase}", present, f"{phrase!r} present" if present else f"{phrase!r} missing"))
+
+    commands: list[dict[str, Any]] = []
+    generated_checks: list[dict[str, Any]] = []
+    with tempfile.TemporaryDirectory(prefix=f"shipguard-adoption-{fixture_dir.name}-") as tmp:
+        out_dir = Path(tmp)
+        source_copy = out_dir / "source-copy"
+        extract_dir = out_dir / "extract"
+        prefix = out_dir / "prefix"
+        first_audit_dir = out_dir / "first-audit"
+        first_quality_dir = out_dir / "first-quality"
+        cache_dir = out_dir / "codex-cache"
+        copy_checkout_for_adoption(root, source_copy)
+
+        package_command = run_adoption_process(
+            command_id="package-from-fresh-copy",
+            display="./scripts/package_release.sh from temporary checkout copy",
+            command=[str(source_copy / "scripts" / "package_release.sh")],
+            cwd=source_copy,
+            expected_output_phrases=[f"shipguard-v{read_text(root / 'VERSION').strip()}.tar.gz"],
+            timeout_seconds=120,
+        )
+        commands.append(package_command)
+        tarball_lines = [line.strip() for line in str(package_command.get("stdout") or "").splitlines() if line.strip()]
+        tarball = Path(tarball_lines[-1]) if tarball_lines else out_dir / "missing.tar.gz"
+        version = read_text(source_copy / "VERSION").strip().splitlines()[0]
+        package_name = f"shipguard-v{version}"
+        generated_checks.append(runtime_probe_check("tarballArtifact", tarball.is_file(), f"{tarball.name} exists" if tarball.is_file() else f"{tarball} missing"))
+
+        extract_ok, extract_evidence = safe_extract_tarball(tarball, extract_dir)
+        package_root = extract_dir / package_name
+        generated_checks.append(runtime_probe_check("tarballExtracted", extract_ok and package_root.is_dir(), extract_evidence if extract_ok else extract_evidence))
+        generated_checks.append(runtime_probe_check("packagedCliPresent", (package_root / "bin" / "shipguard").is_file(), "packaged bin/shipguard present"))
+
+        install_command = run_adoption_process(
+            command_id="install-to-temp-prefix",
+            display='PREFIX=<temp-prefix> ./scripts/install.sh from extracted package',
+            command=["bash", str(package_root / "scripts" / "install.sh")],
+            cwd=package_root,
+            expected_output_phrases=["installed shipguard to", "installed toolkit files"],
+            env=dict(os.environ, PREFIX=prefix.as_posix()),
+            timeout_seconds=120,
+        )
+        commands.append(install_command)
+        installed_bin = prefix / "bin" / "shipguard"
+        generated_checks.append(runtime_probe_check("installedCliPresent", installed_bin.is_file(), "temp-prefix shipguard wrapper present"))
+
+        version_command = run_adoption_process(
+            command_id="installed-version",
+            display="shipguard version from temp-prefix install",
+            command=[str(installed_bin), "version"],
+            cwd=package_root,
+            expected_output_phrases=[version],
+            timeout_seconds=30,
+        )
+        commands.append(version_command)
+
+        plugin_source = package_root / "plugins" / "ios-shipguard"
+        plugin_json = load_json(plugin_source / ".codex-plugin" / "plugin.json")
+        plugin_version = str(plugin_json.get("version") or "fixture")
+        plugin_dest = cache_dir / "shipguard" / "ios-shipguard" / plugin_version
+        plugin_dest.parent.mkdir(parents=True, exist_ok=True)
+        if plugin_dest.exists():
+            shutil.rmtree(plugin_dest)
+        shutil.copytree(plugin_source, plugin_dest)
+        generated_checks.append(runtime_probe_check("freshPluginCachePrepared", (plugin_dest / ".codex-plugin" / "plugin.json").is_file(), "synthetic fresh Codex plugin cache prepared"))
+
+        plugin_status_command = run_adoption_process(
+            command_id="fresh-plugin-cache-status",
+            display="shipguard codex status --cache <fresh-codex-cache> --strict",
+            command=[str(installed_bin), "codex", "status", "--cache", cache_dir.as_posix(), "--strict"],
+            cwd=package_root,
+            expected_output_phrases=["Overall status: pass", "Installed ios-shipguard plugins: 1", "Refresh Handoff"],
+            env=dict(os.environ, SHIPGUARD_CLI=installed_bin.as_posix()),
+            timeout_seconds=60,
+        )
+        commands.append(plugin_status_command)
+
+        first_audit_command = run_adoption_process(
+            command_id="first-useful-audit",
+            display="shipguard brand --path <extracted-package> --out <first-audit> --strict",
+            command=[str(installed_bin), "brand", "--path", package_root.as_posix(), "--out", first_audit_dir.as_posix(), "--strict"],
+            cwd=package_root,
+            expected_output_phrases=["wrote:", "status: pass"],
+            timeout_seconds=60,
+        )
+        commands.append(first_audit_command)
+
+        report_quality_command = run_adoption_process(
+            command_id="next-command-handoff",
+            display="shipguard ios report-quality --reports <first-audit> --out <first-quality> --shareable",
+            command=[str(installed_bin), "ios", "report-quality", "--reports", first_audit_dir.as_posix(), "--out", first_quality_dir.as_posix(), "--shareable"],
+            cwd=package_root,
+            expected_output_phrases=["wrote:", "status: pass"],
+            timeout_seconds=60,
+        )
+        commands.append(report_quality_command)
+
+        generated_checks.extend(
+            adoption_artifact_checks(
+                package_root,
+                out_dir,
+                [
+                    {
+                        "path": "first-audit/ios-branding.json",
+                        "type": "json",
+                        "requiredJsonKeys": ["tool", "status", "surface", "reportQualityQuestions", "surfaces"],
+                        "requiredValues": [
+                            {"path": "tool", "equals": "shipguard brand"},
+                            {"path": "status", "equals": "pass"},
+                        ],
+                    },
+                    {
+                        "path": "first-audit/ios-branding.md",
+                        "type": "markdown",
+                        "requiredPhrases": ["# ShipGuard", "Report Quality Questions", "ShipGuard Brand Deck"],
+                    },
+                    {
+                        "path": "first-quality/ios-report-quality.json",
+                        "type": "json",
+                        "requiredJsonKeys": ["tool", "status", "priorityAction", "actionabilityQuestions"],
+                        "requiredNonEmptyJsonPaths": ["priorityAction", "actionabilityQuestions"],
+                        "requiredValues": [
+                            {"path": "tool", "equals": "shipguard ios report-quality"},
+                            {"path": "status", "equals": "pass"},
+                        ],
+                    },
+                    {
+                        "path": "first-quality/ios-report-quality.md",
+                        "type": "markdown",
+                        "requiredPhrases": ["# iOS ShipGuard Report Quality", "Priority Action", "Actionability Questions", "Shareability mode: `shareable`"],
+                    },
+                ],
+            )
+        )
+        quality_json = load_json(first_quality_dir / "ios-report-quality.json")
+        priority_action = quality_json.get("priorityAction") if isinstance(quality_json.get("priorityAction"), dict) else {}
+        generated_checks.append(
+            runtime_probe_check(
+                "nextCommandActionable",
+                bool(priority_action.get("kind")) and bool(priority_action.get("question") or priority_action.get("summary")),
+                "priorityAction gives a next command/question" if priority_action else "priorityAction missing",
+            )
+        )
+        generated_checks.extend(
+            adoption_shareability_checks(
+                out_dir,
+                [
+                    first_quality_dir / "ios-report-quality.json",
+                    first_quality_dir / "ios-report-quality.md",
+                ],
+            )
+        )
+
+    command_checks = [check for command in commands for check in command.get("checks", [])]
+    checks = source_checks + command_checks + generated_checks
+    score = score_from_checks(checks)
+    missing = [check["id"] for check in checks if not check["passed"]]
+    blocked = any(command.get("status") == "blocked" for command in commands)
+    review = any(command.get("status") == "review" for command in commands)
+    status = "blocked" if blocked else "review" if review or score < 100 else "pass"
+    return {
+        "id": str(meta.get("id") or fixture_dir.name),
+        "kind": str(meta.get("kind") or "adoption-receipt"),
+        "surface": str(meta.get("surface") or fixture_dir.name),
+        "selectedSkill": str(meta.get("selectedSkill") or ""),
+        "selectedMode": str(meta.get("selectedMode") or ""),
+        "fixturePath": rel(fixture_dir, root),
+        "sourcePaths": source_paths,
+        "trigger": str(meta.get("trigger") or ""),
+        "score": score,
+        "status": status,
+        "checks": checks,
+        "missing": missing,
+        "commands": [public_adoption_command(command) for command in commands],
+        "scopeBoundary": meta.get("scopeBoundary") or {},
+    }
+
+
+def adoption_receipt_probe(root: Path) -> dict[str, Any]:
+    receipts = [run_adoption_receipt(root, fixture_dir, meta) for fixture_dir, meta in load_adoption_receipts(root)]
+    passed = sum(1 for receipt in receipts if receipt.get("status") == "pass")
+    blocked = sum(1 for receipt in receipts if receipt.get("status") == "blocked")
+    review = sum(1 for receipt in receipts if receipt.get("status") == "review")
+    command_count = sum(len(receipt.get("commands") or []) for receipt in receipts)
+    status = "blocked" if blocked else "review" if review or not receipts else "pass"
+    return {
+        "status": status,
+        "receiptCount": len(receipts),
+        "passedReceiptCount": passed,
+        "commandCount": command_count,
+        "purpose": "Run public fresh-user adoption receipts that prove packaged ShipGuard can be installed, paired with a fresh Codex plugin cache, used for a first audit, and routed to a next actionable command.",
+        "fixtureRoot": ADOPTION_RECEIPT_ROOT.as_posix(),
+        "scopeBoundary": {
+            "shipguardOnly": True,
+            "targetAppsReadOnly": True,
+            "inputs": ["temporary package copy", "extracted release package", "synthetic fresh Codex plugin cache", "public ShipGuard package artifacts"],
+        },
+        "receipts": receipts,
+        "nextAction": (
+            "Add target-onboarding receipts so a fresh app repo proves starter install, doctor/validate, and first scoped plan without maintainer context."
+            if status == "pass"
+            else "Fix adoption receipts so install, plugin refresh, first audit, and next-command handoff are proven from packaged artifacts."
         ),
     }
 
@@ -1668,6 +2041,7 @@ def lowest_value_surface_probe(
     scenario_matrix_receipts: dict[str, Any],
     scenario_failure_receipts: dict[str, Any],
     scenario_remediation_receipts: dict[str, Any],
+    adoption_receipts: dict[str, Any],
 ) -> dict[str, Any]:
     self_audit_text = read_text(root / "scripts" / "self_audit.sh")
     package_text = read_text(root / "tests" / "package_release_test.sh")
@@ -1705,27 +2079,52 @@ def lowest_value_surface_probe(
                                 if scenario_failure_receipts_passed:
                                     scenario_remediation_receipts_passed = scenario_remediation_receipts.get("status") == "pass"
                                     if scenario_remediation_receipts_passed:
-                                        answer = surface_probe_row(
-                                            surface_type="cross-cutting",
-                                            identifier="shipguard value-gauntlet adoption-receipts",
-                                            name="Fresh-user adoption receipts",
-                                            base_score=100,
-                                            base_status="pass",
-                                            depth_checks=[
-                                                depth_check("staticSurfaceCoverage", True, f"{len(ranked)} command/skill/plugin/action/doc surfaces passed static depth checks"),
-                                                depth_check("runtimeOutputProbe", True, f"{runtime_probe.get('commandCount') or 0} representative runtime outputs scored {runtime_probe.get('averageScore')}/100"),
-                                                depth_check("runtimeRegressionFixtures", True, f"{negative_fixture_probe.get('passedFixtureCount') or 0}/{negative_fixture_probe.get('fixtureCount') or 0} negative runtime-output fixtures rejected decorative output"),
-                                                depth_check("runtimeCommandCoverage", True, f"{command_family_probe.get('passedCommandCount') or 0}/{command_family_probe.get('commandCount') or 0} public command help paths executed"),
-                                                depth_check("runtimeSkillPluginReceipts", True, f"{skill_plugin_receipts.get('passedReceiptCount') or 0}/{skill_plugin_receipts.get('receiptCount') or 0} skill/plugin receipts executed"),
-                                                depth_check("runtimeWorkflowChainReceipts", True, f"{workflow_chain_receipts.get('passedReceiptCount') or 0}/{workflow_chain_receipts.get('receiptCount') or 0} workflow-chain receipts executed"),
-                                                depth_check("runtimeScenarioMatrixReceipts", True, f"{scenario_matrix_receipts.get('passedReceiptCount') or 0}/{scenario_matrix_receipts.get('receiptCount') or 0} scenario-matrix receipts executed"),
-                                                depth_check("runtimeScenarioFailureReceipts", True, f"{scenario_failure_receipts.get('passedReceiptCount') or 0}/{scenario_failure_receipts.get('receiptCount') or 0} scenario-failure receipts executed"),
-                                                depth_check("runtimeScenarioRemediationReceipts", True, f"{scenario_remediation_receipts.get('passedRemediationPairCount') or 0}/{scenario_remediation_receipts.get('remediationPairCount') or 0} remediation pairs executed"),
-                                                depth_check("runtimeAdoptionReceipts", False, "fresh-user package install, Codex plugin refresh, first audit, and next-command handoff are not yet proven as one receipt"),
-                                            ],
-                                            recommendation="Add adoption receipts that prove a fresh user can install ShipGuard, refresh the Codex plugin, run the first useful audit, and understand the next command without maintainer context.",
-                                            proof="Run value-gauntlet plus focused adoption receipts from packaged artifacts and a synthetic fresh Codex plugin cache.",
-                                        )
+                                        adoption_receipts_passed = adoption_receipts.get("status") == "pass"
+                                        if adoption_receipts_passed:
+                                            answer = surface_probe_row(
+                                                surface_type="cross-cutting",
+                                                identifier="shipguard value-gauntlet target-onboarding-receipts",
+                                                name="Fresh target-repo onboarding receipts",
+                                                base_score=100,
+                                                base_status="pass",
+                                                depth_checks=[
+                                                    depth_check("staticSurfaceCoverage", True, f"{len(ranked)} command/skill/plugin/action/doc surfaces passed static depth checks"),
+                                                    depth_check("runtimeOutputProbe", True, f"{runtime_probe.get('commandCount') or 0} representative runtime outputs scored {runtime_probe.get('averageScore')}/100"),
+                                                    depth_check("runtimeRegressionFixtures", True, f"{negative_fixture_probe.get('passedFixtureCount') or 0}/{negative_fixture_probe.get('fixtureCount') or 0} negative runtime-output fixtures rejected decorative output"),
+                                                    depth_check("runtimeCommandCoverage", True, f"{command_family_probe.get('passedCommandCount') or 0}/{command_family_probe.get('commandCount') or 0} public command help paths executed"),
+                                                    depth_check("runtimeSkillPluginReceipts", True, f"{skill_plugin_receipts.get('passedReceiptCount') or 0}/{skill_plugin_receipts.get('receiptCount') or 0} skill/plugin receipts executed"),
+                                                    depth_check("runtimeWorkflowChainReceipts", True, f"{workflow_chain_receipts.get('passedReceiptCount') or 0}/{workflow_chain_receipts.get('receiptCount') or 0} workflow-chain receipts executed"),
+                                                    depth_check("runtimeScenarioMatrixReceipts", True, f"{scenario_matrix_receipts.get('passedReceiptCount') or 0}/{scenario_matrix_receipts.get('receiptCount') or 0} scenario-matrix receipts executed"),
+                                                    depth_check("runtimeScenarioFailureReceipts", True, f"{scenario_failure_receipts.get('passedReceiptCount') or 0}/{scenario_failure_receipts.get('receiptCount') or 0} scenario-failure receipts executed"),
+                                                    depth_check("runtimeScenarioRemediationReceipts", True, f"{scenario_remediation_receipts.get('passedRemediationPairCount') or 0}/{scenario_remediation_receipts.get('remediationPairCount') or 0} remediation pairs executed"),
+                                                    depth_check("runtimeAdoptionReceipts", True, f"{adoption_receipts.get('passedReceiptCount') or 0}/{adoption_receipts.get('receiptCount') or 0} fresh-user adoption receipts executed"),
+                                                    depth_check("runtimeTargetOnboardingReceipts", False, "fresh target-repo starter install, doctor/validate, and first scoped plan are not yet proven as one receipt"),
+                                                ],
+                                                recommendation="Add target-onboarding receipts that prove a fresh app repo can install starter files, run doctor/validate, and get the first scoped plan without maintainer context.",
+                                                proof="Run value-gauntlet plus focused target-onboarding receipts from a synthetic fresh app repo and packaged ShipGuard install.",
+                                            )
+                                        else:
+                                            answer = surface_probe_row(
+                                                surface_type="cross-cutting",
+                                                identifier="shipguard value-gauntlet adoption-receipts",
+                                                name="Fresh-user adoption receipts",
+                                                base_score=100,
+                                                base_status="pass",
+                                                depth_checks=[
+                                                    depth_check("staticSurfaceCoverage", True, f"{len(ranked)} command/skill/plugin/action/doc surfaces passed static depth checks"),
+                                                    depth_check("runtimeOutputProbe", True, f"{runtime_probe.get('commandCount') or 0} representative runtime outputs scored {runtime_probe.get('averageScore')}/100"),
+                                                    depth_check("runtimeRegressionFixtures", True, f"{negative_fixture_probe.get('passedFixtureCount') or 0}/{negative_fixture_probe.get('fixtureCount') or 0} negative runtime-output fixtures rejected decorative output"),
+                                                    depth_check("runtimeCommandCoverage", True, f"{command_family_probe.get('passedCommandCount') or 0}/{command_family_probe.get('commandCount') or 0} public command help paths executed"),
+                                                    depth_check("runtimeSkillPluginReceipts", True, f"{skill_plugin_receipts.get('passedReceiptCount') or 0}/{skill_plugin_receipts.get('receiptCount') or 0} skill/plugin receipts executed"),
+                                                    depth_check("runtimeWorkflowChainReceipts", True, f"{workflow_chain_receipts.get('passedReceiptCount') or 0}/{workflow_chain_receipts.get('receiptCount') or 0} workflow-chain receipts executed"),
+                                                    depth_check("runtimeScenarioMatrixReceipts", True, f"{scenario_matrix_receipts.get('passedReceiptCount') or 0}/{scenario_matrix_receipts.get('receiptCount') or 0} scenario-matrix receipts executed"),
+                                                    depth_check("runtimeScenarioFailureReceipts", True, f"{scenario_failure_receipts.get('passedReceiptCount') or 0}/{scenario_failure_receipts.get('receiptCount') or 0} scenario-failure receipts executed"),
+                                                    depth_check("runtimeScenarioRemediationReceipts", True, f"{scenario_remediation_receipts.get('passedRemediationPairCount') or 0}/{scenario_remediation_receipts.get('remediationPairCount') or 0} remediation pairs executed"),
+                                                    depth_check("runtimeAdoptionReceipts", False, f"{adoption_receipts.get('passedReceiptCount') or 0}/{adoption_receipts.get('receiptCount') or 0} fresh-user adoption receipts executed"),
+                                                ],
+                                                recommendation="Add adoption receipts that prove a fresh user can install ShipGuard, refresh the Codex plugin, run the first useful audit, and understand the next command without maintainer context.",
+                                                proof="Run value-gauntlet plus focused adoption receipts from packaged artifacts and a synthetic fresh Codex plugin cache.",
+                                            )
                                     else:
                                         answer = surface_probe_row(
                                             surface_type="cross-cutting",
@@ -2019,6 +2418,7 @@ def build_report(root: Path, strict: bool) -> dict[str, Any]:
     scenario_matrix_receipts = scenario_matrix_receipt_probe(root)
     scenario_failure_receipts = scenario_failure_receipt_probe(root)
     scenario_remediation_receipts = scenario_remediation_receipt_probe(root)
+    adoption_receipts = adoption_receipt_probe(root)
     probe = lowest_value_surface_probe(
         root,
         text_index,
@@ -2035,6 +2435,7 @@ def build_report(root: Path, strict: bool) -> dict[str, Any]:
         scenario_matrix_receipts=scenario_matrix_receipts,
         scenario_failure_receipts=scenario_failure_receipts,
         scenario_remediation_receipts=scenario_remediation_receipts,
+        adoption_receipts=adoption_receipts,
     )
     all_scores = [item["score"] for group in (commands, skills, plugins, actions, docs) for item in group]
     high_count = sum(1 for finding in findings if finding["severity"] == "high")
@@ -2077,6 +2478,7 @@ def build_report(root: Path, strict: bool) -> dict[str, Any]:
         "scenarioMatrixReceipts": scenario_matrix_receipts,
         "scenarioFailureReceipts": scenario_failure_receipts,
         "scenarioRemediationReceipts": scenario_remediation_receipts,
+        "adoptionReceipts": adoption_receipts,
         "lowestValueSurfaceProbe": probe,
         "findings": findings,
         "priorityActions": priority_actions(findings, probe),
@@ -2310,6 +2712,30 @@ def render_markdown(report: dict[str, Any]) -> str:
     if failing_remediation_commands:
         lines.extend(["", "| Receipt | Status | Command | Missing | Error |", "| --- | --- | --- | --- | --- |"])
         for receipt, command in failing_remediation_commands[:20]:
+            lines.append(
+                f"| `{table_cell(receipt.get('id'), 52)}` | {command.get('status')} | `{table_cell(command.get('command'), 80)}` | {table_cell(', '.join(command.get('missing') or []) or '-', 80)} | {table_cell(command.get('errorSummary') or '-', 90)} |"
+            )
+    adoption_receipts = report.get("adoptionReceipts") or {}
+    lines.extend(["", "## Fresh-User Adoption Receipts", ""])
+    lines.append(f"- Status: {adoption_receipts.get('status') or 'unknown'}")
+    lines.append(f"- Receipts: {adoption_receipts.get('passedReceiptCount', 0)}/{adoption_receipts.get('receiptCount', 0)} passed")
+    lines.append(f"- Commands executed: {adoption_receipts.get('commandCount', 0)}")
+    if adoption_receipts.get("nextAction"):
+        lines.append(f"- Next action: {adoption_receipts['nextAction']}")
+    lines.extend(["", "| Status | Score | Receipt | Kind | Commands | Missing |", "| --- | ---: | --- | --- | ---: | --- |"])
+    for item in adoption_receipts.get("receipts", []):
+        lines.append(
+            f"| {item.get('status')} | {item.get('score')} | `{table_cell(item.get('id'), 64)}` | {table_cell(item.get('kind'), 32)} | {len(item.get('commands') or [])} | {table_cell(', '.join(item.get('missing') or []) or '-', 90)} |"
+        )
+    failing_adoption_commands = [
+        (receipt, command)
+        for receipt in adoption_receipts.get("receipts", [])
+        for command in receipt.get("commands", [])
+        if command.get("status") != "pass"
+    ]
+    if failing_adoption_commands:
+        lines.extend(["", "| Receipt | Status | Command | Missing | Error |", "| --- | --- | --- | --- | --- |"])
+        for receipt, command in failing_adoption_commands[:20]:
             lines.append(
                 f"| `{table_cell(receipt.get('id'), 52)}` | {command.get('status')} | `{table_cell(command.get('command'), 80)}` | {table_cell(', '.join(command.get('missing') or []) or '-', 80)} | {table_cell(command.get('errorSummary') or '-', 90)} |"
             )

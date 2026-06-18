@@ -1,0 +1,38 @@
+{
+  "id": "fresh-package-first-audit",
+  "kind": "adoption",
+  "surface": "ShipGuard fresh package adoption path",
+  "selectedSkill": "ios-shipguard",
+  "selectedMode": "fresh-user-adoption",
+  "trigger": "User asks whether ShipGuard's installed package and Codex plugin are actually useful for a fresh developer, not only present in the source checkout.",
+  "sourcePaths": [
+    "scripts/package_release.sh",
+    "scripts/install.sh",
+    "scripts/codex_status.sh",
+    "scripts/ios_report_quality.py",
+    "scripts/ios_branding.py",
+    "scripts/tool_value_gauntlet.py",
+    "plugins/ios-shipguard/.codex-plugin/plugin.json",
+    "plugins/ios-shipguard/.mcp.json",
+    ".agents/plugins/marketplace.json",
+    "docs/codex-status.md",
+    "docs/ios-shipguard.md",
+    "docs/cli.md"
+  ],
+  "expectedSourcePhrases": [
+    "package_release",
+    "installed shipguard",
+    "codex status",
+    "Overall status",
+    "report-quality",
+    "brand",
+    "value-gauntlet"
+  ],
+  "scopeBoundary": {
+    "shipguardOnly": true,
+    "targetAppsReadOnly": true,
+    "privateAppDetailsAllowed": false,
+    "packageProofRequired": true,
+    "freshCodexPluginCacheRequired": true
+  }
+}
