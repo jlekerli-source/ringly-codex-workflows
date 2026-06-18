@@ -4,7 +4,7 @@ This public synthetic fixture covers the read-only product-QA question:
 
 > Did the report tailor advice to the app type instead of applying one universal design rule?
 
-It locks the `shipguard ios design` report shape for app-type-specific design guidance. A design report must name the app type, state a guidance profile, reject universal defaults, show source signals, tailor motion/haptics/visual-density/copy guidance, and provide one exact next proof action.
+It locks the `shipguard ios design` report shape for app-type-specific design guidance. A design report must name the app type, state a guidance profile, reject universal defaults, show source signals, tailor motion/haptics/visual-density/copy guidance, provide one exact next proof action, and keep target-app remediation unauthorized through `designCoherenceBoundary`.
 
 ## Files
 

@@ -6,6 +6,7 @@
     "the fixture keeps scopeBoundary.shipguardOnly and targetAppsReadOnly explicit",
     "design reports expose designTailoring with tailoredFor, guidanceProfile, sourceSignals, dimensions, and nextAction",
     "designTailoring rejects universal defaults and names app-type-specific motion, haptics, visual-density, and copy guidance",
+    "design reports expose designCoherenceBoundary so app-type tailoring does not become target-app remediation",
     "nextAction names owner, manual proof, expected artifact, success condition, and failure meaning",
     "shareable output contains no local absolute paths or private app identifiers"
   ],

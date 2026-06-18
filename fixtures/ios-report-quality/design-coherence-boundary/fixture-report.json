@@ -45,15 +45,15 @@
     },
     "coherenceRisks": [
       {
-        "category": "Design Tailoring",
-        "evidence": "Synthetic learning source signals choose education while the report must avoid utility-only design advice.",
-        "ruleId": "design-tailoring-app-type-proof",
+        "category": "Design DNA",
+        "evidence": "Synthetic design inventory has visual, motion, haptic, and copy signals but no app-work authorization.",
+        "ruleId": "design-coherence-target-work-boundary",
         "severity": "review",
-        "title": "Education guidance must be app-type tailored"
+        "title": "Design coherence finding must not become target-app work"
       }
     ],
     "proofBoundary": {
-      "expectedArtifact": "ios-report-quality.json plus fixture coverage for design app-type tailoring.",
+      "expectedArtifact": "ios-report-quality.json plus fixture coverage for design coherence boundaries.",
       "localProof": "Run shipguard ios report-quality on this synthetic design fixture.",
       "manualProof": "A human may later authorize target-app design work, but this fixture does not authorize it."
     },
@@ -65,12 +65,12 @@
       "shipguardActionIsPublicFixtureOrRule": true
     },
     "shipguardNextAction": {
-      "expectedArtifact": "A public synthetic report-quality fixture or rule update that checks app-type tailoring without private app data.",
+      "expectedArtifact": "A public synthetic report-quality fixture that checks the coherence boundary without private app data.",
       "failureMeaning": "Private app design evidence can still become unreviewed app remediation advice instead of ShipGuard product QA.",
       "kind": "public-fixture-or-report-rule",
       "owner": "ShipGuard maintainer",
-      "sourceQuestion": "Did the report tailor advice to the app type instead of applying one universal design rule?",
-      "successCondition": "Report-quality fails if a design report omits app-type tailoring or hides target-app authorization boundaries."
+      "sourceQuestion": "Did it separate design-system coherence findings from target-app implementation work?",
+      "successCondition": "Report-quality fails if a design report turns coherence inventory into target-app implementation work or hides the authorization boundary."
     },
     "sourceInventory": {
       "appType": "education",
@@ -211,28 +211,28 @@
   },
   "findings": [
     {
-      "category": "Design Tailoring",
-      "evidence": "Synthetic learning source signals choose education while the report must avoid utility-only design advice.",
-      "proof": "Review the Design Tailoring Contract and attach one preview or screenshot receipt for the synthetic learning flow.",
-      "proofGuidance": "Review the Design Tailoring Contract and attach one preview or screenshot receipt for the synthetic learning flow.",
-      "recommendation": "Use the learning-progress profile for motion, haptics, visual density, and copy guidance.",
-      "ruleId": "design-tailoring-app-type-proof",
+      "category": "Design DNA",
+      "evidence": "Synthetic design inventory has visual, motion, haptic, and copy signals but no app-work authorization.",
+      "proof": "Review the Design Tailoring Contract and Design Coherence Boundary, then run report-quality on the synthetic fixture.",
+      "proofGuidance": "Review the Design Tailoring Contract and Design Coherence Boundary, then run report-quality on the synthetic fixture.",
+      "recommendation": "Improve ShipGuard report-quality rules or public fixtures before using this as target-app implementation guidance.",
+      "ruleId": "design-coherence-target-work-boundary",
       "severity": "review",
-      "title": "Education guidance must be app-type tailored"
+      "title": "Design coherence finding must not become target-app work"
     }
   ],
   "fixtureCandidate": {
-    "candidateId": "design-app-type-tailoring",
-    "fixtureType": "ios-design-report-quality-fixture",
+    "candidateId": "design-coherence-boundary",
+    "fixtureType": "ios-design-coherence-boundary-fixture",
     "privateDataPolicy": "Synthetic public fixture. No private app code, local paths, screenshots, app-specific identifiers, or proprietary text were copied.",
-    "sourceQuestion": "Did the report tailor advice to the app type instead of applying one universal design rule?",
+    "sourceQuestion": "Did it separate design-system coherence findings from target-app implementation work?",
     "sourceReportsRedacted": true,
     "sourceTool": "shipguard ios design"
   },
   "generatedAt": "2026-06-18T00:00:00Z",
   "intent": "shipguard-evaluation",
   "reportQualityQuestions": [
-    "Did the report tailor advice to the app type instead of applying one universal design rule?"
+    "Did it separate design-system coherence findings from target-app implementation work?"
   ],
   "scanScope": {
     "note": "Synthetic fixture; no private source tree was scanned.",
@@ -241,7 +241,7 @@
   },
   "schemaVersion": 1,
   "scopeBoundary": {
-    "purpose": "Synthetic public fixture for ShipGuard design app-type tailoring report-quality behavior.",
+    "purpose": "Synthetic public fixture for ShipGuard design coherence boundary report-quality behavior.",
     "shipguardOnly": true,
     "targetAppsReadOnly": true
   },

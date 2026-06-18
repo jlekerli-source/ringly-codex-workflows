@@ -360,6 +360,11 @@ def normalized_question_text(value: object) -> str:
     return re.sub(r"\s+", " ", str(value)).strip().lower()
 
 
+def kebab_case(value: object) -> str:
+    spaced = re.sub(r"(?<!^)(?=[A-Z])", "-", str(value or ""))
+    return re.sub(r"[^a-z0-9]+", "-", spaced.lower()).strip("-")
+
+
 def dedupe_question_rows(rows: list[dict[str, Any]], *, annotate_duplicates: bool = False) -> list[dict[str, Any]]:
     deduped: list[dict[str, Any]] = []
     seen: dict[str, dict[str, Any]] = {}
@@ -1224,6 +1229,223 @@ def design_app_type_tailoring_issues(
     return issues
 
 
+def design_coherence_boundary_issues(
+    report: dict[str, Any], *, markdown: str, path_name: str
+) -> list[dict[str, str]]:
+    issues: list[dict[str, str]] = []
+    if report.get("intent") != "shipguard-evaluation":
+        return issues
+
+    boundary = report.get("designCoherenceBoundary")
+    if not isinstance(boundary, dict):
+        add_issue(
+            issues,
+            severity="review",
+            rule_id="design-coherence-boundary-missing",
+            evidence=f"{path_name} has no designCoherenceBoundary contract",
+            recommendation=(
+                "Add designCoherenceBoundary so ShipGuard product-QA runs separate source inventory, "
+                "coherence risks, ShipGuard follow-up work, and target-app authorization."
+            ),
+        )
+        return issues
+
+    source_inventory = boundary.get("sourceInventory")
+    if not isinstance(source_inventory, dict):
+        add_issue(
+            issues,
+            severity="review",
+            rule_id="design-coherence-source-inventory-missing",
+            evidence=f"{path_name} designCoherenceBoundary has no sourceInventory",
+            recommendation="Keep source inventory separate from coherence risks and recommendations.",
+        )
+
+    coherence_risks = boundary.get("coherenceRisks")
+    findings = report.get("findings")
+    if not isinstance(coherence_risks, list):
+        add_issue(
+            issues,
+            severity="review",
+            rule_id="design-coherence-risks-missing",
+            evidence=f"{path_name} designCoherenceBoundary has no coherenceRisks list",
+            recommendation="List the coherence risks separately from source inventory and target-app tasks.",
+        )
+    elif isinstance(findings, list) and findings and not coherence_risks:
+        add_issue(
+            issues,
+            severity="review",
+            rule_id="design-coherence-risks-empty",
+            evidence=f"{path_name} has design findings but no designCoherenceBoundary.coherenceRisks entries",
+            recommendation="Mirror design coherence findings into coherenceRisks so the report does not collapse into a generic inventory.",
+        )
+
+    checks = boundary.get("separationChecks")
+    required_checks = (
+        "inventoryIsNotRemediation",
+        "coherenceRiskIsNotTargetTask",
+        "shipguardActionIsPublicFixtureOrRule",
+        "appWorkRequiresSeparateAuthorization",
+    )
+    if not isinstance(checks, dict):
+        add_issue(
+            issues,
+            severity="review",
+            rule_id="design-coherence-separation-checks-missing",
+            evidence=f"{path_name} designCoherenceBoundary has no separationChecks",
+            recommendation="Emit explicit boolean separation checks for inventory, risks, ShipGuard action, and app-work authorization.",
+        )
+        checks = {}
+    for key in required_checks:
+        if checks.get(key) is not True:
+            add_issue(
+                issues,
+                severity="review",
+                rule_id=f"design-coherence-{kebab_case(key)}-missing",
+                evidence=f"{path_name} designCoherenceBoundary.separationChecks.{key} is not true",
+                recommendation=f"Set separationChecks.{key}=true when the report keeps this boundary explicit.",
+            )
+
+    action = boundary.get("shipguardNextAction")
+    if not isinstance(action, dict):
+        add_issue(
+            issues,
+            severity="review",
+            rule_id="design-coherence-shipguard-next-action-missing",
+            evidence=f"{path_name} designCoherenceBoundary has no shipguardNextAction",
+            recommendation="Provide one ShipGuard-owned next action, not a target-app redesign task.",
+        )
+        action = {}
+    action_kind = normalized_question_text(action.get("kind") or "")
+    if not action.get("owner"):
+        add_issue(
+            issues,
+            severity="review",
+            rule_id="design-coherence-next-action-owner-missing",
+            evidence=f"{path_name} designCoherenceBoundary.shipguardNextAction has no owner",
+            recommendation="Name the ShipGuard-side owner for the next report-quality improvement.",
+        )
+    if not action_kind or ("app" in action_kind and "shipguard" not in action_kind):
+        add_issue(
+            issues,
+            severity="review",
+            rule_id="design-coherence-next-action-kind-unsafe",
+            evidence=f"{path_name} designCoherenceBoundary.shipguardNextAction.kind={action.get('kind')!r}",
+            recommendation="Keep the next action in ShipGuard-owned fixture, rule, docs, or report-quality work.",
+        )
+    for key, rule_id, label in (
+        ("expectedArtifact", "design-coherence-next-action-artifact-missing", "expected artifact"),
+        ("successCondition", "design-coherence-next-action-success-missing", "success condition"),
+        ("failureMeaning", "design-coherence-next-action-failure-missing", "failure meaning"),
+    ):
+        if not normalized_question_text(action.get(key) or ""):
+            add_issue(
+                issues,
+                severity="review",
+                rule_id=rule_id,
+                evidence=f"{path_name} designCoherenceBoundary.shipguardNextAction has no {key}",
+                recommendation=f"Name the {label} for the ShipGuard-owned coherence-boundary improvement.",
+            )
+
+    authorization = boundary.get("appWorkAuthorization")
+    if not isinstance(authorization, dict):
+        add_issue(
+            issues,
+            severity="review",
+            rule_id="design-coherence-app-work-authorization-missing",
+            evidence=f"{path_name} designCoherenceBoundary has no appWorkAuthorization",
+            recommendation="Declare whether this product-QA report authorizes target-app design work.",
+        )
+        authorization = {}
+    if authorization.get("status") != "not-authorized-from-this-run":
+        add_issue(
+            issues,
+            severity="review",
+            rule_id="design-coherence-app-work-status-unsafe",
+            evidence=f"{path_name} appWorkAuthorization.status={authorization.get('status')!r}",
+            recommendation="Use status=not-authorized-from-this-run for ShipGuard product-QA scans against private apps.",
+        )
+    if authorization.get("requiresExplicitRequest") is not True:
+        add_issue(
+            issues,
+            severity="review",
+            rule_id="design-coherence-explicit-request-missing",
+            evidence=f"{path_name} appWorkAuthorization.requiresExplicitRequest is not true",
+            recommendation="Require a separate explicit app-work request before converting coherence risks into target-app edits.",
+        )
+    forbidden = authorization.get("forbiddenActions")
+    allowed = authorization.get("allowedShipGuardActions")
+    if not isinstance(forbidden, list) or not forbidden:
+        add_issue(
+            issues,
+            severity="review",
+            rule_id="design-coherence-forbidden-actions-missing",
+            evidence=f"{path_name} appWorkAuthorization has no forbiddenActions",
+            recommendation="List target-app actions that are forbidden from the product-QA run.",
+        )
+    if not isinstance(allowed, list) or not allowed:
+        add_issue(
+            issues,
+            severity="review",
+            rule_id="design-coherence-allowed-shipguard-actions-missing",
+            evidence=f"{path_name} appWorkAuthorization has no allowedShipGuardActions",
+            recommendation="List ShipGuard-owned improvements that are allowed from this product-QA run.",
+        )
+
+    proof_boundary = boundary.get("proofBoundary")
+    if not isinstance(proof_boundary, dict):
+        add_issue(
+            issues,
+            severity="review",
+            rule_id="design-coherence-proof-boundary-missing",
+            evidence=f"{path_name} designCoherenceBoundary has no proofBoundary",
+            recommendation="Split local report-quality proof from manual app-work authorization proof.",
+        )
+        proof_boundary = {}
+    for key, rule_id in (
+        ("localProof", "design-coherence-local-proof-missing"),
+        ("manualProof", "design-coherence-manual-proof-missing"),
+        ("expectedArtifact", "design-coherence-proof-artifact-missing"),
+    ):
+        if not normalized_question_text(proof_boundary.get(key) or ""):
+            add_issue(
+                issues,
+                severity="review",
+                rule_id=rule_id,
+                evidence=f"{path_name} designCoherenceBoundary.proofBoundary has no {key}",
+                recommendation="State the proof boundary before promoting private-app evidence into public ShipGuard rules.",
+            )
+
+    if boundary.get("targetRemediationStatus") != "not-authorized-from-this-run":
+        add_issue(
+            issues,
+            severity="review",
+            rule_id="design-coherence-target-remediation-status-unsafe",
+            evidence=f"{path_name} targetRemediationStatus={boundary.get('targetRemediationStatus')!r}",
+            recommendation="Keep targetRemediationStatus=not-authorized-from-this-run for ShipGuard product-QA reports.",
+        )
+
+    if issues:
+        return issues
+    markdown_contract_visible = (
+        "Design Coherence Boundary" in markdown
+        and "ShipGuard next action" in markdown
+        and "App work authorization" in markdown
+        and "not-authorized-from-this-run" in markdown
+        and "Success condition" in markdown
+        and "Failure meaning" in markdown
+        and "Proof boundary" in markdown
+    )
+    if not markdown_contract_visible:
+        add_issue(
+            issues,
+            severity="review",
+            rule_id="design-coherence-markdown-missing",
+            evidence=f"{path_name} has designCoherenceBoundary JSON but Markdown does not show the boundary contract",
+            recommendation="Render the coherence boundary in Markdown so readers see the ShipGuard next action and app-work authorization status.",
+        )
+    return issues
+
+
 def spec_workflow_quality_issues(report: dict[str, Any], *, path: Path, path_name: str) -> list[dict[str, str]]:
     issues: list[dict[str, str]] = []
     inputs = report.get("reportInputs")
@@ -1769,6 +1991,7 @@ def grade_report(path: Path, *, input_paths: list[Path], shareable: bool, cwd: P
         issues.extend(performance_proof_boundary_issues(loaded, markdown=markdown, path_name=path.name))
     if tool == "shipguard ios design":
         issues.extend(design_app_type_tailoring_issues(loaded, markdown=markdown, path_name=path.name))
+        issues.extend(design_coherence_boundary_issues(loaded, markdown=markdown, path_name=path.name))
 
     if has_local_path(raw_text):
         add_issue(
@@ -2193,6 +2416,8 @@ def fixture_type_for_question(question: str, tool: str) -> str:
     question_text = normalized_question_text(question)
     if is_launchdeck_receipt_question(question_text, tool):
         return "ios-launchdeck-receipt-quality-fixture"
+    if "design-system coherence" in question_text or "design coherence" in question_text:
+        return "ios-design-coherence-boundary-fixture"
     if "private-app" in question_text or "private app" in question_text or "target-app" in question_text or "target app" in question_text:
         return "shipguard-eval-boundary-fixture"
     if "grouped performance" in text or "performance" in text:
@@ -2853,6 +3078,70 @@ def synthetic_design_tailoring(app_type: str = "education") -> dict[str, Any]:
     }
 
 
+def synthetic_design_coherence_boundary() -> dict[str, Any]:
+    return {
+        "purpose": "Keep design-system coherence findings as ShipGuard product-QA evidence until target-app work is separately authorized.",
+        "sourceInventory": {
+            "appType": "education",
+            "colorSignals": 12,
+            "typographySignals": 6,
+            "componentSignals": {"Button": 3, "NavigationStack": 1, "ProgressView": 1},
+            "visualEffectSignals": {"blur": 1, "shadow": 2, "rounded": 8, "cardNames": 3},
+            "motionSignals": {
+                "withAnimation": 4,
+                "animationModifiers": 2,
+                "repeatForever": 1,
+                "timelineView": 0,
+                "reduceMotion": 2,
+            },
+            "hapticSignals": {"uikitFeedbackSignals": 1, "coreHapticsSignals": 0, "sensoryFeedbackSignals": 0},
+            "copySignals": {"visibleStringCount": 9, "localizationSignals": 2},
+            "iconographySignals": {"sfSymbolSignals": 6, "customImageSignals": 0, "symbolEffectSignals": 1},
+        },
+        "coherenceRisks": [
+            {
+                "ruleId": "design-coherence-target-work-boundary",
+                "category": "Design DNA",
+                "severity": "review",
+                "title": "Design coherence finding must not become target-app work",
+                "evidence": "Synthetic design inventory has visual, motion, haptic, and copy signals but no app-work authorization.",
+            }
+        ],
+        "separationChecks": {
+            "inventoryIsNotRemediation": True,
+            "coherenceRiskIsNotTargetTask": True,
+            "shipguardActionIsPublicFixtureOrRule": True,
+            "appWorkRequiresSeparateAuthorization": True,
+        },
+        "shipguardNextAction": {
+            "owner": "ShipGuard maintainer",
+            "kind": "public-fixture-or-report-rule",
+            "sourceQuestion": "Did it separate design-system coherence findings from target-app implementation work?",
+            "expectedArtifact": "A public synthetic report-quality fixture that checks the coherence boundary without private app data.",
+            "successCondition": "Report-quality fails if a design report turns coherence inventory into target-app implementation work or hides the authorization boundary.",
+            "failureMeaning": "Private app design evidence can still become unreviewed app remediation advice instead of ShipGuard product QA.",
+        },
+        "appWorkAuthorization": {
+            "status": "not-authorized-from-this-run",
+            "requiresExplicitRequest": True,
+            "forbiddenActions": [
+                "Do not edit the scanned app from this report.",
+                "Do not open target-app redesign, icon, haptic, motion, or localization tasks from this report.",
+            ],
+            "allowedShipGuardActions": [
+                "Improve ShipGuard report fields, Markdown, rules, docs, plugin guidance, or public fixtures.",
+                "Use private app evidence only to choose the shape of synthetic public eval coverage.",
+            ],
+        },
+        "proofBoundary": {
+            "localProof": "Run shipguard ios report-quality on this synthetic design fixture.",
+            "manualProof": "A human may later authorize target-app design work, but this fixture does not authorize it.",
+            "expectedArtifact": "ios-report-quality.json plus fixture coverage for design coherence boundaries.",
+        },
+        "targetRemediationStatus": "not-authorized-from-this-run",
+    }
+
+
 def synthetic_design_report_fields() -> dict[str, Any]:
     return {
         "status": "review",
@@ -2865,6 +3154,7 @@ def synthetic_design_report_fields() -> dict[str, Any]:
             "signals": synthetic_design_tailoring("education")["sourceSignals"],
         },
         "designTailoring": synthetic_design_tailoring("education"),
+        "designCoherenceBoundary": synthetic_design_coherence_boundary(),
         "designDNA": {
             "motion": {"withAnimationSignals": 4, "animationModifiers": 2, "repeatForeverSignals": 1, "timelineViewSignals": 0, "reduceMotionSignals": 2},
             "haptics": {"uikitFeedbackSignals": 1, "coreHapticsSignals": 0, "sensoryFeedbackSignals": 0},
@@ -2874,13 +3164,13 @@ def synthetic_design_report_fields() -> dict[str, Any]:
         "findings": [
             {
                 "severity": "review",
-                "category": "Design Tailoring",
-                "ruleId": "design-tailoring-app-type-proof",
-                "title": "Education guidance must be app-type tailored",
-                "evidence": "Synthetic learning source signals choose education while the report must avoid utility-only design advice.",
-                "recommendation": "Use the learning-progress profile for motion, haptics, visual density, and copy guidance.",
-                "proof": "Review the Design Tailoring Contract and attach one preview or screenshot receipt for the synthetic learning flow.",
-                "proofGuidance": "Review the Design Tailoring Contract and attach one preview or screenshot receipt for the synthetic learning flow.",
+                "category": "Design DNA",
+                "ruleId": "design-coherence-target-work-boundary",
+                "title": "Design coherence finding must not become target-app work",
+                "evidence": "Synthetic design inventory has visual, motion, haptic, and copy signals but no app-work authorization.",
+                "recommendation": "Improve ShipGuard report-quality rules or public fixtures before using this as target-app implementation guidance.",
+                "proof": "Review the Design Tailoring Contract and Design Coherence Boundary, then run report-quality on the synthetic fixture.",
+                "proofGuidance": "Review the Design Tailoring Contract and Design Coherence Boundary, then run report-quality on the synthetic fixture.",
             }
         ],
     }
@@ -2936,7 +3226,10 @@ def synthetic_fixture_report(candidate: dict[str, Any]) -> dict[str, Any]:
         report["findings"] = synthetic_performance_findings()
         report["ruleSummary"] = synthetic_performance_rule_summary()
         report["groupedActionPlan"] = synthetic_performance_grouped_action_plan()
-    if source_tool == "shipguard ios design" and fixture_type == "ios-design-report-quality-fixture":
+    if source_tool == "shipguard ios design" and fixture_type in {
+        "ios-design-report-quality-fixture",
+        "ios-design-coherence-boundary-fixture",
+    }:
         report.update(synthetic_design_report_fields())
     return report
 
@@ -3028,7 +3321,10 @@ def synthetic_fixture_markdown(candidate: dict[str, Any]) -> str:
                     "",
                 ]
             )
-    if source_tool == "shipguard ios design" and fixture_type == "ios-design-report-quality-fixture":
+    if source_tool == "shipguard ios design" and fixture_type in {
+        "ios-design-report-quality-fixture",
+        "ios-design-coherence-boundary-fixture",
+    }:
         lines.extend(
             [
                 "## App Type Signals",
@@ -3063,7 +3359,35 @@ def synthetic_fixture_markdown(candidate: dict[str, Any]) -> str:
                 "",
                 "| Severity | Category | Rule | Finding | Recommendation | Proof |",
                 "| --- | --- | --- | --- | --- | --- |",
-                "| review | Design Tailoring | `design-tailoring-app-type-proof` | Education guidance must be app-type tailored | Use the learning-progress profile for motion, haptics, visual density, and copy guidance. | Review the Design Tailoring Contract and attach one preview or screenshot receipt for the synthetic learning flow. |",
+                "| review | Design DNA | `design-coherence-target-work-boundary` | Design coherence finding must not become target-app work | Improve ShipGuard report-quality rules or public fixtures before using this as target-app implementation guidance. | Review the Design Tailoring Contract and Design Coherence Boundary, then run report-quality on the synthetic fixture. |",
+                "",
+                "## Design Coherence Boundary",
+                "",
+                "- Purpose: Keep design-system coherence findings as ShipGuard product-QA evidence until target-app work is separately authorized.",
+                "- Source inventory app type: `education`",
+                "- Coherence risks: 1",
+                "- Inventory is not remediation: `true`",
+                "- Coherence risk is not target task: `true`",
+                "- ShipGuard action is public fixture or rule: `true`",
+                "- App work requires separate authorization: `true`",
+                "- Target remediation status: `not-authorized-from-this-run`",
+                "",
+                "ShipGuard next action:",
+                "- Owner: `ShipGuard maintainer`",
+                "- Kind: `public-fixture-or-report-rule`",
+                "- Source question: Did it separate design-system coherence findings from target-app implementation work?",
+                "- Expected artifact: A public synthetic report-quality fixture that checks the coherence boundary without private app data.",
+                "- Success condition: Report-quality fails if a design report turns coherence inventory into target-app implementation work or hides the authorization boundary.",
+                "- Failure meaning: Private app design evidence can still become unreviewed app remediation advice instead of ShipGuard product QA.",
+                "",
+                "App work authorization:",
+                "- Status: `not-authorized-from-this-run`",
+                "- Requires explicit request: `true`",
+                "",
+                "Proof boundary:",
+                "- Local proof: Run shipguard ios report-quality on this synthetic design fixture.",
+                "- Manual proof: A human may later authorize target-app design work, but this fixture does not authorize it.",
+                "- Expected artifact: ios-report-quality.json plus fixture coverage for design coherence boundaries.",
                 "",
             ]
         )

@@ -710,6 +710,92 @@ def design_tailoring_contract(app_type_report: dict[str, Any], dna: dict[str, An
     }
 
 
+def design_coherence_boundary_contract(
+    app_type_report: dict[str, Any],
+    dna: dict[str, Any],
+    findings: list[dict[str, str]],
+) -> dict[str, Any]:
+    app_type = str(app_type_report["value"])
+    layout = dna["layout"]
+    motion = dna["motion"]
+    copy_tone = dna["copyTone"]
+    haptics = dna["haptics"]
+    iconography = dna["iconography"]
+    coherence_risks = [
+        {
+            "ruleId": item["ruleId"],
+            "category": item["category"],
+            "severity": item["severity"],
+            "title": item["title"],
+            "evidence": item["evidence"],
+        }
+        for item in findings
+        if item.get("category") in {"Design DNA", "Motion", "UX Writing", "Accessibility", "Haptics", "Preview", "Icon"}
+    ]
+    return {
+        "purpose": "Keep design-system coherence findings as ShipGuard product-QA evidence until target-app work is separately authorized.",
+        "sourceInventory": {
+            "appType": app_type,
+            "colorSignals": dna["colors"]["colorSignals"],
+            "typographySignals": dna["typography"]["fontModifiers"],
+            "componentSignals": dna["components"],
+            "visualEffectSignals": {
+                "blur": layout["blurSignals"],
+                "shadow": layout["shadowSignals"],
+                "rounded": layout["roundedSignals"],
+                "cardNames": layout["cardNameSignals"],
+            },
+            "motionSignals": {
+                "withAnimation": motion["withAnimationSignals"],
+                "animationModifiers": motion["animationModifiers"],
+                "repeatForever": motion["repeatForeverSignals"],
+                "timelineView": motion["timelineViewSignals"],
+                "reduceMotion": motion["reduceMotionSignals"],
+            },
+            "hapticSignals": haptics,
+            "copySignals": {
+                "visibleStringCount": copy_tone["visibleStringCount"],
+                "localizationSignals": copy_tone["localizationSignals"],
+            },
+            "iconographySignals": iconography,
+        },
+        "coherenceRisks": coherence_risks,
+        "separationChecks": {
+            "inventoryIsNotRemediation": True,
+            "coherenceRiskIsNotTargetTask": True,
+            "shipguardActionIsPublicFixtureOrRule": True,
+            "appWorkRequiresSeparateAuthorization": True,
+        },
+        "shipguardNextAction": {
+            "owner": "ShipGuard maintainer",
+            "kind": "public-fixture-or-report-rule",
+            "sourceQuestion": "Did it separate design-system coherence findings from target-app implementation work?",
+            "expectedArtifact": "A public synthetic report-quality fixture or rule update that checks the coherence boundary without private app data.",
+            "successCondition": "Report-quality can fail a design report that turns coherence inventory into target-app implementation work or hides the authorization boundary.",
+            "failureMeaning": "Private app design evidence can still become unreviewed app remediation advice instead of ShipGuard product QA.",
+        },
+        "appWorkAuthorization": {
+            "status": "not-authorized-from-this-run",
+            "requiresExplicitRequest": True,
+            "forbiddenActions": [
+                "Do not edit the scanned app from this report.",
+                "Do not open target-app redesign, icon, haptic, motion, or localization tasks from this report.",
+                "Do not present coherence risks as completed app diagnosis without preview, device, or app-work proof.",
+            ],
+            "allowedShipGuardActions": [
+                "Improve ShipGuard report fields, Markdown, rules, docs, plugin guidance, or public fixtures.",
+                "Use private app evidence only to choose the shape of synthetic public eval coverage.",
+            ],
+        },
+        "proofBoundary": {
+            "localProof": "Run shipguard ios report-quality on this design report and on the promoted public fixture.",
+            "manualProof": "A human may later authorize target-app design work, but this ShipGuard product-QA run does not authorize it.",
+            "expectedArtifact": "ios-report-quality.json plus a public fixture under fixtures/ios-report-quality.",
+        },
+        "targetRemediationStatus": "not-authorized-from-this-run",
+    }
+
+
 def haptics_blueprint(app_type: str) -> dict[str, Any]:
     if app_type in {"game", "kids", "creative"}:
         tone = "expressive but still sparse"
@@ -899,6 +985,7 @@ def build_report(
             "bundleIds": facts["bundleIds"],
         },
         "designTailoring": design_tailoring_contract(app_type, dna),
+        "designCoherenceBoundary": design_coherence_boundary_contract(app_type, dna, findings),
         "designDNA": dna,
         "findings": findings,
         "motionBlueprint": motion_blueprint(app_type["value"]),
@@ -1017,6 +1104,43 @@ def render_markdown(report: dict[str, Any]) -> str:
             f"- Expected artifact: {action['expectedArtifact']}",
             f"- Success condition: {action['successCondition']}",
             f"- Failure meaning: {action['failureMeaning']}",
+        ]
+    )
+
+    coherence = report["designCoherenceBoundary"]
+    sg_action = coherence["shipguardNextAction"]
+    app_auth = coherence["appWorkAuthorization"]
+    proof_boundary = coherence["proofBoundary"]
+    lines.extend(
+        [
+            "",
+            "## Design Coherence Boundary",
+            "",
+            f"- Purpose: {coherence['purpose']}",
+            f"- Source inventory app type: `{coherence['sourceInventory']['appType']}`",
+            f"- Coherence risks: {len(coherence['coherenceRisks'])}",
+            f"- Inventory is not remediation: `{str(coherence['separationChecks']['inventoryIsNotRemediation']).lower()}`",
+            f"- Coherence risk is not target task: `{str(coherence['separationChecks']['coherenceRiskIsNotTargetTask']).lower()}`",
+            f"- ShipGuard action is public fixture or rule: `{str(coherence['separationChecks']['shipguardActionIsPublicFixtureOrRule']).lower()}`",
+            f"- App work requires separate authorization: `{str(coherence['separationChecks']['appWorkRequiresSeparateAuthorization']).lower()}`",
+            f"- Target remediation status: `{coherence['targetRemediationStatus']}`",
+            "",
+            "ShipGuard next action:",
+            f"- Owner: `{sg_action['owner']}`",
+            f"- Kind: `{sg_action['kind']}`",
+            f"- Source question: {sg_action['sourceQuestion']}",
+            f"- Expected artifact: {sg_action['expectedArtifact']}",
+            f"- Success condition: {sg_action['successCondition']}",
+            f"- Failure meaning: {sg_action['failureMeaning']}",
+            "",
+            "App work authorization:",
+            f"- Status: `{app_auth['status']}`",
+            f"- Requires explicit request: `{str(app_auth['requiresExplicitRequest']).lower()}`",
+            "",
+            "Proof boundary:",
+            f"- Local proof: {proof_boundary['localProof']}",
+            f"- Manual proof: {proof_boundary['manualProof']}",
+            f"- Expected artifact: {proof_boundary['expectedArtifact']}",
         ]
     )
 

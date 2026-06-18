@@ -1,0 +1,22 @@
+{
+  "candidateId": "design-coherence-boundary",
+  "expectedAssertions": [
+    "report-quality preserves the design coherence boundary actionability question in JSON and Markdown",
+    "report-quality does not emit recursive fixtureCandidates for an already-materialized synthetic fixture",
+    "the fixture keeps scopeBoundary.shipguardOnly and targetAppsReadOnly explicit",
+    "design reports expose designCoherenceBoundary with sourceInventory, coherenceRisks, separationChecks, shipguardNextAction, appWorkAuthorization, and proofBoundary",
+    "designCoherenceBoundary declares targetRemediationStatus=not-authorized-from-this-run",
+    "shipguardNextAction names owner, expected artifact, success condition, and failure meaning",
+    "shareable output contains no local absolute paths or private app identifiers"
+  ],
+  "fixtureType": "ios-design-coherence-boundary-fixture",
+  "privateDataPolicy": "Synthetic public fixture. No private app code, local paths, screenshots, app-specific identifiers, or proprietary text were copied.",
+  "publicFixturePath": "fixtures/ios-report-quality/design-coherence-boundary",
+  "sourceQuestion": "Did it separate design-system coherence findings from target-app implementation work?",
+  "sourceReportsRedacted": true,
+  "sourceTool": "shipguard ios design",
+  "validationCommands": [
+    "./bin/shipguard ios report-quality --reports fixtures/ios-report-quality/design-coherence-boundary --out <quality-dir> --shareable",
+    "./tests/ios_report_quality_test.sh"
+  ]
+}

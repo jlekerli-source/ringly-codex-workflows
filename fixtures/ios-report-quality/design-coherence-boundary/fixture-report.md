@@ -1,4 +1,4 @@
-# Design App-Type Tailoring Fixture
+# Design Coherence Boundary Fixture
 
 ## ShipGuard Evaluation Boundary
 
@@ -52,9 +52,9 @@ Top signals:
 ShipGuard next action:
 - Owner: `ShipGuard maintainer`
 - Kind: `public-fixture-or-report-rule`
-- Source question: Did the report tailor advice to the app type instead of applying one universal design rule?
-- Expected artifact: A public synthetic report-quality fixture or rule update that checks app-type tailoring without private app data.
-- Success condition: Report-quality fails if a design report omits app-type tailoring or hides target-app authorization boundaries.
+- Source question: Did it separate design-system coherence findings from target-app implementation work?
+- Expected artifact: A public synthetic report-quality fixture that checks the coherence boundary without private app data.
+- Success condition: Report-quality fails if a design report turns coherence inventory into target-app implementation work or hides the authorization boundary.
 - Failure meaning: Private app design evidence can still become unreviewed app remediation advice instead of ShipGuard product QA.
 
 App work authorization:
@@ -64,16 +64,16 @@ App work authorization:
 Proof boundary:
 - Local proof: Run shipguard ios report-quality on this synthetic design fixture.
 - Manual proof: A human may later authorize target-app design work, but this fixture does not authorize it.
-- Expected artifact: ios-report-quality.json plus fixture coverage for design app-type tailoring.
+- Expected artifact: ios-report-quality.json plus fixture coverage for design coherence boundaries.
 
 ## Findings
 
 | Severity | Category | Rule | Finding | Recommendation | Proof |
 | --- | --- | --- | --- | --- | --- |
-| review | Design Tailoring | `design-tailoring-app-type-proof` | Education guidance must be app-type tailored | Use the learning-progress profile for motion, haptics, visual density, and copy guidance. | Review the Design Tailoring Contract and attach one preview or screenshot receipt for the synthetic learning flow. |
+| review | Design DNA | `design-coherence-target-work-boundary` | Design coherence finding must not become target-app work | Improve ShipGuard report-quality rules or public fixtures before using this as target-app implementation guidance. | Review the Design Tailoring Contract and Design Coherence Boundary, then run report-quality on the synthetic fixture. |
 
 ## Fixture Intent
 
-- Type: `ios-design-report-quality-fixture`
+- Type: `ios-design-coherence-boundary-fixture`
 - Source tool: `shipguard ios design`
-- Source question: Did the report tailor advice to the app type instead of applying one universal design rule?
+- Source question: Did it separate design-system coherence findings from target-app implementation work?

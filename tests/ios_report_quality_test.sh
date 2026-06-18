@@ -86,6 +86,24 @@ PY
   --shareable >/dev/null
 grep -q '"ruleId": "design-tailoring-contract-missing"' "$tmp_dir/broken-design-quality/ios-report-quality.json"
 
+broken_coherence="$tmp_dir/broken-coherence"
+cp -R "$shareable_reports/design" "$broken_coherence"
+python3 - <<'PY' "$broken_coherence/ios-design.json"
+import json
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+data = json.loads(path.read_text(encoding="utf-8"))
+data.pop("designCoherenceBoundary", None)
+path.write_text(json.dumps(data, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+PY
+./bin/shipguard ios report-quality \
+  --reports "$broken_coherence" \
+  --out "$tmp_dir/broken-coherence-quality" \
+  --shareable >/dev/null
+grep -q '"ruleId": "design-coherence-boundary-missing"' "$tmp_dir/broken-coherence-quality/ios-report-quality.json"
+
 actionability_fixture="fixtures/ios-report-quality/actionability"
 ./bin/shipguard ios report-quality \
   --reports "$actionability_fixture" \
@@ -118,6 +136,25 @@ import sys
 data = json.load(open(sys.argv[1], encoding="utf-8"))
 if data.get("fixtureCandidates"):
     raise SystemExit(f"design tailoring fixture should not recurse: {data['fixtureCandidates']!r}")
+PY
+
+design_coherence_fixture="fixtures/ios-report-quality/design-coherence-boundary"
+./bin/shipguard ios report-quality \
+  --reports "$design_coherence_fixture" \
+  --out "$tmp_dir/design-coherence-quality" \
+  --shareable >/dev/null
+grep -q '"status": "pass"' "$tmp_dir/design-coherence-quality/ios-report-quality.json"
+grep -q '"sourceMaterializedFixture": true' "$tmp_dir/design-coherence-quality/ios-report-quality.json"
+grep -q '"designCoherenceBoundary":' "$design_coherence_fixture/fixture-report.json"
+grep -q '"targetRemediationStatus": "not-authorized-from-this-run"' "$design_coherence_fixture/fixture-report.json"
+grep -q 'Design Coherence Boundary' "$design_coherence_fixture/fixture-report.md"
+python3 - <<'PY' "$tmp_dir/design-coherence-quality/ios-report-quality.json"
+import json
+import sys
+
+data = json.load(open(sys.argv[1], encoding="utf-8"))
+if data.get("fixtureCandidates"):
+    raise SystemExit(f"design coherence fixture should not recurse: {data['fixtureCandidates']!r}")
 PY
 
 ./bin/shipguard brand \
@@ -340,6 +377,64 @@ cat > "$dedupe_fixture/ios-design.json" <<'JSON'
     },
     "risk": "Generic utility restraint can make learning feedback feel flat."
   },
+  "designCoherenceBoundary": {
+    "purpose": "Keep design-system coherence findings as ShipGuard product-QA evidence until target-app work is separately authorized.",
+    "sourceInventory": {
+      "appType": "education",
+      "colorSignals": 4,
+      "typographySignals": 2,
+      "componentSignals": {
+        "Button": 1
+      },
+      "visualEffectSignals": {
+        "rounded": 4
+      },
+      "motionSignals": {
+        "withAnimation": 2
+      },
+      "hapticSignals": {
+        "uikitFeedbackSignals": 1
+      },
+      "copySignals": {
+        "visibleStringCount": 4,
+        "localizationSignals": 1
+      },
+      "iconographySignals": {
+        "sfSymbolSignals": 2
+      }
+    },
+    "coherenceRisks": [],
+    "separationChecks": {
+      "inventoryIsNotRemediation": true,
+      "coherenceRiskIsNotTargetTask": true,
+      "shipguardActionIsPublicFixtureOrRule": true,
+      "appWorkRequiresSeparateAuthorization": true
+    },
+    "shipguardNextAction": {
+      "owner": "ShipGuard maintainer",
+      "kind": "public-fixture-or-report-rule",
+      "sourceQuestion": "Did it separate design-system coherence findings from target-app implementation work?",
+      "expectedArtifact": "A public synthetic report-quality fixture or rule update.",
+      "successCondition": "Report-quality keeps design coherence evidence separate from target-app tasks.",
+      "failureMeaning": "Design QA evidence can still become target-app remediation advice."
+    },
+    "appWorkAuthorization": {
+      "status": "not-authorized-from-this-run",
+      "requiresExplicitRequest": true,
+      "forbiddenActions": [
+        "Do not edit the scanned app from this report."
+      ],
+      "allowedShipGuardActions": [
+        "Improve ShipGuard report fields, Markdown, rules, docs, plugin guidance, or public fixtures."
+      ]
+    },
+    "proofBoundary": {
+      "localProof": "Run report-quality on this fixture.",
+      "manualProof": "Separate app-work authorization is required for target-app edits.",
+      "expectedArtifact": "ios-report-quality.json"
+    },
+    "targetRemediationStatus": "not-authorized-from-this-run"
+  },
   "findings": [],
   "reportQualityQuestions": [
     "Did report wording keep target-app remediation separate from ShipGuard product QA next steps?",
@@ -370,6 +465,34 @@ No skipped directories.
 - Expected artifact: One preview receipt plus a note mapping the learning-progress profile to source signals.
 - Success condition: The report uses education guidance and avoids utility-only advice.
 - Failure meaning: The design report remains an inventory, not app-type-specific design QA.
+
+## Design Coherence Boundary
+
+- Purpose: Keep design-system coherence findings as ShipGuard product-QA evidence until target-app work is separately authorized.
+- Source inventory app type: `education`
+- Coherence risks: 0
+- Inventory is not remediation: `true`
+- Coherence risk is not target task: `true`
+- ShipGuard action is public fixture or rule: `true`
+- App work requires separate authorization: `true`
+- Target remediation status: `not-authorized-from-this-run`
+
+ShipGuard next action:
+- Owner: `ShipGuard maintainer`
+- Kind: `public-fixture-or-report-rule`
+- Source question: Did it separate design-system coherence findings from target-app implementation work?
+- Expected artifact: A public synthetic report-quality fixture or rule update.
+- Success condition: Report-quality keeps design coherence evidence separate from target-app tasks.
+- Failure meaning: Design QA evidence can still become target-app remediation advice.
+
+App work authorization:
+- Status: `not-authorized-from-this-run`
+- Requires explicit request: `true`
+
+Proof boundary:
+- Local proof: Run report-quality on this fixture.
+- Manual proof: Separate app-work authorization is required for target-app edits.
+- Expected artifact: ios-report-quality.json
 MD
 ./bin/shipguard ios report-quality \
   --reports "$dedupe_fixture" \
@@ -481,11 +604,15 @@ grep -q 'Proof Boundaries' "$materialized_candidate_dir/fixture-report.md"
 materialized_design_candidate_dir="$(find "$tmp_dir/materialized-fixtures" -mindepth 1 -maxdepth 1 -type d -name '*ios-design*' | sort | head -n 1)"
 test -n "$materialized_design_candidate_dir"
 grep -q '"designTailoring":' "$materialized_design_candidate_dir/fixture-report.json"
+grep -q '"designCoherenceBoundary":' "$materialized_design_candidate_dir/fixture-report.json"
 grep -q '"tailoredFor": "education"' "$materialized_design_candidate_dir/fixture-report.json"
 grep -q '"guidanceProfile": "learning-progress"' "$materialized_design_candidate_dir/fixture-report.json"
 grep -q '"universalDefaultsRejected": true' "$materialized_design_candidate_dir/fixture-report.json"
+grep -q '"targetRemediationStatus": "not-authorized-from-this-run"' "$materialized_design_candidate_dir/fixture-report.json"
 grep -q '"expectedArtifact":' "$materialized_design_candidate_dir/fixture-report.json"
 grep -q 'Design Tailoring Contract' "$materialized_design_candidate_dir/fixture-report.md"
+grep -q 'Design Coherence Boundary' "$materialized_design_candidate_dir/fixture-report.md"
+grep -q 'App work authorization' "$materialized_design_candidate_dir/fixture-report.md"
 grep -q 'Universal defaults rejected' "$materialized_design_candidate_dir/fixture-report.md"
 ./bin/shipguard ios report-quality \
   --reports "$materialized_candidate_dir" \
