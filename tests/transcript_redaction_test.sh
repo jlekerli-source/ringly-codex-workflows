@@ -57,4 +57,22 @@ if grep -Eq 'AcmePrivateApp|alex@example.com|ghp_|sk-|0123456789abcdef0123456789
   exit 1
 fi
 
+plain_raw="$tmp_dir/plain-raw-transcript.md"
+plain_redacted="$tmp_dir/plain-redacted-transcript.md"
+plain_report="$tmp_dir/plain-redaction-report.json"
+cat > "$plain_raw" <<'RAW'
+# Plain Transcript
+
+Agent: No private app term is needed, but redact maintainer@example.com.
+RAW
+
+./bin/shipguard transcript redact \
+  --in "$plain_raw" \
+  --out "$plain_redacted" \
+  --report "$plain_report" >/dev/null
+
+grep -q '\[redacted-email\]' "$plain_redacted"
+grep -q '"status" : "pass"' "$plain_report"
+grep -q '"private_terms_checked" : 0' "$plain_report"
+
 echo "transcript redaction tests passed"

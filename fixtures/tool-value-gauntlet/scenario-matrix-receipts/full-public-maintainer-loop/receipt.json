@@ -1,0 +1,665 @@
+{
+  "id": "full-public-maintainer-loop",
+  "kind": "scenario-matrix",
+  "surface": "Full public ShipGuard maintainer loop",
+  "selectedSkill": "ios-shipguard",
+  "selectedMode": "scenario-matrix",
+  "trigger": "User asks whether ShipGuard's skills, plugin, and CLI surfaces are genuinely useful across a solo iOS developer maintenance loop, not only individually named.",
+  "sourcePaths": [
+    "scripts/ios_doctor.py",
+    "scripts/ios_inventory.py",
+    "scripts/ios_plan.py",
+    "scripts/ios_design.py",
+    "scripts/ios_report_quality.py",
+    "scripts/docs_check.sh",
+    "scripts/transcript_redact.sh",
+    "scripts/transcript_verify.sh",
+    "scripts/ci_gate.sh",
+    "scripts/ci_summary.sh",
+    "scripts/codex_status.sh",
+    "scripts/release_manifest.sh",
+    "scripts/release_index.sh",
+    "scripts/release_replay.sh",
+    "docs/ios-shipguard.md",
+    "docs/release-manifest.md",
+    "docs/transcript-redaction.md",
+    "docs/ci-gate.md"
+  ],
+  "expectedSourcePhrases": [
+    "ios doctor",
+    "ios inventory",
+    "ios plan",
+    "ios design",
+    "ios report-quality",
+    "docs-check",
+    "transcript redact",
+    "transcript verify",
+    "ci-gate",
+    "ci-summary",
+    "codex status",
+    "release-manifest",
+    "release-index",
+    "release-replay"
+  ],
+  "prepareCodexPluginCache": true,
+  "prepareTarballs": [
+    {
+      "path": "release/shipguard-v0.0.0.tar.gz",
+      "entries": [
+        {
+          "path": "shipguard-v0.0.0/bin/shipguard",
+          "mode": 493,
+          "text": "#!/usr/bin/env bash\necho shipguard fixture\n"
+        },
+        {
+          "path": "shipguard-v0.0.0/VERSION",
+          "text": "0.0.0\n"
+        },
+        {
+          "path": "shipguard-v0.0.0/scripts/install.sh",
+          "mode": 493,
+          "text": "#!/usr/bin/env bash\nexit 0\n"
+        }
+      ]
+    }
+  ],
+  "scopeBoundary": {
+    "shipguardOnly": true,
+    "targetAppsReadOnly": true,
+    "privateAppDetailsAllowed": false
+  },
+  "commands": [
+    {
+      "id": "ios-doctor",
+      "display": "./bin/shipguard ios doctor --path fixtures/demo-ios-repo --out <receipt-out>/ios-doctor",
+      "args": [
+        "ios",
+        "doctor",
+        "--path",
+        "fixtures/demo-ios-repo",
+        "--out",
+        "{out}/ios-doctor"
+      ],
+      "artifacts": [
+        {
+          "path": "ios-doctor/ios-doctor.json",
+          "type": "json",
+          "requiredJsonKeys": [
+            "status",
+            "projects",
+            "packages",
+            "schemes"
+          ],
+          "requiredNonEmptyJsonPaths": [
+            "projects",
+            "packages",
+            "schemes"
+          ]
+        },
+        {
+          "path": "ios-doctor/ios-doctor.md",
+          "type": "markdown",
+          "requiredPhrases": [
+            "# iOS Doctor",
+            "Status:"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ios-inventory",
+      "display": "./bin/shipguard ios inventory --path fixtures/demo-ios-repo --out <receipt-out>/ios-inventory",
+      "args": [
+        "ios",
+        "inventory",
+        "--path",
+        "fixtures/demo-ios-repo",
+        "--out",
+        "{out}/ios-inventory"
+      ],
+      "artifacts": [
+        {
+          "path": "ios-inventory/ios-inventory.json",
+          "type": "json",
+          "requiredJsonKeys": [
+            "tool",
+            "project",
+            "targets",
+            "surfaces",
+            "recommended_codex_prompts"
+          ],
+          "requiredNonEmptyJsonPaths": [
+            "targets",
+            "surfaces",
+            "recommended_codex_prompts"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ios-ui-plan",
+      "display": "./bin/shipguard ios plan --inventory <receipt-out>/ios-inventory/ios-inventory.json --mode ui-polish --out <receipt-out>/ios-plan",
+      "args": [
+        "ios",
+        "plan",
+        "--inventory",
+        "{out}/ios-inventory/ios-inventory.json",
+        "--mode",
+        "ui-polish",
+        "--out",
+        "{out}/ios-plan"
+      ],
+      "artifacts": [
+        {
+          "path": "ios-plan/ios-plan.json",
+          "type": "json",
+          "requiredJsonKeys": [
+            "tool",
+            "status",
+            "mode",
+            "blockedQuestions",
+            "proofRoute",
+            "codexBrief"
+          ],
+          "requiredNonEmptyJsonPaths": [
+            "blockedQuestions",
+            "proofRoute",
+            "codexBrief.mustDo"
+          ],
+          "requiredValues": [
+            {
+              "path": "mode",
+              "equals": "ui-polish"
+            },
+            {
+              "path": "status",
+              "equals": "needs-user-answer"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ios-design-eval",
+      "display": "./bin/shipguard ios design --path fixtures/demo-ios-repo --out <receipt-out>/ios-design --shipguard-eval --shareable",
+      "args": [
+        "ios",
+        "design",
+        "--path",
+        "fixtures/demo-ios-repo",
+        "--out",
+        "{out}/ios-design",
+        "--shipguard-eval",
+        "--shareable"
+      ],
+      "artifacts": [
+        {
+          "path": "ios-design/ios-design.json",
+          "type": "json",
+          "requiredJsonKeys": [
+            "tool",
+            "status",
+            "appType",
+            "designDNA",
+            "motionBlueprint",
+            "hapticsBlueprint",
+            "reportQualityQuestions",
+            "scopeBoundary",
+            "shareability"
+          ],
+          "requiredNonEmptyJsonPaths": [
+            "appType",
+            "designDNA",
+            "motionBlueprint",
+            "hapticsBlueprint",
+            "reportQualityQuestions"
+          ],
+          "requiredValues": [
+            {
+              "path": "scopeBoundary.shipguardOnly",
+              "equals": true
+            },
+            {
+              "path": "scopeBoundary.targetAppsReadOnly",
+              "equals": true
+            },
+            {
+              "path": "shareability.mode",
+              "equals": "shareable"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "design-report-quality",
+      "display": "./bin/shipguard ios report-quality --reports <receipt-out>/ios-design --out <receipt-out>/report-quality --shareable",
+      "args": [
+        "ios",
+        "report-quality",
+        "--reports",
+        "{out}/ios-design",
+        "--out",
+        "{out}/report-quality",
+        "--shareable"
+      ],
+      "artifacts": [
+        {
+          "path": "report-quality/ios-report-quality.json",
+          "type": "json",
+          "requiredJsonKeys": [
+            "tool",
+            "status",
+            "priorityAction",
+            "actionabilityQuestions",
+            "scopeBoundary"
+          ],
+          "requiredNonEmptyJsonPaths": [
+            "priorityAction",
+            "actionabilityQuestions"
+          ],
+          "requiredValues": [
+            {
+              "path": "scopeBoundary.shipguardOnly",
+              "equals": true
+            },
+            {
+              "path": "scopeBoundary.targetAppsReadOnly",
+              "equals": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "docs-check",
+      "display": "./bin/shipguard docs-check . --out <receipt-out>/docs-check",
+      "args": [
+        "docs-check",
+        ".",
+        "--out",
+        "{out}/docs-check"
+      ],
+      "artifacts": [
+        {
+          "path": "docs-check/docs-check.json",
+          "type": "json",
+          "requiredJsonKeys": [
+            "schema_version",
+            "status",
+            "broken_count",
+            "files_checked",
+            "links_checked"
+          ],
+          "requiredValues": [
+            {
+              "path": "status",
+              "equals": "pass"
+            },
+            {
+              "path": "broken_count",
+              "equals": 0
+            }
+          ]
+        },
+        {
+          "path": "docs-check/docs-check.md",
+          "type": "markdown",
+          "requiredPhrases": [
+            "# Docs Check",
+            "Status: pass"
+          ],
+          "forbidLocalPaths": true
+        }
+      ]
+    },
+    {
+      "id": "transcript-redact",
+      "display": "./bin/shipguard transcript redact --in fixtures/transcripts/ios-notification-triage/transcript.md --out <receipt-out>/privacy/redacted.md --report <receipt-out>/privacy/redaction-report.json",
+      "args": [
+        "transcript",
+        "redact",
+        "--in",
+        "fixtures/transcripts/ios-notification-triage/transcript.md",
+        "--out",
+        "{out}/privacy/redacted.md",
+        "--report",
+        "{out}/privacy/redaction-report.json"
+      ],
+      "artifacts": [
+        {
+          "path": "privacy/redaction-report.json",
+          "type": "json",
+          "requiredJsonKeys": [
+            "schema_version",
+            "status",
+            "remaining_risk_count",
+            "private_terms_checked"
+          ],
+          "requiredValues": [
+            {
+              "path": "status",
+              "equals": "pass"
+            },
+            {
+              "path": "remaining_risk_count",
+              "equals": 0
+            },
+            {
+              "path": "private_terms_checked",
+              "equals": 0
+            }
+          ]
+        },
+        {
+          "path": "privacy/redacted.md",
+          "type": "markdown",
+          "requiredPhrases": [
+            "[redacted-private-term]",
+            "[redacted-home]"
+          ],
+          "forbidLocalPaths": true
+        }
+      ]
+    },
+    {
+      "id": "transcript-verify",
+      "display": "./bin/shipguard transcript verify --in <receipt-out>/privacy/redacted.md --report <receipt-out>/privacy/redaction-report.json --out <receipt-out>/privacy-verify",
+      "args": [
+        "transcript",
+        "verify",
+        "--in",
+        "{out}/privacy/redacted.md",
+        "--report",
+        "{out}/privacy/redaction-report.json",
+        "--out",
+        "{out}/privacy-verify"
+      ],
+      "artifacts": [
+        {
+          "path": "privacy-verify/transcript-verify.json",
+          "type": "json",
+          "requiredJsonKeys": [
+            "schema_version",
+            "status",
+            "remaining_risk_count",
+            "redaction_report_status"
+          ],
+          "requiredValues": [
+            {
+              "path": "status",
+              "equals": "pass"
+            },
+            {
+              "path": "remaining_risk_count",
+              "equals": 0
+            },
+            {
+              "path": "redaction_report_status",
+              "equals": "pass"
+            }
+          ]
+        },
+        {
+          "path": "privacy-verify/transcript-verify.md",
+          "type": "markdown",
+          "requiredPhrases": [
+            "# Transcript Verification",
+            "redaction report"
+          ],
+          "forbidLocalPaths": true
+        }
+      ]
+    },
+    {
+      "id": "ci-gate",
+      "display": "./bin/shipguard ci-gate --run fixtures/autopsy/good-run/run.md --task fixtures/autopsy/good-run/task.md --diff fixtures/autopsy/good-run/diff.patch --tests fixtures/autopsy/good-run/tests.log --policy templates/policy/default.conf --out <receipt-out>/ci-gate --mode warn",
+      "args": [
+        "ci-gate",
+        "--run",
+        "fixtures/autopsy/good-run/run.md",
+        "--task",
+        "fixtures/autopsy/good-run/task.md",
+        "--diff",
+        "fixtures/autopsy/good-run/diff.patch",
+        "--tests",
+        "fixtures/autopsy/good-run/tests.log",
+        "--policy",
+        "templates/policy/default.conf",
+        "--out",
+        "{out}/ci-gate",
+        "--mode",
+        "warn"
+      ],
+      "artifacts": [
+        {
+          "path": "ci-gate/gate.json",
+          "type": "json",
+          "requiredJsonKeys": [
+            "schema_version",
+            "status",
+            "score",
+            "autopsy_report",
+            "sarif",
+            "summary"
+          ],
+          "requiredValues": [
+            {
+              "path": "status",
+              "equals": "pass"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ci-summary",
+      "display": "./bin/shipguard ci-summary --gate <receipt-out>/ci-gate/gate.json --out <receipt-out>/ci-summary.md",
+      "args": [
+        "ci-summary",
+        "--gate",
+        "{out}/ci-gate/gate.json",
+        "--out",
+        "{out}/ci-summary.md"
+      ],
+      "artifacts": [
+        {
+          "path": "ci-summary.md",
+          "type": "markdown",
+          "requiredPhrases": [
+            "# ShipGuard Gate",
+            "Status | pass"
+          ],
+          "forbidLocalPaths": true
+        }
+      ]
+    },
+    {
+      "id": "codex-plugin-status",
+      "display": "./bin/shipguard codex status --cache <receipt-out>/codex-cache --strict",
+      "args": [
+        "codex",
+        "status",
+        "--cache",
+        "{cache}",
+        "--strict"
+      ],
+      "expectedOutputPhrases": [
+        "Overall status: pass",
+        "Tracked plugin source: present",
+        "Installed ios-shipguard plugins: 1"
+      ]
+    },
+    {
+      "id": "release-manifest",
+      "display": "./bin/shipguard release-manifest --tarball <receipt-out>/release/shipguard-v0.0.0.tar.gz --out <receipt-out>/release-manifest --version 0.0.0 --tag v0.0.0 --commit 0123456789abcdef0123456789abcdef01234567",
+      "args": [
+        "release-manifest",
+        "--tarball",
+        "{out}/release/shipguard-v0.0.0.tar.gz",
+        "--out",
+        "{out}/release-manifest",
+        "--version",
+        "0.0.0",
+        "--tag",
+        "v0.0.0",
+        "--commit",
+        "0123456789abcdef0123456789abcdef01234567",
+        "--ci-run-url",
+        "https://github.com/example/repo/actions/runs/123",
+        "--release-url",
+        "https://github.com/example/repo/releases/tag/v0.0.0",
+        "--issue-url",
+        "https://github.com/example/repo/issues/99",
+        "--notes",
+        "scenario matrix fixture"
+      ],
+      "artifacts": [
+        {
+          "path": "release-manifest/release-manifest.json",
+          "type": "json",
+          "requiredJsonKeys": [
+            "schema_version",
+            "version",
+            "tag",
+            "commit",
+            "artifact",
+            "proofs"
+          ],
+          "requiredValues": [
+            {
+              "path": "version",
+              "equals": "0.0.0"
+            },
+            {
+              "path": "tag",
+              "equals": "v0.0.0"
+            },
+            {
+              "path": "artifact.name",
+              "equals": "shipguard-v0.0.0.tar.gz"
+            }
+          ]
+        },
+        {
+          "path": "release-manifest/proof-ledger.md",
+          "type": "markdown",
+          "requiredPhrases": [
+            "# Release Proof Ledger",
+            "Version: 0.0.0",
+            "Artifact: shipguard-v0.0.0.tar.gz"
+          ],
+          "forbidLocalPaths": true
+        }
+      ]
+    },
+    {
+      "id": "release-manifest-verify",
+      "display": "./bin/shipguard release-manifest verify --manifest <receipt-out>/release-manifest/release-manifest.json --tarball <receipt-out>/release/shipguard-v0.0.0.tar.gz --version 0.0.0 --tag v0.0.0",
+      "args": [
+        "release-manifest",
+        "verify",
+        "--manifest",
+        "{out}/release-manifest/release-manifest.json",
+        "--tarball",
+        "{out}/release/shipguard-v0.0.0.tar.gz",
+        "--version",
+        "0.0.0",
+        "--tag",
+        "v0.0.0"
+      ],
+      "expectedOutputPhrases": [
+        "verified:"
+      ]
+    },
+    {
+      "id": "release-index",
+      "display": "./bin/shipguard release-index build --manifest <receipt-out>/release-manifest/release-manifest.json --out <receipt-out>/release-index",
+      "args": [
+        "release-index",
+        "build",
+        "--manifest",
+        "{out}/release-manifest/release-manifest.json",
+        "--out",
+        "{out}/release-index"
+      ],
+      "artifacts": [
+        {
+          "path": "release-index/release-index.json",
+          "type": "json",
+          "requiredJsonKeys": [
+            "schema_version",
+            "release_count",
+            "releases"
+          ],
+          "requiredValues": [
+            {
+              "path": "release_count",
+              "equals": 1
+            }
+          ]
+        },
+        {
+          "path": "release-index/release-index.md",
+          "type": "markdown",
+          "requiredPhrases": [
+            "# ShipGuard Release Proof Catalog",
+            "0.0.0"
+          ],
+          "forbidLocalPaths": true
+        }
+      ]
+    },
+    {
+      "id": "release-replay",
+      "display": "./bin/shipguard release-replay verify --manifest <receipt-out>/release-manifest/release-manifest.json --tarball <receipt-out>/release/shipguard-v0.0.0.tar.gz --index <receipt-out>/release-index/release-index.json --ledger <receipt-out>/release-manifest/proof-ledger.md --out <receipt-out>/release-replay",
+      "args": [
+        "release-replay",
+        "verify",
+        "--manifest",
+        "{out}/release-manifest/release-manifest.json",
+        "--tarball",
+        "{out}/release/shipguard-v0.0.0.tar.gz",
+        "--index",
+        "{out}/release-index/release-index.json",
+        "--ledger",
+        "{out}/release-manifest/proof-ledger.md",
+        "--out",
+        "{out}/release-replay"
+      ],
+      "artifacts": [
+        {
+          "path": "release-replay/replay-report.json",
+          "type": "json",
+          "requiredJsonKeys": [
+            "schema_version",
+            "status",
+            "version",
+            "artifact",
+            "checks"
+          ],
+          "requiredValues": [
+            {
+              "path": "status",
+              "equals": "pass"
+            },
+            {
+              "path": "version",
+              "equals": "0.0.0"
+            }
+          ]
+        },
+        {
+          "path": "release-replay/replay-report.md",
+          "type": "markdown",
+          "requiredPhrases": [
+            "# Release Replay Report",
+            "Status: pass",
+            "release index replay"
+          ],
+          "forbidLocalPaths": true
+        }
+      ]
+    }
+  ]
+}

@@ -67,7 +67,12 @@ fi
 
 mkdir -p "$(dirname "$out_file")" "$(dirname "$report_file")"
 
-perl -MJSON::PP -CS - "$in_file" "$out_file" "$report_file" "${private_terms[@]}" <<'PERL'
+perl_args=("$in_file" "$out_file" "$report_file")
+if [[ "${#private_terms[@]}" -gt 0 ]]; then
+  perl_args+=("${private_terms[@]}")
+fi
+
+perl -MJSON::PP -CS - "${perl_args[@]}" <<'PERL'
 use strict;
 use warnings;
 use File::Basename qw(basename);

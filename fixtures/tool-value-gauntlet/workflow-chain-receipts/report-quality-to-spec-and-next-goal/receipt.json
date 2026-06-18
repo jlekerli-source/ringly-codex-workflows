@@ -258,11 +258,11 @@
     },
     {
       "id": "next-goal",
-      "display": "./bin/shipguard next-goal --release 3.93.0 --title \"ShipGuard Workflow Chain Receipts\" --scope \"Add workflow-chain receipts to value-gauntlet.\" --completion-evidence \"Validated the chain from report-quality to spec-workflow and next-goal.\" --following-title \"ShipGuard Scenario Matrix Receipts\" --out <receipt-out>/next/NEXT_GOAL.md",
+      "display": "./bin/shipguard next-goal --release 0.0.0 --title \"ShipGuard Workflow Chain Receipts\" --scope \"Add workflow-chain receipts to value-gauntlet.\" --completion-evidence \"Validated the chain from report-quality to spec-workflow and next-goal.\" --following-title \"ShipGuard Scenario Matrix Receipts\" --out <receipt-out>/next/NEXT_GOAL.md",
       "args": [
         "next-goal",
         "--release",
-        "3.93.0",
+        "0.0.0",
         "--title",
         "ShipGuard Workflow Chain Receipts",
         "--scope",
@@ -279,8 +279,8 @@
           "path": "next/NEXT_GOAL.md",
           "type": "markdown",
           "requiredPhrases": [
-            "/plan v3.93.0 ShipGuard Workflow Chain Receipts",
-            "/goal Implement v3.93.0 ShipGuard Workflow Chain Receipts",
+            "/plan v0.0.0 ShipGuard Workflow Chain Receipts",
+            "/goal Implement v0.0.0 ShipGuard Workflow Chain Receipts",
             "Completion Receipt",
             "Following Slash Plan",
             "ShipGuard Scenario Matrix Receipts"

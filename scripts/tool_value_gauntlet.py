@@ -5,12 +5,14 @@ from __future__ import annotations
 
 import argparse
 import datetime as dt
+import io
 import json
 import os
 import re
 import shutil
 import subprocess
 import sys
+import tarfile
 import tempfile
 import time
 from pathlib import Path
@@ -75,7 +77,7 @@ COMMANDS: list[dict[str, str]] = [
 ]
 
 REPORT_QUALITY_QUESTIONS = [
-    "Should ShipGuard add scenario-matrix receipts that execute complete public developer journeys across iOS, release, privacy, CI, plugin, and docs surfaces instead of probing them one command at a time?",
+    "Should ShipGuard add scenario-failure receipts that prove complete public developer journeys reject missing proof, unsafe sharing, stale plugin cache, and incomplete release evidence instead of only passing happy paths?",
     "Does every useful-looking surface have docs, tests, package proof, and a concrete proof boundary rather than only a branded name?",
     "Do plugin skills and starter skills give Codex actionable routing and validation commands, not just vague advice?",
     "Should repeated low-value patterns become public fixtures or eval cases so ShipGuard cannot regress into decorative output?",
@@ -145,6 +147,7 @@ RUNTIME_OUTPUT_SPECS: list[dict[str, Any]] = [
 RUNTIME_NEGATIVE_FIXTURE_ROOT = Path("fixtures") / "tool-value-gauntlet" / "runtime-output"
 SKILL_PLUGIN_RECEIPT_ROOT = Path("fixtures") / "tool-value-gauntlet" / "skill-plugin-receipts"
 WORKFLOW_CHAIN_RECEIPT_ROOT = Path("fixtures") / "tool-value-gauntlet" / "workflow-chain-receipts"
+SCENARIO_MATRIX_RECEIPT_ROOT = Path("fixtures") / "tool-value-gauntlet" / "scenario-matrix-receipts"
 
 PLACEHOLDER_PATTERNS = [
     re.compile(r"\bTODO\b", re.IGNORECASE),
@@ -690,8 +693,75 @@ def load_workflow_chain_receipts(root: Path) -> list[tuple[Path, dict[str, Any]]
     return receipts
 
 
+def load_scenario_matrix_receipts(root: Path) -> list[tuple[Path, dict[str, Any]]]:
+    fixture_root = root / SCENARIO_MATRIX_RECEIPT_ROOT
+    receipts: list[tuple[Path, dict[str, Any]]] = []
+    if not fixture_root.is_dir():
+        return receipts
+    for meta_path in sorted(fixture_root.glob("*/receipt.json")):
+        meta = load_json(meta_path)
+        if meta:
+            receipts.append((meta_path.parent, meta))
+    return receipts
+
+
 def format_receipt_value(value: object, *, out_dir: Path, cache_dir: Path) -> str:
     return str(value).format(out=out_dir.as_posix(), cache=cache_dir.as_posix())
+
+
+def safe_receipt_relative_path(raw_path: object) -> Path | None:
+    path_text = str(raw_path or "").strip()
+    if not path_text:
+        return None
+    path = Path(path_text)
+    if path.is_absolute() or any(part in {"", ".", ".."} for part in path.parts):
+        return None
+    return path
+
+
+def prepare_receipt_files(out_dir: Path, meta: dict[str, Any]) -> list[dict[str, Any]]:
+    checks: list[dict[str, Any]] = []
+    for item in meta.get("prepareFiles") or []:
+        relative = safe_receipt_relative_path(item.get("path"))
+        check_id = f"preparedFile:{item.get('path') or 'missing'}"
+        if relative is None:
+            checks.append(runtime_probe_check(check_id, False, "prepared file path must be relative and stay inside receipt output"))
+            continue
+        target = out_dir / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(str(item.get("text") or ""), encoding="utf-8")
+        checks.append(runtime_probe_check(f"preparedFile:{relative.as_posix()}", target.is_file(), f"{relative.as_posix()} prepared"))
+    return checks
+
+
+def prepare_receipt_tarballs(out_dir: Path, meta: dict[str, Any]) -> list[dict[str, Any]]:
+    checks: list[dict[str, Any]] = []
+    for item in meta.get("prepareTarballs") or []:
+        relative = safe_receipt_relative_path(item.get("path"))
+        check_id = f"preparedTarball:{item.get('path') or 'missing'}"
+        if relative is None:
+            checks.append(runtime_probe_check(check_id, False, "tarball path must be relative and stay inside receipt output"))
+            continue
+        target = out_dir / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        entries = item.get("entries") if isinstance(item.get("entries"), list) else []
+        unsafe_entry = ""
+        with tarfile.open(target, "w:gz") as archive:
+            for entry in entries:
+                entry_path = safe_receipt_relative_path(entry.get("path") if isinstance(entry, dict) else "")
+                if entry_path is None:
+                    unsafe_entry = str(entry.get("path") if isinstance(entry, dict) else "missing")
+                    continue
+                payload = str(entry.get("text") or "").encode("utf-8") if isinstance(entry, dict) else b""
+                info = tarfile.TarInfo(entry_path.as_posix())
+                info.size = len(payload)
+                info.mode = int(entry.get("mode") or 0o644) if isinstance(entry, dict) else 0o644
+                info.mtime = 0
+                archive.addfile(info, io.BytesIO(payload))
+        checks.append(runtime_probe_check(f"preparedTarball:{relative.as_posix()}", target.is_file(), f"{relative.as_posix()} prepared with {len(entries)} entrie(s)"))
+        if unsafe_entry:
+            checks.append(runtime_probe_check(f"preparedTarballEntry:{unsafe_entry}", False, "tarball entry path must be relative and portable"))
+    return checks
 
 
 def prepare_receipt_codex_cache(root: Path, out_dir: Path, meta: dict[str, Any]) -> Path:
@@ -823,6 +893,7 @@ def run_skill_plugin_receipt_command(
 def run_skill_plugin_receipt(root: Path, fixture_dir: Path, meta: dict[str, Any]) -> dict[str, Any]:
     with tempfile.TemporaryDirectory(prefix=f"shipguard-receipt-{fixture_dir.name}-") as tmp:
         out_dir = Path(tmp)
+        prepared_checks = prepare_receipt_files(out_dir, meta) + prepare_receipt_tarballs(out_dir, meta)
         cache_dir = prepare_receipt_codex_cache(root, out_dir, meta)
         source_paths = [str(path) for path in meta.get("sourcePaths") or []]
         source_text = "\n".join(read_text(root / path) for path in source_paths)
@@ -844,7 +915,7 @@ def run_skill_plugin_receipt(root: Path, fixture_dir: Path, meta: dict[str, Any]
             source_checks.append(runtime_probe_check(f"source:{phrase}", present, f"{phrase!r} present" if present else f"{phrase!r} missing"))
         commands = [run_skill_plugin_receipt_command(root, out_dir, cache_dir, command) for command in meta.get("commands") or []]
     command_checks = [check for command in commands for check in command.get("checks", [])]
-    checks = source_checks + command_checks
+    checks = source_checks + prepared_checks + command_checks
     score = score_from_checks(checks)
     missing = [check["id"] for check in checks if not check["passed"]]
     blocked = any(command.get("status") == "blocked" for command in commands)
@@ -920,6 +991,34 @@ def workflow_chain_receipt_probe(root: Path) -> dict[str, Any]:
             "Add scenario-matrix receipts that execute complete public developer journeys across command families."
             if status == "pass"
             else "Fix workflow-chain receipts so report-quality questions become tasks, proof commands, and slash handoffs without manual interpretation."
+        ),
+    }
+
+
+def scenario_matrix_receipt_probe(root: Path) -> dict[str, Any]:
+    receipts = [run_skill_plugin_receipt(root, fixture_dir, meta) for fixture_dir, meta in load_scenario_matrix_receipts(root)]
+    passed = sum(1 for receipt in receipts if receipt.get("status") == "pass")
+    blocked = sum(1 for receipt in receipts if receipt.get("status") == "blocked")
+    review = sum(1 for receipt in receipts if receipt.get("status") == "review")
+    command_count = sum(len(receipt.get("commands") or []) for receipt in receipts)
+    status = "blocked" if blocked else "review" if review or not receipts else "pass"
+    return {
+        "status": status,
+        "receiptCount": len(receipts),
+        "passedReceiptCount": passed,
+        "commandCount": command_count,
+        "purpose": "Run public scenario-matrix receipts that prove complete developer journeys across iOS, docs, privacy, CI, plugin, and release surfaces.",
+        "fixtureRoot": SCENARIO_MATRIX_RECEIPT_ROOT.as_posix(),
+        "scopeBoundary": {
+            "shipguardOnly": True,
+            "targetAppsReadOnly": True,
+            "inputs": ["public scenario-matrix receipt fixtures", "fixtures/demo-ios-repo", "synthetic release package", "synthetic Codex plugin cache"],
+        },
+        "receipts": receipts,
+        "nextAction": (
+            "Add scenario-failure receipts so complete journeys prove missing proof, unsafe sharing, stale plugin cache, and incomplete release evidence are rejected."
+            if status == "pass"
+            else "Fix scenario-matrix receipts so complete developer journeys pass before expanding into failure-path proof."
         ),
     }
 
@@ -1419,6 +1518,7 @@ def lowest_value_surface_probe(
     command_family_probe: dict[str, Any],
     skill_plugin_receipts: dict[str, Any],
     workflow_chain_receipts: dict[str, Any],
+    scenario_matrix_receipts: dict[str, Any],
 ) -> dict[str, Any]:
     self_audit_text = read_text(root / "scripts" / "self_audit.sh")
     package_text = read_text(root / "tests" / "package_release_test.sh")
@@ -1450,44 +1550,94 @@ def lowest_value_surface_probe(
                     if skill_plugin_receipts_passed:
                         workflow_chain_receipts_passed = workflow_chain_receipts.get("status") == "pass"
                         if workflow_chain_receipts_passed:
-                            answer = surface_probe_row(
-                                surface_type="cross-cutting",
-                                identifier="shipguard value-gauntlet scenario-matrix-receipts",
-                                name="Scenario matrix receipts",
-                                base_score=100,
-                                base_status="pass",
-                                depth_checks=[
-                                    depth_check("staticSurfaceCoverage", True, f"{len(ranked)} command/skill/plugin/action/doc surfaces passed static depth checks"),
-                                    depth_check(
-                                        "runtimeOutputProbe",
-                                        True,
-                                        f"{runtime_probe.get('commandCount') or 0} representative runtime outputs scored {runtime_probe.get('averageScore')}/100",
-                                    ),
-                                    depth_check(
-                                        "runtimeRegressionFixtures",
-                                        True,
-                                        f"{negative_fixture_probe.get('passedFixtureCount') or 0}/{negative_fixture_probe.get('fixtureCount') or 0} negative runtime-output fixtures rejected decorative output",
-                                    ),
-                                    depth_check(
-                                        "runtimeCommandCoverage",
-                                        True,
-                                        f"{command_family_probe.get('passedCommandCount') or 0}/{command_family_probe.get('commandCount') or 0} public command help paths executed",
-                                    ),
-                                    depth_check(
-                                        "runtimeSkillPluginReceipts",
-                                        True,
-                                        f"{skill_plugin_receipts.get('passedReceiptCount') or 0}/{skill_plugin_receipts.get('receiptCount') or 0} skill/plugin receipts executed",
-                                    ),
-                                    depth_check(
-                                        "runtimeWorkflowChainReceipts",
-                                        True,
-                                        f"{workflow_chain_receipts.get('passedReceiptCount') or 0}/{workflow_chain_receipts.get('receiptCount') or 0} workflow-chain receipts executed",
-                                    ),
-                                    depth_check("runtimeScenarioMatrixReceipts", False, "complete public developer journeys are not yet executed across iOS, release, privacy, CI, plugin, and docs surfaces"),
-                                ],
-                                recommendation="Add scenario-matrix receipts that execute full public developer journeys, not only individual commands or one report-quality chain.",
-                                proof="Run value-gauntlet plus focused scenario-matrix receipt fixtures across iOS, release, privacy, CI, plugin, and docs journeys.",
-                            )
+                            scenario_matrix_receipts_passed = scenario_matrix_receipts.get("status") == "pass"
+                            if scenario_matrix_receipts_passed:
+                                answer = surface_probe_row(
+                                    surface_type="cross-cutting",
+                                    identifier="shipguard value-gauntlet scenario-failure-receipts",
+                                    name="Scenario failure receipts",
+                                    base_score=100,
+                                    base_status="pass",
+                                    depth_checks=[
+                                        depth_check("staticSurfaceCoverage", True, f"{len(ranked)} command/skill/plugin/action/doc surfaces passed static depth checks"),
+                                        depth_check(
+                                            "runtimeOutputProbe",
+                                            True,
+                                            f"{runtime_probe.get('commandCount') or 0} representative runtime outputs scored {runtime_probe.get('averageScore')}/100",
+                                        ),
+                                        depth_check(
+                                            "runtimeRegressionFixtures",
+                                            True,
+                                            f"{negative_fixture_probe.get('passedFixtureCount') or 0}/{negative_fixture_probe.get('fixtureCount') or 0} negative runtime-output fixtures rejected decorative output",
+                                        ),
+                                        depth_check(
+                                            "runtimeCommandCoverage",
+                                            True,
+                                            f"{command_family_probe.get('passedCommandCount') or 0}/{command_family_probe.get('commandCount') or 0} public command help paths executed",
+                                        ),
+                                        depth_check(
+                                            "runtimeSkillPluginReceipts",
+                                            True,
+                                            f"{skill_plugin_receipts.get('passedReceiptCount') or 0}/{skill_plugin_receipts.get('receiptCount') or 0} skill/plugin receipts executed",
+                                        ),
+                                        depth_check(
+                                            "runtimeWorkflowChainReceipts",
+                                            True,
+                                            f"{workflow_chain_receipts.get('passedReceiptCount') or 0}/{workflow_chain_receipts.get('receiptCount') or 0} workflow-chain receipts executed",
+                                        ),
+                                        depth_check(
+                                            "runtimeScenarioMatrixReceipts",
+                                            True,
+                                            f"{scenario_matrix_receipts.get('passedReceiptCount') or 0}/{scenario_matrix_receipts.get('receiptCount') or 0} scenario-matrix receipts executed",
+                                        ),
+                                        depth_check("runtimeScenarioFailureReceipts", False, "complete developer journeys do not yet prove failure paths reject missing proof, unsafe sharing, stale plugin cache, and incomplete release evidence"),
+                                    ],
+                                    recommendation="Add scenario-failure receipts that intentionally feed incomplete or unsafe workflow evidence and require ShipGuard to block with specific guidance.",
+                                    proof="Run value-gauntlet plus focused scenario-failure receipt fixtures for privacy, release proof, stale plugin cache, report-quality, and CI evidence failures.",
+                                )
+                            else:
+                                answer = surface_probe_row(
+                                    surface_type="cross-cutting",
+                                    identifier="shipguard value-gauntlet scenario-matrix-receipts",
+                                    name="Scenario matrix receipts",
+                                    base_score=100,
+                                    base_status="pass",
+                                    depth_checks=[
+                                        depth_check("staticSurfaceCoverage", True, f"{len(ranked)} command/skill/plugin/action/doc surfaces passed static depth checks"),
+                                        depth_check(
+                                            "runtimeOutputProbe",
+                                            True,
+                                            f"{runtime_probe.get('commandCount') or 0} representative runtime outputs scored {runtime_probe.get('averageScore')}/100",
+                                        ),
+                                        depth_check(
+                                            "runtimeRegressionFixtures",
+                                            True,
+                                            f"{negative_fixture_probe.get('passedFixtureCount') or 0}/{negative_fixture_probe.get('fixtureCount') or 0} negative runtime-output fixtures rejected decorative output",
+                                        ),
+                                        depth_check(
+                                            "runtimeCommandCoverage",
+                                            True,
+                                            f"{command_family_probe.get('passedCommandCount') or 0}/{command_family_probe.get('commandCount') or 0} public command help paths executed",
+                                        ),
+                                        depth_check(
+                                            "runtimeSkillPluginReceipts",
+                                            True,
+                                            f"{skill_plugin_receipts.get('passedReceiptCount') or 0}/{skill_plugin_receipts.get('receiptCount') or 0} skill/plugin receipts executed",
+                                        ),
+                                        depth_check(
+                                            "runtimeWorkflowChainReceipts",
+                                            True,
+                                            f"{workflow_chain_receipts.get('passedReceiptCount') or 0}/{workflow_chain_receipts.get('receiptCount') or 0} workflow-chain receipts executed",
+                                        ),
+                                        depth_check(
+                                            "runtimeScenarioMatrixReceipts",
+                                            False,
+                                            f"{scenario_matrix_receipts.get('passedReceiptCount') or 0}/{scenario_matrix_receipts.get('receiptCount') or 0} scenario-matrix receipts passed",
+                                        ),
+                                    ],
+                                    recommendation="Add scenario-matrix receipts that execute full public developer journeys, not only individual commands or one report-quality chain.",
+                                    proof="Run value-gauntlet plus focused scenario-matrix receipt fixtures across iOS, release, privacy, CI, plugin, and docs journeys.",
+                                )
                         else:
                             answer = surface_probe_row(
                                 surface_type="cross-cutting",
@@ -1694,6 +1844,7 @@ def build_report(root: Path, strict: bool) -> dict[str, Any]:
     command_family_probe = runtime_command_family_probe(root)
     skill_plugin_receipts = skill_plugin_receipt_probe(root)
     workflow_chain_receipts = workflow_chain_receipt_probe(root)
+    scenario_matrix_receipts = scenario_matrix_receipt_probe(root)
     probe = lowest_value_surface_probe(
         root,
         text_index,
@@ -1707,6 +1858,7 @@ def build_report(root: Path, strict: bool) -> dict[str, Any]:
         command_family_probe=command_family_probe,
         skill_plugin_receipts=skill_plugin_receipts,
         workflow_chain_receipts=workflow_chain_receipts,
+        scenario_matrix_receipts=scenario_matrix_receipts,
     )
     all_scores = [item["score"] for group in (commands, skills, plugins, actions, docs) for item in group]
     high_count = sum(1 for finding in findings if finding["severity"] == "high")
@@ -1746,6 +1898,7 @@ def build_report(root: Path, strict: bool) -> dict[str, Any]:
         "runtimeCommandFamilyCoverage": command_family_probe,
         "skillPluginRuntimeReceipts": skill_plugin_receipts,
         "workflowChainReceipts": workflow_chain_receipts,
+        "scenarioMatrixReceipts": scenario_matrix_receipts,
         "lowestValueSurfaceProbe": probe,
         "findings": findings,
         "priorityActions": priority_actions(findings, probe),
@@ -1893,6 +2046,30 @@ def render_markdown(report: dict[str, Any]) -> str:
     if failing_workflow_commands:
         lines.extend(["", "| Receipt | Status | Command | Missing | Error |", "| --- | --- | --- | --- | --- |"])
         for receipt, command in failing_workflow_commands[:20]:
+            lines.append(
+                f"| `{table_cell(receipt.get('id'), 52)}` | {command.get('status')} | `{table_cell(command.get('command'), 80)}` | {table_cell(', '.join(command.get('missing') or []) or '-', 80)} | {table_cell(command.get('errorSummary') or '-', 90)} |"
+            )
+    scenario_matrix_receipts = report.get("scenarioMatrixReceipts") or {}
+    lines.extend(["", "## Scenario Matrix Receipts", ""])
+    lines.append(f"- Status: {scenario_matrix_receipts.get('status') or 'unknown'}")
+    lines.append(f"- Receipts: {scenario_matrix_receipts.get('passedReceiptCount', 0)}/{scenario_matrix_receipts.get('receiptCount', 0)} passed")
+    lines.append(f"- Commands executed: {scenario_matrix_receipts.get('commandCount', 0)}")
+    if scenario_matrix_receipts.get("nextAction"):
+        lines.append(f"- Next action: {scenario_matrix_receipts['nextAction']}")
+    lines.extend(["", "| Status | Score | Receipt | Kind | Commands | Missing |", "| --- | ---: | --- | --- | ---: | --- |"])
+    for item in scenario_matrix_receipts.get("receipts", []):
+        lines.append(
+            f"| {item.get('status')} | {item.get('score')} | `{table_cell(item.get('id'), 64)}` | {table_cell(item.get('kind'), 32)} | {len(item.get('commands') or [])} | {table_cell(', '.join(item.get('missing') or []) or '-', 90)} |"
+        )
+    failing_scenario_commands = [
+        (receipt, command)
+        for receipt in scenario_matrix_receipts.get("receipts", [])
+        for command in receipt.get("commands", [])
+        if command.get("status") != "pass"
+    ]
+    if failing_scenario_commands:
+        lines.extend(["", "| Receipt | Status | Command | Missing | Error |", "| --- | --- | --- | --- | --- |"])
+        for receipt, command in failing_scenario_commands[:20]:
             lines.append(
                 f"| `{table_cell(receipt.get('id'), 52)}` | {command.get('status')} | `{table_cell(command.get('command'), 80)}` | {table_cell(', '.join(command.get('missing') or []) or '-', 80)} | {table_cell(command.get('errorSummary') or '-', 90)} |"
             )
