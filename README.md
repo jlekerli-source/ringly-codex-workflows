@@ -69,7 +69,7 @@ Common loops:
 | --- | --- |
 | Audit an AI coding run | `./bin/shipguard autopsy --help` |
 | Inspect risky iOS surfaces | `./bin/shipguard ios doctor --help` |
-| Route and grade iOS build, debug, preview, and profiler proof | `./bin/shipguard ios build-apps --help` |
+| Route and grade iOS build, debug, preview, and profiler proof | `./bin/shipguard ios launchdeck --help` |
 | Review iOS performance evidence | `./bin/shipguard ios performance --help` |
 | Review UI/UX, motion, haptics, and icon direction | `./bin/shipguard ios design --help` |
 | Grade ShipGuard report usefulness | `./bin/shipguard ios report-quality --help` |

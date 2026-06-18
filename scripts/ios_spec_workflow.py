@@ -441,13 +441,13 @@ def integration_decisions() -> list[dict[str, str]]:
             "validationEvidence": "./tests/ios_performance_test.sh and report-quality grouped performance checks.",
         },
         {
-            "source": "Build iOS Apps / OpenAI native iOS workflow",
+            "source": "LaunchDeck / OpenAI native iOS workflow",
             "externalCapability": "Simulator browser, SwiftUI preview, and hot-reload visual iteration loop.",
             "currentShipGuardSurface": "ios preview, ios target-match, ios devspace, ios devspace-check, and Codex handoff files.",
             "decision": "integrate-by-routing",
             "replaces": "Treating ShipGuard preview as the only visual loop or pretending ShipGuard controls ChatGPT model selection.",
-            "rationale": "The live visual loop is better handled by the native Build iOS Apps tooling when available; ShipGuard adds receipts, target-resolution, redaction, report-quality, and handoff boundaries around it.",
-            "nativeImplementation": "Recommend Build iOS Apps for live preview/hot reload, then use ShipGuard preview/Devspace for typed receipts, semantic target matching, and safe ChatGPT/Codex handoff.",
+            "rationale": "The live visual loop is better handled by the native LaunchDeck tooling when available; ShipGuard adds receipts, target-resolution, redaction, report-quality, and handoff boundaries around it.",
+            "nativeImplementation": "Recommend LaunchDeck for live preview/hot reload, then use ShipGuard preview/Devspace for typed receipts, semantic target matching, and safe ChatGPT/Codex handoff.",
             "validationEvidence": "Devspace docs, ios devspace-check, preview routing docs, and spec-workflow guardrails.",
         },
     ]
@@ -621,7 +621,7 @@ def build_report(args: argparse.Namespace) -> dict[str, Any]:
                 "shipguardAdaptation": "ShipGuard performance/spec workflows require proof lanes, first experiments, validation routes, stop conditions, and explicit manual/device proof gaps.",
             },
             {
-                "source": "Build iOS Apps / OpenAI native iOS workflow",
+                "source": "LaunchDeck / OpenAI native iOS workflow",
                 "taken": "simulator browser, SwiftUI preview, and hot-reload planning loop",
                 "shipguardAdaptation": "ShipGuard routes these through preview and Devspace receipts, redaction, report-quality, and Codex handoff boundaries rather than pretending to own the live renderer.",
             },

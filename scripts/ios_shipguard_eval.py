@@ -18,10 +18,10 @@ DEFAULT_CASES = ROOT / "evals" / "ios_shipguard_cases.jsonl"
 MODE_COMMANDS = {
     "permission-audit": ["shipguard ios inventory --path . --out /tmp/ios-shipguard-inventory"],
     "simulator-debug": ["XcodeBuildMCP session_show_defaults", "XcodeBuildMCP build/run and UI snapshot proof"],
-    "build-apps-bridge": [
-        "shipguard ios build-apps --path . --out /tmp/ios-shipguard-build-apps",
-        "XcodeBuildMCP session_show_defaults and build_run_sim from the ShipGuard bridge report",
-        "Build iOS Apps serve-sim or swiftui-preview-browser.mjs when preview proof is the lane",
+    "launchdeck": [
+        "shipguard ios launchdeck --path . --out /tmp/ios-shipguard-launchdeck",
+        "XcodeBuildMCP session_show_defaults and build_run_sim from the LaunchDeck report",
+        "LaunchDeck serve-sim or swiftui-preview-browser.mjs when preview proof is the lane",
     ],
     "release-proof": ["shipguard ios inventory --path . --out /tmp/ios-shipguard-inventory"],
     "storekit-commerce": ["shipguard ios inventory --path . --out /tmp/ios-shipguard-inventory"],
@@ -62,8 +62,8 @@ MODE_PROOF = {
         "simulator permission-state walkthrough when UI copy changes",
     ],
     "simulator-debug": ["build and launch", "UI hierarchy, screenshot, logs, or LLDB evidence", "rerun reproduction path"],
-    "build-apps-bridge": [
-        "ShipGuard ios build-apps report with discovered project/workspace, scheme, and recommended workflow",
+    "launchdeck": [
+        "ShipGuard ios launchdeck report with discovered project/workspace, scheme, and recommended workflow",
         "XcodeBuildMCP build_run_sim proof when build/run is claimed",
         "serve-sim or SwiftUI preview hot reload proof when live preview is claimed",
         "Animation Hitches, Time Profiler, or sample/log fallback evidence when performance is claimed",
@@ -203,7 +203,7 @@ def classify_mode(text: str) -> str:
             "profiler route",
         ],
     ):
-        return "build-apps-bridge"
+        return "launchdeck"
     if contains_any(
         text,
         [
@@ -262,10 +262,10 @@ def questions_for(mode: str, text: str) -> list[str]:
             f"What user-visible feature needs {surface} permission?",
             "Which denied, limited, provisional, unavailable, and first-run states must be supported?",
         ]
-    if mode == "build-apps-bridge":
+    if mode == "launchdeck":
         return [
             "Is the lane build/run, debugger/log investigation, live simulator browser preview, SwiftUI preview hot reload, or performance profiling?",
-            "Which scheme, simulator, app state, or route should be used if the ShipGuard bridge report finds more than one option?",
+            "Which scheme, simulator, app state, or route should be used if the LaunchDeck report finds more than one option?",
         ]
     if mode == "release-proof":
         return [
@@ -332,8 +332,8 @@ def claim_boundaries_for(mode: str, text: str) -> list[str]:
         claims.append("Do not claim purchase verification without StoreKit config, sandbox, TestFlight sandbox, or live-account evidence.")
     if mode == "performance-audit":
         claims.append("Do not claim 10/10 smoothness from source review alone; name profiler output, sampled stacks, before/after proof, and device-only gaps.")
-    if mode == "build-apps-bridge":
-        claims.append("Do not claim a simulator build, live preview, debugger session, or profiler capture unless the corresponding Build iOS Apps or XcodeBuildMCP proof ran.")
+    if mode == "launchdeck":
+        claims.append("Do not claim a simulator build, live preview, debugger session, or profiler capture unless the corresponding LaunchDeck or XcodeBuildMCP proof ran.")
     if mode == "design-audit":
         claims.append("Do not claim visual coherence, app icon quality, or haptic quality without preview, ImageGen review, or physical-device evidence as applicable.")
     if mode == "external-source-audit":

@@ -22,11 +22,11 @@ The app archetype is `interactive-decoupled`: data/action tools stay separate fr
 
 The MCP `initialize` response includes server-level instructions for host models. Those instructions describe the expected start, render, record, target-resolution, target-match, and Codex handoff sequence, and restate the no-raw-coordinate-tap and no-token-in-prompts boundaries.
 
-## Relationship To Build iOS Apps
+## Relationship To LaunchDeck
 
-Use the Build iOS Apps plugin for the native Codex-side visual loop when it is available: Simulator mirroring in the in-app browser, SwiftUI previews, and package-backed hot reload. Use ShipGuard Devspace when ChatGPT should plan from a phone preview widget, when you need MCP-readable visual receipts, or when the output must become a guarded Codex handoff with redaction and report-quality boundaries.
+Use the LaunchDeck surface for the native Codex-side visual loop when it is available: Simulator mirroring in the in-app browser, SwiftUI previews, and package-backed hot reload. Use ShipGuard Devspace when ChatGPT should plan from a phone preview widget, when you need MCP-readable visual receipts, or when the output must become a guarded Codex handoff with redaction and report-quality boundaries.
 
-ShipGuard does not replace Build iOS Apps and does not force a ChatGPT model choice. It adds the local-first proof layer around visual planning: bearer-token checks, screenshot-token handling, target-resolution rules, no raw coordinate taps, redaction handoff, and explicit Codex execution boundaries.
+ShipGuard does not replace LaunchDeck and does not force a ChatGPT model choice. It adds the local-first proof layer around visual planning: bearer-token checks, screenshot-token handling, target-resolution rules, no raw coordinate taps, redaction handoff, and explicit Codex execution boundaries.
 
 ## Start HTTP Mode
 

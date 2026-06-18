@@ -43,7 +43,7 @@ Usage:
   shipguard ios codex-handoff --prompt-file <file>|--prompt <text> --out <dir> [--execute]
   shipguard ios plan --mode <mode> --inventory <ios-inventory.json> --out <file-or-dir>
   shipguard ios prove --plan <ios-plan.json> --out <dir>
-  shipguard ios build-apps --path <repo> --out <dir> [--workflow auto|build-run|debug|preview|performance] [--receipt <file-or-dir> ...] [--shipguard-eval] [--shareable] [--json|--markdown]
+  shipguard ios launchdeck --path <repo> --out <dir> [--workflow auto|build-run|debug|preview|performance] [--receipt <file-or-dir> ...] [--shipguard-eval] [--shareable] [--json|--markdown]
   shipguard ios performance --path <repo> --out <dir> [--shipguard-eval] [--shareable] [--json|--markdown]
   shipguard ios design --path <repo> --out <dir> [--app-type auto|utility|game|fitness|health|education|kids|creative|commerce|social|finance|saas] [--preview-out <dir>] [--icon-brief] [--shipguard-eval] [--shareable] [--json|--markdown]
   shipguard ios modernize --focus swift --path <repo> --out <dir> [--shipguard-eval] [--shareable] [--json|--markdown]
@@ -387,7 +387,7 @@ cmd_docs_check() {
 
 cmd_ios() {
   local subcommand="${1:-}"
-  [[ "$subcommand" == "doctor" || "$subcommand" == "inventory" || "$subcommand" == "preview" || "$subcommand" == "devspace" || "$subcommand" == "devspace-check" || "$subcommand" == "target-match" || "$subcommand" == "codex-handoff" || "$subcommand" == "plan" || "$subcommand" == "prove" || "$subcommand" == "build-apps" || "$subcommand" == "performance" || "$subcommand" == "design" || "$subcommand" == "modernize" || "$subcommand" == "app-intelligence" || "$subcommand" == "ai-readiness" || "$subcommand" == "external-audit" || "$subcommand" == "spec-workflow" || "$subcommand" == "report-quality" || "$subcommand" == "redact" || "$subcommand" == "eval" || "$subcommand" == "demo" || "$subcommand" == "goals" ]] || fail "ios requires subcommand: doctor, inventory, preview, devspace, devspace-check, target-match, codex-handoff, plan, prove, build-apps, performance, design, modernize, app-intelligence, ai-readiness, external-audit, spec-workflow, report-quality, redact, eval, demo, or goals"
+  [[ "$subcommand" == "doctor" || "$subcommand" == "inventory" || "$subcommand" == "preview" || "$subcommand" == "devspace" || "$subcommand" == "devspace-check" || "$subcommand" == "target-match" || "$subcommand" == "codex-handoff" || "$subcommand" == "plan" || "$subcommand" == "prove" || "$subcommand" == "launchdeck" || "$subcommand" == "performance" || "$subcommand" == "design" || "$subcommand" == "modernize" || "$subcommand" == "app-intelligence" || "$subcommand" == "ai-readiness" || "$subcommand" == "external-audit" || "$subcommand" == "spec-workflow" || "$subcommand" == "report-quality" || "$subcommand" == "redact" || "$subcommand" == "eval" || "$subcommand" == "demo" || "$subcommand" == "goals" ]] || fail "ios requires subcommand: doctor, inventory, preview, devspace, devspace-check, target-match, codex-handoff, plan, prove, launchdeck, performance, design, modernize, app-intelligence, ai-readiness, external-audit, spec-workflow, report-quality, redact, eval, demo, or goals"
   shift || true
   case "$subcommand" in
     doctor)
@@ -417,8 +417,8 @@ cmd_ios() {
     prove)
       run_py "$tool_root/scripts/ios_prove.py" "$@"
       ;;
-    build-apps)
-      run_py "$tool_root/scripts/ios_build_apps.py" "$@"
+    launchdeck)
+      run_py "$tool_root/scripts/ios_launchdeck.py" "$@"
       ;;
     performance)
       run_py "$tool_root/scripts/ios_performance.py" "$@"

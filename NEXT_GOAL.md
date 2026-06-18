@@ -1,15 +1,15 @@
 # Next Goal
 
-- Generated: 2026-06-18T02:41:25Z
+- Generated: 2026-06-18T03:05:14Z
 - Current toolkit version: 3.70.1
-- Target release: v3.81.0
-- Title: Build Apps Receipt Promotion Fixtures
+- Target release: v3.82.0
+- Title: LaunchDeck Receipt Issue Visibility
 
 ## Slash Plan
 
 ```text
-/plan v3.81.0 Build Apps Receipt Promotion Fixtures for jlekerli-source/ShipGuard:
-1. Implement this bounded improvement: Promote Build iOS Apps receipt gaps into first-class ShipGuard report-quality fixture work by adding receipt-aware actionability ranking, an ios-build-apps-receipt-quality-fixture type, a public synthetic weak-receipt fixture, materialization coverage, docs, changelog, roadmap, and OSS evaluation evidence while keeping target apps read-only.
+/plan v3.82.0 LaunchDeck Receipt Issue Visibility for jlekerli-source/ShipGuard:
+1. Implement this bounded improvement: Rename the iOS build/debug/preview/profiler surface to ShipGuard LaunchDeck end-to-end and make report-quality carry source report findings through sourceFindings, sourceIssueVisibility, and Markdown Source Report Findings without mixing source issues into report-quality findings.
 2. Implement the CLI, docs, tests, and package proof needed for that improvement.
 3. Run the required proof commands, treat blocked or timed-out commands as failures, and record exact blockers.
 4. Push main, verify GitHub Actions, publish and consume release proof, verify asset SHA-256 and clean git status, then generate the following goal.
@@ -18,23 +18,23 @@
 ## Slash Goal
 
 ```text
-/goal Implement v3.81.0 Build Apps Receipt Promotion Fixtures for jlekerli-source/ShipGuard: follow the /plan above, deliver this bounded improvement: Promote Build iOS Apps receipt gaps into first-class ShipGuard report-quality fixture work by adding receipt-aware actionability ranking, an ios-build-apps-receipt-quality-fixture type, a public synthetic weak-receipt fixture, materialization coverage, docs, changelog, roadmap, and OSS evaluation evidence while keeping target apps read-only, push main, verify GitHub Actions, publish the release tarball, verify asset SHA-256 and clean git status, then run shipguard next-goal again for the following release.
+/goal Implement v3.82.0 LaunchDeck Receipt Issue Visibility for jlekerli-source/ShipGuard: follow the /plan above, deliver this bounded improvement: Rename the iOS build/debug/preview/profiler surface to ShipGuard LaunchDeck end-to-end and make report-quality carry source report findings through sourceFindings, sourceIssueVisibility, and Markdown Source Report Findings without mixing source issues into report-quality findings, push main, verify GitHub Actions, publish the release tarball, verify asset SHA-256 and clean git status, then run shipguard next-goal again for the following release.
 ```
 
 
 ## Bounded Scope
 
-Promote Build iOS Apps receipt gaps into first-class ShipGuard report-quality fixture work by adding receipt-aware actionability ranking, an ios-build-apps-receipt-quality-fixture type, a public synthetic weak-receipt fixture, materialization coverage, docs, changelog, roadmap, and OSS evaluation evidence while keeping target apps read-only.
+Rename the iOS build/debug/preview/profiler surface to ShipGuard LaunchDeck end-to-end and make report-quality carry source report findings through sourceFindings, sourceIssueVisibility, and Markdown Source Report Findings without mixing source issues into report-quality findings.
 
 ## Completion Receipt
 
-- Completed scope: Promote Build iOS Apps receipt gaps into first-class ShipGuard report-quality fixture work by adding receipt-aware actionability ranking, an ios-build-apps-receipt-quality-fixture type, a public synthetic weak-receipt fixture, materialization coverage, docs, changelog, roadmap, and OSS evaluation evidence while keeping target apps read-only.
-- Evidence: Read-only QA with shipguard ios build-apps weak performance receipts showed report-quality ranked a generic front-door question first and classified receipt gaps as performance/preview fixtures. Implemented receipt-focused question priority, ios-build-apps-receipt-quality-fixture classification, fixtures/ios-report-quality/build-apps-receipts, report-quality materialization assertions, and docs/changelog/roadmap/OSS evaluation notes. Focused validation passed: python compile, git diff --check, ./tests/ios_report_quality_test.sh, and a rerun of weak receipt report-quality showed the receipt-specific priority action and fixture type.
+- Completed scope: Rename the iOS build/debug/preview/profiler surface to ShipGuard LaunchDeck end-to-end and make report-quality carry source report findings through sourceFindings, sourceIssueVisibility, and Markdown Source Report Findings without mixing source issues into report-quality findings.
+- Evidence: Read-only LaunchDeck receipt report-quality evidence showed status pass, finding_count 0, source_finding_count 2, source rules launchdeck-build-run-receipt-missing and launchdeck-performance-receipt-missing, and fixture type ios-launchdeck-receipt-quality-fixture. Implemented shipguard ios launchdeck, ios-launchdeck outputs, LaunchDeck route/rule/fixture/eval/docs naming, sourceFindings/sourceIssueVisibility rendering, and tests. Validation passed: python compile, git diff --check, ./tests/ios_launchdeck_test.sh, ./tests/ios_report_quality_test.sh, ./tests/ios_shipguard_eval_test.sh, ./tests/ios_spec_workflow_test.sh, ./tests/cli_smoke_test.sh, ./bin/shipguard validate, ./bin/shipguard docs-check . --out /tmp/shipguard-docs-check-v382, ./tests/self_audit_test.sh, ./tests/next_goal_test.sh, ./tests/package_release_test.sh.
 
 ## Following Slash Plan
 
 ```text
-/plan v3.82.0 Build Apps Receipt Issue Visibility for jlekerli-source/ShipGuard:
+/plan v3.83.0 LaunchDeck Source Finding Priority Actions for jlekerli-source/ShipGuard:
 1. Review ROADMAP.md, docs/oss-evaluation.md, and the latest read-only ShipGuard product-QA evidence.
 2. Pick one bounded improvement that makes ShipGuard reports more useful without turning private-app findings into app work.
 3. Implement the CLI, docs, tests, package proof, and plugin-refresh proof needed for that improvement.
@@ -44,13 +44,13 @@ Promote Build iOS Apps receipt gaps into first-class ShipGuard report-quality fi
 ## Following Slash Goal
 
 ```text
-/goal Implement v3.82.0 Build Apps Receipt Issue Visibility for jlekerli-source/ShipGuard: follow the following /plan above, choose one bounded ShipGuard report-quality improvement from ROADMAP.md and docs/oss-evaluation.md, implement it with proof, and generate the next completion receipt plus following /plan and /goal after validation passes.
+/goal Implement v3.83.0 LaunchDeck Source Finding Priority Actions for jlekerli-source/ShipGuard: follow the following /plan above, choose one bounded ShipGuard report-quality improvement from ROADMAP.md and docs/oss-evaluation.md, implement it with proof, and generate the next completion receipt plus following /plan and /goal after validation passes.
 ```
 
 Generate that follow-up file with:
 
 ```bash
-./bin/shipguard next-goal --release 3.82.0 --title "Build Apps Receipt Issue Visibility" --out NEXT_GOAL.md
+./bin/shipguard next-goal --release 3.83.0 --title "LaunchDeck Source Finding Priority Actions" --out NEXT_GOAL.md
 ```
 
 ## Constraints
@@ -88,7 +88,7 @@ Generate that follow-up file with:
 ./tests/ios_codex_handoff_test.sh
 ./tests/ios_plan_test.sh
 ./tests/ios_prove_test.sh
-./tests/ios_build_apps_test.sh
+./tests/ios_launchdeck_test.sh
 ./tests/ios_performance_test.sh
 ./tests/ios_devspace_check_test.sh
 ./tests/ios_design_test.sh
@@ -132,12 +132,12 @@ Generate that follow-up file with:
 
 ## Release Loop
 
-1. Open or update the tracking issue for v3.81.0.
+1. Open or update the tracking issue for v3.82.0.
 2. Implement the smallest complete improvement that makes the toolkit more useful.
 3. Update README, CLI docs, changelog, roadmap, and package verification.
 4. Commit with an issue-closing reference.
 5. Push `main` and verify GitHub Actions success.
-6. Create release `v3.81.0` and upload `dist/shipguard-v3.81.0.tar.gz`.
+6. Create release `v3.82.0` and upload `dist/shipguard-v3.82.0.tar.gz`.
 7. Verify release asset digest, closed issue, tag target, and clean git status.
 8. Generate the next goal:
 

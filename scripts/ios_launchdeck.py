@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Bridge ShipGuard iOS repo inspection to Build iOS Apps execution workflows."""
+"""ShipGuard LaunchDeck: route iOS build, preview, debug, and profiler proof."""
 
 from __future__ import annotations
 
@@ -16,6 +16,17 @@ import ios_scan_scope
 
 
 SCHEMA_VERSION = 1
+SURFACE_NAME = "ShipGuard LaunchDeck"
+SURFACE_CODENAME = "launchdeck"
+SURFACE_TAGLINE = "Launch control for iOS build, preview, debug, profiler, and proof-cargo work."
+LANE_NAMES = {
+    "xcodebuildmcp-build-run": "Harbor Check",
+    "xcodebuildmcp-debug": "Black Box Replay",
+    "simulator-browser-preview": "Glass Deck",
+    "swiftui-preview-hot-reload": "Hot-Swap Dock",
+    "ios-profiler-performance": "Trace Radar",
+    "repo-build-topology-review": "Map Room",
+}
 WORKFLOWS = {
     "auto",
     "build-run",
@@ -52,13 +63,13 @@ RECEIPT_SIGNAL_TITLES = {
     "deviceProof": "Physical-device proof",
 }
 RECEIPT_MISSING_RULES = {
-    "buildRunProof": "build-apps-build-run-receipt-missing",
-    "uiProof": "build-apps-ui-receipt-missing",
-    "logProof": "build-apps-log-receipt-missing",
-    "simulatorBrowserProof": "build-apps-simulator-browser-receipt-missing",
-    "swiftuiPreviewProof": "build-apps-swiftui-preview-receipt-missing",
-    "performanceProof": "build-apps-performance-receipt-missing",
-    "deviceProof": "build-apps-device-receipt-missing",
+    "buildRunProof": "launchdeck-build-run-receipt-missing",
+    "uiProof": "launchdeck-ui-receipt-missing",
+    "logProof": "launchdeck-log-receipt-missing",
+    "simulatorBrowserProof": "launchdeck-simulator-browser-receipt-missing",
+    "swiftuiPreviewProof": "launchdeck-swiftui-preview-receipt-missing",
+    "performanceProof": "launchdeck-performance-receipt-missing",
+    "deviceProof": "launchdeck-device-receipt-missing",
 }
 TEXT_RECEIPT_SUFFIXES = {
     ".json",
@@ -80,16 +91,16 @@ def utc_now() -> str:
 
 
 def fail(message: str) -> None:
-    print(f"ios-build-apps: {message}", file=sys.stderr)
+    print(f"ios-launchdeck: {message}", file=sys.stderr)
     raise SystemExit(1)
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Make ShipGuard the front door for Build iOS Apps build, debug, preview, and profiler workflows."
+        description=f"{SURFACE_NAME}: route iOS build, debug, preview, profiler, and proof-cargo workflows."
     )
     parser.add_argument("--path", default=".", help="iOS repo root to inspect")
-    parser.add_argument("--out", help="Output directory for ios-build-apps.md and ios-build-apps.json")
+    parser.add_argument("--out", help="Output directory for ios-launchdeck.md and ios-launchdeck.json")
     parser.add_argument(
         "--workflow",
         choices=sorted(WORKFLOWS),
@@ -105,7 +116,7 @@ def parse_args() -> argparse.Namespace:
         "--receipt",
         action="append",
         default=[],
-        help="Build iOS Apps/XcodeBuildMCP proof file or directory to grade after execution. May be passed multiple times.",
+        help="LaunchDeck proof-cargo file or directory to grade after Codex/XcodeBuildMCP execution. May be passed multiple times.",
     )
     parser.add_argument(
         "--shareable",
@@ -450,7 +461,7 @@ def build_target(root: Path, doctor: dict[str, Any], *, shareable: bool) -> dict
         "appTarget": app_target,
         "packageTarget": package_target,
         "preferredXcodeSelector": "workspace" if workspace else "project" if project else "package" if package else "none",
-        "recommendedSimulator": "Use Build iOS Apps list_sims and choose a bootable iPhone simulator; do not assume a simulator ID from source.",
+        "recommendedSimulator": "Use XcodeBuildMCP list_sims through LaunchDeck's Harbor Check route and choose a bootable iPhone simulator; do not assume a simulator ID from source.",
         "root": report_path(root, root=root, shareable=shareable, placeholder="scanned-app"),
     }
 
@@ -487,8 +498,9 @@ def build_xcodebuildmcp_workflow(target: dict[str, Any]) -> dict[str, Any]:
     scheme = target_label(target.get("scheme"))
     return {
         "id": "xcodebuildmcp-build-run",
-        "title": "XcodeBuildMCP Build/Run",
-        "capability": "build-ios-apps:ios-debugger-agent",
+        "title": "Harbor Check",
+        "plainTitle": "XcodeBuildMCP Build/Run",
+        "capability": "launchdeck:ios-debugger-agent",
         "codexTools": [
             "session_show_defaults",
             "session_set_defaults",
@@ -507,16 +519,17 @@ def build_xcodebuildmcp_workflow(target: dict[str, Any]) -> dict[str, Any]:
             "running simulator screenshot or UI description",
             "log capture when debugging runtime behavior",
         ],
-        "shipguardRole": "ShipGuard chooses the repo-aware route, records target assumptions, and turns proof into reports.",
-        "pluginRole": "Build iOS Apps executes the simulator build, launch, UI snapshot, and log capture inside Codex.",
+        "shipguardRole": "LaunchDeck chooses the repo-aware route, records target assumptions, and turns proof cargo into reports.",
+        "executionRole": "Codex iOS execution tools run the simulator build, launch, UI snapshot, and log capture.",
     }
 
 
 def build_debug_workflow() -> dict[str, Any]:
     return {
         "id": "xcodebuildmcp-debug",
-        "title": "Debugger And Runtime Investigation",
-        "capability": "build-ios-apps:ios-debugger-agent",
+        "title": "Black Box Replay",
+        "plainTitle": "Debugger And Runtime Investigation",
+        "capability": "launchdeck:ios-debugger-agent",
         "codexTools": [
             "build_run_sim",
             "start_sim_log_cap",
@@ -534,18 +547,19 @@ def build_debug_workflow() -> dict[str, Any]:
             "one reproduction path",
             "screenshot/UI tree before and after the investigated action",
         ],
-        "shipguardRole": "ShipGuard keeps the debug path scoped to a single reproduction and prevents vague app-wide claims.",
-        "pluginRole": "Build iOS Apps drives the simulator, captures logs, and exposes UI/runtime evidence.",
+        "shipguardRole": "LaunchDeck keeps the debug path scoped to a single reproduction and prevents vague app-wide claims.",
+        "executionRole": "Codex iOS execution tools drive the simulator, capture logs, and expose UI/runtime evidence.",
     }
 
 
 def build_simulator_browser_workflow() -> dict[str, Any]:
     return {
         "id": "simulator-browser-preview",
-        "title": "Simulator Browser Preview",
-        "capability": "build-ios-apps:ios-simulator-browser",
+        "title": "Glass Deck",
+        "plainTitle": "Simulator Browser Preview",
+        "capability": "launchdeck:ios-simulator-browser",
         "codexTools": [
-            "serve-sim through the Build iOS Apps simulator browser workflow",
+            "serve-sim through the LaunchDeck simulator browser workflow",
             "browser screenshot after the simulator frame is visible",
         ],
         "commands": [
@@ -558,8 +572,8 @@ def build_simulator_browser_workflow() -> dict[str, Any]:
             "served preview URL",
             "cleanup command evidence",
         ],
-        "shipguardRole": "ShipGuard points visual QA, design QA, and Devspace planning at a stable preview route.",
-        "pluginRole": "Build iOS Apps streams the selected simulator into the browser.",
+        "shipguardRole": "LaunchDeck points visual QA, design QA, and Devspace planning at a stable preview route.",
+        "executionRole": "Codex iOS execution tools stream the selected simulator into the browser.",
     }
 
 
@@ -567,13 +581,14 @@ def build_swiftui_preview_workflow(target: dict[str, Any]) -> dict[str, Any]:
     package_path = target_label(target.get("packagePath"))
     package_target = target_label(target.get("packageTarget") or target.get("appTarget"))
     command = (
-        "node <build-ios-apps>/scripts/swiftui-preview-browser.mjs "
+        "node <launchdeck>/scripts/swiftui-preview-browser.mjs "
         f"{shell_quote(package_path)} --package-target {shell_quote(package_target)} --device <simulator-udid>"
     )
     return {
         "id": "swiftui-preview-hot-reload",
-        "title": "SwiftUI Preview Hot Reload",
-        "capability": "build-ios-apps:swiftui-ui-patterns",
+        "title": "Hot-Swap Dock",
+        "plainTitle": "SwiftUI Preview Hot Reload",
+        "capability": "launchdeck:swiftui-ui-patterns",
         "codexTools": [
             "swiftui-preview-browser.mjs",
             "serve-sim scoped to the preview simulator",
@@ -589,16 +604,17 @@ def build_swiftui_preview_workflow(target: dict[str, Any]) -> dict[str, Any]:
             "loaded preview screenshot",
             "hot-reload or rebuild receipt when a preview source changes",
         ],
-        "shipguardRole": "ShipGuard selects when preview proof is enough and when a full app build is still required.",
-        "pluginRole": "Build iOS Apps runs the preview browser and simulator-backed hot reload loop.",
+        "shipguardRole": "LaunchDeck selects when preview proof is enough and when a full app build is still required.",
+        "executionRole": "Codex iOS execution tools run the preview browser and simulator-backed hot reload loop.",
     }
 
 
 def build_performance_workflow() -> dict[str, Any]:
     return {
         "id": "ios-profiler-performance",
-        "title": "Performance Profiling",
-        "capability": "build-ios-apps:swiftui-performance-audit and ios-ettrace-performance",
+        "title": "Trace Radar",
+        "plainTitle": "Performance Profiling",
+        "capability": "launchdeck:swiftui-performance-audit and ios-ettrace-performance",
         "codexTools": [
             "Animation Hitches or Time Profiler trace when Instruments templates are available",
             "xctrace list templates before recording",
@@ -606,7 +622,7 @@ def build_performance_workflow() -> dict[str, Any]:
         ],
         "commands": [
             "Run `shipguard ios performance --path <repo> --out <dir> --shareable` for static risk routing.",
-            "Use Build iOS Apps profiler guidance for one route: launch, scroll, tap, or animation.",
+            "Use LaunchDeck profiler guidance for one route: launch, scroll, tap, or animation.",
             "Use a physical iPhone before claiming ProMotion, touch latency, haptic quality, thermal behavior, or display-specific smoothness.",
         ],
         "proofArtifacts": [
@@ -614,8 +630,8 @@ def build_performance_workflow() -> dict[str, Any]:
             "Instruments trace or recorded fallback evidence",
             "device-only proof receipt for hardware claims",
         ],
-        "shipguardRole": "ShipGuard names the route, proof boundary, and stop condition before performance edits.",
-        "pluginRole": "Build iOS Apps captures and interprets simulator or device profiler evidence.",
+        "shipguardRole": "LaunchDeck names the route, proof boundary, and stop condition before performance edits.",
+        "executionRole": "Codex iOS execution tools capture and interpret simulator or device profiler evidence.",
     }
 
 
@@ -631,8 +647,11 @@ def build_workflows(target: dict[str, Any]) -> list[dict[str, Any]]:
 
 def integration_summary() -> dict[str, Any]:
     return {
-        "plugin": "build-ios-apps",
-        "integration": "native-shipguard-front-door",
+        "surface": SURFACE_NAME,
+        "codename": SURFACE_CODENAME,
+        "tagline": SURFACE_TAGLINE,
+        "integration": "native-shipguard-launch-control",
+        "lanes": LANE_NAMES,
         "capabilities": {
             "xcodeBuildMCP": "Build, run, debug, inspect UI, and capture logs from iOS Simulator.",
             "simulatorBrowser": "Expose a selected simulator as a browser-visible phone frame.",
@@ -641,8 +660,8 @@ def integration_summary() -> dict[str, Any]:
         },
         "boundary": [
             "ShipGuard CLI cannot directly call Codex MCP tools from a non-Codex shell.",
-            "ShipGuard owns discovery, routing, report quality, proof boundaries, and handoff text.",
-            "Build iOS Apps owns actual simulator, debugger, browser-preview, and profiler execution inside Codex.",
+            "LaunchDeck owns discovery, routing, report quality, proof boundaries, and handoff text.",
+            "Codex iOS execution tools perform actual simulator, debugger, browser-preview, and profiler work inside Codex.",
         ],
     }
 
@@ -652,9 +671,9 @@ def shipguard_eval_boundary() -> dict[str, Any]:
         "targetAppsReadOnly": True,
         "shipguardOnly": True,
         "allowedUses": [
-            "Evaluate whether ShipGuard makes Build iOS Apps workflows obvious.",
+            "Evaluate whether ShipGuard makes LaunchDeck workflows obvious.",
             "Identify missing build/run/debug/preview/performance routing in ShipGuard reports.",
-            "Create public fixtures or eval cases that exercise the bridge without private app code.",
+            "Create public fixtures or eval cases that exercise LaunchDeck without private app code.",
         ],
         "forbiddenUses": [
             "Do not edit the scanned app from this run.",
@@ -666,11 +685,11 @@ def shipguard_eval_boundary() -> dict[str, Any]:
 
 def shipguard_eval_questions() -> list[str]:
     return [
-        "Does the report make ShipGuard feel like the front door for Build iOS Apps rather than a separate plugin the user must remember?",
+        "Does the report make ShipGuard feel like the front door for LaunchDeck rather than a separate plugin the user must remember?",
         "Does it name the exact XcodeBuildMCP default-setting and build_run_sim route for this repo?",
-        "Does it separate ShipGuard routing/proof ownership from Build iOS Apps execution ownership?",
+        "Does it separate ShipGuard routing/proof ownership from Codex execution ownership?",
         "Does it choose between full app build, simulator browser preview, SwiftUI preview hot reload, and performance profiling using repo evidence?",
-        "Does it distinguish planned Build iOS Apps routing from execution receipt quality after Codex runs the workflow?",
+        "Does it distinguish planned LaunchDeck routing from execution receipt quality after Codex runs the workflow?",
         "When receipts are supplied, does it name missing build/run, UI, preview, log, or profiler proof for the selected lane?",
     ]
 
@@ -692,9 +711,9 @@ def grade_receipt_quality(workflow: str, execution_receipts: dict[str, Any]) -> 
             {
                 "severity": "opportunity",
                 "category": "execution-receipts",
-                "ruleId": "build-apps-execution-receipts-not-provided",
+                "ruleId": "launchdeck-execution-receipts-not-provided",
                 "evidence": "No --receipt input was supplied, so this report is a route plan rather than execution proof.",
-                "recommendation": "After Codex runs Build iOS Apps or XcodeBuildMCP tools, rerun this command with --receipt <file-or-dir> to grade proof completeness.",
+                "recommendation": "After Codex executes the selected LaunchDeck route or XcodeBuildMCP tools, rerun this command with --receipt <file-or-dir> to grade proof completeness.",
                 "proofGuidance": "Attach build logs, describe_ui or screenshot output, serve-sim/browser proof, preview hot-reload output, profiler traces, or device receipts depending on the selected lane.",
             }
         )
@@ -712,9 +731,9 @@ def grade_receipt_quality(workflow: str, execution_receipts: dict[str, Any]) -> 
             {
                 "severity": "review",
                 "category": "execution-receipts",
-                "ruleId": "build-apps-execution-receipts-empty",
+                "ruleId": "launchdeck-execution-receipts-empty",
                 "evidence": "Receipt inputs were supplied, but none resolved to readable receipt files.",
-                "recommendation": "Point --receipt at the directory or files that contain the Build iOS Apps/XcodeBuildMCP output.",
+                "recommendation": "Point --receipt at the directory or files that contain the LaunchDeck/XcodeBuildMCP output.",
                 "proofGuidance": "Use a small explicit receipt folder containing build logs, UI snapshots, screenshots, preview logs, trace summaries, and device notes.",
             }
         )
@@ -724,10 +743,10 @@ def grade_receipt_quality(workflow: str, execution_receipts: dict[str, Any]) -> 
             {
                 "severity": "review",
                 "category": "execution-receipts",
-                "ruleId": RECEIPT_MISSING_RULES.get(signal, "build-apps-receipt-missing"),
+                "ruleId": RECEIPT_MISSING_RULES.get(signal, "launchdeck-receipt-missing"),
                 "evidence": f"The selected `{workflow}` lane requires {title}, but supplied receipts did not contain that signal.",
-                "recommendation": f"Add {title} before claiming the selected Build iOS Apps workflow has been executed and proven.",
-                "proofGuidance": "Re-run the relevant Codex/XcodeBuildMCP step, preserve the log/screenshot/trace output, then rerun `shipguard ios build-apps --receipt <dir>`.",
+                "recommendation": f"Add {title} before claiming the selected LaunchDeck workflow has been executed and proven.",
+                "proofGuidance": "Re-run the relevant Codex/XcodeBuildMCP step, preserve the log/screenshot/trace output, then rerun `shipguard ios launchdeck --receipt <dir>`.",
             }
         )
 
@@ -749,24 +768,24 @@ def next_actions(target: dict[str, Any], workflow: str, receipt_quality: dict[st
     ]
     if target.get("status") == "ready" and target.get("scheme"):
         actions.append(
-            "In Codex, call Build iOS Apps session_show_defaults, then set the discovered project/workspace, scheme, and simulator before build_run_sim."
+            "In Codex, call XcodeBuildMCP session_show_defaults, then set the discovered project/workspace, scheme, and simulator before build_run_sim."
         )
     else:
         actions.append("Choose a project/workspace and scheme before attempting simulator proof.")
     if workflow in {"simulator-browser-preview", "swiftui-preview-hot-reload"}:
-        actions.append("Use `shipguard ios preview` or Build iOS Apps serve-sim proof for visual inspection before design claims.")
+        actions.append("Use `shipguard ios preview` or Glass Deck serve-sim proof for visual inspection before design claims.")
     if workflow == "ios-profiler-performance":
         actions.append("Pair `shipguard ios performance` with an Instruments or sample-based route proof before changing performance-sensitive code.")
     receipt_status = str(receipt_quality.get("status") or "")
     if receipt_status == "not-assessed":
         actions.append(
-            "After Build iOS Apps or XcodeBuildMCP execution, rerun this command with `--receipt <proof-dir>` to grade build/run, UI, preview, log, or profiler receipt completeness."
+            "After Codex executes the selected LaunchDeck route or XcodeBuildMCP tools, rerun this command with `--receipt <proof-dir>` to grade build/run, UI, preview, log, or profiler receipt completeness."
         )
     elif receipt_status == "review":
         missing = ", ".join(receipt_signal_title(item) for item in receipt_quality.get("missing", [])) or "required receipt proof"
         actions.append(f"Collect the missing execution receipts before making proof claims: {missing}.")
     elif receipt_status == "pass":
-        actions.append("Use the receipt-quality section as proof that the selected Build iOS Apps lane has matching execution artifacts.")
+        actions.append("Use the receipt-quality section as proof that the selected LaunchDeck lane has matching execution artifacts.")
     actions.append("Use `shipguard ios report-quality` on the generated report when this is ShipGuard product QA.")
     return actions
 
@@ -801,7 +820,7 @@ def build_report(
     receipt_quality = grade_receipt_quality(selected_workflow, execution_receipts)
     return {
         "schemaVersion": SCHEMA_VERSION,
-        "tool": "shipguard ios build-apps",
+        "tool": "shipguard ios launchdeck",
         "generatedAt": utc_now(),
         "intent": "shipguard-evaluation" if shipguard_eval else "app-development",
         "status": status_for(target, receipt_quality),
@@ -809,7 +828,7 @@ def build_report(
         "shareability": {
             "mode": "shareable" if shareable else "local",
             "localAbsolutePathsIncluded": not shareable,
-            "note": "Use --shareable before moving this build-apps bridge report into ChatGPT, GitHub, docs, benchmark fixtures, or report-quality scoring."
+            "note": "Use --shareable before moving this LaunchDeck report into ChatGPT, GitHub, docs, benchmark fixtures, or report-quality scoring."
             if not shareable
             else "Local absolute paths are omitted from report fields; still run report-quality before public sharing.",
         },
@@ -828,15 +847,15 @@ def build_report(
             "scanScope": ios_scan_scope.summary(scan),
         },
         "previewSignals": preview,
-        "buildIosAppsIntegration": integration_summary(),
+        "launchdeckIntegration": integration_summary(),
         "workflows": build_workflows(target),
         "executionReceipts": execution_receipts,
         "receiptQuality": receipt_quality,
         "findings": receipt_quality["findings"],
         "proofBoundaries": [
             "Simulator proof is useful for build/run/debug and many UI checks, but physical-device proof is still required for haptics, ProMotion, touch latency, thermal behavior, background delivery, and display-specific claims.",
-            "ShipGuard reports can recommend Build iOS Apps MCP calls; a Codex thread must execute those MCP calls.",
-            "Do not claim an app is fixed from this bridge report alone. Use it to choose the proof route and then attach the actual build, preview, trace, log, or screenshot receipt.",
+            "LaunchDeck can recommend XcodeBuildMCP and Codex iOS execution calls; a Codex thread must execute those calls.",
+            "Do not claim an app is fixed from this LaunchDeck report alone. Use it to choose the proof route and then attach the actual build, preview, trace, log, or screenshot receipt.",
         ],
         "scopeBoundary": shipguard_eval_boundary() if shipguard_eval else None,
         "reportQualityQuestions": shipguard_eval_questions() if shipguard_eval else [],
@@ -853,11 +872,13 @@ def table_cell(value: object, limit: int = 120) -> str:
 
 def render_markdown(report: dict[str, Any]) -> str:
     target = report["buildTarget"]
-    integration = report["buildIosAppsIntegration"]
+    integration = report["launchdeckIntegration"]
     source = report["sourceSummary"]
     preview = report["previewSignals"]
     lines = [
-        "# iOS Build Apps Bridge",
+        "# ShipGuard LaunchDeck",
+        "",
+        SURFACE_TAGLINE,
         "",
         f"- Status: `{report['status']}`",
         f"- Intent: `{report['intent']}`",
@@ -890,9 +911,10 @@ def render_markdown(report: dict[str, Any]) -> str:
 
     lines.extend(
         [
-            "## Build iOS Apps Integration",
+            "## LaunchDeck Console",
             "",
-            f"- Plugin: `{integration['plugin']}`",
+            f"- Surface: `{integration['surface']}`",
+            f"- Codename: `{integration['codename']}`",
             f"- Integration mode: `{integration['integration']}`",
             f"- XcodeBuildMCP: {integration['capabilities']['xcodeBuildMCP']}",
             f"- Simulator browser: {integration['capabilities']['simulatorBrowser']}",
@@ -946,18 +968,20 @@ def render_markdown(report: dict[str, Any]) -> str:
     lines.append("")
 
     section_titles = {
-        "xcodebuildmcp-build-run": "XcodeBuildMCP Build/Run",
-        "xcodebuildmcp-debug": "Debugger And Runtime Investigation",
-        "simulator-browser-preview": "Simulator Browser",
-        "swiftui-preview-hot-reload": "SwiftUI Preview Hot Reload",
-        "ios-profiler-performance": "Performance Profiling",
+        "xcodebuildmcp-build-run": LANE_NAMES["xcodebuildmcp-build-run"],
+        "xcodebuildmcp-debug": LANE_NAMES["xcodebuildmcp-debug"],
+        "simulator-browser-preview": LANE_NAMES["simulator-browser-preview"],
+        "swiftui-preview-hot-reload": LANE_NAMES["swiftui-preview-hot-reload"],
+        "ios-profiler-performance": LANE_NAMES["ios-profiler-performance"],
     }
     for workflow in report["workflows"]:
         title = section_titles.get(workflow["id"], workflow["title"])
         lines.extend(["## " + title, ""])
+        if workflow.get("plainTitle"):
+            lines.append(f"- Route family: {workflow['plainTitle']}")
         lines.append(f"- Capability: `{workflow['capability']}`")
         lines.append(f"- ShipGuard role: {workflow['shipguardRole']}")
-        lines.append(f"- Build iOS Apps role: {workflow['pluginRole']}")
+        lines.append(f"- Execution role: {workflow['executionRole']}")
         lines.append("")
         lines.append("Codex tools:")
         for tool in workflow["codexTools"]:
@@ -990,7 +1014,7 @@ def render_markdown(report: dict[str, Any]) -> str:
             )
     else:
         lines.append(
-            "- No execution receipts were supplied. After Codex executes Build iOS Apps or XcodeBuildMCP, rerun with `--receipt <proof-dir>`."
+            "- No execution receipts were supplied. After Codex executes the LaunchDeck route or XcodeBuildMCP, rerun with `--receipt <proof-dir>`."
         )
     lines.append("")
     lines.append("| Signal | Present | Evidence |")
@@ -1029,8 +1053,8 @@ def render_markdown(report: dict[str, Any]) -> str:
 
 def write_outputs(report: dict[str, Any], out_dir: Path) -> None:
     out_dir.mkdir(parents=True, exist_ok=True)
-    json_path = out_dir / "ios-build-apps.json"
-    md_path = out_dir / "ios-build-apps.md"
+    json_path = out_dir / "ios-launchdeck.json"
+    md_path = out_dir / "ios-launchdeck.md"
     json_path.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     md_path.write_text(render_markdown(report), encoding="utf-8")
     print(f"wrote: {md_path}")

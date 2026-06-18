@@ -55,7 +55,7 @@ grep -q "^$package_name/plugins/ios-shipguard/skills/ios-shipguard/agents/openai
 grep -q "^$package_name/plugins/ios-shipguard/skills/ios-shipguard/references/modes.md$" "$tar_list"
 grep -q 'SHIPGUARD_CLI' plugins/ios-shipguard/skills/ios-shipguard/SKILL.md
 grep -q 'command -v shipguard' plugins/ios-shipguard/skills/ios-shipguard/SKILL.md
-grep -q 'Build iOS Apps' plugins/ios-shipguard/skills/ios-shipguard/SKILL.md
+grep -q 'LaunchDeck' plugins/ios-shipguard/skills/ios-shipguard/SKILL.md
 grep -q 'hot reload' docs/ios-preview.md
 python3 - <<'PY'
 import json
@@ -159,7 +159,7 @@ grep -q "^$package_name/scripts/ci_summary.sh$" "$tar_list"
 grep -q "^$package_name/scripts/docs_check.sh$" "$tar_list"
 grep -q "^$package_name/scripts/ios_ai_readiness.py$" "$tar_list"
 grep -q "^$package_name/scripts/ios_app_intelligence.py$" "$tar_list"
-grep -q "^$package_name/scripts/ios_build_apps.py$" "$tar_list"
+grep -q "^$package_name/scripts/ios_launchdeck.py$" "$tar_list"
 grep -q "^$package_name/scripts/ios_codex_handoff.py$" "$tar_list"
 grep -q "^$package_name/scripts/ios_devspace_check.py$" "$tar_list"
 grep -q "^$package_name/scripts/ios_design.py$" "$tar_list"
@@ -211,7 +211,7 @@ grep -q "^$package_name/tests/codex_status_test.sh$" "$tar_list"
 grep -q "^$package_name/tests/docs_check_test.sh$" "$tar_list"
 grep -q "^$package_name/tests/ios_ai_readiness_test.sh$" "$tar_list"
 grep -q "^$package_name/tests/ios_app_intelligence_test.sh$" "$tar_list"
-grep -q "^$package_name/tests/ios_build_apps_test.sh$" "$tar_list"
+grep -q "^$package_name/tests/ios_launchdeck_test.sh$" "$tar_list"
 grep -q "^$package_name/tests/ios_codex_handoff_test.sh$" "$tar_list"
 grep -q "^$package_name/tests/ios_devspace_check_test.sh$" "$tar_list"
 grep -q "^$package_name/tests/ios_design_test.sh$" "$tar_list"
@@ -750,7 +750,7 @@ grep -q '| shipguard ios target-match --help | pass |' "$tmp_dir/package-self-au
 grep -q '| shipguard ios codex-handoff --help | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 grep -q '| shipguard ios plan --help | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 grep -q '| shipguard ios prove --help | pass |' "$tmp_dir/package-self-audit/self-audit.md"
-grep -q '| shipguard ios build-apps --help | pass |' "$tmp_dir/package-self-audit/self-audit.md"
+grep -q '| shipguard ios launchdeck --help | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 grep -q '| shipguard ios performance --help | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 grep -q '| shipguard ios design --help | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 grep -q '| shipguard ios modernize --help | pass |' "$tmp_dir/package-self-audit/self-audit.md"
@@ -830,7 +830,7 @@ grep -q '| scripts/transcript_corpus.sh | pass |' "$tmp_dir/package-self-audit/s
 grep -q '| scripts/docs_check.sh | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 grep -q '| scripts/ios_doctor.py | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 grep -q '| scripts/ios_inventory.py | pass |' "$tmp_dir/package-self-audit/self-audit.md"
-grep -q '| scripts/ios_build_apps.py | pass |' "$tmp_dir/package-self-audit/self-audit.md"
+grep -q '| scripts/ios_launchdeck.py | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 grep -q '| scripts/ios_performance.py | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 grep -q '| scripts/ios_devspace_check.py | pass |' "$tmp_dir/package-self-audit/self-audit.md"
 grep -q '| scripts/ios_design.py | pass |' "$tmp_dir/package-self-audit/self-audit.md"
@@ -862,7 +862,7 @@ grep -q './tests/check_run_post_test.sh' "$tmp_dir/package-next-goal.md"
 grep -q './tests/ci_summary_test.sh' "$tmp_dir/package-next-goal.md"
 grep -q './tests/sarif_test.sh' "$tmp_dir/package-next-goal.md"
 grep -q './tests/docs_check_test.sh' "$tmp_dir/package-next-goal.md"
-grep -q './tests/ios_build_apps_test.sh' "$tmp_dir/package-next-goal.md"
+grep -q './tests/ios_launchdeck_test.sh' "$tmp_dir/package-next-goal.md"
 grep -q './tests/ios_performance_test.sh' "$tmp_dir/package-next-goal.md"
 grep -q './tests/ios_devspace_check_test.sh' "$tmp_dir/package-next-goal.md"
 grep -q './tests/ios_design_test.sh' "$tmp_dir/package-next-goal.md"

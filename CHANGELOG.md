@@ -2,9 +2,11 @@
 
 ## Unreleased
 
-- Promoted Build iOS Apps receipt gaps into first-class report-quality fixture work: weak `ios build-apps` receipt reports now prioritize receipt-specific actionability questions and materialize `ios-build-apps-receipt-quality-fixture` starter fixtures instead of generic performance/preview candidates.
-- Added `shipguard ios build-apps --receipt <file-or-dir>` so ShipGuard can grade Build iOS Apps/XcodeBuildMCP execution receipts after a run, distinguish route plans from proof, and flag missing build/run, UI, preview, log, or profiler evidence for the selected lane.
-- Added `shipguard ios build-apps` as a ShipGuard-native front door for the Build iOS Apps plugin, emitting repo-aware XcodeBuildMCP build/run, debugger, simulator browser, SwiftUI preview hot reload, and performance-profiler handoffs with proof boundaries, shareable output, report-quality scoring, and package coverage.
+- Renamed the iOS build/debug/preview/profiler front door to `shipguard ios launchdeck`, with `ios-launchdeck.*` outputs, LaunchDeck receipt rules, LaunchDeck report-quality fixtures, and LaunchDeck routing eval modes replacing the previous generic naming.
+- Added report-quality source-finding visibility: source report findings now appear in `sourceFindings`, `sourceIssueVisibility`, and a Markdown `Source Report Findings` section, while report-quality's own `findings` still only represent report-quality defects.
+- Promoted LaunchDeck receipt gaps into first-class report-quality fixture work: weak `ios launchdeck` receipt reports now prioritize receipt-specific actionability questions and materialize `ios-launchdeck-receipt-quality-fixture` starter fixtures instead of generic performance/preview candidates.
+- Added `shipguard ios launchdeck --receipt <file-or-dir>` so ShipGuard can grade LaunchDeck/XcodeBuildMCP execution receipts after a run, distinguish route plans from proof, and flag missing build/run, UI, preview, log, or profiler evidence for the selected lane.
+- Added `shipguard ios launchdeck` as a ShipGuard-native front door for the LaunchDeck surface, emitting repo-aware XcodeBuildMCP build/run, debugger, simulator browser, SwiftUI preview hot reload, and performance-profiler handoffs with proof boundaries, shareable output, report-quality scoring, and package coverage.
 - Routed shell-backed `bin/shipguard` subcommands through `bash` from the wrapper so macOS provenance metadata cannot kill helper scripts before their help or validation paths run.
 - Expanded `ios spec-workflow` into a fuller ShipGuard-native integration of external workflow inspiration: it now emits `requirements-checklist.md`, `integration-decisions.md`, and `consistency-analysis.md`, records ShipGuard-owned adaptations from Spec Kit, CodexPro, Expo, Xcode Build Optimization Agent Skills, and the OpenAI native iOS preview loop, and keeps those ideas as native proof/report-quality artifacts rather than vendored code.
 - Tightened `ios report-quality` so spec-workflow bundles must declare and include the requirements checklist, integration decisions, and consistency analysis, preserve report-quality questions through those artifacts, and fail review when those native integration files are missing or placeholder-only.
@@ -32,7 +34,7 @@
 - Added plugin interface website, privacy, and terms URLs and trimmed default prompts to the three Codex actually uses.
 - Made release packaging write tarballs atomically so parallel validation cannot leave a partially written `dist/shipguard-vX.Y.Z.tar.gz`.
 - Added a ShipGuard-native open-source operating surface with support, governance, code of conduct, proposal/bug templates, package proof, and docs routing.
-- Added Build iOS Apps visual-loop routing guidance so ShipGuard complements simulator browser, SwiftUI preview, and hot reload workflows with receipts, redaction, report quality, and Codex handoff proof.
+- Added LaunchDeck visual-loop routing guidance so ShipGuard complements simulator browser, SwiftUI preview, and hot reload workflows with receipts, redaction, report quality, and Codex handoff proof.
 
 ## v3.69.0 - Performance Validation Gates And Starter Hygiene
 

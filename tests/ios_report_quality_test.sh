@@ -77,40 +77,59 @@ grep -q 'Actionability Questions' "$tmp_dir/actionability-quality/ios-report-qua
 grep -q 'safest default for this app type' "$tmp_dir/actionability-quality/ios-report-quality.md"
 grep -q 'Answer the actionability questions above' "$tmp_dir/actionability-quality/ios-report-quality.md"
 
-build_apps_receipt_fixture="fixtures/ios-report-quality/build-apps-receipts"
+launchdeck_receipt_fixture="fixtures/ios-report-quality/launchdeck-receipts"
 ./bin/shipguard ios report-quality \
-  --reports "$build_apps_receipt_fixture" \
-  --out "$tmp_dir/build-apps-receipt-quality" \
-  --write-fixture-candidates "$tmp_dir/build-apps-receipt-fixtures" \
+  --reports "$launchdeck_receipt_fixture" \
+  --out "$tmp_dir/launchdeck-receipt-quality" \
+  --write-fixture-candidates "$tmp_dir/launchdeck-receipt-fixtures" \
   --shareable >/dev/null
-grep -q '"status": "pass"' "$tmp_dir/build-apps-receipt-quality/ios-report-quality.json"
-grep -q '"fixtureType": "ios-build-apps-receipt-quality-fixture"' "$tmp_dir/build-apps-receipt-quality/ios-report-quality.json"
-grep -q '"kind": "answer-actionability-question"' "$tmp_dir/build-apps-receipt-quality/ios-report-quality.json"
-python3 - <<'PY' "$tmp_dir/build-apps-receipt-quality/ios-report-quality.json"
+grep -q '"status": "pass"' "$tmp_dir/launchdeck-receipt-quality/ios-report-quality.json"
+grep -q '"fixtureType": "ios-launchdeck-receipt-quality-fixture"' "$tmp_dir/launchdeck-receipt-quality/ios-report-quality.json"
+grep -q '"kind": "answer-actionability-question"' "$tmp_dir/launchdeck-receipt-quality/ios-report-quality.json"
+python3 - <<'PY' "$tmp_dir/launchdeck-receipt-quality/ios-report-quality.json"
 import json
 import sys
 
 data = json.load(open(sys.argv[1], encoding="utf-8"))
+if data.get("status") != "pass":
+    raise SystemExit(f"expected report-quality status to stay pass, got {data.get('status')!r}")
+visibility = data.get("sourceIssueVisibility") or {}
+if visibility.get("sourceFindingCount") != 2:
+    raise SystemExit(f"expected two visible source findings, got {visibility!r}")
+if visibility.get("reportsWithSourceFindings") != 1:
+    raise SystemExit(f"expected one source report with findings, got {visibility!r}")
+source_rules = {item.get("ruleId") for item in data.get("sourceFindings") or []}
+expected_rules = {
+    "launchdeck-build-run-receipt-missing",
+    "launchdeck-performance-receipt-missing",
+}
+if not expected_rules.issubset(source_rules):
+    raise SystemExit(f"source findings did not preserve receipt rules: {source_rules!r}")
+if data.get("findings"):
+    raise SystemExit(f"source findings must not be mixed into report-quality findings: {data['findings']!r}")
 priority = data["priorityAction"]
 expected = "When receipts are supplied, does it name missing build/run, UI, preview, log, or profiler proof for the selected lane?"
 if priority.get("question") != expected:
     raise SystemExit(f"expected receipt-focused priority action, got {priority!r}")
 candidate = (data.get("fixtureCandidates") or [None])[0]
 if not candidate:
-    raise SystemExit("expected build-apps receipt fixture candidate")
-if candidate.get("fixtureType") != "ios-build-apps-receipt-quality-fixture":
+    raise SystemExit("expected launchdeck receipt fixture candidate")
+if candidate.get("fixtureType") != "ios-launchdeck-receipt-quality-fixture":
     raise SystemExit(f"unexpected fixture type: {candidate!r}")
 if candidate.get("sourceQuestion") != expected:
     raise SystemExit(f"unexpected source question: {candidate!r}")
 if not str(candidate.get("publicFixturePath", "")).startswith("fixtures/ios-report-quality/"):
     raise SystemExit(f"unexpected fixture path: {candidate!r}")
 PY
-grep -q 'ios-build-apps-receipt-quality-fixture' "$tmp_dir/build-apps-receipt-quality/ios-report-quality.md"
-grep -q 'missing build/run' "$tmp_dir/build-apps-receipt-quality/ios-report-quality.md"
-test -f "$tmp_dir/build-apps-receipt-fixtures/fixture-promotion-manifest.json"
-test -d "$tmp_dir/build-apps-receipt-fixtures/01-ios-build-apps-receipt-quality-fixture"
-test -f "$tmp_dir/build-apps-receipt-fixtures/01-ios-build-apps-receipt-quality-fixture/fixture-report.json"
-grep -q '"sourceReportsRedacted": true' "$tmp_dir/build-apps-receipt-fixtures/01-ios-build-apps-receipt-quality-fixture/fixture-candidate.json"
+grep -q 'ios-launchdeck-receipt-quality-fixture' "$tmp_dir/launchdeck-receipt-quality/ios-report-quality.md"
+grep -q 'missing build/run' "$tmp_dir/launchdeck-receipt-quality/ios-report-quality.md"
+grep -q 'Source Report Findings' "$tmp_dir/launchdeck-receipt-quality/ios-report-quality.md"
+grep -q 'launchdeck-build-run-receipt-missing' "$tmp_dir/launchdeck-receipt-quality/ios-report-quality.md"
+grep -q 'launchdeck-performance-receipt-missing' "$tmp_dir/launchdeck-receipt-quality/ios-report-quality.md"
+test -f "$tmp_dir/launchdeck-receipt-fixtures/fixture-promotion-manifest.json"
+test -d "$tmp_dir/launchdeck-receipt-fixtures/01-ios-launchdeck-receipt-quality-fixture"
+test -f "$tmp_dir/launchdeck-receipt-fixtures/01-ios-launchdeck-receipt-quality-fixture/fixture-report.json"
+grep -q '"sourceReportsRedacted": true' "$tmp_dir/launchdeck-receipt-fixtures/01-ios-launchdeck-receipt-quality-fixture/fixture-candidate.json"
 
 dedupe_fixture="$tmp_dir/dedupe-fixture"
 mkdir -p "$dedupe_fixture"

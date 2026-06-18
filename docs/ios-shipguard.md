@@ -10,7 +10,7 @@ Do not duplicate Codex platform features. Use them directly:
 
 - Codex app skills, modes, worktrees, terminal, and built-in Git tools: [Codex app features](https://developers.openai.com/codex/app/features).
 - Inline diff comments for asking Codex to change specific code: [Codex app features](https://developers.openai.com/codex/app/features).
-- Simulator debugging through XcodeBuildMCP and the Build iOS Apps plugin: [Debug in iOS simulator](https://developers.openai.com/codex/use-cases/ios-simulator-bug-debugging).
+- Simulator debugging through XcodeBuildMCP and the LaunchDeck surface: [Debug in iOS simulator](https://developers.openai.com/codex/use-cases/ios-simulator-bug-debugging).
 - Browser comments on local previews through the Codex in-app browser: [In-app browser](https://developers.openai.com/codex/app/browser).
 - GUI-only verification through computer use when structured tools are not enough: [Computer Use](https://developers.openai.com/codex/app/computer-use).
 
@@ -92,30 +92,30 @@ Route proof from a generated plan:
 
 The proof report records the smallest honest evidence lane and names any manual blockers. It does not execute builds, simulator actions, StoreKit purchases, TestFlight checks, App Store Connect checks, or device proof. It tells Codex which proof is still required before a claim can be made.
 
-## Build iOS Apps Bridge
+## LaunchDeck Bridge
 
-Use `ios build-apps` when the user wants ShipGuard to be the one command they remember for build, run, debug, preview, or performance investigation work:
+Use `ios launchdeck` when the user wants ShipGuard to be the one command they remember for build, run, debug, preview, or performance investigation work:
 
 ```bash
-./bin/shipguard ios build-apps \
+./bin/shipguard ios launchdeck \
   --path . \
-  --out /tmp/ios-shipguard-build-apps
-./bin/shipguard ios build-apps \
+  --out /tmp/ios-shipguard-launchdeck
+./bin/shipguard ios launchdeck \
   --path . \
   --workflow performance \
   --shipguard-eval \
   --shareable \
-  --out /tmp/ios-shipguard-build-apps-eval
-./bin/shipguard ios build-apps \
+  --out /tmp/ios-shipguard-launchdeck-eval
+./bin/shipguard ios launchdeck \
   --path . \
   --workflow performance \
-  --receipt /tmp/codex-build-ios-apps-proof \
+  --receipt /tmp/codex-launchdeck-proof \
   --shipguard-eval \
   --shareable \
-  --out /tmp/ios-shipguard-build-apps-receipts
+  --out /tmp/ios-shipguard-launchdeck-receipts
 ```
 
-The command is read-only against `--path` and writes only to `--out`. It creates `ios-build-apps.json` and `ios-build-apps.md`. The report discovers Xcode projects, workspaces, Swift packages, schemes, test plans, StoreKit configs, privacy manifests, SwiftUI preview declarations, and skipped generated/proof/cache directories. It then recommends one Build iOS Apps route:
+The command is read-only against `--path` and writes only to `--out`. It creates `ios-launchdeck.json` and `ios-launchdeck.md`. The report discovers Xcode projects, workspaces, Swift packages, schemes, test plans, StoreKit configs, privacy manifests, SwiftUI preview declarations, and skipped generated/proof/cache directories. It then recommends one LaunchDeck route:
 
 - XcodeBuildMCP build/run through `session_show_defaults`, `session_set_defaults`, and `build_run_sim`.
 - Debugger and runtime investigation with focused log capture plus UI snapshot or screenshot evidence.
@@ -123,11 +123,11 @@ The command is read-only against `--path` and writes only to `--out`. It creates
 - SwiftUI preview hot reload through `swiftui-preview-browser.mjs` for package-backed preview work.
 - Performance profiling through Animation Hitches, Time Profiler, sample/log fallback evidence, and physical-device proof boundaries.
 
-ShipGuard owns the front door: topology discovery, workflow selection, report quality, proof boundaries, redaction/shareability, and next-action text. Build iOS Apps owns execution inside Codex: simulator build/run, UI inspection, simulator browser streaming, SwiftUI preview hosting, logs, debugger, and profiler captures. A plain CLI process cannot call Codex MCP tools by itself, so the report names the MCP/tool route Codex should execute instead of pretending the shell already performed simulator work.
+ShipGuard owns the front door: topology discovery, workflow selection, report quality, proof boundaries, redaction/shareability, and next-action text. Codex iOS execution tools perform simulator build/run, UI inspection, simulator browser streaming, SwiftUI preview hosting, logs, debugger, and profiler captures inside Codex. LaunchDeck owns route selection and receipt grading. A plain CLI process cannot call Codex MCP tools by itself, so the report names the MCP/tool route Codex should execute instead of pretending the shell already performed simulator work.
 
-Use `--workflow auto|build-run|debug|preview|performance` when the desired proof lane is known. After Codex or Build iOS Apps executes the route, add one or more `--receipt <file-or-dir>` inputs to grade whether the actual proof bundle contains the right signals for the selected lane: build/run logs and UI proof for build-run, log plus UI proof for debug, `serve-sim` plus screenshot proof for simulator browser, SwiftUI preview hot-reload output for preview lanes, and Animation Hitches, Time Profiler, `xctrace`, ETTrace, or sample proof for performance lanes. No `--receipt` means the report is only a route plan; supplied but incomplete receipts make the report status `review`.
+Use `--workflow auto|build-run|debug|preview|performance` when the desired proof lane is known. After Codex executes the LaunchDeck route, add one or more `--receipt <file-or-dir>` inputs to grade whether the actual proof bundle contains the right signals for the selected lane: build/run logs and UI proof for build-run, log plus UI proof for debug, `serve-sim` plus screenshot proof for simulator browser, SwiftUI preview hot-reload output for preview lanes, and Animation Hitches, Time Profiler, `xctrace`, ETTrace, or sample proof for performance lanes. No `--receipt` means the report is only a route plan; supplied but incomplete receipts make the report status `review`.
 
-Use `--shipguard-eval --shareable` when a private app is only a read-only sample for improving ShipGuard's Build iOS Apps bridge output, then score the report with `ios report-quality --shareable`.
+Use `--shipguard-eval --shareable` when a private app is only a read-only sample for improving ShipGuard's LaunchDeck output, then score the report with `ios report-quality --shareable`.
 
 ## Performance Audit Mode
 
@@ -167,10 +167,10 @@ Use `--shipguard-eval` only when a real app is acting as a private read-only sam
   --out /tmp/ios-shipguard-design-eval \
   --shipguard-eval \
   --shareable
-./bin/shipguard ios build-apps \
+./bin/shipguard ios launchdeck \
   --path <private-ios-app> \
   --workflow auto \
-  --out /tmp/ios-shipguard-build-apps-eval \
+  --out /tmp/ios-shipguard-launchdeck-eval \
   --shipguard-eval \
   --shareable
 ./bin/shipguard ios modernize \
@@ -190,7 +190,7 @@ Use `--shipguard-eval` only when a real app is acting as a private read-only sam
   --shipguard-eval \
   --shareable
 ./bin/shipguard ios report-quality \
-  --reports /tmp/ios-shipguard-build-apps-eval \
+  --reports /tmp/ios-shipguard-launchdeck-eval \
   --reports /tmp/ios-shipguard-performance-eval \
   --reports /tmp/ios-shipguard-design-eval \
   --reports /tmp/ios-shipguard-modernize-eval \
@@ -202,7 +202,7 @@ Use `--shipguard-eval` only when a real app is acting as a private read-only sam
 
 Those reports add a ShipGuard evaluation boundary. Findings from those runs must be used to improve ShipGuard rules, report shape, docs, or public fixtures; they must not become target-app remediation tasks without a separate explicit app-work request. Markdown output may be grouped or capped to stay reviewable; JSON keeps the full finding list for deeper ShipGuard product QA. Use `--shareable` on every report that will move into report-quality scoring or external planning so the shareability contract is explicit.
 
-`ios report-quality` then grades ShipGuard's output quality, not the scanned app. It checks whether the reports are parseable, scoped to read-only product QA, paired with Markdown, honest about skipped scan scope, useful in finding evidence/recommendation/proof guidance, explicitly declared shareable when scored in `--shareable` mode, and safe to share or redact. For `ios build-apps`, this means the report must make Build iOS Apps workflows obvious while keeping ShipGuard routing/proof ownership separate from simulator/debugger/profiler execution; weak receipt reports prioritize receipt-specific questions and materialize `ios-build-apps-receipt-quality-fixture` starters so missing build/run, UI, preview, log, or profiler proof becomes a public ShipGuard eval case. For `ios performance`, it also checks that findings explain their impact in JSON, that Markdown surfaces that explanation for human review, that high findings explain why severity is high in JSON and Markdown, that performance proof guidance is split into local and manual/device fields in JSON and Markdown, that repeated rules have a JSON `groupedActionPlan` plus visible Markdown `Grouped Next Actions`, and that grouped actions expose a smallest `firstExperiment`, `validationRoute`, and `stopCondition` in JSON and Markdown. It aggregates each input report's `reportQualityQuestions` into an actionability checklist and emits `priorityAction` plus `prioritizedActionabilityQuestions`, preferring report-quality findings first and otherwise questions from lower-status source reports, so the next ShipGuard rule, fixture, report section, or docs improvement is explicit. It also emits `fixtureCandidates` when questions point to public fixture or eval-case work; those candidates include a synthetic fixture path, source question, validation commands, materialization metadata, and a private-data policy so Ringly/Ilmify observations become public ShipGuard tests without copying private code, screenshots, paths, or app identifiers. Add `--write-fixture-candidates <dir>` to write path-safe synthetic starter directories containing `fixture-candidate.json`, `fixture-report.json`, `fixture-report.md`, and validation notes. The materialized output also writes `fixture-promotion-manifest.json` and `PROMOTION.md` with suggested repo-relative fixture paths, placeholder copy commands, validation commands, and a private-data review checklist; promotion remains explicit maintainer work and ShipGuard does not auto-copy candidates into the repository. When a materialized fixture root is scored, report-quality consumes `fixture-promotion-manifest.json` as metadata, renders `Fixture Promotion Manifests`, and flags unsafe paths, local/token-like metadata, missing copy placeholders, missing validation commands, incomplete review checklists, stale guide paths, or missing materialized files without treating the manifest as a source report. When an already-materialized synthetic fixture is scored again, report-quality keeps its actionability question evidence but does not emit a recursive fixture candidate for the fixture itself. Token-like connector URLs or auth strings are detected without echoing token values, then a redaction plan with `shipguard ios redact` commands is emitted for any report set that should not be shared raw. Add `--shareable` when the report-quality artifact itself will move into ChatGPT, GitHub, docs, benchmark fixtures, or release evidence; default local output keeps absolute input/report paths for operator debugging.
+`ios report-quality` then grades ShipGuard's output quality, not the scanned app. It checks whether the reports are parseable, scoped to read-only product QA, paired with Markdown, honest about skipped scan scope, useful in finding evidence/recommendation/proof guidance, explicitly declared shareable when scored in `--shareable` mode, and safe to share or redact. For `ios launchdeck`, this means the report must make LaunchDeck workflows obvious while keeping ShipGuard routing/proof ownership separate from simulator/debugger/profiler execution; weak receipt reports prioritize receipt-specific questions and materialize `ios-launchdeck-receipt-quality-fixture` starters so missing build/run, UI, preview, log, or profiler proof becomes a public ShipGuard eval case. Source report issues stay visible even when report-quality itself passes: JSON includes `sourceFindings` and `sourceIssueVisibility`, and Markdown renders `Source Report Findings` separately from report-quality `Findings`. For `ios performance`, it also checks that findings explain their impact in JSON, that Markdown surfaces that explanation for human review, that high findings explain why severity is high in JSON and Markdown, that performance proof guidance is split into local and manual/device fields in JSON and Markdown, that repeated rules have a JSON `groupedActionPlan` plus visible Markdown `Grouped Next Actions`, and that grouped actions expose a smallest `firstExperiment`, `validationRoute`, and `stopCondition` in JSON and Markdown. It aggregates each input report's `reportQualityQuestions` into an actionability checklist and emits `priorityAction` plus `prioritizedActionabilityQuestions`, preferring report-quality findings first and otherwise questions from lower-status source reports, so the next ShipGuard rule, fixture, report section, or docs improvement is explicit. It also emits `fixtureCandidates` when questions point to public fixture or eval-case work; those candidates include a synthetic fixture path, source question, validation commands, materialization metadata, and a private-data policy so Ringly/Ilmify observations become public ShipGuard tests without copying private code, screenshots, paths, or app identifiers. Add `--write-fixture-candidates <dir>` to write path-safe synthetic starter directories containing `fixture-candidate.json`, `fixture-report.json`, `fixture-report.md`, and validation notes. The materialized output also writes `fixture-promotion-manifest.json` and `PROMOTION.md` with suggested repo-relative fixture paths, placeholder copy commands, validation commands, and a private-data review checklist; promotion remains explicit maintainer work and ShipGuard does not auto-copy candidates into the repository. When a materialized fixture root is scored, report-quality consumes `fixture-promotion-manifest.json` as metadata, renders `Fixture Promotion Manifests`, and flags unsafe paths, local/token-like metadata, missing copy placeholders, missing validation commands, incomplete review checklists, stale guide paths, or missing materialized files without treating the manifest as a source report. When an already-materialized synthetic fixture is scored again, report-quality keeps its actionability question evidence but does not emit a recursive fixture candidate for the fixture itself. Token-like connector URLs or auth strings are detected without echoing token values, then a redaction plan with `shipguard ios redact` commands is emitted for any report set that should not be shared raw. Add `--shareable` when the report-quality artifact itself will move into ChatGPT, GitHub, docs, benchmark fixtures, or release evidence; default local output keeps absolute input/report paths for operator debugging.
 
 In `--shareable` report-quality mode, supported source reports that are missing `shareability` metadata receive `declared-shareability-missing`, and reports that declare `mode=local` or `localAbsolutePathsIncluded=true` receive `declared-shareability-local-mode`. Regenerate those source reports with `--shareable`; redaction remains the right path only for actual token or local-path findings.
 
@@ -281,7 +281,7 @@ The command binds to `127.0.0.1`, captures the booted Simulator with `xcrun simc
 
 Open the printed URL in Codex's in-app browser or ask `@Browser` to open it. You can leave browser comments on the rendered phone preview, click the preview page for tap intent, or right-click inside the preview page to choose copy, visual, navigation, or inspection intent before recording a note. Codex should read `handoff.md`, `preview-events.jsonl`, or the preview server's `/api/handoff.md` payload before editing or choosing an XcodeBuildMCP action.
 
-When the Build iOS Apps plugin is installed, run `shipguard ios build-apps --workflow preview` first if the correct live-render route is unclear. Prefer Build iOS Apps simulator browser or SwiftUI preview hot reload for fast live rendering. Use ShipGuard preview when you need typed visual receipts, target-resolution handoff, redaction boundaries, report-quality evidence, or ChatGPT/Codex handoff preparation. Do not claim hot reload proof unless Build iOS Apps launcher output and a browser-visible frame show the changed preview.
+When the LaunchDeck surface is installed, run `shipguard ios launchdeck --workflow preview` first if the correct live-render route is unclear. Prefer LaunchDeck simulator browser or SwiftUI preview hot reload for fast live rendering. Use ShipGuard preview when you need typed visual receipts, target-resolution handoff, redaction boundaries, report-quality evidence, or ChatGPT/Codex handoff preparation. Do not claim hot reload proof unless LaunchDeck launcher output and a browser-visible frame show the changed preview.
 
 The bridge is intentionally not a native plugin-owned Codex side panel. Current plugin docs cover skills, apps/connectors, MCP servers, hooks, and assets, while the in-app browser is the documented surface for local visual previews and comments. See `docs/ios-preview.md`.
 

@@ -15,7 +15,7 @@ from typing import Any
 
 SCHEMA_VERSION = 1
 SOURCE_SCANNER_TOOLS = {
-    "shipguard ios build-apps",
+    "shipguard ios launchdeck",
     "shipguard ios performance",
     "shipguard ios design",
     "shipguard ios modernize",
@@ -90,7 +90,7 @@ SPEC_WORKFLOW_REQUIRED_ANALYSIS_GATES = [
 SEVERITY_PRIORITY = {"high": 0, "review": 1, "opportunity": 2}
 STATUS_PRIORITY = {"blocked": 0, "review": 1, "pass": 2}
 TOOL_NEXT_ACTION_PRIORITY = {
-    "shipguard ios build-apps": 0,
+    "shipguard ios launchdeck": 0,
     "shipguard ios performance": 1,
     "shipguard ios design": 2,
     "shipguard ios modernize": 3,
@@ -454,9 +454,9 @@ def tool_priority(value: object) -> int:
     return TOOL_NEXT_ACTION_PRIORITY.get(str(value or ""), 99)
 
 
-def is_build_apps_receipt_question(question: object, tool: object) -> bool:
+def is_launchdeck_receipt_question(question: object, tool: object) -> bool:
     question_text = normalized_question_text(question)
-    if str(tool or "") != "shipguard ios build-apps":
+    if str(tool or "") != "shipguard ios launchdeck":
         return False
     if any(
         token in question_text
@@ -470,10 +470,10 @@ def question_focus_priority(row: dict[str, Any]) -> int:
     question = normalized_question_text(row.get("question") or "")
     tool = str(row.get("tool") or "")
     source_status = str(row.get("sourceStatus") or "")
-    if tool == "shipguard ios build-apps" and source_status != "pass":
+    if tool == "shipguard ios launchdeck" and source_status != "pass":
         if any(token in question for token in ("missing build/run", "proof for the selected lane", "when receipts")):
             return -30
-        if is_build_apps_receipt_question(question, tool):
+        if is_launchdeck_receipt_question(question, tool):
             return -20
     if should_create_fixture_candidate(question):
         return -10
@@ -537,6 +537,49 @@ def finding_quality_issues(report: dict[str, Any]) -> list[dict[str, str]]:
                 recommendation="Add proof guidance so a solo developer knows what evidence would confirm the issue.",
             )
     return issues
+
+
+def source_report_findings(
+    report: dict[str, Any],
+    *,
+    path_name: str,
+    report_path: str,
+    tool: str,
+    shareable: bool,
+) -> list[dict[str, str]]:
+    findings = report.get("findings")
+    if not isinstance(findings, list) or not findings:
+        return []
+
+    rows: list[dict[str, str]] = []
+    for index, item in enumerate(findings[:40], start=1):
+        if not isinstance(item, dict):
+            continue
+        rule_id = str(item.get("ruleId") or "").strip()
+        if not rule_id:
+            rule_id = f"source-finding-{index}"
+
+        def text_value(key: str) -> str:
+            value = str(item.get(key) or "").strip()
+            return sanitize_materialized_text(value) if shareable else value
+
+        rows.append(
+            {
+                "severity": text_value("severity") or "review",
+                "category": text_value("category") or "source-report",
+                "ruleId": sanitize_materialized_text(rule_id) if shareable else rule_id,
+                "tool": tool or "unknown",
+                "report": report_path,
+                "sourceStatus": str(report.get("status") or "unknown"),
+                "evidence": text_value("evidence"),
+                "recommendation": text_value("recommendation"),
+                "proofGuidance": text_value("proofGuidance") or text_value("proof"),
+                "visibility": (
+                    f"{path_name} source finding #{index} is carried through report-quality separately from report-quality issues."
+                ),
+            }
+        )
+    return rows
 
 
 def performance_finding_explanation_issues(report: dict[str, Any], *, markdown: str, path_name: str) -> list[dict[str, str]]:
@@ -1191,6 +1234,8 @@ def grade_report(path: Path, *, input_paths: list[Path], shareable: bool, cwd: P
             "tool": None,
             "intent": None,
             "actionabilityQuestions": [],
+            "sourceFindings": [],
+            "sourceFindingCount": 0,
             "status": "blocked",
             "score": score_for(issues),
             "issues": issues,
@@ -1323,6 +1368,13 @@ def grade_report(path: Path, *, input_paths: list[Path], shareable: bool, cwd: P
         )
 
     score = score_for(issues)
+    source_findings = source_report_findings(
+        loaded,
+        path_name=path.name,
+        report_path=display_path,
+        tool=tool,
+        shareable=shareable,
+    )
     return {
         "path": display_path,
         "markdownPath": display_markdown_path,
@@ -1330,6 +1382,8 @@ def grade_report(path: Path, *, input_paths: list[Path], shareable: bool, cwd: P
         "intent": intent or None,
         "reportStatus": loaded.get("status"),
         "actionabilityQuestions": report_questions(loaded, report_path=display_path, tool=tool),
+        "sourceFindings": source_findings,
+        "sourceFindingCount": len(source_findings),
         "score": score,
         "status": report_status(issues),
         "issues": issues,
@@ -1684,8 +1738,8 @@ def slugify(value: object, *, limit: int = 72) -> str:
 def fixture_type_for_question(question: str, tool: str) -> str:
     text = normalized_question_text(f"{tool} {question}")
     question_text = normalized_question_text(question)
-    if is_build_apps_receipt_question(question_text, tool):
-        return "ios-build-apps-receipt-quality-fixture"
+    if is_launchdeck_receipt_question(question_text, tool):
+        return "ios-launchdeck-receipt-quality-fixture"
     if "private-app" in question_text or "private app" in question_text or "target-app" in question_text or "target app" in question_text:
         return "shipguard-eval-boundary-fixture"
     if "grouped performance" in text or "performance" in text:
@@ -1801,10 +1855,12 @@ def build_report(inputs: list[str], *, shareable: bool = False) -> dict[str, Any
         for path in promotion_manifest_paths
     ]
     issues = []
+    source_findings = []
     actionability_questions = []
     for item in graded:
         for issue in item["issues"]:
             issues.append({**issue, "report": item["path"], "tool": item.get("tool")})
+        source_findings.extend(item.get("sourceFindings", []))
         actionability_questions.extend(item.get("actionabilityQuestions", []))
     for item in promotion_manifests:
         for issue in item["issues"]:
@@ -1838,6 +1894,13 @@ def build_report(inputs: list[str], *, shareable: bool = False) -> dict[str, Any
         "reports": graded,
         "fixturePromotionManifests": promotion_manifests,
         "findings": issues,
+        "sourceFindings": source_findings[:80],
+        "sourceIssueVisibility": {
+            "sourceFindingCount": len(source_findings),
+            "reportsWithSourceFindings": sum(1 for item in graded if int(item.get("sourceFindingCount") or 0) > 0),
+            "note": "Source report findings are shown separately from report-quality findings so a structurally useful report can pass while its reviewed source issues remain visible.",
+            "truncated": len(source_findings) > 80,
+        },
         "actionabilityQuestions": actionability_questions[:30],
         "prioritizedActionabilityQuestions": ranked_questions[:30],
         "fixtureCandidates": fixture_candidates,
@@ -1876,6 +1939,33 @@ def render_markdown(report: dict[str, Any]) -> str:
             )
     else:
         lines.append("No report-quality issues were detected.")
+
+    source_visibility = report.get("sourceIssueVisibility") or {}
+    source_findings = report.get("sourceFindings") or []
+    lines.extend(["", "## Source Report Findings", ""])
+    lines.append(
+        f"- Source findings visible: {source_visibility.get('sourceFindingCount', len(source_findings))}"
+    )
+    lines.append(
+        f"- Reports with source findings: {source_visibility.get('reportsWithSourceFindings', 0)}"
+    )
+    if source_findings:
+        lines.extend(
+            [
+                "",
+                "| Severity | Source Rule | Source Status | Tool | Report | Recommendation | Proof |",
+                "| --- | --- | --- | --- | --- | --- | --- |",
+            ]
+        )
+        for finding in source_findings[:20]:
+            lines.append(
+                f"| {finding.get('severity') or 'review'} | `{table_cell(finding.get('ruleId') or 'source-finding', 48)}` | {finding.get('sourceStatus') or '-'} | `{table_cell(finding.get('tool') or 'unknown', 40)}` | `{Path(str(finding.get('report') or '')).name}` | {table_cell(finding.get('recommendation') or '-')} | {table_cell(finding.get('proofGuidance') or '-', 120)} |"
+            )
+        if source_visibility.get("truncated"):
+            lines.append("")
+            lines.append("Additional source findings are preserved in JSON but omitted from this compact Markdown table.")
+    else:
+        lines.append("No source report findings were present in the scored reports.")
 
     priority = report.get("priorityAction") or {}
     lines.extend(["", "## Priority Action", ""])

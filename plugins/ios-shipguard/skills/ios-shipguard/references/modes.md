@@ -98,7 +98,7 @@ Ask:
 
 Proof:
 
-- `shipguard ios build-apps --path . --workflow performance --out /tmp/ios-shipguard-build-apps` to choose the Build iOS Apps profiler route before tracing
+- `shipguard ios launchdeck --path . --workflow performance --out /tmp/ios-shipguard-launchdeck` to choose the LaunchDeck profiler route before tracing
 - `shipguard ios performance --path . --out <dir>` for ranked source hotspots before choosing edits; add `--shareable` before report-quality scoring or external planning
 - Add `--shipguard-eval` to `shipguard ios performance`, `shipguard ios design`, `shipguard ios modernize`, `shipguard ios app-intelligence`, or `shipguard ios ai-readiness` when a private app is only a read-only sample for improving ShipGuard itself; add `--shareable` to any report that will be scored or shared
 - XcodeBuildMCP project/scheme/simulator selection before build/run
@@ -109,9 +109,9 @@ Proof:
 - before/after comparison using the same build configuration, seed data, route, and device state
 - physical-device Instruments trace before claiming 10/10 smoothness, touch latency, ProMotion behavior, thermal behavior, display-specific behavior, sensors, audio, or wake-path timing
 
-## build-apps-bridge
+## launchdeck
 
-Use when the user wants ShipGuard to be the front door for building, running, debugging, previewing, or investigating an iOS repo with the Build iOS Apps plugin.
+Use when the user wants ShipGuard to be the front door for building, running, debugging, previewing, or investigating an iOS repo with the LaunchDeck surface.
 
 Ask:
 
@@ -121,16 +121,16 @@ Ask:
 
 Proof:
 
-- `shipguard ios build-apps --path . --out /tmp/ios-shipguard-build-apps`
+- `shipguard ios launchdeck --path . --out /tmp/ios-shipguard-launchdeck`
 - Add `--workflow build-run`, `--workflow debug`, `--workflow preview`, or `--workflow performance` when the lane is known.
-- After Build iOS Apps or XcodeBuildMCP execution, rerun `shipguard ios build-apps --path . --workflow <lane> --receipt <proof-file-or-dir> --out /tmp/ios-shipguard-build-apps-receipts` so ShipGuard grades receipt completeness.
+- After Codex executes the LaunchDeck route or XcodeBuildMCP tools, rerun `shipguard ios launchdeck --path . --workflow <lane> --receipt <proof-file-or-dir> --out /tmp/ios-shipguard-launchdeck-receipts` so ShipGuard grades receipt completeness.
 - Add `--shipguard-eval --shareable` when a private app is only product-QA evidence for improving ShipGuard.
 - Use the report's XcodeBuildMCP section before calling `session_show_defaults`, `session_set_defaults`, and `build_run_sim`.
 - Use the report's simulator browser or SwiftUI preview hot reload section before launching `serve-sim` or `swiftui-preview-browser.mjs`.
 - Use the report's performance profiling section before recording Animation Hitches, Time Profiler, sample/log fallback evidence, or physical-device traces.
-- Run `shipguard ios report-quality --reports <build-apps-report-dir> --out <quality-dir> --shareable` when judging whether the bridge itself is useful.
-- ShipGuard owns routing, proof boundaries, shareability, and report quality; Build iOS Apps owns actual simulator/debugger/browser/profiler execution inside Codex.
-- Do not claim the CLI performed a simulator build, debug session, preview loop, or profiler capture unless the corresponding Build iOS Apps or XcodeBuildMCP proof actually ran and was attached as a receipt.
+- Run `shipguard ios report-quality --reports <launchdeck-report-dir> --out <quality-dir> --shareable` when judging whether LaunchDeck itself is useful.
+- ShipGuard owns routing, proof boundaries, shareability, and report quality; Codex iOS execution tools perform actual simulator/debugger/browser/profiler execution inside Codex.
+- Do not claim the CLI performed a simulator build, debug session, preview loop, or profiler capture unless the corresponding LaunchDeck or XcodeBuildMCP proof actually ran and was attached as a receipt.
 
 ## ShipGuard product QA
 
@@ -200,7 +200,7 @@ Proof:
 
 Use when the user wants an in-Codex visual preview loop for the current iOS Simulator screen, browser comments on a phone-shaped preview, or typed click/right-click/note receipts that should guide a SwiftUI edit.
 
-If the Build iOS Apps `ios-simulator-browser` skill is available, prefer it for live Simulator mirroring, SwiftUI preview rendering, and package-backed hot reload. Use ShipGuard preview after that when the task needs typed receipts, target-resolution handoff, redaction, report-quality evidence, or a ChatGPT/Codex handoff. The two loops are complementary: Build iOS Apps is the fast visual renderer, ShipGuard is the proof and workflow guard.
+If the LaunchDeck `ios-simulator-browser` skill is available, prefer it for live Simulator mirroring, SwiftUI preview rendering, and package-backed hot reload. Use ShipGuard preview after that when the task needs typed receipts, target-resolution handoff, redaction, report-quality evidence, or a ChatGPT/Codex handoff. The two loops are complementary: LaunchDeck is the fast visual renderer, ShipGuard is the proof and workflow guard.
 
 Ask:
 
@@ -210,8 +210,8 @@ Ask:
 
 Proof:
 
-- `shipguard ios build-apps --path . --workflow preview --out /tmp/ios-shipguard-build-apps` when choosing between app build, simulator browser, and SwiftUI preview hot reload
-- Build iOS Apps `serve-sim` browser proof or SwiftUI preview hot reload proof when that skill is available and live rendering is the goal
+- `shipguard ios launchdeck --path . --workflow preview --out /tmp/ios-shipguard-launchdeck` when choosing between app build, simulator browser, and SwiftUI preview hot reload
+- LaunchDeck `serve-sim` browser proof or SwiftUI preview hot reload proof when that skill is available and live rendering is the goal
 - `shipguard ios preview --out /tmp/ios-shipguard-preview`
 - Codex in-app browser opened to the printed localhost URL
 - `preview-events.jsonl` receipt when the user clicks, right-clicks a typed context-menu action, or notes a target

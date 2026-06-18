@@ -212,7 +212,7 @@ SOURCE_PROFILES: dict[str, dict[str, Any]] = {
         ],
     },
     "openai-ios-workflow": {
-        "displayName": "Build iOS Apps / OpenAI Native iOS Workflow",
+        "displayName": "LaunchDeck / OpenAI Native iOS Workflow",
         "canonicalUrl": "local Codex skill/plugin surface",
         "license": "not vendored",
         "signals": ["ios-simulator-browser", "SwiftUI preview", "hot reload", "XcodeBuildMCP"],
