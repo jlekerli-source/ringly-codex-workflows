@@ -194,6 +194,7 @@ EXTERNAL_BENCHMARK_V2_RECEIPT_ROOT = Path("fixtures") / "tool-value-gauntlet" / 
 V4_PREVIEW_STABILIZATION_RECEIPT_ROOT = Path("fixtures") / "tool-value-gauntlet" / "v4-preview-stabilization-receipts"
 V4_SCHEMA_FREEZE_RECEIPT_ROOT = Path("fixtures") / "tool-value-gauntlet" / "v4-schema-freeze-receipts"
 V4_RELEASE_CANDIDATE_READINESS_RECEIPT_ROOT = Path("fixtures") / "tool-value-gauntlet" / "v4-release-candidate-readiness-receipts"
+V4_PRODUCT_RELEASE_STABILIZATION_RECEIPT_ROOT = Path("fixtures") / "tool-value-gauntlet" / "v4-product-release-stabilization-receipts"
 
 PLACEHOLDER_PATTERNS = [
     re.compile(r"\bTODO\b", re.IGNORECASE),
@@ -1109,8 +1110,23 @@ def load_v4_release_candidate_readiness_receipts(root: Path) -> list[tuple[Path,
     return receipts
 
 
-def format_receipt_value(value: object, *, out_dir: Path, cache_dir: Path) -> str:
-    return str(value).format(out=out_dir.as_posix(), cache=cache_dir.as_posix())
+def load_v4_product_release_stabilization_receipts(root: Path) -> list[tuple[Path, dict[str, Any]]]:
+    fixture_root = root / V4_PRODUCT_RELEASE_STABILIZATION_RECEIPT_ROOT
+    receipts: list[tuple[Path, dict[str, Any]]] = []
+    if not fixture_root.is_dir():
+        return receipts
+    for meta_path in sorted(fixture_root.glob("*/receipt.json")):
+        meta = load_json(meta_path)
+        if meta:
+            receipts.append((meta_path.parent, meta))
+    return receipts
+
+
+def format_receipt_value(value: object, *, out_dir: Path, cache_dir: Path, root: Path | None = None) -> str:
+    format_values = {"out": out_dir.as_posix(), "cache": cache_dir.as_posix()}
+    if root is not None:
+        format_values["version"] = read_text(root / "VERSION").strip()
+    return str(value).format(**format_values)
 
 
 def safe_receipt_relative_path(raw_path: object) -> Path | None:
@@ -1165,6 +1181,108 @@ def prepare_receipt_tarballs(out_dir: Path, meta: dict[str, Any]) -> list[dict[s
         checks.append(runtime_probe_check(f"preparedTarball:{relative.as_posix()}", target.is_file(), f"{relative.as_posix()} prepared with {len(entries)} entrie(s)"))
         if unsafe_entry:
             checks.append(runtime_probe_check(f"preparedTarballEntry:{unsafe_entry}", False, "tarball entry path must be relative and portable"))
+    return checks
+
+
+def receipt_path(raw_path: object, *, out_dir: Path, cache_dir: Path, root: Path | None = None) -> Path:
+    formatted = format_receipt_value(raw_path or "", out_dir=out_dir, cache_dir=cache_dir, root=root)
+    path = Path(formatted)
+    if not path.is_absolute():
+        path = out_dir / path
+    return path
+
+
+def safe_tar_member_name(name: str) -> bool:
+    path = Path(name)
+    return not path.is_absolute() and bool(path.parts) and not any(part in {"", ".", ".."} for part in path.parts)
+
+
+def prepare_receipt_previous_package_tarballs(
+    out_dir: Path,
+    cache_dir: Path,
+    root: Path,
+    meta: dict[str, Any],
+) -> list[dict[str, Any]]:
+    checks: list[dict[str, Any]] = []
+    for item in meta.get("preparePreviousPackageTarballs") or []:
+        target_relative = safe_receipt_relative_path(item.get("path"))
+        check_id = f"preparedPreviousPackageTarball:{item.get('path') or 'missing'}"
+        if target_relative is None:
+            checks.append(runtime_probe_check(check_id, False, "previous package tarball path must be relative and stay inside receipt output"))
+            continue
+        source = receipt_path(item.get("source"), out_dir=out_dir, cache_dir=cache_dir, root=root)
+        target = out_dir / target_relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        if not source.is_file():
+            checks.append(runtime_probe_check(check_id, False, f"source package tarball missing: {rel(source, out_dir)}"))
+            continue
+        old_version = str(item.get("version") or "0.0.0").strip()
+        with tempfile.TemporaryDirectory(prefix="shipguard-previous-package-") as tmp:
+            extract_root = Path(tmp) / "extract"
+            extract_root.mkdir(parents=True, exist_ok=True)
+            try:
+                with tarfile.open(source, "r:gz") as archive:
+                    members = archive.getmembers()
+                    unsafe = [member.name for member in members if not safe_tar_member_name(member.name)]
+                    if unsafe:
+                        checks.append(runtime_probe_check(check_id, False, f"source package has unsafe member: {unsafe[0]}"))
+                        continue
+                    archive.extractall(extract_root)
+                top_levels = sorted({Path(member.name).parts[0] for member in members if Path(member.name).parts})
+                if len(top_levels) != 1:
+                    checks.append(runtime_probe_check(check_id, False, "source package must contain exactly one top-level directory"))
+                    continue
+                package_root = extract_root / top_levels[0]
+                version_file = package_root / "VERSION"
+                if not version_file.is_file():
+                    checks.append(runtime_probe_check(check_id, False, "source package missing VERSION"))
+                    continue
+                version_file.write_text(f"{old_version}\n", encoding="utf-8")
+                with tarfile.open(target, "w:gz") as archive:
+                    archive.add(package_root, arcname=top_levels[0], recursive=True)
+            except (tarfile.TarError, OSError) as exc:
+                checks.append(runtime_probe_check(check_id, False, compact_error(str(exc))))
+                continue
+        checks.append(runtime_probe_check(check_id, target.is_file(), f"{target_relative.as_posix()} prepared from {rel(source, out_dir)} with VERSION {old_version}"))
+    return checks
+
+
+def prepare_receipt_release_asset_directories(
+    out_dir: Path,
+    cache_dir: Path,
+    root: Path,
+    meta: dict[str, Any],
+) -> list[dict[str, Any]]:
+    checks: list[dict[str, Any]] = []
+    for item in meta.get("prepareReleaseAssetDirectories") or []:
+        target_relative = safe_receipt_relative_path(item.get("path"))
+        check_id = f"preparedReleaseAssets:{item.get('path') or 'missing'}"
+        if target_relative is None:
+            checks.append(runtime_probe_check(check_id, False, "release asset directory path must be relative and stay inside receipt output"))
+            continue
+        source = receipt_path(item.get("fromProofBundle"), out_dir=out_dir, cache_dir=cache_dir, root=root)
+        target = out_dir / target_relative
+        if not source.is_dir():
+            checks.append(runtime_probe_check(check_id, False, f"release proof bundle missing: {rel(source, out_dir)}"))
+            continue
+        target.mkdir(parents=True, exist_ok=True)
+        tarballs = sorted(source.glob("shipguard-v*.tar.gz"))
+        required_sources = [
+            tarballs[0] if tarballs else source / "shipguard-vmissing.tar.gz",
+            source / "proof" / "release-manifest.json",
+            source / "index" / "release-index.json",
+            source / "proof" / "proof-ledger.md",
+            source / "replay" / "replay-report.json",
+            source / "attestation" / "attestation.json",
+            source / "attestation" / "attestation-badge.json",
+        ]
+        missing = [rel(path, out_dir) for path in required_sources if not path.is_file()]
+        if missing:
+            checks.append(runtime_probe_check(check_id, False, f"release proof assets missing: {', '.join(missing)}"))
+            continue
+        for source_file in required_sources:
+            shutil.copy2(source_file, target / source_file.name)
+        checks.append(runtime_probe_check(check_id, True, f"{target_relative.as_posix()} prepared with {len(required_sources)} release asset(s)"))
     return checks
 
 
@@ -1272,12 +1390,8 @@ def receipt_artifact_checks(artifact_path: Path, artifact: dict[str, Any], *, ro
     return checks
 
 
-def receipt_artifact_path(raw_path: object, *, out_dir: Path, cache_dir: Path) -> Path:
-    artifact_relative = format_receipt_value(raw_path or "", out_dir=out_dir, cache_dir=cache_dir)
-    artifact_path = Path(artifact_relative)
-    if not artifact_path.is_absolute():
-        artifact_path = out_dir / artifact_path
-    return artifact_path
+def receipt_artifact_path(raw_path: object, *, out_dir: Path, cache_dir: Path, root: Path | None = None) -> Path:
+    return receipt_path(raw_path, out_dir=out_dir, cache_dir=cache_dir, root=root)
 
 
 def receipt_value_proof_check(proof: dict[str, Any], *, out_dir: Path, cache_dir: Path, check_prefix: str) -> tuple[bool, dict[str, Any] | None]:
@@ -1309,11 +1423,18 @@ def run_skill_plugin_receipt_command(
     cache_dir: Path,
     command_spec: dict[str, Any],
 ) -> dict[str, Any]:
-    prepared_checks = prepare_receipt_files(out_dir, command_spec) + prepare_receipt_tarballs(out_dir, command_spec)
-    args = [format_receipt_value(part, out_dir=out_dir, cache_dir=cache_dir) for part in command_spec.get("args") or []]
+    prepared_checks = (
+        prepare_receipt_files(out_dir, command_spec)
+        + prepare_receipt_tarballs(out_dir, command_spec)
+        + prepare_receipt_previous_package_tarballs(out_dir, cache_dir, root, command_spec)
+        + prepare_receipt_release_asset_directories(out_dir, cache_dir, root, command_spec)
+    )
+    args = [format_receipt_value(part, out_dir=out_dir, cache_dir=cache_dir, root=root) for part in command_spec.get("args") or []]
     started = time.monotonic()
     try:
         env = dict(os.environ, SHIPGUARD_CLI=str(root / "bin" / "shipguard"))
+        for key, value in (command_spec.get("env") or {}).items():
+            env[str(key)] = format_receipt_value(value, out_dir=out_dir, cache_dir=cache_dir, root=root)
         completed = subprocess.run(
             [str(root / "bin" / "shipguard"), *args],
             cwd=root,
@@ -1350,7 +1471,7 @@ def run_skill_plugin_receipt_command(
         present = str(phrase).lower() in combined_output.lower()
         checks.append(runtime_probe_check(f"stdout:{phrase}", present, f"{phrase!r} present" if present else f"{phrase!r} missing"))
     for artifact in command_spec.get("artifacts") or []:
-        artifact_path = receipt_artifact_path(artifact.get("path") or "", out_dir=out_dir, cache_dir=cache_dir)
+        artifact_path = receipt_artifact_path(artifact.get("path") or "", out_dir=out_dir, cache_dir=cache_dir, root=root)
         checks.extend(receipt_artifact_checks(artifact_path, artifact, root=root, out_dir=out_dir))
     proved_blocker, blocker_check = receipt_value_proof_check(
         command_spec.get("blockingProof") if isinstance(command_spec.get("blockingProof"), dict) else {},
@@ -2866,6 +2987,37 @@ def v4_release_candidate_readiness_receipt_probe(root: Path) -> dict[str, Any]:
     }
 
 
+def v4_product_release_stabilization_receipt_probe(root: Path) -> dict[str, Any]:
+    receipts = [
+        run_skill_plugin_receipt(root, fixture_dir, meta)
+        for fixture_dir, meta in load_v4_product_release_stabilization_receipts(root)
+    ]
+    passed = sum(1 for receipt in receipts if receipt.get("status") == "pass")
+    blocked = sum(1 for receipt in receipts if receipt.get("status") == "blocked")
+    review = sum(1 for receipt in receipts if receipt.get("status") == "review")
+    command_count = sum(len(receipt.get("commands") or []) for receipt in receipts)
+    status = "blocked" if blocked else "review" if review or not receipts else "pass"
+    return {
+        "status": status,
+        "receiptCount": len(receipts),
+        "passedReceiptCount": passed,
+        "commandCount": command_count,
+        "purpose": "Run v4 product release stabilization fixtures that prove package, upgrade, rollback, release-consume, adoption, and security proof can be assembled into a stable-v4 proof packet without claiming real external release proof.",
+        "fixtureRoot": V4_PRODUCT_RELEASE_STABILIZATION_RECEIPT_ROOT.as_posix(),
+        "scopeBoundary": {
+            "shipguardOnly": True,
+            "targetAppsReadOnly": True,
+            "inputs": ["public ShipGuard checkout", "synthetic release proof bundle", "synthetic adoption and security evidence"],
+        },
+        "receipts": receipts,
+        "nextAction": (
+            "v4 product release stabilization receipts are passing; prove real stable-v4 publication with downloaded GitHub release assets and external evidence next."
+            if status == "pass"
+            else "Fix v4 product release stabilization receipts before treating LaunchKey as stable-release proof-ready."
+        ),
+    }
+
+
 def command_has_test(command: str, text_index: dict[str, str]) -> bool:
     slug = command_slug(command)
     tokens = command_tokens(command)
@@ -3360,6 +3512,17 @@ def v4_release_candidate_readiness_receipt_passed(v4_release_candidate_readiness
     return required.issubset(receipt_command_ids(v4_release_candidate_readiness_receipts))
 
 
+def v4_product_release_stabilization_receipt_passed(v4_product_release_stabilization_receipts: dict[str, Any]) -> bool:
+    if v4_product_release_stabilization_receipts.get("status") != "pass":
+        return False
+    required = {
+        "v4-product-release-proof-build-pass",
+        "v4-product-release-launchkey-full-packet-pass",
+        "v4-product-release-report-quality-pass",
+    }
+    return required.issubset(receipt_command_ids(v4_product_release_stabilization_receipts))
+
+
 def command_depth_rows(
     commands: list[dict[str, Any]],
     text_index: dict[str, str],
@@ -3574,6 +3737,7 @@ def lowest_value_surface_probe(
     v4_preview_stabilization_receipts: dict[str, Any],
     v4_schema_freeze_receipts: dict[str, Any],
     v4_release_candidate_readiness_receipts: dict[str, Any],
+    v4_product_release_stabilization_receipts: dict[str, Any],
 ) -> dict[str, Any]:
     self_audit_text = read_text(root / "scripts" / "self_audit.sh")
     package_text = read_text(root / "tests" / "package_release_test.sh")
@@ -4773,6 +4937,40 @@ def lowest_value_surface_probe(
             recommendation="Stabilize the v4 product release with external adoption evidence, final security review, package proof, rollback proof, and release proof consumption on published assets.",
             proof="Run value-gauntlet plus focused v4 product-release fixtures that prove a published release can be installed, rolled back, verified, and explained to external users.",
         )
+    if (
+        answer
+        and answer.get("identifier") == "shipguard v4-product-release-stabilization"
+        and v4_product_release_stabilization_receipt_passed(v4_product_release_stabilization_receipts)
+    ):
+        depth_checks = []
+        for item in answer.get("depthChecks") or []:
+            if item.get("id") == "runtimeV4ProductReleaseStabilization":
+                depth_checks.append(
+                    depth_check(
+                        "runtimeV4ProductReleaseStabilization",
+                        True,
+                        f"{v4_product_release_stabilization_receipts.get('passedReceiptCount') or 0}/{v4_product_release_stabilization_receipts.get('receiptCount') or 0} v4 product-release stabilization receipts executed",
+                    )
+                )
+            else:
+                depth_checks.append(item)
+        depth_checks.append(
+            depth_check(
+                "runtimeV4StableReleasePublication",
+                False,
+                "v4 product-release proof is executable on public fixtures, but real stable-v4 publication still needs downloaded GitHub release assets, independent adoption evidence, final security review evidence, release notes, and post-release consumer proof",
+            )
+        )
+        answer = surface_probe_row(
+            surface_type="product",
+            identifier="shipguard v4-stable-release-publication",
+            name="v4 Stable Release Publication",
+            base_score=100,
+            base_status="pass",
+            depth_checks=depth_checks,
+            recommendation="Prepare and verify the real stable-v4 public release packet with downloaded GitHub release assets, independent adoption evidence, final security review evidence, release notes, and post-release consumer proof.",
+            proof="Run LaunchKey and report-quality against the real GitHub release assets after publication; keep fixture receipts separate from real external adoption and security evidence.",
+        )
     if answer:
         missing = ", ".join(answer.get("missingDepthSignals") or []) or "no missing depth signals"
         answer = {
@@ -4866,6 +5064,7 @@ def build_report(root: Path, strict: bool) -> dict[str, Any]:
     v4_preview_stabilization_receipts = v4_preview_stabilization_receipt_probe(root)
     v4_schema_freeze_receipts = v4_schema_freeze_receipt_probe(root)
     v4_release_candidate_readiness_receipts = v4_release_candidate_readiness_receipt_probe(root)
+    v4_product_release_stabilization_receipts = v4_product_release_stabilization_receipt_probe(root)
     probe = lowest_value_surface_probe(
         root,
         text_index,
@@ -4909,6 +5108,7 @@ def build_report(root: Path, strict: bool) -> dict[str, Any]:
         v4_preview_stabilization_receipts=v4_preview_stabilization_receipts,
         v4_schema_freeze_receipts=v4_schema_freeze_receipts,
         v4_release_candidate_readiness_receipts=v4_release_candidate_readiness_receipts,
+        v4_product_release_stabilization_receipts=v4_product_release_stabilization_receipts,
     )
     all_scores = [item["score"] for group in (commands, skills, plugins, actions, docs) for item in group]
     high_count = sum(1 for finding in findings if finding["severity"] == "high")
@@ -4994,6 +5194,7 @@ def build_report(root: Path, strict: bool) -> dict[str, Any]:
         "v4PreviewStabilizationReceipts": v4_preview_stabilization_receipts,
         "v4SchemaFreezeReceipts": v4_schema_freeze_receipts,
         "v4ReleaseCandidateReadinessReceipts": v4_release_candidate_readiness_receipts,
+        "v4ProductReleaseStabilizationReceipts": v4_product_release_stabilization_receipts,
         "lowestValueSurfaceProbe": probe,
         "findings": findings,
         "priorityActions": priority_action_rows,
@@ -5896,6 +6097,30 @@ def render_markdown(report: dict[str, Any]) -> str:
     if failing_v4_release_candidate_commands:
         lines.extend(["", "| Receipt | Status | Command | Missing | Error |", "| --- | --- | --- | --- | --- |"])
         for receipt, command in failing_v4_release_candidate_commands[:20]:
+            lines.append(
+                f"| `{table_cell(receipt.get('id'), 52)}` | {command.get('status')} | `{table_cell(command.get('command'), 80)}` | {table_cell(', '.join(command.get('missing') or []) or '-', 80)} | {table_cell(command.get('errorSummary') or '-', 90)} |"
+            )
+    v4_product_release_stabilization_receipts = report.get("v4ProductReleaseStabilizationReceipts") or {}
+    lines.extend(["", "## V4 Product Release Stabilization Receipts", ""])
+    lines.append(f"- Status: {v4_product_release_stabilization_receipts.get('status') or 'unknown'}")
+    lines.append(f"- Receipts: {v4_product_release_stabilization_receipts.get('passedReceiptCount', 0)}/{v4_product_release_stabilization_receipts.get('receiptCount', 0)} passed")
+    lines.append(f"- Commands executed: {v4_product_release_stabilization_receipts.get('commandCount', 0)}")
+    if v4_product_release_stabilization_receipts.get("nextAction"):
+        lines.append(f"- Next action: {v4_product_release_stabilization_receipts['nextAction']}")
+    lines.extend(["", "| Status | Score | Receipt | Kind | Commands | Missing |", "| --- | ---: | --- | --- | ---: | --- |"])
+    for item in v4_product_release_stabilization_receipts.get("receipts", []):
+        lines.append(
+            f"| {item.get('status')} | {item.get('score')} | `{table_cell(item.get('id'), 64)}` | {table_cell(item.get('kind'), 48)} | {len(item.get('commands') or [])} | {table_cell(', '.join(item.get('missing') or []) or '-', 90)} |"
+        )
+    failing_v4_product_release_commands = [
+        (receipt, command)
+        for receipt in v4_product_release_stabilization_receipts.get("receipts", [])
+        for command in receipt.get("commands", [])
+        if command.get("status") != "pass"
+    ]
+    if failing_v4_product_release_commands:
+        lines.extend(["", "| Receipt | Status | Command | Missing | Error |", "| --- | --- | --- | --- | --- |"])
+        for receipt, command in failing_v4_product_release_commands[:20]:
             lines.append(
                 f"| `{table_cell(receipt.get('id'), 52)}` | {command.get('status')} | `{table_cell(command.get('command'), 80)}` | {table_cell(', '.join(command.get('missing') or []) or '-', 80)} | {table_cell(command.get('errorSummary') or '-', 90)} |"
             )

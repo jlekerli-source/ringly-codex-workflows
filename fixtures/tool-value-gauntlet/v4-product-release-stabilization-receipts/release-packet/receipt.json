@@ -1,0 +1,369 @@
+{
+  "id": "v4-product-release-stabilization",
+  "kind": "v4-product-release-stabilization-receipt",
+  "surface": "ShipGuard V4 Product Release Stabilization",
+  "selectedMode": "value-gauntlet v4 product release stabilization receipts",
+  "trigger": "V4 Release Candidate Readiness receipts passed; prove the stable-release proof packet path with package, upgrade, rollback, release-consume, adoption, and security evidence before claiming real stable-v4 publication.",
+  "sourcePaths": [
+    "bin/shipguard",
+    "scripts/tool_value_gauntlet.py",
+    "scripts/v4_release_candidate.py",
+    "scripts/release_proof.sh",
+    "scripts/release_consume.sh",
+    "scripts/package_release.sh",
+    "docs/v4-release-candidate.md",
+    "docs/release-proof.md",
+    "docs/release-consume.md",
+    "tests/v4_release_candidate_test.sh",
+    "tests/tool_value_gauntlet_test.sh"
+  ],
+  "expectedSourcePhrases": [
+    "v4ProductReleaseStabilizationReceipts",
+    "runtimeV4ProductReleaseStabilization",
+    "runtimeV4StableReleasePublication",
+    "preparePreviousPackageTarballs",
+    "prepareReleaseAssetDirectories",
+    "final stable-v4 release proof packet",
+    "publishedReleaseAssetProof",
+    "securityReviewEvidenceStableGate"
+  ],
+  "scopeBoundary": {
+    "shipguardOnly": true,
+    "targetAppsReadOnly": true,
+    "privateAppsUsed": false,
+    "fixtureOnly": true
+  },
+  "commands": [
+    {
+      "id": "v4-product-release-proof-build-pass",
+      "display": "./bin/shipguard release-proof build --out <out>/proof-bundle --release-url https://github.com/jlekerli-source/ShipGuard/releases/tag/v<version>",
+      "args": [
+        "release-proof",
+        "build",
+        "--out",
+        "{out}/proof-bundle",
+        "--release-url",
+        "https://github.com/jlekerli-source/ShipGuard/releases/tag/v{version}",
+        "--ci-run-url",
+        "https://github.com/jlekerli-source/ShipGuard/actions/runs/123",
+        "--issue-url",
+        "https://github.com/jlekerli-source/ShipGuard/issues/99",
+        "--notes",
+        "Synthetic public fixture for ShipGuard v4 product release stabilization receipts."
+      ],
+      "timeoutSeconds": 180,
+      "env": {
+        "SHIPGUARD_GENERATED_AT": "2026-06-19T00:00:00Z"
+      },
+      "artifacts": [
+        {
+          "path": "proof-bundle/shipguard-v{version}.tar.gz"
+        },
+        {
+          "path": "proof-bundle/proof/release-manifest.json",
+          "type": "json",
+          "requiredJsonKeys": [
+            "schema_version",
+            "version",
+            "tag",
+            "artifact",
+            "proofs"
+          ],
+          "requiredNonEmptyJsonPaths": [
+            "artifact.name",
+            "artifact.sha256",
+            "proofs.release_url",
+            "proofs.ci_run_url"
+          ]
+        },
+        {
+          "path": "proof-bundle/index/release-index.json",
+          "type": "json",
+          "requiredJsonKeys": [
+            "schema_version",
+            "releases"
+          ]
+        },
+        {
+          "path": "proof-bundle/replay/replay-report.json",
+          "type": "json",
+          "requiredJsonKeys": [
+            "status",
+            "checks"
+          ],
+          "requiredValues": [
+            {
+              "path": "status",
+              "equals": "pass"
+            }
+          ]
+        },
+        {
+          "path": "proof-bundle/attestation/attestation.json",
+          "type": "json",
+          "requiredJsonKeys": [
+            "schema_version",
+            "status",
+            "version",
+            "artifact"
+          ],
+          "requiredValues": [
+            {
+              "path": "status",
+              "equals": "pass"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "v4-product-release-launchkey-full-packet-pass",
+      "display": "./bin/shipguard v4 release-candidate --path . --package-tarball <release-tarball> --upgrade-from-tarball <previous-release-tarball> --release-assets <downloaded-assets> --external-adoption-evidence <evidence> --security-review-evidence <evidence> --shipguard-eval --shareable",
+      "preparePreviousPackageTarballs": [
+        {
+          "source": "proof-bundle/shipguard-v{version}.tar.gz",
+          "path": "previous-package/shipguard-v0.0.0.tar.gz",
+          "version": "0.0.0"
+        }
+      ],
+      "prepareReleaseAssetDirectories": [
+        {
+          "fromProofBundle": "proof-bundle",
+          "path": "downloaded-assets"
+        }
+      ],
+      "prepareFiles": [
+        {
+          "path": "stable-adoption/external-adoption.json",
+          "text": "{\n  \"schemaVersion\": 1,\n  \"evidenceType\": \"external-user-install\",\n  \"evidenceClass\": \"public-external\",\n  \"actorRelationship\": \"independent\",\n  \"generatedAt\": \"2026-06-19T00:00:00Z\",\n  \"status\": \"pass\",\n  \"privateDataRedacted\": true,\n  \"consentToShare\": true,\n  \"actor\": \"redacted independent reviewer\",\n  \"source\": \"public redacted evidence packet\",\n  \"commands\": [\"shipguard version\", \"shipguard v4 release-candidate --path . --out /tmp/redacted --shipguard-eval --shareable\"],\n  \"artifacts\": [\"redacted-consumer-report.json\", \"redacted-v4-release-candidate.json\"],\n  \"outcome\": \"Redacted independent evidence packet reports that external install and LaunchKey completed.\",\n  \"nonClaims\": [\"This evidence does not claim marketplace acceptance.\", \"This evidence does not validate private apps or physical-device iOS behavior.\"]\n}\n"
+        },
+        {
+          "path": "stable-security/security-review.json",
+          "text": "{\n  \"schemaVersion\": 1,\n  \"evidenceType\": \"final-security-review\",\n  \"evidenceClass\": \"private-redacted-security-review\",\n  \"reviewerRelationship\": \"maintainer-security-review\",\n  \"generatedAt\": \"2026-06-19T00:00:00Z\",\n  \"status\": \"pass\",\n  \"privateDataRedacted\": true,\n  \"shareableSummaryOnly\": true,\n  \"reviewer\": \"redacted security reviewer\",\n  \"source\": \"redacted final security review packet\",\n  \"scope\": [\"cli\", \"plugin\", \"github-actions\", \"release-proof\", \"package-install\", \"redaction-privacy\"],\n  \"methodology\": [\"threat model review\", \"release artifact trust-boundary review\", \"local plugin boundary review\", \"redaction/privacy review\"],\n  \"commands\": [\"shipguard validate\", \"shipguard codex marketplace-readiness --path . --out /tmp/redacted --strict --shareable\", \"shipguard v4 release-candidate --path . --out /tmp/redacted --shipguard-eval --shareable\"],\n  \"artifacts\": [\"redacted-security-review.md\", \"redacted-threat-model.md\", \"redacted-marketplace-readiness.json\", \"redacted-v4-release-candidate.json\"],\n  \"findingsSummary\": {\"criticalOpen\": 0, \"highOpen\": 0, \"mediumOpen\": 1},\n  \"outcome\": \"Redacted final security review packet reports no open critical or high findings for stable-v4 gating surfaces.\",\n  \"nonClaims\": [\"This evidence does not claim third-party certification.\", \"This evidence does not validate private apps or physical-device iOS behavior.\"]\n}\n"
+        }
+      ],
+      "args": [
+        "v4",
+        "release-candidate",
+        "--path",
+        ".",
+        "--package-tarball",
+        "{out}/proof-bundle/shipguard-v{version}.tar.gz",
+        "--upgrade-from-tarball",
+        "{out}/previous-package/shipguard-v0.0.0.tar.gz",
+        "--fresh-install-prefix",
+        "{out}/fresh-prefix",
+        "--fresh-install-work-dir",
+        "{out}/fresh-work",
+        "--upgrade-prefix",
+        "{out}/upgrade-prefix",
+        "--upgrade-work-dir",
+        "{out}/upgrade-work",
+        "--rollback-prefix",
+        "{out}/rollback-prefix",
+        "--rollback-work-dir",
+        "{out}/rollback-work",
+        "--out",
+        "{out}/v4-product-release",
+        "--release-assets",
+        "{out}/downloaded-assets",
+        "--release-version",
+        "{version}",
+        "--release-consume-out",
+        "{out}/release-consume",
+        "--external-adoption-evidence",
+        "{out}/stable-adoption/external-adoption.json",
+        "--security-review-evidence",
+        "{out}/stable-security/security-review.json",
+        "--shipguard-eval",
+        "--shareable"
+      ],
+      "timeoutSeconds": 240,
+      "env": {
+        "SHIPGUARD_GENERATED_AT": "2026-06-19T00:00:00Z"
+      },
+      "artifacts": [
+        {
+          "path": "v4-product-release/v4-release-candidate.json",
+          "type": "json",
+          "requiredJsonKeys": [
+            "tool",
+            "surface",
+            "status",
+            "freshInstallPackageProof",
+            "upgradePackageProof",
+            "rollbackPackageProof",
+            "publishedReleaseAssetProof",
+            "externalAdoptionEvidenceProof",
+            "securityReviewEvidenceProof",
+            "releaseReadiness",
+            "resultUX",
+            "scopeBoundary"
+          ],
+          "requiredNonEmptyJsonPaths": [
+            "freshInstallPackageProof.versionResult",
+            "upgradePackageProof.previousPackageVersion",
+            "rollbackPackageProof.removedPathCount",
+            "publishedReleaseAssetProof.consumerReportPath",
+            "externalAdoptionEvidenceProof.records",
+            "securityReviewEvidenceProof.records",
+            "resultUX.nextCommand"
+          ],
+          "requiredValues": [
+            {
+              "path": "tool",
+              "equals": "shipguard v4 release-candidate"
+            },
+            {
+              "path": "status",
+              "equals": "pass"
+            },
+            {
+              "path": "releaseReadiness.releaseClaim",
+              "equals": "candidate-ready"
+            },
+            {
+              "path": "releaseReadiness.stableV4Release",
+              "equals": false
+            },
+            {
+              "path": "releaseReadiness.freshInstallPackageProof",
+              "equals": "pass"
+            },
+            {
+              "path": "releaseReadiness.upgradePackageProof",
+              "equals": "pass"
+            },
+            {
+              "path": "releaseReadiness.rollbackPackageProof",
+              "equals": "pass"
+            },
+            {
+              "path": "releaseReadiness.publishedReleaseAssetProof",
+              "equals": "pass"
+            },
+            {
+              "path": "releaseReadiness.externalAdoptionEvidenceStableGate",
+              "equals": "pass"
+            },
+            {
+              "path": "releaseReadiness.securityReviewEvidenceStableGate",
+              "equals": "pass"
+            },
+            {
+              "path": "scopeBoundary.shipguardOnly",
+              "equals": true
+            },
+            {
+              "path": "scopeBoundary.privateAppsUsed",
+              "equals": false
+            }
+          ]
+        },
+        {
+          "path": "v4-product-release/v4-release-candidate.md",
+          "type": "markdown",
+          "requiredPhrases": [
+            "# ShipGuard V4 Release Candidate Readiness",
+            "Stable v4 release",
+            "Fresh Install",
+            "Upgrade",
+            "Rollback",
+            "Published Release",
+            "External Adoption",
+            "Security Review"
+          ],
+          "forbidLocalPaths": true
+        },
+        {
+          "path": "release-consume/consumer-report.json",
+          "type": "json",
+          "requiredJsonKeys": [
+            "status",
+            "artifact",
+            "summary",
+            "published"
+          ],
+          "requiredValues": [
+            {
+              "path": "status",
+              "equals": "pass"
+            },
+            {
+              "path": "summary.replay_status",
+              "equals": "pass"
+            },
+            {
+              "path": "summary.attestation_status",
+              "equals": "pass"
+            }
+          ]
+        },
+        {
+          "path": "release-consume/asset-digests.json",
+          "type": "json",
+          "requiredJsonKeys": [
+            "schema_version",
+            "assets"
+          ],
+          "requiredNonEmptyJsonPaths": [
+            "assets"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "v4-product-release-report-quality-pass",
+      "display": "./bin/shipguard ios report-quality --reports <out>/v4-product-release --out <out>/v4-product-release-quality --shareable",
+      "args": [
+        "ios",
+        "report-quality",
+        "--reports",
+        "{out}/v4-product-release",
+        "--out",
+        "{out}/v4-product-release-quality",
+        "--shareable"
+      ],
+      "timeoutSeconds": 120,
+      "artifacts": [
+        {
+          "path": "v4-product-release-quality/ios-report-quality.json",
+          "type": "json",
+          "requiredJsonKeys": [
+            "tool",
+            "status",
+            "priorityAction",
+            "actionabilityQuestions",
+            "resultUX"
+          ],
+          "requiredNonEmptyJsonPaths": [
+            "priorityAction",
+            "actionabilityQuestions",
+            "resultUX.nextCommand"
+          ],
+          "requiredValues": [
+            {
+              "path": "tool",
+              "equals": "shipguard ios report-quality"
+            },
+            {
+              "path": "status",
+              "equals": "pass"
+            }
+          ]
+        },
+        {
+          "path": "v4-product-release-quality/ios-report-quality.md",
+          "type": "markdown",
+          "requiredPhrases": [
+            "# iOS ShipGuard Report Quality",
+            "## Result",
+            "Priority Action",
+            "Actionability Questions"
+          ],
+          "forbidLocalPaths": true
+        }
+      ]
+    }
+  ]
+}

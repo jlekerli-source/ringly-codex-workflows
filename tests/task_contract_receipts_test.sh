@@ -83,8 +83,8 @@ if structured_evidence.get("receiptCount") != 1 or structured_evidence.get("pass
 
 if concise_result_ux.get("status") != "pass":
     raise SystemExit(f"concise result UX receipts should pass: {concise_result_ux!r}")
-if answer.get("identifier") != "shipguard v4-product-release-stabilization":
-    raise SystemExit(f"passing v4 release-candidate receipts should escalate to product release stabilization: {answer!r}")
+if answer.get("identifier") != "shipguard v4-stable-release-publication":
+    raise SystemExit(f"passing v4 product-release stabilization receipts should escalate to stable v4 publication: {answer!r}")
 if "runtimeProofGatedTaskContract" in answer.get("missingDepthSignals", []):
     raise SystemExit(f"proof-gated task contract should no longer be missing: {answer!r}")
 if "runtimeDiffFirstVerification" in answer.get("missingDepthSignals", []):
@@ -119,8 +119,8 @@ if "runtimeV4SchemaFreeze" in answer.get("missingDepthSignals", []):
     raise SystemExit(f"v4 schema freeze should no longer be missing: {answer!r}")
 if "runtimeV4ReleaseCandidateReadiness" in answer.get("missingDepthSignals", []):
     raise SystemExit(f"v4 release-candidate readiness should no longer be missing: {answer!r}")
-if "runtimeV4ProductReleaseStabilization" not in answer.get("missingDepthSignals", []):
-    raise SystemExit(f"v4 product release stabilization gap should be explicit: {answer!r}")
+if "runtimeV4StableReleasePublication" not in answer.get("missingDepthSignals", []):
+    raise SystemExit(f"stable v4 publication gap should be explicit: {answer!r}")
 PY
 
 echo "task contract receipt tests passed"
