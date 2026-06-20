@@ -61,6 +61,18 @@ This slice makes the blocked gate actionable:
 
 The kit is draft-only. It helps edit the public GitHub release notes, then the maintainer must rerun stable-publication against the actual release metadata.
 
+## Current Stable Publication Report Quality Fixtures
+
+The next report-quality pass showed that the stable-publication report shape was now useful, but the public fixture coverage did not recognize the stable-publication proof and release-notes authoring questions as promoted. That meant ShipGuard kept generating duplicate fixture candidates even after the behavior existed.
+
+This slice turns the stable-publication surface into reusable public QA:
+
+- `fixtures/ios-report-quality/stable-publication-complete` now contains a synthetic complete stable-publication report with evidence packet, evidence templates, evidence starter kit, release-notes proof, and release-notes authoring kit.
+- `fixtures/ios-report-quality/stable-publication-release-notes-authoring` marks the release-notes authoring question as separately covered.
+- `./tests/ios_report_quality_test.sh` now runs the complete fixture and asserts report-quality returns `pass`, detects both fixture coverage entries, and emits no duplicate fixture candidates.
+
+This keeps the next loop moving to new product gaps instead of repeatedly rediscovering the stable-publication authoring work.
+
 ## Current Development Loop Efficiency Receipt
 
 The latest self-QA pass showed a real development-process weakness: after the design observation question was promoted into a public fixture, the existing workflow-chain receipt became too coupled to that now-covered design question. The receipt failed even though the product behavior was improving, which meant the proof loop could waste maintainer time on manual interpretation.

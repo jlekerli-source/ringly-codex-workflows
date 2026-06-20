@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Promoted stable-publication report-quality coverage into public fixtures: `fixtures/ios-report-quality/stable-publication-complete` now proves a complete stable-publication report with evidence packet, templates, starter kit, release-notes proof, and release-notes authoring kit scores cleanly, while `stable-publication-release-notes-authoring` marks the authoring question as covered so duplicate fixture candidates stop recurring.
 - Added a stable-publication release-notes authoring kit: every `shipguard v4 stable-publication` run now writes `stable-publication-release-notes/` with a checklist, draft release notes, and rerun guidance; reports expose `stablePublicationReleaseNotesAuthoringKit`, Markdown renders `Release Notes Authoring Kit`, and report-quality flags stable-publication reports that hide the authoring path.
 - Tightened `shipguard v4 stable-publication` release-notes proof: the gate now analyzes the full GitHub release body, emits a digest plus seven-topic matrix, renders `Release Notes Proof` in Markdown, and blocks stable-v4 publication when notes omit downloaded release assets, post-release consumer proof, independent adoption, final security review, or non-claim boundaries.
 - Added `shipguard release-package hygiene`, a read-only package-lineage report that scans ShipGuard release tarballs and downloaded release assets for AppleDouble `._*`, `.DS_Store`, `__MACOSX`, cache artifacts, unsafe links/devices, path traversal, and missing installable package roots before LaunchKey install or upgrade proof.

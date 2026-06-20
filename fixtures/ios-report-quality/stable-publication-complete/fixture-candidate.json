@@ -1,0 +1,9 @@
+{
+  "candidateId": "stable-publication-complete",
+  "fixtureType": "stable-publication-report-quality-fixture",
+  "source": "public-synthetic",
+  "sourceTool": "shipguard v4 stable-publication",
+  "sourceQuestion": "Can ShipGuard prove stable-v4 publication from real release metadata, release notes, downloaded assets, external adoption evidence, security evidence, and post-release consumer proof?",
+  "privateDataCopied": false,
+  "expectedReportQualityStatus": "pass"
+}

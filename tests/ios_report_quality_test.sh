@@ -2740,6 +2740,27 @@ if grep -q 'fresh-install-prefix\|fresh-install-work\|upgrade-prefix\|upgrade-wo
   exit 1
 fi
 
+stable_publication_fixture="fixtures/ios-report-quality/stable-publication-complete"
+./bin/shipguard ios report-quality \
+  --reports "$stable_publication_fixture" \
+  --out "$tmp_dir/stable-publication-complete-fixture-quality" \
+  --shareable >/dev/null
+grep -q '"status": "pass"' "$tmp_dir/stable-publication-complete-fixture-quality/ios-report-quality.json"
+grep -q '"reportCount": 1' "$tmp_dir/stable-publication-complete-fixture-quality/ios-report-quality.json"
+grep -q '"kind": "review-existing-fixture"' "$tmp_dir/stable-publication-complete-fixture-quality/ios-report-quality.json"
+grep -q '"publicFixturePath": "fixtures/ios-report-quality/stable-publication-complete"' "$tmp_dir/stable-publication-complete-fixture-quality/ios-report-quality.json"
+python3 - <<'PY' "$tmp_dir/stable-publication-complete-fixture-quality/ios-report-quality.json"
+import json
+import sys
+
+data = json.load(open(sys.argv[1], encoding="utf-8"))
+coverage_paths = {item.get("publicFixturePath") for item in data.get("fixtureCoverage", [])}
+assert "fixtures/ios-report-quality/stable-publication-complete" in coverage_paths
+assert "fixtures/ios-report-quality/stable-publication-release-notes-authoring" in coverage_paths
+assert data.get("fixtureCandidates") == []
+assert data.get("priorityAction", {}).get("kind") == "review-existing-fixture"
+PY
+
 json_stdout="$(./bin/shipguard ios report-quality --reports "$reports" --json)"
 printf '%s\n' "$json_stdout" | python3 -m json.tool >/dev/null
 grep -q '"tool": "shipguard ios report-quality"' <<<"$json_stdout"
