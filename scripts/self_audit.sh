@@ -72,6 +72,7 @@ commands=(
   "sarif --help"
   "docs-check --help"
   "brand --help"
+  "lean audit --help"
   "value-gauntlet --help"
   "full-audit --help"
   "inspect --help"
@@ -187,6 +188,7 @@ required_artifacts=(
   "docs/arena-compare-action.md"
   "docs/sarif.md"
   "docs/docs-check.md"
+  "docs/lean-audit.md"
   "docs/ci-summary.md"
   "docs/check-run.md"
   "docs/codex-status.md"
@@ -349,6 +351,7 @@ required_artifacts=(
   "scripts/shipguard_baseline.py"
   "scripts/external_pilot_verdict_bench.py"
   "scripts/tool_value_gauntlet.py"
+  "scripts/lean_audit.py"
   "scripts/shipguard_result.py"
   "scripts/full_audit.py"
   "scripts/shipguard_inspect.py"
@@ -395,6 +398,7 @@ required_artifacts=(
   "tests/structured_evidence_receipts_test.sh"
   "tests/external_pilot_verdict_bench_test.sh"
   "tests/tool_value_gauntlet_test.sh"
+  "tests/lean_audit_test.sh"
   "tests/full_audit_test.sh"
   "tests/inspect_test.sh"
   "tests/v4_preview_test.sh"
@@ -417,6 +421,10 @@ required_artifacts=(
   "evals/cases.jsonl"
   "evals/ios_shipguard_cases.jsonl"
   "evals/run_local.py"
+  "fixtures/lean-audit-demo/package.json"
+  "fixtures/lean-audit-demo/src/DatePicker.tsx"
+  "fixtures/lean-audit-demo/src/ColorPicker.tsx"
+  "fixtures/lean-audit-demo/src/SafeAuth.ts"
 )
 
 artifact_count=0

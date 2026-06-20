@@ -1,0 +1,8 @@
+{
+  "name": "shipguard-lean-audit-demo",
+  "private": true,
+  "dependencies": {
+    "lodash": "^4.17.21",
+    "react-datepicker": "^8.0.0"
+  }
+}

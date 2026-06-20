@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+tmp_dir="$(mktemp -d)"
+trap 'rm -rf "$tmp_dir"' EXIT
+
+cd "$repo_root"
+
+./bin/shipguard lean audit --help >/dev/null
+python3 -m py_compile scripts/lean_audit.py
+
+./bin/shipguard lean audit \
+  --path fixtures/lean-audit-demo \
+  --out "$tmp_dir/lean" \
+  --shipguard-eval \
+  --shareable >/dev/null
+
+test -f "$tmp_dir/lean/lean-audit.json"
+test -f "$tmp_dir/lean/lean-audit.md"
+grep -q '"tool": "shipguard lean audit"' "$tmp_dir/lean/lean-audit.json"
+grep -q '"surface": "ShipGuard Lean Deck"' "$tmp_dir/lean/lean-audit.json"
+grep -q '"ruleId": "native-date-input"' "$tmp_dir/lean/lean-audit.json"
+grep -q '"ruleId": "native-color-input"' "$tmp_dir/lean/lean-audit.json"
+grep -q '"ruleId": "dependency-date-helper-review"' "$tmp_dir/lean/lean-audit.json"
+grep -q '"ruleId": "do-not-cut-safety-logic-without-proof"' "$tmp_dir/lean/lean-audit.json"
+grep -q '"scopeBoundary"' "$tmp_dir/lean/lean-audit.json"
+grep -q '"reportQualityQuestions"' "$tmp_dir/lean/lean-audit.json"
+grep -q 'Ponytail' "$tmp_dir/lean/lean-audit.md"
+grep -q 'Do not cut trust-boundary validation without proof' "$tmp_dir/lean/lean-audit.md"
+if grep -q '/Users/' "$tmp_dir/lean/lean-audit.json"; then
+  echo "shareable lean audit leaked an absolute user path" >&2
+  exit 1
+fi
+
+./bin/shipguard ios report-quality \
+  --reports "$tmp_dir/lean" \
+  --out "$tmp_dir/quality" \
+  --shareable >/dev/null
+
+grep -q 'shipguard lean audit' "$tmp_dir/quality/ios-report-quality.json"
+
+echo "lean audit tests passed"

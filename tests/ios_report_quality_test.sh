@@ -3284,6 +3284,33 @@ assert data.get("fixtureCandidates") == []
 assert data.get("priorityAction", {}).get("kind") == "review-existing-fixture"
 PY
 
+stable_publication_block_fixture="fixtures/ios-report-quality/01-shipguard-v4-stable-publication-does-the-stable-publication-repo"
+./bin/shipguard ios report-quality \
+  --reports "$stable_publication_block_fixture" \
+  --out "$tmp_dir/stable-publication-block-fixture-quality" \
+  --shareable >/dev/null
+grep -q '"status": "pass"' "$tmp_dir/stable-publication-block-fixture-quality/ios-report-quality.json"
+grep -q '"kind": "review-existing-fixture"' "$tmp_dir/stable-publication-block-fixture-quality/ios-report-quality.json"
+grep -q '"publicFixturePath": "fixtures/ios-report-quality/01-shipguard-v4-stable-publication-does-the-stable-publication-repo"' "$tmp_dir/stable-publication-block-fixture-quality/ios-report-quality.json"
+grep -q '"fixtureCandidates": \[\]' "$tmp_dir/stable-publication-block-fixture-quality/ios-report-quality.json"
+python3 - <<'PY' "$tmp_dir/stable-publication-block-fixture-quality/ios-report-quality.json"
+import json
+import sys
+
+data = json.load(open(sys.argv[1], encoding="utf-8"))
+coverage = data.get("fixtureCoverage") or []
+assert len(coverage) == 1, coverage
+item = coverage[0]
+assert item.get("sourceTool") == "shipguard v4 stable-publication", item
+assert item.get("fixtureType") == "shipguard-release-proof-quality-fixture", item
+assert item.get("publicFixturePath") == "fixtures/ios-report-quality/01-shipguard-v4-stable-publication-does-the-stable-publication-repo", item
+assert "block every stable-v4 claim" in item.get("question", ""), item
+priority = data.get("priorityAction") or {}
+assert priority.get("kind") == "review-existing-fixture", priority
+assert priority.get("existingFixturePath") == "fixtures/ios-report-quality/01-shipguard-v4-stable-publication-does-the-stable-publication-repo", priority
+assert data.get("fixtureCandidates") == [], data.get("fixtureCandidates")
+PY
+
 stable_publication_value_fixture="fixtures/ios-report-quality/stable-publication-value-gauntlet-question"
 ./bin/shipguard ios report-quality \
   --reports "$stable_publication_value_fixture" \

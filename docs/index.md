@@ -13,6 +13,7 @@ Use this page as a map. Start with the smallest path that matches what you are t
 | Add ShipGuard to your own project | [Use in your repo](use-in-your-repo.md) |
 | Choose the right command | [Command Matrix](command-matrix.md) |
 | Look up every CLI option | [CLI reference](cli.md) |
+| Find code that may not need to exist | [ShipGuard Lean Deck](lean-audit.md) |
 
 ## First Useful Run
 
@@ -72,6 +73,7 @@ Open `/tmp/shipguard-verdict/shipguard-verdict.md`. The report shows whether the
 - [ShipGuard Evaluation](oss-evaluation.md)
 - [Docs Check](docs-check.md)
 - [SARIF Evidence Export](sarif.md)
+- [ShipGuard Lean Deck](lean-audit.md)
 
 ### Release Proof
 

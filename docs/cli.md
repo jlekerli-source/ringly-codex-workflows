@@ -112,6 +112,20 @@ Use `prepare` before Codex edits and `verify` after Codex edits when a task need
 
 See `task-contract.md` and `verify-first-quickstart.md`.
 
+## Lean Deck
+
+Use `lean audit` when you want ShipGuard to look for code that may not need to exist before asking an agent to add more code:
+
+```bash
+./bin/shipguard lean audit \
+  --path . \
+  --out /tmp/shipguard-lean-audit \
+  --shipguard-eval \
+  --shareable
+```
+
+The command writes `lean-audit.json` and `lean-audit.md`. It reports native platform, standard-library, dependency, and thin-wrapper opportunities, while marking security, validation, data-loss, permission, payment, migration, and accessibility files as proof-required safety boundaries. See `lean-audit.md`.
+
 ## Release Package Hygiene
 
 Use `release-package hygiene` before package install or upgrade proof when release tarball lineage matters:

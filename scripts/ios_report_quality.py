@@ -95,6 +95,7 @@ STATUS_PRIORITY = {"blocked": 0, "review": 1, "pass": 2}
 TOOL_NEXT_ACTION_PRIORITY = {
     "shipguard brand": 0,
     "shipguard value-gauntlet": 0,
+    "shipguard lean audit": 0,
     "shipguard full-audit": 0,
     "shipguard inspect": 0,
     "shipguard web audit": 1,
@@ -126,6 +127,7 @@ ROOT_REPORT_TOOLS = {
     "shipguard brand",
     "shipguard docs-check",
     "shipguard value-gauntlet",
+    "shipguard lean audit",
     "shipguard full-audit",
     "shipguard inspect",
     "shipguard v4 preview",
