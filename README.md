@@ -34,13 +34,17 @@ ShipGuard runs locally, writes Markdown and JSON reports, and keeps the final de
 - Packages Codex plugin guidance, starter repo profiles, iOS audits, and release-proof tooling.
 - Keeps private app work out of public fixtures and docs.
 
-The strongest workflow today is iOS, but the core proof loop is app-neutral and also includes starter profiles for web, backend, and CLI projects.
+ShipGuard is not tied to any single app. The strongest workflow today is iOS, but the core proof loop is app-neutral and also includes starter profiles for web, backend, and CLI projects.
 
 ## Quick Start
 
 Install ShipGuard from this checkout or a release package:
 
 ```bash
+# release package path:
+tar -xzf shipguard-v3.131.0.tar.gz && cd shipguard-v3.131.0
+
+# source checkout or extracted release package:
 PREFIX="$HOME/.local" ./scripts/install.sh
 "$HOME/.local/bin/shipguard" version
 "$HOME/.local/bin/shipguard" validate
