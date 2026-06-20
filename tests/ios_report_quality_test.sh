@@ -3409,6 +3409,35 @@ assert priority.get("existingFixturePath") == "fixtures/ios-report-quality/01-sh
 assert data.get("fixtureCandidates") == [], data.get("fixtureCandidates")
 PY
 
+stable_publication_starter_fixture="fixtures/ios-report-quality/01-shipguard-v4-stable-publication-does-the-stable-publica-481951ae"
+./bin/shipguard ios report-quality \
+  --reports "$stable_publication_starter_fixture" \
+  --out "$tmp_dir/stable-publication-starter-fixture-quality" \
+  --shareable >/dev/null
+grep -q '"status": "pass"' "$tmp_dir/stable-publication-starter-fixture-quality/ios-report-quality.json"
+grep -q '"kind": "review-existing-fixture"' "$tmp_dir/stable-publication-starter-fixture-quality/ios-report-quality.json"
+grep -q '"publicFixturePath": "fixtures/ios-report-quality/01-shipguard-v4-stable-publication-does-the-stable-publica-481951ae"' "$tmp_dir/stable-publication-starter-fixture-quality/ios-report-quality.json"
+grep -q '"fixtureCandidates": \[\]' "$tmp_dir/stable-publication-starter-fixture-quality/ios-report-quality.json"
+grep -q '"stablePublicationEvidenceStarterKit":' "$stable_publication_starter_fixture/fixture-report.json"
+grep -q 'Evidence Starter Kit' "$stable_publication_starter_fixture/fixture-report.md"
+python3 - <<'PY' "$tmp_dir/stable-publication-starter-fixture-quality/ios-report-quality.json"
+import json
+import sys
+
+data = json.load(open(sys.argv[1], encoding="utf-8"))
+coverage = data.get("fixtureCoverage") or []
+assert len(coverage) == 1, coverage
+item = coverage[0]
+assert item.get("sourceTool") == "shipguard v4 stable-publication", item
+assert item.get("fixtureType") == "report-evidence-promotion-fixture", item
+assert item.get("publicFixturePath") == "fixtures/ios-report-quality/01-shipguard-v4-stable-publication-does-the-stable-publica-481951ae", item
+assert "draft-only evidence starter kit" in item.get("question", ""), item
+priority = data.get("priorityAction") or {}
+assert priority.get("kind") == "review-existing-fixture", priority
+assert priority.get("existingFixturePath") == "fixtures/ios-report-quality/01-shipguard-v4-stable-publication-does-the-stable-publica-481951ae", priority
+assert data.get("fixtureCandidates") == [], data.get("fixtureCandidates")
+PY
+
 stable_publication_value_fixture="fixtures/ios-report-quality/stable-publication-value-gauntlet-question"
 ./bin/shipguard ios report-quality \
   --reports "$stable_publication_value_fixture" \

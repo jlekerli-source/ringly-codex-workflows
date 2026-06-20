@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Promoted the stable-publication evidence starter-kit actionability question into `fixtures/ios-report-quality/01-shipguard-v4-stable-publication-does-the-stable-publica-481951ae`, so fresh stable-publication report-quality now covers the full current five-question sequence and moves to a fresh ShipGuard QA source instead of re-materializing starter-kit candidates.
 - Added `leanDebtLedger` to `shipguard lean audit`: ShipGuard now harvests `ponytail:` and `shipguard-lean:` shortcut comments, reports their ceilings and upgrade triggers, flags markers without triggers, renders the ledger in Markdown, and tests the behavior with a public fixture so precise-code shortcuts stay auditable instead of becoming hidden debt.
 - Fixed report-quality fixture candidate naming for long same-prefix questions by adding deterministic hash suffixes on truncated slugs, then promoted the stable-publication draft-only evidence-templates question into `fixtures/ios-report-quality/01-shipguard-v4-stable-publication-does-the-stable-publica-f54b9564`.
 - Promoted the stable-publication evidence-packet actionability question into `fixtures/ios-report-quality/01-shipguard-v4-stable-publication-does-the-stable-publication-evid`, so read-only stable-v4 publication QA now treats the required-inputs/first-blocker/next-command/non-claims contract as covered by a public synthetic fixture.
