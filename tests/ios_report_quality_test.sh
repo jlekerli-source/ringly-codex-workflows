@@ -2815,6 +2815,8 @@ coverage = data.get("fixtureCoverage") or []
 assert len(coverage) == 1, coverage
 item = coverage[0]
 assert item.get("sourceTool") == "shipguard value-gauntlet", item
+assert item.get("candidateId") == "stable-publication-value-gauntlet-question", item
+assert item.get("fixtureType") == "shipguard-release-proof-quality-fixture", item
 assert item.get("publicFixturePath") == "fixtures/ios-report-quality/stable-publication-value-gauntlet-question", item
 assert "stable-v4 publication" in item.get("question", ""), item
 priority = data.get("priorityAction") or {}

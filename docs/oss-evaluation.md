@@ -697,6 +697,10 @@ The next read-only ShipGuard self-QA pass showed `shipguard value-gauntlet` stil
 
 The promoted public fixture is `fixtures/ios-report-quality/plugin-skill-routing-value-gauntlet-question`. Focused tests prove the live value-gauntlet report now marks that question as covered, emits no duplicate fixture candidate, and scores the promoted fixture as an existing fixture instead of recursively generating another candidate. The package proof also checks the fixture files ship in release archives.
 
+## Current Stable-Publication Fixture Review
+
+The following read-only self-QA pass moved from uncovered candidate generation to existing-fixture review. Reviewing `fixtures/ios-report-quality/stable-publication-value-gauntlet-question` exposed stale generated metadata inside the promoted fixture: nested candidate ids and suggested paths still referenced the original materialized slug instead of the stable public fixture path. The fixture now uses `stable-publication-value-gauntlet-question` consistently and records the fixture type as `shipguard-release-proof-quality-fixture`; focused tests assert both fields during report-quality scoring.
+
 ### Phase 1: Plugin Source And Local Cache
 
 Status: done.

@@ -1,15 +1,15 @@
 # Next Goal
 
-- Generated: 2026-06-20T07:03:07Z
+- Generated: 2026-06-20T07:16:57Z
 - Current toolkit version: 3.131.0
-- Target release: v3.164.0
-- Title: Plugin Skill Routing Actionability Fixture
+- Target release: v3.165.0
+- Title: Stable Publication Fixture Review Loop
 
 ## Slash Plan
 
 ```text
-/plan v3.164.0 Plugin Skill Routing Actionability Fixture for jlekerli-source/ShipGuard:
-1. Implement this bounded improvement: Make value-gauntlet plugin/starter-skill routing questions promotion-ready and regression-covered so Codex-facing ShipGuard skill surfaces must be tied to actionable routing and validation commands.
+/plan v3.165.0 Stable Publication Fixture Review Loop for jlekerli-source/ShipGuard:
+1. Implement this bounded improvement: Review the existing stable-publication value-gauntlet fixture from the read-only ShipGuard QA loop and refine any stale promoted-fixture metadata so fixture coverage remains canonical and useful.
 2. Implement the CLI, docs, tests, and package proof needed for that improvement.
 3. Run the required proof commands, treat blocked or timed-out commands as failures, and record exact blockers.
 4. Push main, verify GitHub Actions, publish and consume release proof, verify asset SHA-256 and clean git status, then generate the following goal.
@@ -18,23 +18,23 @@
 ## Slash Goal
 
 ```text
-/goal Implement v3.164.0 Plugin Skill Routing Actionability Fixture for jlekerli-source/ShipGuard: follow the /plan above, deliver this bounded improvement: Make value-gauntlet plugin/starter-skill routing questions promotion-ready and regression-covered so Codex-facing ShipGuard skill surfaces must be tied to actionable routing and validation commands, push main, verify GitHub Actions, publish the release tarball, verify asset SHA-256 and clean git status, then run shipguard next-goal again for the following release.
+/goal Implement v3.165.0 Stable Publication Fixture Review Loop for jlekerli-source/ShipGuard: follow the /plan above, deliver this bounded improvement: Review the existing stable-publication value-gauntlet fixture from the read-only ShipGuard QA loop and refine any stale promoted-fixture metadata so fixture coverage remains canonical and useful, push main, verify GitHub Actions, publish the release tarball, verify asset SHA-256 and clean git status, then run shipguard next-goal again for the following release.
 ```
 
 
 ## Bounded Scope
 
-Make value-gauntlet plugin/starter-skill routing questions promotion-ready and regression-covered so Codex-facing ShipGuard skill surfaces must be tied to actionable routing and validation commands.
+Review the existing stable-publication value-gauntlet fixture from the read-only ShipGuard QA loop and refine any stale promoted-fixture metadata so fixture coverage remains canonical and useful.
 
 ## Completion Receipt
 
-- Completed scope: Updated report-quality candidate detection for plugin-skill, starter-skill, actionable-routing, and validation-command questions; promoted fixtures/ios-report-quality/plugin-skill-routing-value-gauntlet-question; wired focused report-quality assertions and package proof; and documented the ShipGuard-only loop refinement.
-- Evidence: Passed: python3 -m py_compile scripts/ios_report_quality.py; python3 -m json.tool fixtures/ios-report-quality/plugin-skill-routing-value-gauntlet-question/fixture-candidate.json; python3 -m json.tool fixtures/ios-report-quality/plugin-skill-routing-value-gauntlet-question/fixture-report.json; ./bin/shipguard ios report-quality --reports fixtures/ios-report-quality/plugin-skill-routing-value-gauntlet-question --out /tmp/shipguard-plugin-skill-routing-fixture-quality --shareable; ./tests/ios_report_quality_test.sh; live value-gauntlet plus report-quality showed zero fixtureCandidates, five fixtureCoverage entries, and priorityAction moved to review-existing-fixture for the stable-publication fixture; git diff --check; ./bin/shipguard docs-check . --out /tmp/shipguard-v3164-docs-check; ./bin/shipguard validate; ./tests/package_release_test.sh.
+- Completed scope: Normalized the stable-publication value-gauntlet fixture metadata: candidate id, fixture type, nested report metadata, and promotion paths now consistently point to fixtures/ios-report-quality/stable-publication-value-gauntlet-question as a shipguard-release-proof-quality-fixture; focused tests assert that canonical fixture coverage.
+- Evidence: Passed: ./bin/shipguard value-gauntlet --path . --out /tmp/shipguard-v3165-value-gauntlet; ./bin/shipguard ios report-quality --reports /tmp/shipguard-v3165-value-gauntlet --out /tmp/shipguard-v3165-report-quality-final --shareable --write-fixture-candidates /tmp/shipguard-v3165-fixture-candidates-final with zero fixtureCandidates and stable fixture coverage candidateId stable-publication-value-gauntlet-question; ./bin/shipguard ios report-quality --reports fixtures/ios-report-quality/stable-publication-value-gauntlet-question --out /tmp/shipguard-stable-publication-fixture-review --shareable; ./tests/ios_report_quality_test.sh; git diff --check; ./bin/shipguard docs-check . --out /tmp/shipguard-v3165-docs-check; ./bin/shipguard validate; ./tests/package_release_test.sh.
 
 ## Following Slash Plan
 
 ```text
-/plan v3.165.0 Stable Publication Fixture Review Loop for jlekerli-source/ShipGuard:
+/plan v3.166.0 Existing Fixture Metadata Consistency Sweep for jlekerli-source/ShipGuard:
 1. Review ROADMAP.md, docs/oss-evaluation.md, and the latest read-only ShipGuard product-QA evidence.
 2. Pick one bounded improvement that makes ShipGuard reports more useful without turning private-app findings into app work.
 3. Implement the CLI, docs, tests, package proof, and plugin-refresh proof needed for that improvement.
@@ -44,13 +44,13 @@ Make value-gauntlet plugin/starter-skill routing questions promotion-ready and r
 ## Following Slash Goal
 
 ```text
-/goal Implement v3.165.0 Stable Publication Fixture Review Loop for jlekerli-source/ShipGuard: follow the following /plan above, choose one bounded ShipGuard report-quality improvement from ROADMAP.md and docs/oss-evaluation.md, implement it with proof, and generate the next completion receipt plus following /plan and /goal after validation passes.
+/goal Implement v3.166.0 Existing Fixture Metadata Consistency Sweep for jlekerli-source/ShipGuard: follow the following /plan above, choose one bounded ShipGuard report-quality improvement from ROADMAP.md and docs/oss-evaluation.md, implement it with proof, and generate the next completion receipt plus following /plan and /goal after validation passes.
 ```
 
 Generate that follow-up file with:
 
 ```bash
-./bin/shipguard next-goal --release 3.165.0 --title "Stable Publication Fixture Review Loop" --out NEXT_GOAL.md
+./bin/shipguard next-goal --release 3.166.0 --title "Existing Fixture Metadata Consistency Sweep" --out NEXT_GOAL.md
 ```
 
 ## Constraints
@@ -150,12 +150,12 @@ Generate that follow-up file with:
 
 ## Release Loop
 
-1. Open or update the tracking issue for v3.164.0.
+1. Open or update the tracking issue for v3.165.0.
 2. Implement the smallest complete improvement that makes the toolkit more useful.
 3. Update README, CLI docs, changelog, roadmap, and package verification.
 4. Commit with an issue-closing reference.
 5. Push `main` and verify GitHub Actions success.
-6. Create release `v3.164.0` and upload `dist/shipguard-v3.164.0.tar.gz`.
+6. Create release `v3.165.0` and upload `dist/shipguard-v3.165.0.tar.gz`.
 7. Verify release asset digest, closed issue, tag target, and clean git status.
 8. Generate the next goal:
 

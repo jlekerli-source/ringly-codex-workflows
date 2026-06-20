@@ -1,5 +1,5 @@
 {
-  "candidateId": "01-shipguard-value-gauntlet-can-shipguard-prove-stable-v4-publicati",
+  "candidateId": "stable-publication-value-gauntlet-question",
   "duplicateCount": 1,
   "expectedAssertions": [
     "report-quality preserves the actionability question in JSON and Markdown",
@@ -7,7 +7,7 @@
     "the fixture keeps scopeBoundary.shipguardOnly and targetAppsReadOnly explicit",
     "shareable output contains no local absolute paths or private app identifiers"
   ],
-  "fixtureType": "report-evidence-promotion-fixture",
+  "fixtureType": "shipguard-release-proof-quality-fixture",
   "materialization": {
     "files": [
       "README.md",
@@ -21,7 +21,7 @@
   "priority": 1,
   "privateDataPolicy": "This materialized starter is synthetic. Use source reports only to choose report shape; do not copy private app code, local paths, screenshots, app-specific identifiers, or proprietary text.",
   "promotion": {
-    "candidateId": "01-shipguard-value-gauntlet-can-shipguard-prove-stable-v4-publicati",
+    "candidateId": "stable-publication-value-gauntlet-question",
     "copyCommands": [
       "mkdir -p fixtures/ios-report-quality/stable-publication-value-gauntlet-question",
       "cp <materialized-candidate-dir>/README.md fixtures/ios-report-quality/stable-publication-value-gauntlet-question/README.md",
@@ -43,7 +43,7 @@
       "Confirm scoring the promoted fixture does not emit recursive fixtureCandidates.",
       "Register the fixture in validation only after the report-quality check passes."
     ],
-    "sourceDirectory": "<materialized-fixture-output>/01-shipguard-value-gauntlet-can-shipguard-prove-stable-v4-publicati",
+    "sourceDirectory": "<materialized-fixture-output>/stable-publication-value-gauntlet-question",
     "suggestedFixturePath": "fixtures/ios-report-quality/stable-publication-value-gauntlet-question",
     "validationCommands": [
       "./bin/shipguard ios report-quality --reports fixtures/ios-report-quality/stable-publication-value-gauntlet-question --out <quality-dir> --shareable",

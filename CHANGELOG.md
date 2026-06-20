@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Normalized the promoted stable-publication value-gauntlet fixture so its candidate id, fixture type, nested report metadata, and promotion paths all point to `fixtures/ios-report-quality/stable-publication-value-gauntlet-question` as a `shipguard-release-proof-quality-fixture`.
 - Promoted the value-gauntlet plugin/starter-skill routing question into `fixtures/ios-report-quality/plugin-skill-routing-value-gauntlet-question`, and taught `ios report-quality --write-fixture-candidates` to materialize plugin-skill/starter-skill/actionable-routing/validation-command questions so Codex skill surfaces must stay tied to concrete routing and proof commands.
 - Promoted the value-gauntlet surface proof-boundary question into `fixtures/ios-report-quality/surface-proof-boundary-value-gauntlet-question`, and taught `ios report-quality --write-fixture-candidates` to materialize proof-boundary/branded-name/useful-surface questions so branded surfaces must stay tied to docs, tests, package proof, and proof boundaries.
 - Promoted the value-gauntlet product-release stabilization question into `fixtures/ios-report-quality/product-release-stabilization-value-gauntlet-question`, and taught `ios report-quality --write-fixture-candidates` to classify release/adoption/security/rollback/consumption proof questions as release-proof fixture candidates so the loop advances to the next uncovered proof-boundary gap.

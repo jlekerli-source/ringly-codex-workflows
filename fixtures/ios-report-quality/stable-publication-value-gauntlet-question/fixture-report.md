@@ -10,5 +10,5 @@ No private source tree was scanned. The fixture exists to exercise report-qualit
 
 ## Fixture Intent
 
-- Type: `report-evidence-promotion-fixture`
+- Type: `shipguard-release-proof-quality-fixture`
 - Source question: Can ShipGuard prove stable-v4 publication with downloaded GitHub release assets, independent adoption evidence, final security review evidence, release notes, and post-release consumer proof?
