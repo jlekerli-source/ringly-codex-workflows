@@ -1,14 +1,14 @@
 # Next Goal
 
-- Generated: 2026-06-20T15:20:31Z
+- Generated: 2026-06-20T15:36:03Z
 - Current toolkit version: 3.131.0
-- Target release: v3.191.0
-- Title: GitHub Action First-Run Proof Path
+- Target release: v3.192.0
+- Title: Stable V4 Publication Proof Packet
 
 ## Slash Plan
 
 ```text
-/plan v3.191.0 GitHub Action First-Run Proof Path for jlekerli-source/ShipGuard:
+/plan v3.192.0 Stable V4 Publication Proof Packet for jlekerli-source/ShipGuard:
 1. Pick exactly one high-signal maintainer reliability improvement from ROADMAP.md and write the bounded scope before editing.
 2. Implement the CLI, docs, tests, and package proof needed for that improvement.
 3. Run the required proof commands, treat blocked or timed-out commands as failures, and record exact blockers.
@@ -18,19 +18,19 @@
 ## Slash Goal
 
 ```text
-/goal Implement v3.191.0 GitHub Action First-Run Proof Path for jlekerli-source/ShipGuard: follow the /plan above, finish one high-signal maintainer reliability improvement from ROADMAP.md with CLI/docs/tests/package proof, push main, verify GitHub Actions, publish the release tarball, verify asset SHA-256 and clean git status, then run shipguard next-goal again for the following release.
+/goal Implement v3.192.0 Stable V4 Publication Proof Packet for jlekerli-source/ShipGuard: follow the /plan above, finish one high-signal maintainer reliability improvement from ROADMAP.md with CLI/docs/tests/package proof, push main, verify GitHub Actions, publish the release tarball, verify asset SHA-256 and clean git status, then run shipguard next-goal again for the following release.
 ```
 
 
 ## Completion Receipt
 
-- Completed scope: Improved the verify-first GitHub Actions starter so one SHIPGUARD_VALIDATION_COMMAND drives prepare, CI execution, and structured receipt metadata, with an early placeholder guard and docs/tests covering the first-run path.
-- Evidence: Passed: ./tests/verify_first_quickstart_test.sh; ./bin/shipguard value-gauntlet --path . --out /tmp/shipguard-loop-vg --strict returned pass with average score 100.0 and identified real stable-v4 publication proof as the next product-depth gap.
+- Completed scope: Promoted the stable-publication evidence-packet actionability question into a public synthetic report-quality fixture with the real stablePublicationEvidencePacket shape, required evidence IDs, first blocker, next command, non-claims, evidence templates, starter kit, release-notes kit, and blocked-claim boundaries.
+- Evidence: Passed: ./bin/shipguard ios report-quality --reports fixtures/ios-report-quality/01-shipguard-v4-stable-publication-does-the-stable-publication-evid --out /tmp/shipguard-promoted-stable-packet-quality --shareable; ./tests/ios_report_quality_test.sh; rerunning stable-publication report-quality advanced from question #3 to question #4.
 
 ## Following Slash Plan
 
 ```text
-/plan v3.192.0 Stable V4 Publication Proof Packet for jlekerli-source/ShipGuard:
+/plan v3.193.0 Stable Publication Evidence Templates Fixture for jlekerli-source/ShipGuard:
 1. Review ROADMAP.md, docs/oss-evaluation.md, and the latest read-only ShipGuard product-QA evidence.
 2. Pick one bounded improvement that makes ShipGuard reports more useful without turning private-app findings into app work.
 3. Implement the CLI, docs, tests, package proof, and plugin-refresh proof needed for that improvement.
@@ -40,13 +40,13 @@
 ## Following Slash Goal
 
 ```text
-/goal Implement v3.192.0 Stable V4 Publication Proof Packet for jlekerli-source/ShipGuard: follow the following /plan above, choose one bounded ShipGuard report-quality improvement from ROADMAP.md and docs/oss-evaluation.md, implement it with proof, and generate the next completion receipt plus following /plan and /goal after validation passes.
+/goal Implement v3.193.0 Stable Publication Evidence Templates Fixture for jlekerli-source/ShipGuard: follow the following /plan above, choose one bounded ShipGuard report-quality improvement from ROADMAP.md and docs/oss-evaluation.md, implement it with proof, and generate the next completion receipt plus following /plan and /goal after validation passes.
 ```
 
 Generate that follow-up file with:
 
 ```bash
-./bin/shipguard next-goal --release 3.192.0 --title "Stable V4 Publication Proof Packet" --out NEXT_GOAL.md
+./bin/shipguard next-goal --release 3.193.0 --title "Stable Publication Evidence Templates Fixture" --out NEXT_GOAL.md
 ```
 
 ## Constraints
@@ -146,12 +146,12 @@ Generate that follow-up file with:
 
 ## Release Loop
 
-1. Open or update the tracking issue for v3.191.0.
+1. Open or update the tracking issue for v3.192.0.
 2. Implement the smallest complete improvement that makes the toolkit more useful.
 3. Update README, CLI docs, changelog, roadmap, and package verification.
 4. Commit with an issue-closing reference.
 5. Push `main` and verify GitHub Actions success.
-6. Create release `v3.191.0` and upload `dist/shipguard-v3.191.0.tar.gz`.
+6. Create release `v3.192.0` and upload `dist/shipguard-v3.192.0.tar.gz`.
 7. Verify release asset digest, closed issue, tag target, and clean git status.
 8. Generate the next goal:
 

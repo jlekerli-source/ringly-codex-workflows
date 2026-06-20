@@ -3311,6 +3311,33 @@ assert priority.get("existingFixturePath") == "fixtures/ios-report-quality/01-sh
 assert data.get("fixtureCandidates") == [], data.get("fixtureCandidates")
 PY
 
+stable_publication_packet_fixture="fixtures/ios-report-quality/01-shipguard-v4-stable-publication-does-the-stable-publication-evid"
+./bin/shipguard ios report-quality \
+  --reports "$stable_publication_packet_fixture" \
+  --out "$tmp_dir/stable-publication-packet-fixture-quality" \
+  --shareable >/dev/null
+grep -q '"status": "pass"' "$tmp_dir/stable-publication-packet-fixture-quality/ios-report-quality.json"
+grep -q '"kind": "review-existing-fixture"' "$tmp_dir/stable-publication-packet-fixture-quality/ios-report-quality.json"
+grep -q '"publicFixturePath": "fixtures/ios-report-quality/01-shipguard-v4-stable-publication-does-the-stable-publication-evid"' "$tmp_dir/stable-publication-packet-fixture-quality/ios-report-quality.json"
+grep -q '"fixtureCandidates": \[\]' "$tmp_dir/stable-publication-packet-fixture-quality/ios-report-quality.json"
+python3 - <<'PY' "$tmp_dir/stable-publication-packet-fixture-quality/ios-report-quality.json"
+import json
+import sys
+
+data = json.load(open(sys.argv[1], encoding="utf-8"))
+coverage = data.get("fixtureCoverage") or []
+assert len(coverage) == 1, coverage
+item = coverage[0]
+assert item.get("sourceTool") == "shipguard v4 stable-publication", item
+assert item.get("fixtureType") == "shipguard-release-proof-quality-fixture", item
+assert item.get("publicFixturePath") == "fixtures/ios-report-quality/01-shipguard-v4-stable-publication-does-the-stable-publication-evid", item
+assert "evidence packet list every required real-evidence input" in item.get("question", ""), item
+priority = data.get("priorityAction") or {}
+assert priority.get("kind") == "review-existing-fixture", priority
+assert priority.get("existingFixturePath") == "fixtures/ios-report-quality/01-shipguard-v4-stable-publication-does-the-stable-publication-evid", priority
+assert data.get("fixtureCandidates") == [], data.get("fixtureCandidates")
+PY
+
 stable_publication_value_fixture="fixtures/ios-report-quality/stable-publication-value-gauntlet-question"
 ./bin/shipguard ios report-quality \
   --reports "$stable_publication_value_fixture" \

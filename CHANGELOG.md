@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Promoted the stable-publication evidence-packet actionability question into `fixtures/ios-report-quality/01-shipguard-v4-stable-publication-does-the-stable-publication-evid`, so read-only stable-v4 publication QA now treats the required-inputs/first-blocker/next-command/non-claims contract as covered by a public synthetic fixture.
 - Improved the verify-first GitHub Actions starter workflow: `examples/workflows/verify-pr.yml` now uses one `SHIPGUARD_VALIDATION_COMMAND` value for task preparation, CI execution, and structured receipt metadata, and fails early with a clear setup message if the placeholder command is still present.
 - Fixed `shipguard lean audit` date-helper precision after read-only ShipGuard self-QA: the native-date rule now matches actual date-picker imports, package names, JSX usage, or explicit `DatePicker(...)` calls instead of ordinary prose such as "moments", and the focused Lean Deck test now blocks that false positive on repo-level scans.
 - Improved `shipguard lean audit` into a native Ponytail-style precision review: reports now emit `precisionReview` with `deleteList`, `simplifyFirst`, `keepList`, `blockedByProof`, and `topActions`, Markdown renders a `Precision Review` section, the Codex skill routes Ponytail/less-clutter requests through the ledger, and the public Lean Deck fixture now covers thin-wrapper delete candidates without vendoring Ponytail code.
