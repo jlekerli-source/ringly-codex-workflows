@@ -16,27 +16,31 @@
   <a href="docs/index.md">Docs</a>
 </p>
 
-ShipGuard helps you use Codex and other coding agents without trusting vague handoffs like "done", "tested", or "should work".
+ShipGuard helps you use Codex and other coding agents without accepting vague handoffs like "done", "tested", or "should work".
 
-It turns agent work into a simple review loop:
+It gives agent work a reviewable proof loop:
 
 ```text
 prepare the task -> attach evidence -> verify the claims -> ship, review, or block
 ```
 
-ShipGuard is local-first, open source, and app-neutral. The iOS workflow is the most mature today, with web, backend, and CLI profiles growing from the same proof engine.
+ShipGuard is local-first, open source, and app-neutral. It works as a CLI today, with the deepest support for iOS and growing starter profiles for web, backend, and CLI projects.
 
-## What You Get
+## Why ShipGuard
 
-- A local CLI for proof-gated agent work.
-- Starter profiles for iOS, web, backend, and CLI repos.
-- GitHub Actions helpers that publish reviewable proof reports.
-- A Codex iOS plugin for design, performance, modernization, preview, and report-quality work.
-- Public fixtures and tests so ShipGuard improves from evidence, not branding.
+AI coding gets risky when the work looks finished but the proof is unclear.
 
-## Install
+ShipGuard keeps the important questions visible:
 
-From this checkout:
+- What task was the agent allowed to do?
+- Which files changed, and were they in scope?
+- What proof was actually attached?
+- Did the claims match the evidence?
+- Should this be merged, reviewed, or blocked?
+
+## Quickstart
+
+Install from this checkout:
 
 ```bash
 PREFIX="$HOME/.local" ./scripts/install.sh
@@ -44,7 +48,7 @@ shipguard version
 shipguard validate
 ```
 
-Then add ShipGuard to a repo:
+Add ShipGuard to a project:
 
 ```bash
 shipguard init ios .
@@ -52,8 +56,6 @@ shipguard doctor ios .
 ```
 
 Use `web`, `backend`, or `cli` instead of `ios` for those starter profiles.
-
-More detail: [Install And Doctor](docs/install-doctor.md).
 
 ## First Proof Report
 
@@ -76,30 +78,44 @@ Run the demo from a ShipGuard checkout:
   --out /tmp/shipguard-verdict
 ```
 
-Open `/tmp/shipguard-verdict/shipguard-verdict.md`.
+Open the verdict:
 
-The report starts with the decision, then shows the evidence behind it:
+```bash
+/tmp/shipguard-verdict/shipguard-verdict.md
+```
+
+The report starts with the decision:
 
 ```text
+ShipGuard Proof Report
 Status: pass
 Validation: covered
 Claims checked: accepted
 Next action: review or merge with the attached proof
 ```
 
-Full walkthrough: [Verify-First Quickstart](docs/verify-first-quickstart.md).
+See the full [Verify-First Quickstart](docs/verify-first-quickstart.md) for pass, review, and blocked examples.
+
+## What You Get
+
+- `prepare` and `verify` for scoped task contracts and proof reports.
+- `init` and `doctor` for adding workflow guardrails to a repo.
+- GitHub Actions helpers for PR proof reports.
+- iOS audits for design, performance, modernization, AI readiness, preview routing, and report quality.
+- Codex plugin packaging for local iOS ShipGuard workflows.
+- Public fixtures and tests that keep the tool honest without private app code.
 
 ## Core Commands
 
-| Command | Use it when you need to |
+| Command | What it does |
 | --- | --- |
-| `shipguard prepare` | define the task, allowed scope, and expected validation before agent work starts |
-| `shipguard verify` | check a diff, evidence receipts, and agent claims before review or merge |
-| `shipguard init` | add ShipGuard starter files to a repo |
-| `shipguard doctor` | confirm the starter profile is installed correctly |
-| `shipguard ios design` | review UI/UX, motion, haptics, app-type fit, and icon direction |
-| `shipguard ios performance` | find iOS performance risks and proof needed for simulator or device validation |
-| `shipguard inspect` | summarize ShipGuard's own proof state and the next maintainer action |
+| `shipguard prepare` | defines the task, allowed scope, expected validation, and proof contract |
+| `shipguard verify` | checks a diff, evidence receipts, and agent claims before review or merge |
+| `shipguard init` | adds ShipGuard starter files to a repo |
+| `shipguard doctor` | checks that a repo has the expected ShipGuard workflow files |
+| `shipguard ios design` | audits UI/UX coherence, motion, haptics, app-type fit, and icon direction |
+| `shipguard ios performance` | finds iOS performance risks and the proof needed to validate them |
+| `shipguard inspect` | summarizes ShipGuard's own proof state and next maintainer action |
 
 Full command list: [Command Matrix](docs/command-matrix.md).
 
@@ -107,14 +123,14 @@ Full command list: [Command Matrix](docs/command-matrix.md).
 
 ShipGuard can run in CI and upload Markdown/JSON proof reports on pull requests.
 
-Start from:
+Start with:
 
 - [GitHub Action guide](docs/github-action.md)
 - [Example PR workflow](examples/workflows/verify-pr.yml)
 
 ## Codex Plugin
 
-Install the local iOS plugin while developing ShipGuard:
+Install or refresh the local iOS plugin while developing ShipGuard:
 
 ```bash
 codex plugin marketplace add .
@@ -139,13 +155,16 @@ actions/               reusable GitHub Actions
 
 ## ShipYard
 
-ShipYard is the maintainer workspace behind ShipGuard: fixtures, evals, package checks, release proof, plugin readiness, and roadmap execution.
+ShipYard is the maintainer workspace behind ShipGuard. It contains the fixtures, evals, package checks, release proof, plugin readiness checks, and roadmap execution tools that keep ShipGuard itself honest.
 
-Most users should start with `prepare`, `verify`, `init`, and `doctor`. ShipYard tools exist to keep the product honest.
+Most users should start with `prepare`, `verify`, `init`, and `doctor`. ShipYard surfaces are for maintainers who want to inspect, package, benchmark, or release ShipGuard.
 
 ## Learn More
 
 - [Docs index](docs/index.md)
+- [Install And Doctor](docs/install-doctor.md)
+- [Verify-First Quickstart](docs/verify-first-quickstart.md)
+- [CLI reference](docs/cli.md)
 - [Roadmap](ROADMAP.md)
 - [Changelog](CHANGELOG.md)
 - [Open source model](docs/open-source.md)
