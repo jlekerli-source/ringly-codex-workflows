@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Promoted the value-gauntlet plugin/starter-skill routing question into `fixtures/ios-report-quality/plugin-skill-routing-value-gauntlet-question`, and taught `ios report-quality --write-fixture-candidates` to materialize plugin-skill/starter-skill/actionable-routing/validation-command questions so Codex skill surfaces must stay tied to concrete routing and proof commands.
 - Promoted the value-gauntlet surface proof-boundary question into `fixtures/ios-report-quality/surface-proof-boundary-value-gauntlet-question`, and taught `ios report-quality --write-fixture-candidates` to materialize proof-boundary/branded-name/useful-surface questions so branded surfaces must stay tied to docs, tests, package proof, and proof boundaries.
 - Promoted the value-gauntlet product-release stabilization question into `fixtures/ios-report-quality/product-release-stabilization-value-gauntlet-question`, and taught `ios report-quality --write-fixture-candidates` to classify release/adoption/security/rollback/consumption proof questions as release-proof fixture candidates so the loop advances to the next uncovered proof-boundary gap.
 - Promoted the value-gauntlet stable-publication actionability question into `fixtures/ios-report-quality/stable-publication-value-gauntlet-question`, so `ios report-quality` treats the real stable-v4 publication question as covered by a public synthetic fixture and advances priority to the next uncovered product-release stabilization gap instead of recurring on the same candidate.

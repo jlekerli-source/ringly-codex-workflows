@@ -3270,6 +3270,15 @@ def fixture_type_for_question(question: str, tool: str) -> str:
         or "useful looking surface" in text
     ):
         return "shipguard-surface-proof-boundary-fixture"
+    if (
+        "plugin skill" in text
+        or "plugin skills" in text
+        or "starter skill" in text
+        or "starter skills" in text
+        or "actionable routing" in text
+        or "validation commands" in text
+    ):
+        return "shipguard-plugin-skill-routing-fixture"
     if "design" in text or "app type" in text or "coherence" in text:
         return "ios-design-report-quality-fixture"
     if "evidence" in text or "source suspicion" in text:
@@ -3311,6 +3320,12 @@ def should_create_fixture_candidate(question: str) -> bool:
             "branded names",
             "useful-looking surface",
             "useful looking surface",
+            "plugin skill",
+            "plugin skills",
+            "starter skill",
+            "starter skills",
+            "actionable routing",
+            "validation commands",
         )
     )
 

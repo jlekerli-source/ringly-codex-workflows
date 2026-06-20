@@ -691,6 +691,12 @@ The Codex plugin source and local cache are now clean enough for local use. The 
 
 ## Phased Plan
 
+## Current Plugin Skill Routing Value-Gauntlet Fixture
+
+The next read-only ShipGuard self-QA pass showed `shipguard value-gauntlet` still prioritized this question after the stable-publication, product-release, and surface proof-boundary questions were covered: "Do plugin skills and starter skills give Codex actionable routing and validation commands, not just vague advice?" `ios report-quality --write-fixture-candidates` now classifies plugin-skill, starter-skill, actionable-routing, and validation-command questions as `shipguard-plugin-skill-routing-fixture` candidates.
+
+The promoted public fixture is `fixtures/ios-report-quality/plugin-skill-routing-value-gauntlet-question`. Focused tests prove the live value-gauntlet report now marks that question as covered, emits no duplicate fixture candidate, and scores the promoted fixture as an existing fixture instead of recursively generating another candidate. The package proof also checks the fixture files ship in release archives.
+
 ### Phase 1: Plugin Source And Local Cache
 
 Status: done.
