@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Promoted the MarketplaceDeck fresh-user README/plugin-listing question into `fixtures/ios-report-quality/01-shipguard-codex-marketplace-readiness-can-a-fresh-codex-user-und`, and taught report-quality to classify `shipguard codex marketplace-readiness` questions as `shipguard-marketplace-readiness-fixture` candidates so public marketplace readiness QA advances to plugin install freshness instead of recurring on generic eval-boundary fixtures.
 - Promoted the InspectDeck underlying-evidence navigation question into `fixtures/ios-report-quality/01-shipguard-inspect-can-a-maintainer-jump-from-the-summary-to-the`, so fresh `shipguard inspect` QA now covers all three current InspectDeck actionability questions and returns `all-actionability-covered` instead of generating duplicate candidates.
 - Promoted the InspectDeck missing-inputs question into `fixtures/ios-report-quality/01-shipguard-inspect-are-missing-inputs-marked-as-missing-instead-o`, so fresh `shipguard inspect` QA now treats missing-proof honesty as covered and advances to the underlying-evidence navigation question.
 - Added InspectDeck report-quality fixture classification and promoted the first InspectDeck proof-state question into `fixtures/ios-report-quality/01-shipguard-inspect-does-inspectdeck-make-the-next-action-obvious`, so fresh `shipguard inspect` QA can materialize public fixtures and advances from the next-action/source-proof question to the missing-inputs question.

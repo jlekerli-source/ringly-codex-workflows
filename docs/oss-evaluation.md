@@ -6,6 +6,23 @@ This is the current usefulness and refinement evaluation for ShipGuard after the
 
 ## Current Full Audit Fixture Promotion
 
+## Current MarketplaceDeck Fresh-User Fixture Promotion
+
+The next read-only QA rotation moved beyond the saturated InspectDeck fixture set and used `shipguard codex marketplace-readiness` as the fresh root ShipGuard report source. Fresh MarketplaceDeck output plus `ios report-quality --write-fixture-candidates` exposed the next public-readiness gap:
+
+- Question: "Can a fresh Codex user understand what ShipGuard does from the README and plugin listing without prior private-app context?"
+- Initial candidate type: generic `shipguard-eval-boundary-fixture`
+- Product weakness: Marketplace readiness is not only install metadata. A public Codex user must understand ShipGuard from the README, plugin listing, icon, privacy/model-choice boundaries, and proof commands without knowing the original private app history.
+
+This slice closes the first gap:
+
+- `ios report-quality` now classifies `shipguard codex marketplace-readiness` questions as `shipguard-marketplace-readiness-fixture` candidates.
+- `fixtures/ios-report-quality/01-shipguard-codex-marketplace-readiness-can-a-fresh-codex-user-und` promotes the fresh-user README/plugin-listing question into public synthetic coverage.
+- The promoted fixture stays ShipGuard-only and public-safe, with explicit target-app read-only boundaries.
+- Fresh MarketplaceDeck report-quality now covers the fresh-user question and advances to the plugin install freshness question.
+
+This keeps the QA loop moving into public distribution quality instead of repeatedly asking whether private-app context leaked into the product story.
+
 ## Current InspectDeck Underlying-Evidence Fixture Promotion
 
 The next read-only InspectDeck QA pass started from the v3.174 state, where the next-action/source-proof and missing-input honesty questions were already covered by public fixtures. Fresh `shipguard inspect` plus `ios report-quality --write-fixture-candidates` advanced to the last current InspectDeck actionability gap:

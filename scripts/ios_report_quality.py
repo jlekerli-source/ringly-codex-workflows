@@ -3274,6 +3274,12 @@ def slugify(value: object, *, limit: int = 72) -> str:
 def fixture_type_for_question(question: str, tool: str) -> str:
     text = normalized_question_text(f"{tool} {question}")
     question_text = normalized_question_text(question)
+    if (
+        tool == "shipguard codex marketplace-readiness"
+        or "marketplace-readiness" in text
+        or "marketplacedeck" in text
+    ):
+        return "shipguard-marketplace-readiness-fixture"
     if tool == "shipguard full-audit" and (
         "proof boundaries" in question_text
         or "proof boundary" in question_text
@@ -3387,6 +3393,18 @@ def should_create_fixture_candidate(question: str) -> bool:
             "missing inputs",
             "underlying full-audit",
             "plugin evidence",
+            "fresh codex user",
+            "plugin listing",
+            "marketplace submission",
+            "submission packet",
+            "composer icon",
+            "screenshot policy",
+            "model-choice boundary",
+            "github about",
+            "social preview",
+            "plugin install freshness",
+            "tracked source",
+            "strict status",
         )
     )
 

@@ -1,15 +1,15 @@
 # Next Goal
 
-- Generated: 2026-06-20T10:08:56Z
+- Generated: 2026-06-20T10:37:34Z
 - Current toolkit version: 3.131.0
-- Target release: v3.175.0
-- Title: InspectDeck Underlying Evidence Fixture
+- Target release: v3.177.0
+- Title: MarketplaceDeck Plugin Freshness Fixture
 
 ## Slash Plan
 
 ```text
-/plan v3.175.0 InspectDeck Underlying Evidence Fixture for jlekerli-source/ShipGuard:
-1. Implement this bounded improvement: Promote the InspectDeck underlying-evidence navigation report-quality gap into public fixture coverage so maintainers can jump from the concise summary back to full-audit, value-gauntlet, release, and plugin proof context.
+/plan v3.177.0 MarketplaceDeck Plugin Freshness Fixture for jlekerli-source/ShipGuard:
+1. Pick exactly one high-signal maintainer reliability improvement from ROADMAP.md and write the bounded scope before editing.
 2. Implement the CLI, docs, tests, and package proof needed for that improvement.
 3. Run the required proof commands, treat blocked or timed-out commands as failures, and record exact blockers.
 4. Push main, verify GitHub Actions, publish and consume release proof, verify asset SHA-256 and clean git status, then generate the following goal.
@@ -18,23 +18,19 @@
 ## Slash Goal
 
 ```text
-/goal Implement v3.175.0 InspectDeck Underlying Evidence Fixture for jlekerli-source/ShipGuard: follow the /plan above, deliver this bounded improvement: Promote the InspectDeck underlying-evidence navigation report-quality gap into public fixture coverage so maintainers can jump from the concise summary back to full-audit, value-gauntlet, release, and plugin proof context, push main, verify GitHub Actions, publish the release tarball, verify asset SHA-256 and clean git status, then run shipguard next-goal again for the following release.
+/goal Implement v3.177.0 MarketplaceDeck Plugin Freshness Fixture for jlekerli-source/ShipGuard: follow the /plan above, finish one high-signal maintainer reliability improvement from ROADMAP.md with CLI/docs/tests/package proof, push main, verify GitHub Actions, publish the release tarball, verify asset SHA-256 and clean git status, then run shipguard next-goal again for the following release.
 ```
 
 
-## Bounded Scope
-
-Promote the InspectDeck underlying-evidence navigation report-quality gap into public fixture coverage so maintainers can jump from the concise summary back to full-audit, value-gauntlet, release, and plugin proof context.
-
 ## Completion Receipt
 
-- Completed scope: Promoted the InspectDeck underlying-evidence navigation question into public synthetic fixture coverage and proved fresh InspectDeck report-quality now covers all three current InspectDeck actionability questions with no duplicate fixture candidates.
-- Evidence: Passed: ./bin/shipguard inspect --path . --out /tmp/shipguard-v3175-inspect --shipguard-eval --shareable; ./bin/shipguard ios report-quality --reports /tmp/shipguard-v3175-inspect --out /tmp/shipguard-v3175-inspect-quality --shareable --write-fixture-candidates /tmp/shipguard-v3175-inspect-fixtures; ./bin/shipguard ios report-quality --reports fixtures/ios-report-quality/01-shipguard-inspect-can-a-maintainer-jump-from-the-summary-to-the --out /tmp/shipguard-v3175-underlying-fixture-quality --shareable; ./bin/shipguard ios report-quality --reports /tmp/shipguard-v3175-inspect --out /tmp/shipguard-v3175-inspect-quality-after-fixture --shareable --write-fixture-candidates /tmp/shipguard-v3175-inspect-fixtures-after-fixture.
+- Completed scope: Promoted the MarketplaceDeck fresh-user README/plugin-listing question into public fixture coverage and taught report-quality to classify marketplace-readiness questions as native marketplace fixtures.
+- Evidence: Passed: python3 -m py_compile scripts/ios_report_quality.py; ./bin/shipguard ios report-quality --reports fixtures/ios-report-quality/01-shipguard-codex-marketplace-readiness-can-a-fresh-codex-user-und --out /tmp/shipguard-v3176-marketplace-fixture-quality --shareable; ./bin/shipguard ios report-quality --reports /tmp/shipguard-v3176-marketplace --out /tmp/shipguard-v3176-marketplace-quality-after-fixture --shareable --write-fixture-candidates /tmp/shipguard-v3176-marketplace-fixtures-after-fixture; ./tests/ios_report_quality_test.sh.
 
 ## Following Slash Plan
 
 ```text
-/plan v3.176.0 Fresh Root QA Source Rotation for jlekerli-source/ShipGuard:
+/plan v3.178.0 MarketplaceDeck Submission Packet Fixture for jlekerli-source/ShipGuard:
 1. Review ROADMAP.md, docs/oss-evaluation.md, and the latest read-only ShipGuard product-QA evidence.
 2. Pick one bounded improvement that makes ShipGuard reports more useful without turning private-app findings into app work.
 3. Implement the CLI, docs, tests, package proof, and plugin-refresh proof needed for that improvement.
@@ -44,13 +40,13 @@ Promote the InspectDeck underlying-evidence navigation report-quality gap into p
 ## Following Slash Goal
 
 ```text
-/goal Implement v3.176.0 Fresh Root QA Source Rotation for jlekerli-source/ShipGuard: follow the following /plan above, choose one bounded ShipGuard report-quality improvement from ROADMAP.md and docs/oss-evaluation.md, implement it with proof, and generate the next completion receipt plus following /plan and /goal after validation passes.
+/goal Implement v3.178.0 MarketplaceDeck Submission Packet Fixture for jlekerli-source/ShipGuard: follow the following /plan above, choose one bounded ShipGuard report-quality improvement from ROADMAP.md and docs/oss-evaluation.md, implement it with proof, and generate the next completion receipt plus following /plan and /goal after validation passes.
 ```
 
 Generate that follow-up file with:
 
 ```bash
-./bin/shipguard next-goal --release 3.176.0 --title "Fresh Root QA Source Rotation" --out NEXT_GOAL.md
+./bin/shipguard next-goal --release 3.178.0 --title "MarketplaceDeck Submission Packet Fixture" --out NEXT_GOAL.md
 ```
 
 ## Constraints
@@ -150,12 +146,12 @@ Generate that follow-up file with:
 
 ## Release Loop
 
-1. Open or update the tracking issue for v3.175.0.
+1. Open or update the tracking issue for v3.177.0.
 2. Implement the smallest complete improvement that makes the toolkit more useful.
 3. Update README, CLI docs, changelog, roadmap, and package verification.
 4. Commit with an issue-closing reference.
 5. Push `main` and verify GitHub Actions success.
-6. Create release `v3.175.0` and upload `dist/shipguard-v3.175.0.tar.gz`.
+6. Create release `v3.177.0` and upload `dist/shipguard-v3.177.0.tar.gz`.
 7. Verify release asset digest, closed issue, tag target, and clean git status.
 8. Generate the next goal:
 
