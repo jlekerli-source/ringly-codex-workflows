@@ -5756,7 +5756,40 @@ MD
   --reports "$stable_publication_consumer_closure_dir" \
   --out "$tmp_dir/stable-publication-consumer-closure-quality" \
   --shareable >/dev/null
+grep -q '"ruleId": "stable-publication-release-assets-closure-kit-missing"' "$tmp_dir/stable-publication-consumer-closure-quality/ios-report-quality.json"
 grep -q '"ruleId": "stable-publication-post-release-consumer-closure-kit-missing"' "$tmp_dir/stable-publication-consumer-closure-quality/ios-report-quality.json"
+
+stable_publication_release_asset_boundary_dir="$tmp_dir/stable-publication-release-asset-boundary"
+mkdir -p "$stable_publication_release_asset_boundary_dir"
+python3 - <<'PY' \
+  "fixtures/ios-report-quality/stable-publication-post-release-consumer-closure/fixture-report.json" \
+  "fixtures/ios-report-quality/stable-publication-post-release-consumer-closure/fixture-report.md" \
+  "$stable_publication_release_asset_boundary_dir"
+import json
+import sys
+from pathlib import Path
+
+source_json = Path(sys.argv[1])
+source_md = Path(sys.argv[2])
+target = Path(sys.argv[3])
+report = json.loads(source_json.read_text(encoding="utf-8"))
+report.pop("fixtureCandidate", None)
+for item in report["stablePublicationClosureChecklist"]["items"]:
+    if item.get("id") == "downloaded-release-assets":
+        boundary = item["releaseAssetClosureKit"]["releaseAssetProofBoundary"]
+        boundary["githubMetadataOnlyCountsAsReleaseAssetProof"] = True
+        item["releaseAssetProofBoundary"]["githubMetadataOnlyCountsAsReleaseAssetProof"] = True
+report["reportQualityQuestions"] = [
+    "Does the downloaded release-assets closure row expose required assets, metadata/local missing assets, download source/status, asset directory, repair/pass/fail criteria, download rerun, full stable-publication rerun, and metadata-only/source-only/fixture-proof boundaries?"
+]
+(target / "v4-stable-publication.json").write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+(target / "v4-stable-publication.md").write_text(source_md.read_text(encoding="utf-8"), encoding="utf-8")
+PY
+./bin/shipguard ios report-quality \
+  --reports "$stable_publication_release_asset_boundary_dir" \
+  --out "$tmp_dir/stable-publication-release-asset-boundary-quality" \
+  --shareable >/dev/null
+grep -q '"ruleId": "stable-publication-release-assets-boundary-missing"' "$tmp_dir/stable-publication-release-asset-boundary-quality/ios-report-quality.json"
 
 stable_publication_consumer_boundary_dir="$tmp_dir/stable-publication-consumer-boundary"
 mkdir -p "$stable_publication_consumer_boundary_dir"
@@ -6056,6 +6089,36 @@ assert priority.get("existingFixturePath") == "fixtures/ios-report-quality/stabl
 assert data.get("fixtureCandidates") == [], data.get("fixtureCandidates")
 PY
 
+stable_publication_release_assets_closure_fixture="fixtures/ios-report-quality/stable-publication-release-assets-closure"
+./bin/shipguard ios report-quality \
+  --reports "$stable_publication_release_assets_closure_fixture" \
+  --out "$tmp_dir/stable-publication-release-assets-closure-fixture-quality" \
+  --shareable >/dev/null
+grep -q '"status": "pass"' "$tmp_dir/stable-publication-release-assets-closure-fixture-quality/ios-report-quality.json"
+grep -q '"kind": "review-existing-fixture"' "$tmp_dir/stable-publication-release-assets-closure-fixture-quality/ios-report-quality.json"
+grep -q '"publicFixturePath": "fixtures/ios-report-quality/stable-publication-release-assets-closure"' "$tmp_dir/stable-publication-release-assets-closure-fixture-quality/ios-report-quality.json"
+grep -q '"fixtureCandidates": \[\]' "$tmp_dir/stable-publication-release-assets-closure-fixture-quality/ios-report-quality.json"
+grep -q '"releaseAssetClosureKit":' "$stable_publication_release_assets_closure_fixture/fixture-report.json"
+grep -q 'Release Asset Closure Kit' "$stable_publication_release_assets_closure_fixture/fixture-report.md"
+grep -q 'GitHub metadata only counts as release-asset proof: `False`' "$stable_publication_release_assets_closure_fixture/fixture-report.md"
+python3 - <<'PY' "$tmp_dir/stable-publication-release-assets-closure-fixture-quality/ios-report-quality.json"
+import json
+import sys
+
+data = json.load(open(sys.argv[1], encoding="utf-8"))
+coverage = data.get("fixtureCoverage") or []
+assert len(coverage) == 1, coverage
+item = coverage[0]
+assert item.get("sourceTool") == "shipguard v4 stable-publication", item
+assert item.get("fixtureType") == "shipguard-release-proof-quality-fixture", item
+assert item.get("publicFixturePath") == "fixtures/ios-report-quality/stable-publication-release-assets-closure", item
+assert "downloaded release-assets closure row" in item.get("question", ""), item
+priority = data.get("priorityAction") or {}
+assert priority.get("kind") == "review-existing-fixture", priority
+assert priority.get("existingFixturePath") == "fixtures/ios-report-quality/stable-publication-release-assets-closure", priority
+assert data.get("fixtureCandidates") == [], data.get("fixtureCandidates")
+PY
+
 stable_publication_consumer_closure_fixture="fixtures/ios-report-quality/stable-publication-post-release-consumer-closure"
 ./bin/shipguard ios report-quality \
   --reports "$stable_publication_consumer_closure_fixture" \
@@ -6065,7 +6128,9 @@ grep -q '"status": "pass"' "$tmp_dir/stable-publication-consumer-closure-fixture
 grep -q '"kind": "review-existing-fixture"' "$tmp_dir/stable-publication-consumer-closure-fixture-quality/ios-report-quality.json"
 grep -q '"publicFixturePath": "fixtures/ios-report-quality/stable-publication-post-release-consumer-closure"' "$tmp_dir/stable-publication-consumer-closure-fixture-quality/ios-report-quality.json"
 grep -q '"fixtureCandidates": \[\]' "$tmp_dir/stable-publication-consumer-closure-fixture-quality/ios-report-quality.json"
+grep -q '"releaseAssetClosureKit":' "$stable_publication_consumer_closure_fixture/fixture-report.json"
 grep -q '"postReleaseConsumerClosureKit":' "$stable_publication_consumer_closure_fixture/fixture-report.json"
+grep -q 'Release Asset Closure Kit' "$stable_publication_consumer_closure_fixture/fixture-report.md"
 grep -q 'Post-Release Consumer Closure Kit' "$stable_publication_consumer_closure_fixture/fixture-report.md"
 grep -q 'Source-only proof counts as consumer proof: `False`' "$stable_publication_consumer_closure_fixture/fixture-report.md"
 python3 - <<'PY' "$tmp_dir/stable-publication-consumer-closure-fixture-quality/ios-report-quality.json"

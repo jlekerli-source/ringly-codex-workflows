@@ -43,7 +43,7 @@
     "validRecordCount": 1
   },
   "fixtureCandidate": {
-    "candidateId": "stable-publication-post-release-consumer-closure",
+    "candidateId": "stable-publication-release-assets-closure",
     "duplicateCount": 1,
     "expectedAssertions": [
       "report-quality preserves the actionability question in JSON and Markdown",
@@ -65,13 +65,13 @@
     "priority": 1,
     "privateDataPolicy": "This materialized starter is synthetic. Use source reports only to choose report shape; do not copy private app code, local paths, screenshots, app-specific identifiers, or proprietary text.",
     "promotion": {
-      "candidateId": "stable-publication-post-release-consumer-closure",
+      "candidateId": "stable-publication-release-assets-closure",
       "copyCommands": [
-        "mkdir -p fixtures/ios-report-quality/stable-publication-post-release-consumer-closure",
-        "cp <materialized-candidate-dir>/README.md fixtures/ios-report-quality/stable-publication-post-release-consumer-closure/README.md",
-        "cp <materialized-candidate-dir>/fixture-candidate.json fixtures/ios-report-quality/stable-publication-post-release-consumer-closure/fixture-candidate.json",
-        "cp <materialized-candidate-dir>/fixture-report.json fixtures/ios-report-quality/stable-publication-post-release-consumer-closure/fixture-report.json",
-        "cp <materialized-candidate-dir>/fixture-report.md fixtures/ios-report-quality/stable-publication-post-release-consumer-closure/fixture-report.md"
+        "mkdir -p fixtures/ios-report-quality/stable-publication-release-assets-closure",
+        "cp <materialized-candidate-dir>/README.md fixtures/ios-report-quality/stable-publication-release-assets-closure/README.md",
+        "cp <materialized-candidate-dir>/fixture-candidate.json fixtures/ios-report-quality/stable-publication-release-assets-closure/fixture-candidate.json",
+        "cp <materialized-candidate-dir>/fixture-report.json fixtures/ios-report-quality/stable-publication-release-assets-closure/fixture-report.json",
+        "cp <materialized-candidate-dir>/fixture-report.md fixtures/ios-report-quality/stable-publication-release-assets-closure/fixture-report.md"
       ],
       "files": [
         "README.md",
@@ -87,17 +87,17 @@
         "Confirm scoring the promoted fixture does not emit recursive fixtureCandidates.",
         "Register the fixture in validation only after the report-quality check passes."
       ],
-      "sourceDirectory": "<materialized-fixture-output>/stable-publication-post-release-consumer-closure",
-      "suggestedFixturePath": "fixtures/ios-report-quality/stable-publication-post-release-consumer-closure",
+      "sourceDirectory": "<materialized-fixture-output>/stable-publication-release-assets-closure",
+      "suggestedFixturePath": "fixtures/ios-report-quality/stable-publication-release-assets-closure",
       "validationCommands": [
-        "./bin/shipguard ios report-quality --reports fixtures/ios-report-quality/stable-publication-post-release-consumer-closure --out <quality-dir> --shareable",
+        "./bin/shipguard ios report-quality --reports fixtures/ios-report-quality/stable-publication-release-assets-closure --out <quality-dir> --shareable",
         "./tests/ios_report_quality_test.sh",
         "./bin/shipguard validate"
       ]
     },
-    "publicFixturePath": "fixtures/ios-report-quality/stable-publication-post-release-consumer-closure",
+    "publicFixturePath": "fixtures/ios-report-quality/stable-publication-release-assets-closure",
     "publicFixtureRecipe": "Create a minimal synthetic ShipGuard report pair that reproduces this report-quality question without private app code, local paths, screenshots, customer data, app names, or proprietary source snippets.",
-    "sourceQuestion": "Does the post-release consumer closure row expose release-consume paths, missing proof artifacts, digest/replay/attestation statuses, repair/pass criteria, release-consume rerun, full stable-publication rerun, and source-only/fixture-proof boundaries?",
+    "sourceQuestion": "Does the downloaded release-assets closure row expose required assets, metadata/local missing assets, download source/status, asset directory, repair/pass/fail criteria, download rerun, full stable-publication rerun, and metadata-only/source-only/fixture-proof boundaries?",
     "sourceReportCount": 1,
     "sourceReportsRedacted": true,
     "sourceTool": "shipguard v4 stable-publication",
@@ -397,7 +397,7 @@
   "releaseVersion": "3.131.0",
   "repo": "<repo>",
   "reportQualityQuestions": [
-    "Does the post-release consumer closure row expose release-consume paths, missing proof artifacts, digest/replay/attestation statuses, repair/pass criteria, release-consume rerun, full stable-publication rerun, and source-only/fixture-proof boundaries?"
+    "Does the downloaded release-assets closure row expose required assets, metadata/local missing assets, download source/status, asset directory, repair/pass/fail criteria, download rerun, full stable-publication rerun, and metadata-only/source-only/fixture-proof boundaries?"
   ],
   "resultUX": {
     "nextActionSummary": "Work the stablePublicationClosureChecklist in dependency order; first complete `publishedReleaseAssetProof` before claiming stable-v4 publication.",

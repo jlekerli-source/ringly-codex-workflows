@@ -21,7 +21,7 @@ No private source tree was scanned. The fixture exists to exercise report-qualit
 - Verdict: REVIEW: 2 stable-v4 publication blocker(s) remain; first blocker: No downloaded release assets were supplied; stable v4 proof still needs consumer-side release asset verification.
 - Proof source: publishedReleaseAssetProof
 - Why it matters: Stable-v4 publication must be proven from public release artifacts and external evidence, not inferred from fixture receipts.
-- Next command: `./bin/shipguard v4 release-candidate --path . --out /tmp/shipguard-v4-release-candidate --release-assets <downloaded-assets-dir> --release-version <version> --shipguard-eval --shareable`
+- Next command: `./bin/shipguard v4 stable-publication --path . --out /tmp/shipguard-v4-stable-publication --github-release-repo jlekerli-source/ShipGuard --release-version 3.131.0 --release-candidate-report <stable-publication-work>/candidate-pass.json --download-release-assets --external-adoption-evidence <stable-publication-work>/evidence/stable-adoption --security-review-evidence <stable-publication-work>/evidence/stable-security --shipguard-eval --shareable`
 - Next action: Work the stablePublicationClosureChecklist in dependency order; first complete `publishedReleaseAssetProof` before claiming stable-v4 publication.
 
 
@@ -61,8 +61,62 @@ No private source tree was scanned. The fixture exists to exercise report-qualit
 
 | Rank | Evidence | Status | First | Next command | Proof boundary |
 | --- | --- | --- | --- | --- | --- |
-| `1` | `downloaded-release-assets` | `not-provided` | `True` | `./bin/shipguard v4 release-candidate --path . --out /tmp/shipguard-v4-release-candidate --release-assets <downloaded-assets-dir> --release-version <version> --shipguard-eval --shareable` | Release assets must be downloaded or supplied and verified from the publication packet, not assumed from source state. |
+| `1` | `downloaded-release-assets` | `not-provided` | `True` | `./bin/shipguard v4 stable-publication --path . --out /tmp/shipguard-v4-stable-publication --github-release-repo jlekerli-source/ShipGuard --release-version 3.131.0 --release-candidate-report <stable-publication-work>/candidate-pass.json --download-release-assets --external-adoption-evidence <stable-publication-work>/evidence/stable-adoption --security-review-evidence <stable-publication-work>/evidence/stable-security --shipguard-eval --shareable` | Release assets must be downloaded or supplied and verified from the publication packet, not assumed from source state. |
 | `2` | `post-release-consumer-proof` | `not-provided` | `False` | `./bin/shipguard release-consume verify --dir <downloaded-assets-dir> --out <consume-dir> --version <version>` | Post-release consumer proof must come from release-consume verification of the downloaded or supplied assets. |
+
+### Release Asset Closure Kit
+
+- Status: `not-provided`
+- Download source: `not-provided`
+- Download proof status: `not-provided`
+- Release version: `3.131.0`
+- Assets directory: `not-provided`
+- Required assets: `attestation-badge.json, attestation.json, proof-ledger.md, release-index.json, release-manifest.json, replay-report.json, shipguard-v3.131.0.tar.gz`
+- Metadata missing assets: `none`
+- Local downloaded assets: `none`
+- Missing local assets: `attestation-badge.json, attestation.json, proof-ledger.md, release-index.json, release-manifest.json, replay-report.json, shipguard-v3.131.0.tar.gz`
+- Consumer report status: `not-provided`
+- Asset digest matrix path: `not-provided`
+- Exit code: `not-provided`
+- Error: `none`
+- Downloaded or supplied assets required: `True`
+- GitHub metadata only counts as release-asset proof: `False`
+- Source-only proof counts as release-asset proof: `False`
+- Fixture proof counts as stable-v4 publication proof: `False`
+
+Repair criteria:
+
+- Use `shipguard v4 stable-publication --download-release-assets` to download the public GitHub release assets, or pass the already downloaded asset directory with `--release-assets`.
+- Confirm the downloaded or supplied directory contains every required release asset listed by the GitHub release metadata, including the versioned ShipGuard tarball.
+- Do not edit source files, fixture outputs, or generated report JSON to close this gate; repair the public release assets or the supplied downloaded asset directory.
+- After the assets are present, rerun `shipguard v4 stable-publication` so the downloaded-release-assets gate and the downstream post-release consumer gate are evaluated together.
+
+Pass criteria:
+
+- GitHub release metadata for the requested tag exists and is not draft-only or prerelease-only.
+- Every required stable-publication asset is present in the public GitHub release metadata.
+- The assets are downloaded by stable-publication or supplied through `--release-assets` from the exact published release packet.
+- The stable-publication report records `publishedReleaseAssetProof.status = pass`; source checkout files, local build output, and fixture assets do not count.
+
+Fail criteria:
+
+- No downloaded or supplied release-assets directory is available.
+- The release metadata is missing one or more required assets.
+- The downloaded or supplied directory does not contain every required release asset.
+- GitHub release asset download fails or points at a draft, prerelease, wrong tag, wrong repository, or wrong version.
+- Source-only package tests, LaunchKey fixtures, generated report directories, or local package builds are treated as published release assets.
+
+Rerun release asset proof:
+
+```bash
+./bin/shipguard v4 stable-publication --path . --out /tmp/shipguard-v4-stable-publication --github-release-repo jlekerli-source/ShipGuard --release-version 3.131.0 --release-candidate-report <stable-publication-work>/candidate-pass.json --download-release-assets --external-adoption-evidence <stable-publication-work>/evidence/stable-adoption --security-review-evidence <stable-publication-work>/evidence/stable-security --shipguard-eval --shareable
+```
+
+Rerun the full stable-publication gate after release assets pass:
+
+```bash
+./bin/shipguard v4 stable-publication --path . --out /tmp/shipguard-v4-stable-publication --github-release-repo jlekerli-source/ShipGuard --release-version 3.131.0 --release-candidate-report <stable-publication-work>/candidate-pass.json --download-release-assets --external-adoption-evidence <stable-publication-work>/evidence/stable-adoption --security-review-evidence <stable-publication-work>/evidence/stable-security --shipguard-eval --shareable
+```
 
 ### Post-Release Consumer Closure Kit
 
@@ -123,7 +177,7 @@ Rerun release-consume proof:
 Rerun the full stable-publication gate after consumer proof passes:
 
 ```bash
-./bin/shipguard v4 stable-publication --path . --out /tmp/shipguard-v4-stable-publication --github-release-repo jlekerli-source/ShipGuard --release-version 3.131.0 --release-candidate-report <v4-release-candidate-json-or-dir> --download-release-assets --external-adoption-evidence <adoption-evidence-json-or-dir> --security-review-evidence <security-review-json-or-dir> --shipguard-eval --shareable
+./bin/shipguard v4 stable-publication --path . --out /tmp/shipguard-v4-stable-publication --github-release-repo jlekerli-source/ShipGuard --release-version 3.131.0 --release-candidate-report <stable-publication-work>/candidate-pass.json --download-release-assets --external-adoption-evidence <stable-publication-work>/evidence/stable-adoption --security-review-evidence <stable-publication-work>/evidence/stable-security --shipguard-eval --shareable
 ```
 
 ## Release Notes Proof
@@ -236,6 +290,7 @@ Public posting, publishing, submission, or account-visible external actions requ
 - Does the stable-publication report provide draft-only evidence templates for independent adoption and final security review without manufacturing proof?
 - Does the stable-publication report write a draft-only evidence starter kit so maintainers can collect the packet without reverse-engineering JSON shapes?
 - Does the LaunchKey candidate closure row expose the supplied candidate path, nested receipt, required proof areas, package-hygiene diagnostics, repair/pass criteria, nested rerun, full stable-publication rerun, and fixture-proof boundary?
+- Does the downloaded release-assets closure row expose required assets, metadata/local missing assets, download source/status, asset directory, repair/pass/fail criteria, download rerun, full stable-publication rerun, and metadata-only/source-only/fixture-proof boundaries?
 - Does the post-release consumer closure row expose release-consume paths, missing proof artifacts, digest/replay/attestation statuses, repair/pass criteria, release-consume rerun, full stable-publication rerun, and source-only/fixture-proof boundaries?
 - Do independent adoption and final security-review closure rows expose starter paths, required fields, redaction/privacy boundaries, pass/fail criteria, current diagnostics, and exact stable-publication rerun commands?
 - Does the stable-publication report prepare guarded launch relay drafts without posting, submitting, or bypassing explicit human approval?

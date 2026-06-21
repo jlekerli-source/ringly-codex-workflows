@@ -3360,6 +3360,147 @@ def stable_publication_evidence_packet_issues(
                                 evidence=f"{path_name} Markdown does not render the LaunchKey candidate closure kit",
                                 recommendation="Render candidate report path, nested receipt, required proof areas, hygiene diagnostics, repair/pass criteria, nested rerun, full stable-publication rerun, and fixture-proof boundary in Markdown.",
                             )
+                if item.get("id") == "downloaded-release-assets":
+                    source_assets = (
+                        report.get("publishedReleaseAssetProof")
+                        if isinstance(report.get("publishedReleaseAssetProof"), dict)
+                        else {}
+                    )
+                    closure_kit = (
+                        item.get("releaseAssetClosureKit")
+                        if isinstance(item.get("releaseAssetClosureKit"), dict)
+                        else {}
+                    )
+                    if not closure_kit:
+                        add_issue(
+                            issues,
+                            severity="review",
+                            rule_id="stable-publication-release-assets-closure-kit-missing",
+                            evidence=f"{path_name} downloaded-release-assets closure item has no releaseAssetClosureKit",
+                            recommendation="Attach a release asset closure kit with required assets, metadata/local missing assets, download status/source, asset directory, repair/pass/fail criteria, download rerun, stable-publication rerun, and metadata-only/source-only/fixture-proof boundaries.",
+                        )
+                    else:
+                        if not isinstance(closure_kit.get("requiredAssets"), list) or not closure_kit.get("requiredAssets"):
+                            add_issue(
+                                issues,
+                                severity="review",
+                                rule_id="stable-publication-release-assets-required-assets-missing",
+                                evidence=f"{path_name} release asset closure kit omits requiredAssets",
+                                recommendation="Expose the required stable-publication release assets directly on the closure kit.",
+                            )
+                        if not isinstance(closure_kit.get("metadataMissingAssets"), list):
+                            add_issue(
+                                issues,
+                                severity="review",
+                                rule_id="stable-publication-release-assets-metadata-missing-assets-missing",
+                                evidence=f"{path_name} release asset closure kit omits metadataMissingAssets",
+                                recommendation="Mirror GitHub metadata missing assets so maintainers know whether the public release is incomplete before checking local downloads.",
+                            )
+                        if not closure_kit.get("assetsDir") and not isinstance(closure_kit.get("missingLocalAssets"), list):
+                            add_issue(
+                                issues,
+                                severity="review",
+                                rule_id="stable-publication-release-assets-local-assets-or-missing-list-missing",
+                                evidence=f"{path_name} release asset closure kit hides the asset directory and does not list missing local assets",
+                                recommendation="Expose assetsDir when assets were supplied/downloaded, or list missingLocalAssets when no local asset packet exists.",
+                            )
+                        if not closure_kit.get("downloadProofStatus"):
+                            add_issue(
+                                issues,
+                                severity="review",
+                                rule_id="stable-publication-release-assets-download-status-missing",
+                                evidence=f"{path_name} release asset closure kit omits downloadProofStatus",
+                                recommendation="Mirror whether GitHub release asset download was pass, blocked, not-requested, or not-provided.",
+                            )
+                        diagnostics = (
+                            closure_kit.get("currentReleaseAssetDiagnostics")
+                            if isinstance(closure_kit.get("currentReleaseAssetDiagnostics"), dict)
+                            else {}
+                        )
+                        if not diagnostics:
+                            add_issue(
+                                issues,
+                                severity="review",
+                                rule_id="stable-publication-release-assets-diagnostics-missing",
+                                evidence=f"{path_name} release asset closure kit has no currentReleaseAssetDiagnostics",
+                                recommendation="Mirror downloaded asset status, paths, local asset list, consumer report status, and errors into currentReleaseAssetDiagnostics.",
+                            )
+                        else:
+                            source_status = str(source_assets.get("status") or "")
+                            if source_status and str(diagnostics.get("status") or "") != source_status:
+                                add_issue(
+                                    issues,
+                                    severity="review",
+                                    rule_id="stable-publication-release-assets-diagnostics-status-drift",
+                                    evidence=f"{path_name} release asset diagnostics status does not mirror publishedReleaseAssetProof.status",
+                                    recommendation="Keep currentReleaseAssetDiagnostics.status aligned with publishedReleaseAssetProof.status.",
+                                )
+                        if not isinstance(closure_kit.get("repairCriteria"), list) or len(closure_kit.get("repairCriteria") or []) < 3:
+                            add_issue(
+                                issues,
+                                severity="review",
+                                rule_id="stable-publication-release-assets-repair-criteria-missing",
+                                evidence=f"{path_name} release asset closure kit does not list repair criteria",
+                                recommendation="Tell maintainers to download/supply public release assets, verify every required asset is present, and rerun stable-publication.",
+                            )
+                        if not isinstance(closure_kit.get("passCriteria"), list) or len(closure_kit.get("passCriteria") or []) < 3:
+                            add_issue(
+                                issues,
+                                severity="review",
+                                rule_id="stable-publication-release-assets-pass-criteria-missing",
+                                evidence=f"{path_name} release asset closure kit does not list pass criteria",
+                                recommendation="List concrete pass criteria for public release metadata, downloaded/supplied assets, and publishedReleaseAssetProof.status.",
+                            )
+                        if not isinstance(closure_kit.get("failCriteria"), list) or len(closure_kit.get("failCriteria") or []) < 3:
+                            add_issue(
+                                issues,
+                                severity="review",
+                                rule_id="stable-publication-release-assets-fail-criteria-missing",
+                                evidence=f"{path_name} release asset closure kit does not list fail criteria",
+                                recommendation="List fail cases such as missing downloaded assets, missing release metadata assets, wrong tag/repo/version, and source-only or fixture proof misuse.",
+                            )
+                        if "--download-release-assets" not in str(closure_kit.get("downloadAssetsRerunCommand") or item.get("downloadAssetsRerunCommand") or item.get("nextCommand") or "") and "--release-assets" not in str(closure_kit.get("downloadAssetsRerunCommand") or item.get("downloadAssetsRerunCommand") or item.get("nextCommand") or ""):
+                            add_issue(
+                                issues,
+                                severity="review",
+                                rule_id="stable-publication-release-assets-rerun-command-missing",
+                                evidence=f"{path_name} release asset closure kit lacks the download/supplied-assets rerun command",
+                                recommendation="Attach a stable-publication command that either downloads release assets or points to the supplied downloaded asset directory.",
+                            )
+                        if "stable-publication" not in str(closure_kit.get("stablePublicationRerunCommand") or item.get("stablePublicationRerunCommand") or ""):
+                            add_issue(
+                                issues,
+                                severity="review",
+                                rule_id="stable-publication-release-assets-full-rerun-command-missing",
+                                evidence=f"{path_name} release asset closure kit lacks the full stable-publication rerun command",
+                                recommendation="Attach the full stable-publication command to run after release assets are available.",
+                            )
+                        boundary = (
+                            closure_kit.get("releaseAssetProofBoundary")
+                            if isinstance(closure_kit.get("releaseAssetProofBoundary"), dict)
+                            else {}
+                        )
+                        if (
+                            boundary.get("downloadedOrSuppliedAssetsRequired") is not True
+                            or boundary.get("githubMetadataOnlyCountsAsReleaseAssetProof") is not False
+                            or boundary.get("sourceOnlyProofCountsAsReleaseAssetProof") is not False
+                            or boundary.get("fixtureProofCountsAsStableV4PublicationProof") is not False
+                        ):
+                            add_issue(
+                                issues,
+                                severity="review",
+                                rule_id="stable-publication-release-assets-boundary-missing",
+                                evidence=f"{path_name} release asset closure kit does not state the downloaded/supplied-assets, metadata-only, source-only, and fixture-proof boundaries",
+                                recommendation="State that only actual downloaded or supplied public release assets satisfy this gate; metadata-only, source-only, and fixture proof do not.",
+                            )
+                        if "Release Asset Closure Kit" not in markdown:
+                            add_issue(
+                                issues,
+                                severity="review",
+                                rule_id="stable-publication-release-assets-closure-kit-markdown-missing",
+                                evidence=f"{path_name} Markdown does not render the release asset closure kit",
+                                recommendation="Render required assets, metadata/local missing assets, download status/source, paths, repair/pass/fail criteria, rerun commands, and proof boundaries in Markdown.",
+                            )
                 if item.get("id") == "post-release-consumer-proof":
                     source_consumer = (
                         report.get("postReleaseConsumerProof")

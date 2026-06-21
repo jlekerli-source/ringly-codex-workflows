@@ -106,7 +106,7 @@
       "./tests/ios_report_quality_test.sh"
     ]
   },
-  "generatedAt": "2026-06-21T19:01:58+00:00",
+  "generatedAt": "2026-06-21T19:45:02+00:00",
   "githubReleaseAssetDownloadProof": {
     "nextCommand": "./bin/shipguard v4 release-candidate --path . --out /tmp/shipguard-v4-release-candidate --download-release-assets --github-release-repo <owner/repo> --release-version <version> --shipguard-eval --shareable",
     "requested": false,
@@ -401,7 +401,7 @@
   ],
   "resultUX": {
     "nextActionSummary": "Work the stablePublicationClosureChecklist in dependency order; first complete `publishedReleaseAssetProof` before claiming stable-v4 publication.",
-    "nextCommand": "./bin/shipguard v4 release-candidate --path . --out /tmp/shipguard-v4-release-candidate --release-assets <downloaded-assets-dir> --release-version <version> --shipguard-eval --shareable",
+    "nextCommand": "./bin/shipguard v4 stable-publication --path . --out /tmp/shipguard-v4-stable-publication --github-release-repo jlekerli-source/ShipGuard --release-version 3.131.0 --release-candidate-report <stable-publication-work>/candidate-pass.json --download-release-assets --external-adoption-evidence <stable-publication-work>/evidence/stable-adoption --security-review-evidence <stable-publication-work>/evidence/stable-security --shipguard-eval --shareable",
     "priorityAction": "Work the stablePublicationClosureChecklist in dependency order; first complete `publishedReleaseAssetProof` before claiming stable-v4 publication.",
     "proofSource": "publishedReleaseAssetProof",
     "sourceStatus": "review",
@@ -497,27 +497,335 @@
       "final-security-review-evidence"
     ],
     "firstBlocker": {
+      "assetsDir": "",
       "blocksStableV4": true,
       "dependencyOrder": 4,
+      "downloadAssetsRerunCommand": "./bin/shipguard v4 stable-publication --path . --out /tmp/shipguard-v4-stable-publication --github-release-repo jlekerli-source/ShipGuard --release-version 3.131.0 --release-candidate-report <stable-publication-work>/candidate-pass.json --download-release-assets --external-adoption-evidence <stable-publication-work>/evidence/stable-adoption --security-review-evidence <stable-publication-work>/evidence/stable-security --shipguard-eval --shareable",
+      "failCriteria": [
+        "No downloaded or supplied release-assets directory is available.",
+        "The release metadata is missing one or more required assets.",
+        "The downloaded or supplied directory does not contain every required release asset.",
+        "GitHub release asset download fails or points at a draft, prerelease, wrong tag, wrong repository, or wrong version.",
+        "Source-only package tests, LaunchKey fixtures, generated report directories, or local package builds are treated as published release assets."
+      ],
       "id": "downloaded-release-assets",
       "isFirstBlockingGate": true,
-      "nextCommand": "./bin/shipguard v4 release-candidate --path . --out /tmp/shipguard-v4-release-candidate --release-assets <downloaded-assets-dir> --release-version <version> --shipguard-eval --shareable",
+      "localAssetNames": [],
+      "metadataAssetNames": [
+        "attestation-badge.json",
+        "attestation.json",
+        "proof-ledger.md",
+        "release-index.json",
+        "release-manifest.json",
+        "replay-report.json",
+        "shipguard-v3.131.0.tar.gz"
+      ],
+      "metadataMissingAssets": [],
+      "missingLocalAssets": [
+        "attestation-badge.json",
+        "attestation.json",
+        "proof-ledger.md",
+        "release-index.json",
+        "release-manifest.json",
+        "replay-report.json",
+        "shipguard-v3.131.0.tar.gz"
+      ],
+      "nextCommand": "./bin/shipguard v4 stable-publication --path . --out /tmp/shipguard-v4-stable-publication --github-release-repo jlekerli-source/ShipGuard --release-version 3.131.0 --release-candidate-report <stable-publication-work>/candidate-pass.json --download-release-assets --external-adoption-evidence <stable-publication-work>/evidence/stable-adoption --security-review-evidence <stable-publication-work>/evidence/stable-security --shipguard-eval --shareable",
+      "passCriteria": [
+        "GitHub release metadata for the requested tag exists and is not draft-only or prerelease-only.",
+        "Every required stable-publication asset is present in the public GitHub release metadata.",
+        "The assets are downloaded by stable-publication or supplied through `--release-assets` from the exact published release packet.",
+        "The stable-publication report records `publishedReleaseAssetProof.status = pass`; source checkout files, local build output, and fixture assets do not count."
+      ],
       "proofBoundary": "Release assets must be downloaded or supplied and verified from the publication packet, not assumed from source state.",
       "rank": 1,
       "receipt": "publishedReleaseAssetProof",
+      "releaseAssetClosureKit": {
+        "assetDigestMatrixPath": "",
+        "assetsDir": "",
+        "consumeOut": "",
+        "consumerReportPath": "",
+        "consumerReportStatus": "not-provided",
+        "currentReleaseAssetDiagnostics": {
+          "artifactSha256": "",
+          "assetCount": null,
+          "assetDigestMatrixPath": "",
+          "assetsDir": "",
+          "command": "",
+          "commandTemplate": "",
+          "consumeCommand": "./bin/shipguard release-consume verify --dir <downloaded-assets-dir> --out <consume-dir> --version <version>",
+          "consumeOut": "",
+          "consumerReportPath": "",
+          "consumerReportStatus": "not-provided",
+          "downloadProofStatus": "not-provided",
+          "downloadSource": "",
+          "error": "",
+          "exitCode": null,
+          "localAssetCount": 0,
+          "localAssetNames": [],
+          "nextCommand": "./bin/shipguard v4 release-candidate --path . --out /tmp/shipguard-v4-release-candidate --release-assets <downloaded-assets-dir> --release-version <version> --shipguard-eval --shareable",
+          "provided": false,
+          "status": "not-provided",
+          "summary": "No downloaded release assets were supplied; stable v4 proof still needs consumer-side release asset verification.",
+          "version": ""
+        },
+        "downloadAssetsRerunCommand": "./bin/shipguard v4 stable-publication --path . --out /tmp/shipguard-v4-stable-publication --github-release-repo jlekerli-source/ShipGuard --release-version 3.131.0 --release-candidate-report <stable-publication-work>/candidate-pass.json --download-release-assets --external-adoption-evidence <stable-publication-work>/evidence/stable-adoption --security-review-evidence <stable-publication-work>/evidence/stable-security --shipguard-eval --shareable",
+        "downloadProofStatus": "not-provided",
+        "downloadSource": "not-provided",
+        "failCriteria": [
+          "No downloaded or supplied release-assets directory is available.",
+          "The release metadata is missing one or more required assets.",
+          "The downloaded or supplied directory does not contain every required release asset.",
+          "GitHub release asset download fails or points at a draft, prerelease, wrong tag, wrong repository, or wrong version.",
+          "Source-only package tests, LaunchKey fixtures, generated report directories, or local package builds are treated as published release assets."
+        ],
+        "localAssetNames": [],
+        "metadataAssetNames": [
+          "attestation-badge.json",
+          "attestation.json",
+          "proof-ledger.md",
+          "release-index.json",
+          "release-manifest.json",
+          "replay-report.json",
+          "shipguard-v3.131.0.tar.gz"
+        ],
+        "metadataMissingAssets": [],
+        "missingLocalAssets": [
+          "attestation-badge.json",
+          "attestation.json",
+          "proof-ledger.md",
+          "release-index.json",
+          "release-manifest.json",
+          "replay-report.json",
+          "shipguard-v3.131.0.tar.gz"
+        ],
+        "passCriteria": [
+          "GitHub release metadata for the requested tag exists and is not draft-only or prerelease-only.",
+          "Every required stable-publication asset is present in the public GitHub release metadata.",
+          "The assets are downloaded by stable-publication or supplied through `--release-assets` from the exact published release packet.",
+          "The stable-publication report records `publishedReleaseAssetProof.status = pass`; source checkout files, local build output, and fixture assets do not count."
+        ],
+        "releaseAssetProofBoundary": {
+          "downloadedOrSuppliedAssetsRequired": true,
+          "explanation": "The downloaded-release-assets gate is satisfied only by the actual published release assets downloaded or supplied to stable-publication. GitHub metadata, source checkout state, local package builds, and fixture assets do not satisfy this gate.",
+          "fixtureProofCountsAsStableV4PublicationProof": false,
+          "githubMetadataOnlyCountsAsReleaseAssetProof": false,
+          "releaseConsumeStillRequiredForConsumerProof": true,
+          "sourceOnlyProofCountsAsReleaseAssetProof": false
+        },
+        "repairCriteria": [
+          "Use `shipguard v4 stable-publication --download-release-assets` to download the public GitHub release assets, or pass the already downloaded asset directory with `--release-assets`.",
+          "Confirm the downloaded or supplied directory contains every required release asset listed by the GitHub release metadata, including the versioned ShipGuard tarball.",
+          "Do not edit source files, fixture outputs, or generated report JSON to close this gate; repair the public release assets or the supplied downloaded asset directory.",
+          "After the assets are present, rerun `shipguard v4 stable-publication` so the downloaded-release-assets gate and the downstream post-release consumer gate are evaluated together."
+        ],
+        "requiredAssets": [
+          "attestation-badge.json",
+          "attestation.json",
+          "proof-ledger.md",
+          "release-index.json",
+          "release-manifest.json",
+          "replay-report.json",
+          "shipguard-v3.131.0.tar.gz"
+        ],
+        "schemaVersion": 1,
+        "stablePublicationRerunCommand": "./bin/shipguard v4 stable-publication --path . --out /tmp/shipguard-v4-stable-publication --github-release-repo jlekerli-source/ShipGuard --release-version 3.131.0 --release-candidate-report <stable-publication-work>/candidate-pass.json --download-release-assets --external-adoption-evidence <stable-publication-work>/evidence/stable-adoption --security-review-evidence <stable-publication-work>/evidence/stable-security --shipguard-eval --shareable",
+        "status": "not-provided",
+        "summary": "No downloaded release assets were supplied; stable v4 proof still needs consumer-side release asset verification.",
+        "title": "Release asset proof closure kit",
+        "version": "3.131.0"
+      },
+      "releaseAssetProofBoundary": {
+        "downloadedOrSuppliedAssetsRequired": true,
+        "explanation": "The downloaded-release-assets gate is satisfied only by the actual published release assets downloaded or supplied to stable-publication. GitHub metadata, source checkout state, local package builds, and fixture assets do not satisfy this gate.",
+        "fixtureProofCountsAsStableV4PublicationProof": false,
+        "githubMetadataOnlyCountsAsReleaseAssetProof": false,
+        "releaseConsumeStillRequiredForConsumerProof": true,
+        "sourceOnlyProofCountsAsReleaseAssetProof": false
+      },
+      "repairCriteria": [
+        "Use `shipguard v4 stable-publication --download-release-assets` to download the public GitHub release assets, or pass the already downloaded asset directory with `--release-assets`.",
+        "Confirm the downloaded or supplied directory contains every required release asset listed by the GitHub release metadata, including the versioned ShipGuard tarball.",
+        "Do not edit source files, fixture outputs, or generated report JSON to close this gate; repair the public release assets or the supplied downloaded asset directory.",
+        "After the assets are present, rerun `shipguard v4 stable-publication` so the downloaded-release-assets gate and the downstream post-release consumer gate are evaluated together."
+      ],
+      "requiredAssets": [
+        "attestation-badge.json",
+        "attestation.json",
+        "proof-ledger.md",
+        "release-index.json",
+        "release-manifest.json",
+        "replay-report.json",
+        "shipguard-v3.131.0.tar.gz"
+      ],
+      "stablePublicationRerunCommand": "./bin/shipguard v4 stable-publication --path . --out /tmp/shipguard-v4-stable-publication --github-release-repo jlekerli-source/ShipGuard --release-version 3.131.0 --release-candidate-report <stable-publication-work>/candidate-pass.json --download-release-assets --external-adoption-evidence <stable-publication-work>/evidence/stable-adoption --security-review-evidence <stable-publication-work>/evidence/stable-security --shipguard-eval --shareable",
       "status": "not-provided",
       "summary": "No downloaded release assets were supplied; stable v4 proof still needs consumer-side release asset verification."
     },
     "items": [
       {
+        "assetsDir": "",
         "blocksStableV4": true,
         "dependencyOrder": 4,
+        "downloadAssetsRerunCommand": "./bin/shipguard v4 stable-publication --path . --out /tmp/shipguard-v4-stable-publication --github-release-repo jlekerli-source/ShipGuard --release-version 3.131.0 --release-candidate-report <stable-publication-work>/candidate-pass.json --download-release-assets --external-adoption-evidence <stable-publication-work>/evidence/stable-adoption --security-review-evidence <stable-publication-work>/evidence/stable-security --shipguard-eval --shareable",
+        "failCriteria": [
+          "No downloaded or supplied release-assets directory is available.",
+          "The release metadata is missing one or more required assets.",
+          "The downloaded or supplied directory does not contain every required release asset.",
+          "GitHub release asset download fails or points at a draft, prerelease, wrong tag, wrong repository, or wrong version.",
+          "Source-only package tests, LaunchKey fixtures, generated report directories, or local package builds are treated as published release assets."
+        ],
         "id": "downloaded-release-assets",
         "isFirstBlockingGate": true,
-        "nextCommand": "./bin/shipguard v4 release-candidate --path . --out /tmp/shipguard-v4-release-candidate --release-assets <downloaded-assets-dir> --release-version <version> --shipguard-eval --shareable",
+        "localAssetNames": [],
+        "metadataAssetNames": [
+          "attestation-badge.json",
+          "attestation.json",
+          "proof-ledger.md",
+          "release-index.json",
+          "release-manifest.json",
+          "replay-report.json",
+          "shipguard-v3.131.0.tar.gz"
+        ],
+        "metadataMissingAssets": [],
+        "missingLocalAssets": [
+          "attestation-badge.json",
+          "attestation.json",
+          "proof-ledger.md",
+          "release-index.json",
+          "release-manifest.json",
+          "replay-report.json",
+          "shipguard-v3.131.0.tar.gz"
+        ],
+        "nextCommand": "./bin/shipguard v4 stable-publication --path . --out /tmp/shipguard-v4-stable-publication --github-release-repo jlekerli-source/ShipGuard --release-version 3.131.0 --release-candidate-report <stable-publication-work>/candidate-pass.json --download-release-assets --external-adoption-evidence <stable-publication-work>/evidence/stable-adoption --security-review-evidence <stable-publication-work>/evidence/stable-security --shipguard-eval --shareable",
+        "passCriteria": [
+          "GitHub release metadata for the requested tag exists and is not draft-only or prerelease-only.",
+          "Every required stable-publication asset is present in the public GitHub release metadata.",
+          "The assets are downloaded by stable-publication or supplied through `--release-assets` from the exact published release packet.",
+          "The stable-publication report records `publishedReleaseAssetProof.status = pass`; source checkout files, local build output, and fixture assets do not count."
+        ],
         "proofBoundary": "Release assets must be downloaded or supplied and verified from the publication packet, not assumed from source state.",
         "rank": 1,
         "receipt": "publishedReleaseAssetProof",
+        "releaseAssetClosureKit": {
+          "assetDigestMatrixPath": "",
+          "assetsDir": "",
+          "consumeOut": "",
+          "consumerReportPath": "",
+          "consumerReportStatus": "not-provided",
+          "currentReleaseAssetDiagnostics": {
+            "artifactSha256": "",
+            "assetCount": null,
+            "assetDigestMatrixPath": "",
+            "assetsDir": "",
+            "command": "",
+            "commandTemplate": "",
+            "consumeCommand": "./bin/shipguard release-consume verify --dir <downloaded-assets-dir> --out <consume-dir> --version <version>",
+            "consumeOut": "",
+            "consumerReportPath": "",
+            "consumerReportStatus": "not-provided",
+            "downloadProofStatus": "not-provided",
+            "downloadSource": "",
+            "error": "",
+            "exitCode": null,
+            "localAssetCount": 0,
+            "localAssetNames": [],
+            "nextCommand": "./bin/shipguard v4 release-candidate --path . --out /tmp/shipguard-v4-release-candidate --release-assets <downloaded-assets-dir> --release-version <version> --shipguard-eval --shareable",
+            "provided": false,
+            "status": "not-provided",
+            "summary": "No downloaded release assets were supplied; stable v4 proof still needs consumer-side release asset verification.",
+            "version": ""
+          },
+          "downloadAssetsRerunCommand": "./bin/shipguard v4 stable-publication --path . --out /tmp/shipguard-v4-stable-publication --github-release-repo jlekerli-source/ShipGuard --release-version 3.131.0 --release-candidate-report <stable-publication-work>/candidate-pass.json --download-release-assets --external-adoption-evidence <stable-publication-work>/evidence/stable-adoption --security-review-evidence <stable-publication-work>/evidence/stable-security --shipguard-eval --shareable",
+          "downloadProofStatus": "not-provided",
+          "downloadSource": "not-provided",
+          "failCriteria": [
+            "No downloaded or supplied release-assets directory is available.",
+            "The release metadata is missing one or more required assets.",
+            "The downloaded or supplied directory does not contain every required release asset.",
+            "GitHub release asset download fails or points at a draft, prerelease, wrong tag, wrong repository, or wrong version.",
+            "Source-only package tests, LaunchKey fixtures, generated report directories, or local package builds are treated as published release assets."
+          ],
+          "localAssetNames": [],
+          "metadataAssetNames": [
+            "attestation-badge.json",
+            "attestation.json",
+            "proof-ledger.md",
+            "release-index.json",
+            "release-manifest.json",
+            "replay-report.json",
+            "shipguard-v3.131.0.tar.gz"
+          ],
+          "metadataMissingAssets": [],
+          "missingLocalAssets": [
+            "attestation-badge.json",
+            "attestation.json",
+            "proof-ledger.md",
+            "release-index.json",
+            "release-manifest.json",
+            "replay-report.json",
+            "shipguard-v3.131.0.tar.gz"
+          ],
+          "passCriteria": [
+            "GitHub release metadata for the requested tag exists and is not draft-only or prerelease-only.",
+            "Every required stable-publication asset is present in the public GitHub release metadata.",
+            "The assets are downloaded by stable-publication or supplied through `--release-assets` from the exact published release packet.",
+            "The stable-publication report records `publishedReleaseAssetProof.status = pass`; source checkout files, local build output, and fixture assets do not count."
+          ],
+          "releaseAssetProofBoundary": {
+            "downloadedOrSuppliedAssetsRequired": true,
+            "explanation": "The downloaded-release-assets gate is satisfied only by the actual published release assets downloaded or supplied to stable-publication. GitHub metadata, source checkout state, local package builds, and fixture assets do not satisfy this gate.",
+            "fixtureProofCountsAsStableV4PublicationProof": false,
+            "githubMetadataOnlyCountsAsReleaseAssetProof": false,
+            "releaseConsumeStillRequiredForConsumerProof": true,
+            "sourceOnlyProofCountsAsReleaseAssetProof": false
+          },
+          "repairCriteria": [
+            "Use `shipguard v4 stable-publication --download-release-assets` to download the public GitHub release assets, or pass the already downloaded asset directory with `--release-assets`.",
+            "Confirm the downloaded or supplied directory contains every required release asset listed by the GitHub release metadata, including the versioned ShipGuard tarball.",
+            "Do not edit source files, fixture outputs, or generated report JSON to close this gate; repair the public release assets or the supplied downloaded asset directory.",
+            "After the assets are present, rerun `shipguard v4 stable-publication` so the downloaded-release-assets gate and the downstream post-release consumer gate are evaluated together."
+          ],
+          "requiredAssets": [
+            "attestation-badge.json",
+            "attestation.json",
+            "proof-ledger.md",
+            "release-index.json",
+            "release-manifest.json",
+            "replay-report.json",
+            "shipguard-v3.131.0.tar.gz"
+          ],
+          "schemaVersion": 1,
+          "stablePublicationRerunCommand": "./bin/shipguard v4 stable-publication --path . --out /tmp/shipguard-v4-stable-publication --github-release-repo jlekerli-source/ShipGuard --release-version 3.131.0 --release-candidate-report <stable-publication-work>/candidate-pass.json --download-release-assets --external-adoption-evidence <stable-publication-work>/evidence/stable-adoption --security-review-evidence <stable-publication-work>/evidence/stable-security --shipguard-eval --shareable",
+          "status": "not-provided",
+          "summary": "No downloaded release assets were supplied; stable v4 proof still needs consumer-side release asset verification.",
+          "title": "Release asset proof closure kit",
+          "version": "3.131.0"
+        },
+        "releaseAssetProofBoundary": {
+          "downloadedOrSuppliedAssetsRequired": true,
+          "explanation": "The downloaded-release-assets gate is satisfied only by the actual published release assets downloaded or supplied to stable-publication. GitHub metadata, source checkout state, local package builds, and fixture assets do not satisfy this gate.",
+          "fixtureProofCountsAsStableV4PublicationProof": false,
+          "githubMetadataOnlyCountsAsReleaseAssetProof": false,
+          "releaseConsumeStillRequiredForConsumerProof": true,
+          "sourceOnlyProofCountsAsReleaseAssetProof": false
+        },
+        "repairCriteria": [
+          "Use `shipguard v4 stable-publication --download-release-assets` to download the public GitHub release assets, or pass the already downloaded asset directory with `--release-assets`.",
+          "Confirm the downloaded or supplied directory contains every required release asset listed by the GitHub release metadata, including the versioned ShipGuard tarball.",
+          "Do not edit source files, fixture outputs, or generated report JSON to close this gate; repair the public release assets or the supplied downloaded asset directory.",
+          "After the assets are present, rerun `shipguard v4 stable-publication` so the downloaded-release-assets gate and the downstream post-release consumer gate are evaluated together."
+        ],
+        "requiredAssets": [
+          "attestation-badge.json",
+          "attestation.json",
+          "proof-ledger.md",
+          "release-index.json",
+          "release-manifest.json",
+          "replay-report.json",
+          "shipguard-v3.131.0.tar.gz"
+        ],
+        "stablePublicationRerunCommand": "./bin/shipguard v4 stable-publication --path . --out /tmp/shipguard-v4-stable-publication --github-release-repo jlekerli-source/ShipGuard --release-version 3.131.0 --release-candidate-report <stable-publication-work>/candidate-pass.json --download-release-assets --external-adoption-evidence <stable-publication-work>/evidence/stable-adoption --security-review-evidence <stable-publication-work>/evidence/stable-security --shipguard-eval --shareable",
         "status": "not-provided",
         "summary": "No downloaded release assets were supplied; stable v4 proof still needs consumer-side release asset verification."
       },
@@ -640,7 +948,7 @@
           ],
           "replayStatus": "not-provided",
           "schemaVersion": 1,
-          "stablePublicationRerunCommand": "./bin/shipguard v4 stable-publication --path . --out /tmp/shipguard-v4-stable-publication --github-release-repo jlekerli-source/ShipGuard --release-version 3.131.0 --release-candidate-report <v4-release-candidate-json-or-dir> --download-release-assets --external-adoption-evidence <adoption-evidence-json-or-dir> --security-review-evidence <security-review-json-or-dir> --shipguard-eval --shareable",
+          "stablePublicationRerunCommand": "./bin/shipguard v4 stable-publication --path . --out /tmp/shipguard-v4-stable-publication --github-release-repo jlekerli-source/ShipGuard --release-version 3.131.0 --release-candidate-report <stable-publication-work>/candidate-pass.json --download-release-assets --external-adoption-evidence <stable-publication-work>/evidence/stable-adoption --security-review-evidence <stable-publication-work>/evidence/stable-security --shipguard-eval --shareable",
           "status": "not-provided",
           "summary": "Post-release consumer proof needs downloaded assets to pass release-consume verification.",
           "title": "Post-release consumer proof closure kit",
@@ -656,12 +964,12 @@
           "Repair missing or mismatched release assets, replay proof, attestation proof, badge proof, manifest, index, ledger, or tarball digest before rerunning stable-publication.",
           "After `release-consume verify` passes, rerun `shipguard v4 stable-publication` with the same release metadata, LaunchKey, adoption, and security inputs so later gates remain visible."
         ],
-        "stablePublicationRerunCommand": "./bin/shipguard v4 stable-publication --path . --out /tmp/shipguard-v4-stable-publication --github-release-repo jlekerli-source/ShipGuard --release-version 3.131.0 --release-candidate-report <v4-release-candidate-json-or-dir> --download-release-assets --external-adoption-evidence <adoption-evidence-json-or-dir> --security-review-evidence <security-review-json-or-dir> --shipguard-eval --shareable",
+        "stablePublicationRerunCommand": "./bin/shipguard v4 stable-publication --path . --out /tmp/shipguard-v4-stable-publication --github-release-repo jlekerli-source/ShipGuard --release-version 3.131.0 --release-candidate-report <stable-publication-work>/candidate-pass.json --download-release-assets --external-adoption-evidence <stable-publication-work>/evidence/stable-adoption --security-review-evidence <stable-publication-work>/evidence/stable-security --shipguard-eval --shareable",
         "status": "not-provided",
         "summary": "Post-release consumer proof needs downloaded assets to pass release-consume verification."
       }
     ],
-    "nextCommand": "./bin/shipguard v4 release-candidate --path . --out /tmp/shipguard-v4-release-candidate --release-assets <downloaded-assets-dir> --release-version <version> --shipguard-eval --shareable",
+    "nextCommand": "./bin/shipguard v4 stable-publication --path . --out /tmp/shipguard-v4-stable-publication --github-release-repo jlekerli-source/ShipGuard --release-version 3.131.0 --release-candidate-report <stable-publication-work>/candidate-pass.json --download-release-assets --external-adoption-evidence <stable-publication-work>/evidence/stable-adoption --security-review-evidence <stable-publication-work>/evidence/stable-security --shipguard-eval --shareable",
     "noHiddenLowerOrderBlockers": true,
     "nonClaims": [
       "This checklist does not prove stable v4 by itself.",
@@ -676,7 +984,7 @@
   "stablePublicationEvidencePacket": {
     "firstBlockingGate": {
       "id": "downloaded-release-assets",
-      "nextCommand": "./bin/shipguard v4 release-candidate --path . --out /tmp/shipguard-v4-release-candidate --release-assets <downloaded-assets-dir> --release-version <version> --shipguard-eval --shareable",
+      "nextCommand": "./bin/shipguard v4 stable-publication --path . --out /tmp/shipguard-v4-stable-publication --github-release-repo jlekerli-source/ShipGuard --release-version 3.131.0 --release-candidate-report <stable-publication-work>/candidate-pass.json --download-release-assets --external-adoption-evidence <stable-publication-work>/evidence/stable-adoption --security-review-evidence <stable-publication-work>/evidence/stable-security --shipguard-eval --shareable",
       "receipt": "publishedReleaseAssetProof",
       "status": "not-provided",
       "summary": "No downloaded release assets were supplied; stable v4 proof still needs consumer-side release asset verification."
@@ -843,10 +1151,33 @@
       },
       {
         "id": "downloaded-release-assets",
-        "nextCommand": "./bin/shipguard v4 release-candidate --path . --out /tmp/shipguard-v4-release-candidate --release-assets <downloaded-assets-dir> --release-version <version> --shipguard-eval --shareable",
+        "nextCommand": "./bin/shipguard v4 stable-publication --path . --out /tmp/shipguard-v4-stable-publication --github-release-repo jlekerli-source/ShipGuard --release-version 3.131.0 --release-candidate-report <stable-publication-work>/candidate-pass.json --download-release-assets --external-adoption-evidence <stable-publication-work>/evidence/stable-adoption --security-review-evidence <stable-publication-work>/evidence/stable-security --shipguard-eval --shareable",
         "provided": false,
         "realEvidenceRequired": true,
         "receipt": "publishedReleaseAssetProof",
+        "releaseAssetDiagnostics": {
+          "artifactSha256": "",
+          "assetCount": null,
+          "assetDigestMatrixPath": "",
+          "assetsDir": "",
+          "command": "",
+          "commandTemplate": "",
+          "consumeCommand": "./bin/shipguard release-consume verify --dir <downloaded-assets-dir> --out <consume-dir> --version <version>",
+          "consumeOut": "",
+          "consumerReportPath": "",
+          "consumerReportStatus": "not-provided",
+          "downloadProofStatus": "not-provided",
+          "downloadSource": "",
+          "error": "",
+          "exitCode": null,
+          "localAssetCount": 0,
+          "localAssetNames": [],
+          "nextCommand": "./bin/shipguard v4 release-candidate --path . --out /tmp/shipguard-v4-release-candidate --release-assets <downloaded-assets-dir> --release-version <version> --shipguard-eval --shareable",
+          "provided": false,
+          "status": "not-provided",
+          "summary": "No downloaded release assets were supplied; stable v4 proof still needs consumer-side release asset verification.",
+          "version": ""
+        },
         "requiredForStableV4": true,
         "status": "not-provided",
         "summary": "No downloaded release assets were supplied; stable v4 proof still needs consumer-side release asset verification."
@@ -1193,7 +1524,7 @@
       "status": "pass"
     },
     {
-      "nextCommand": "./bin/shipguard v4 release-candidate --path . --out /tmp/shipguard-v4-release-candidate --release-assets <downloaded-assets-dir> --release-version <version> --shipguard-eval --shareable",
+      "nextCommand": "./bin/shipguard v4 stable-publication --path . --out /tmp/shipguard-v4-stable-publication --github-release-repo jlekerli-source/ShipGuard --release-version 3.131.0 --release-candidate-report <stable-publication-work>/candidate-pass.json --download-release-assets --external-adoption-evidence <stable-publication-work>/evidence/stable-adoption --security-review-evidence <stable-publication-work>/evidence/stable-security --shipguard-eval --shareable",
       "receipt": "publishedReleaseAssetProof",
       "status": "not-provided"
     },

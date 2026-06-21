@@ -6,6 +6,16 @@ This is the current usefulness and refinement evaluation for ShipGuard after the
 
 ## Current Stable V4 Release Packet QA
 
+The v3.168 read-only stable-v4 packet loop continued from the post-release consumer closure kit and tested whether the earlier downloaded release-assets blocker is directly actionable from the stable-publication report.
+
+- Finding: `v4 stable-publication` could say downloaded release assets were missing, but the blocker row did not itself expose required assets, GitHub metadata asset names, metadata-missing assets, local downloaded/supplied asset names, local missing assets, download source/status, or the two rerun commands.
+- Product weakness: a solo maintainer should know whether the public GitHub release metadata is missing assets, the local downloaded-assets packet is missing files, or the download path was never run before attempting post-release consumer proof.
+- Native fix: `downloaded-release-assets` closure items now carry `releaseAssetClosureKit` with required assets, metadata/local asset inventories, download source/status, asset directory, repair/pass/fail criteria, download/supplied-assets rerun, full stable-publication rerun, and metadata-only/source-only/fixture-proof boundaries.
+- Report-quality fix: `ios report-quality` now flags stable-publication reports whose release-assets closure item hides the kit, required assets, missing-asset lists, download status, diagnostics, criteria, rerun commands, proof boundaries, or Markdown `Release Asset Closure Kit` rendering.
+- Fixture fix: `fixtures/ios-report-quality/stable-publication-release-assets-closure` promotes the release-asset closure row into public synthetic coverage, and the refreshed stable-publication fixtures preserve the kit wherever downloaded assets remain a blocker.
+
+Fresh stable-v4 QA still does not claim real stable v4. The release-asset closure kit is repair guidance and report-quality proof only; GitHub metadata alone, source checkout proof, generated files, and fixture assets do not count as downloaded public release assets.
+
 The v3.167 read-only stable-v4 packet loop continued from the LaunchKey candidate closure kit and tested whether the post-release consumer blocker is directly actionable from the stable-publication report.
 
 - Finding: `v4 stable-publication` could show missing downloaded assets and post-release consumer proof, but the consumer row did not itself expose release-consume paths, missing consumer artifacts, digest/replay/attestation status, pass/fail criteria, or both rerun commands.

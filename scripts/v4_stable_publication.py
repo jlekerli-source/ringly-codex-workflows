@@ -303,6 +303,28 @@ LAUNCHKEY_CANDIDATE_FAIL_CRITERIA = [
     "Fixture candidate proof is used as stable-v4 publication proof.",
 ]
 
+RELEASE_ASSET_REPAIR_CRITERIA = [
+    "Use `shipguard v4 stable-publication --download-release-assets` to download the public GitHub release assets, or pass the already downloaded asset directory with `--release-assets`.",
+    "Confirm the downloaded or supplied directory contains every required release asset listed by the GitHub release metadata, including the versioned ShipGuard tarball.",
+    "Do not edit source files, fixture outputs, or generated report JSON to close this gate; repair the public release assets or the supplied downloaded asset directory.",
+    "After the assets are present, rerun `shipguard v4 stable-publication` so the downloaded-release-assets gate and the downstream post-release consumer gate are evaluated together.",
+]
+
+RELEASE_ASSET_PASS_CRITERIA = [
+    "GitHub release metadata for the requested tag exists and is not draft-only or prerelease-only.",
+    "Every required stable-publication asset is present in the public GitHub release metadata.",
+    "The assets are downloaded by stable-publication or supplied through `--release-assets` from the exact published release packet.",
+    "The stable-publication report records `publishedReleaseAssetProof.status = pass`; source checkout files, local build output, and fixture assets do not count.",
+]
+
+RELEASE_ASSET_FAIL_CRITERIA = [
+    "No downloaded or supplied release-assets directory is available.",
+    "The release metadata is missing one or more required assets.",
+    "The downloaded or supplied directory does not contain every required release asset.",
+    "GitHub release asset download fails or points at a draft, prerelease, wrong tag, wrong repository, or wrong version.",
+    "Source-only package tests, LaunchKey fixtures, generated report directories, or local package builds are treated as published release assets.",
+]
+
 POST_RELEASE_CONSUMER_REPAIR_CRITERIA = [
     "Download the published release assets with `shipguard v4 stable-publication --download-release-assets` or supply the exact downloaded asset directory with `--release-assets`.",
     "Run `shipguard release-consume verify --dir <downloaded-assets-dir> --out <consume-dir> --version <version>` and keep both `consumer-report.json` and `asset-digests.json` with the stable-publication packet.",
@@ -985,6 +1007,120 @@ def launchkey_candidate_diagnostics_for_closure(proof: dict[str, Any]) -> dict[s
     }
 
 
+def asset_names_from_dir(raw_path: object) -> list[str]:
+    if not raw_path:
+        return []
+    path = Path(str(raw_path)).expanduser()
+    try:
+        if not path.is_dir():
+            return []
+        return sorted(child.name for child in path.iterdir() if child.is_file())
+    except OSError:
+        return []
+
+
+def release_asset_diagnostics_for_closure(proof: dict[str, Any]) -> dict[str, Any]:
+    assets_dir = proof.get("assetsDir") or ""
+    local_asset_names = asset_names_from_dir(assets_dir)
+    return {
+        "status": proof.get("status"),
+        "provided": proof.get("provided") is True,
+        "summary": proof.get("summary") or "",
+        "error": proof.get("error") or "",
+        "downloadSource": proof.get("downloadSource") or "",
+        "downloadProofStatus": proof.get("downloadProofStatus") or "not-provided",
+        "version": proof.get("version") or "",
+        "assetsDir": assets_dir,
+        "consumeOut": proof.get("consumeOut") or "",
+        "command": proof.get("command") or "",
+        "commandTemplate": proof.get("commandTemplate") or "",
+        "nextCommand": proof.get("nextCommand") or "",
+        "consumeCommand": proof.get("consumeCommand") or "",
+        "exitCode": proof.get("exitCode"),
+        "consumerReportStatus": proof.get("consumerReportStatus") or "not-provided",
+        "consumerReportPath": proof.get("consumerReportPath") or "",
+        "assetDigestMatrixPath": proof.get("assetDigestMatrixPath") or "",
+        "assetCount": proof.get("assetCount"),
+        "artifactSha256": proof.get("artifactSha256") or "",
+        "localAssetNames": local_asset_names,
+        "localAssetCount": len(local_asset_names),
+    }
+
+
+def build_release_asset_closure_kit(
+    *,
+    item: dict[str, Any],
+    metadata_proof: dict[str, Any],
+    rerun_command: str,
+) -> dict[str, Any]:
+    diagnostics = (
+        item.get("releaseAssetDiagnostics")
+        if isinstance(item.get("releaseAssetDiagnostics"), dict)
+        else {}
+    )
+    required_assets = metadata_proof.get("requiredAssets") if isinstance(metadata_proof.get("requiredAssets"), list) else []
+    metadata_asset_names = metadata_proof.get("assetNames") if isinstance(metadata_proof.get("assetNames"), list) else []
+    metadata_missing_assets = metadata_proof.get("missingAssets") if isinstance(metadata_proof.get("missingAssets"), list) else []
+    local_asset_names = diagnostics.get("localAssetNames") if isinstance(diagnostics.get("localAssetNames"), list) else []
+    if required_assets:
+        missing_local_assets = sorted(set(str(name) for name in required_assets) - set(str(name) for name in local_asset_names))
+    else:
+        missing_local_assets = []
+    stable_rerun = rerun_command or item.get("nextCommand") or stable_publication_command(
+        argparse.Namespace(
+            github_release_repo="<owner/repo>",
+            release_version="<version>",
+            release_candidate_report="<v4-release-candidate-json-or-dir>",
+            release_assets=None,
+            external_adoption_evidence=[],
+            security_review_evidence=[],
+        ),
+        placeholders=True,
+    )
+    download_command = stable_rerun
+    if "--download-release-assets" not in download_command and "--release-assets" not in download_command:
+        download_command = (
+            "./bin/shipguard v4 stable-publication --path . --out <stable-publication-dir> "
+            "--github-release-repo <owner/repo> --release-version <version> "
+            "--release-candidate-report <v4-release-candidate-json-or-dir> --download-release-assets "
+            "--external-adoption-evidence <adoption-evidence-json-or-dir> "
+            "--security-review-evidence <security-review-json-or-dir> --shipguard-eval --shareable"
+        )
+    return {
+        "schemaVersion": 1,
+        "title": "Release asset proof closure kit",
+        "status": diagnostics.get("status") or item.get("status") or "not-provided",
+        "summary": diagnostics.get("summary") or item.get("summary") or "",
+        "version": diagnostics.get("version") or metadata_proof.get("version") or "",
+        "downloadSource": diagnostics.get("downloadSource") or "not-provided",
+        "downloadProofStatus": diagnostics.get("downloadProofStatus") or "not-provided",
+        "assetsDir": diagnostics.get("assetsDir") or "",
+        "consumeOut": diagnostics.get("consumeOut") or "",
+        "requiredAssets": required_assets,
+        "metadataAssetNames": metadata_asset_names,
+        "metadataMissingAssets": metadata_missing_assets,
+        "localAssetNames": local_asset_names,
+        "missingLocalAssets": missing_local_assets,
+        "consumerReportStatus": diagnostics.get("consumerReportStatus") or "not-provided",
+        "consumerReportPath": diagnostics.get("consumerReportPath") or "",
+        "assetDigestMatrixPath": diagnostics.get("assetDigestMatrixPath") or "",
+        "currentReleaseAssetDiagnostics": diagnostics,
+        "repairCriteria": RELEASE_ASSET_REPAIR_CRITERIA,
+        "passCriteria": RELEASE_ASSET_PASS_CRITERIA,
+        "failCriteria": RELEASE_ASSET_FAIL_CRITERIA,
+        "downloadAssetsRerunCommand": download_command,
+        "stablePublicationRerunCommand": stable_rerun,
+        "releaseAssetProofBoundary": {
+            "downloadedOrSuppliedAssetsRequired": True,
+            "githubMetadataOnlyCountsAsReleaseAssetProof": False,
+            "sourceOnlyProofCountsAsReleaseAssetProof": False,
+            "fixtureProofCountsAsStableV4PublicationProof": False,
+            "releaseConsumeStillRequiredForConsumerProof": True,
+            "explanation": "The downloaded-release-assets gate is satisfied only by the actual published release assets downloaded or supplied to stable-publication. GitHub metadata, source checkout state, local package builds, and fixture assets do not satisfy this gate.",
+        },
+    }
+
+
 def build_launchkey_candidate_closure_kit(
     *,
     item: dict[str, Any],
@@ -1401,6 +1537,8 @@ def build_stable_publication_evidence_packet(
             )
         if evidence_id == "launchkey-candidate-packet":
             item["launchKeyCandidateDiagnostics"] = launchkey_candidate_diagnostics_for_closure(proof)
+        if evidence_id == "downloaded-release-assets":
+            item["releaseAssetDiagnostics"] = release_asset_diagnostics_for_closure(proof)
         if evidence_id == "post-release-consumer-proof":
             item["postReleaseConsumerDiagnostics"] = post_release_consumer_diagnostics_for_closure(proof)
         if evidence_id in {"independent-adoption-evidence", "final-security-review-evidence"}:
@@ -1557,6 +1695,37 @@ def build_stable_publication_closure_checklist(
                 }
             )
             closure_item["nextCommand"] = closure_item["nestedRerunCommand"] or closure_item["stablePublicationRerunCommand"]
+        if evidence_id == "downloaded-release-assets":
+            asset_kit = build_release_asset_closure_kit(
+                item=item,
+                metadata_proof=metadata_proof,
+                rerun_command=rerun_command
+                or (
+                    "./bin/shipguard v4 stable-publication --path . --out <stable-publication-dir> "
+                    "--github-release-repo <owner/repo> --release-version <version> "
+                    "--release-candidate-report <v4-release-candidate-json-or-dir> --download-release-assets "
+                    "--external-adoption-evidence <adoption-evidence-json-or-dir> "
+                    "--security-review-evidence <security-review-json-or-dir> --shipguard-eval --shareable"
+                ),
+            )
+            closure_item.update(
+                {
+                    "assetsDir": asset_kit.get("assetsDir") or "",
+                    "requiredAssets": asset_kit.get("requiredAssets") if isinstance(asset_kit.get("requiredAssets"), list) else [],
+                    "metadataAssetNames": asset_kit.get("metadataAssetNames") if isinstance(asset_kit.get("metadataAssetNames"), list) else [],
+                    "metadataMissingAssets": asset_kit.get("metadataMissingAssets") if isinstance(asset_kit.get("metadataMissingAssets"), list) else [],
+                    "localAssetNames": asset_kit.get("localAssetNames") if isinstance(asset_kit.get("localAssetNames"), list) else [],
+                    "missingLocalAssets": asset_kit.get("missingLocalAssets") if isinstance(asset_kit.get("missingLocalAssets"), list) else [],
+                    "downloadAssetsRerunCommand": asset_kit.get("downloadAssetsRerunCommand") or item.get("nextCommand") or "",
+                    "stablePublicationRerunCommand": asset_kit.get("stablePublicationRerunCommand") or rerun_command,
+                    "repairCriteria": asset_kit.get("repairCriteria") if isinstance(asset_kit.get("repairCriteria"), list) else [],
+                    "passCriteria": asset_kit.get("passCriteria") if isinstance(asset_kit.get("passCriteria"), list) else [],
+                    "failCriteria": asset_kit.get("failCriteria") if isinstance(asset_kit.get("failCriteria"), list) else [],
+                    "releaseAssetProofBoundary": asset_kit.get("releaseAssetProofBoundary") if isinstance(asset_kit.get("releaseAssetProofBoundary"), dict) else {},
+                    "releaseAssetClosureKit": asset_kit,
+                }
+            )
+            closure_item["nextCommand"] = closure_item["downloadAssetsRerunCommand"] or closure_item["stablePublicationRerunCommand"]
         if evidence_id == "post-release-consumer-proof":
             consumer_kit = build_post_release_consumer_closure_kit(
                 item=item,
@@ -2041,7 +2210,7 @@ def build_report(args: argparse.Namespace) -> dict[str, Any]:
         ("githubReleaseMetadataProof", metadata_proof, stable_publication_command(args, placeholders=True)),
         ("releaseNotesProof", release_notes_proof, stable_publication_command(args, placeholders=True)),
         ("releaseCandidatePacketProof", release_candidate_packet_proof, release_candidate_packet_proof.get("nextCommand", "")),
-        ("publishedReleaseAssetProof", published_asset_proof, published_asset_proof.get("nextCommand", "")),
+        ("publishedReleaseAssetProof", published_asset_proof, stable_publication_rerun_command(args)),
         ("postReleaseConsumerProof", post_release_consumer_proof, published_asset_proof.get("consumeCommand", "")),
         ("externalAdoptionEvidenceStableGate", adoption_gate_proof, adoption_proof.get("nextCommand", "")),
         ("securityReviewEvidenceStableGate", security_gate_proof, security_proof.get("nextCommand", "")),
@@ -2159,6 +2328,7 @@ def build_report(args: argparse.Namespace) -> dict[str, Any]:
             "Does the stable-publication report provide draft-only evidence templates for independent adoption and final security review without manufacturing proof?",
             "Does the stable-publication report write a draft-only evidence starter kit so maintainers can collect the packet without reverse-engineering JSON shapes?",
             "Does the LaunchKey candidate closure row expose the supplied candidate path, nested receipt, required proof areas, package-hygiene diagnostics, repair/pass criteria, nested rerun, full stable-publication rerun, and fixture-proof boundary?",
+            "Does the downloaded release-assets closure row expose required assets, metadata/local missing assets, download source/status, asset directory, repair/pass/fail criteria, download rerun, full stable-publication rerun, and metadata-only/source-only/fixture-proof boundaries?",
             "Does the post-release consumer closure row expose release-consume paths, missing proof artifacts, digest/replay/attestation statuses, repair/pass criteria, release-consume rerun, full stable-publication rerun, and source-only/fixture-proof boundaries?",
             "Do independent adoption and final security-review closure rows expose starter paths, required fields, redaction/privacy boundaries, pass/fail criteria, current diagnostics, and exact stable-publication rerun commands?",
             "Does the stable-publication report prepare guarded launch relay drafts without posting, submitting, or bypassing explicit human approval?",
@@ -2358,6 +2528,67 @@ def render_markdown(report: dict[str, Any]) -> str:
                     "```",
                     "",
                     "Rerun the full stable-publication gate after LaunchKey passes:",
+                    "",
+                    "```bash",
+                    str(kit.get("stablePublicationRerunCommand") or ""),
+                    "```",
+                ]
+            )
+        asset_closure = next(
+            (item for item in items if isinstance(item, dict) and item.get("id") == "downloaded-release-assets"),
+            None,
+        )
+        if isinstance(asset_closure, dict) and isinstance(asset_closure.get("releaseAssetClosureKit"), dict):
+            kit = asset_closure["releaseAssetClosureKit"]
+            boundary = kit.get("releaseAssetProofBoundary") if isinstance(kit.get("releaseAssetProofBoundary"), dict) else {}
+            required_assets = kit.get("requiredAssets") if isinstance(kit.get("requiredAssets"), list) else []
+            metadata_missing = kit.get("metadataMissingAssets") if isinstance(kit.get("metadataMissingAssets"), list) else []
+            local_assets = kit.get("localAssetNames") if isinstance(kit.get("localAssetNames"), list) else []
+            missing_local = kit.get("missingLocalAssets") if isinstance(kit.get("missingLocalAssets"), list) else []
+            diagnostics = kit.get("currentReleaseAssetDiagnostics") if isinstance(kit.get("currentReleaseAssetDiagnostics"), dict) else {}
+            lines.extend(
+                [
+                    "",
+                    "### Release Asset Closure Kit",
+                    "",
+                    f"- Status: `{kit.get('status') or asset_closure.get('status') or 'not-provided'}`",
+                    f"- Download source: `{kit.get('downloadSource') or 'not-provided'}`",
+                    f"- Download proof status: `{kit.get('downloadProofStatus') or 'not-provided'}`",
+                    f"- Release version: `{kit.get('version') or 'not-provided'}`",
+                    f"- Assets directory: `{kit.get('assetsDir') or 'not-provided'}`",
+                    f"- Required assets: `{', '.join(str(value) for value in required_assets) or 'not-provided'}`",
+                    f"- Metadata missing assets: `{', '.join(str(value) for value in metadata_missing) or 'none'}`",
+                    f"- Local downloaded assets: `{', '.join(str(value) for value in local_assets) or 'none'}`",
+                    f"- Missing local assets: `{', '.join(str(value) for value in missing_local) or 'none'}`",
+                    f"- Consumer report status: `{kit.get('consumerReportStatus') or 'not-provided'}`",
+                    f"- Asset digest matrix path: `{kit.get('assetDigestMatrixPath') or 'not-provided'}`",
+                    f"- Exit code: `{diagnostics.get('exitCode') if diagnostics.get('exitCode') is not None else 'not-provided'}`",
+                    f"- Error: `{diagnostics.get('error') or 'none'}`",
+                    f"- Downloaded or supplied assets required: `{boundary.get('downloadedOrSuppliedAssetsRequired')}`",
+                    f"- GitHub metadata only counts as release-asset proof: `{boundary.get('githubMetadataOnlyCountsAsReleaseAssetProof')}`",
+                    f"- Source-only proof counts as release-asset proof: `{boundary.get('sourceOnlyProofCountsAsReleaseAssetProof')}`",
+                    f"- Fixture proof counts as stable-v4 publication proof: `{boundary.get('fixtureProofCountsAsStableV4PublicationProof')}`",
+                ]
+            )
+            lines.extend(["", "Repair criteria:", ""])
+            for criterion in kit.get("repairCriteria", []):
+                lines.append(f"- {criterion}")
+            lines.extend(["", "Pass criteria:", ""])
+            for criterion in kit.get("passCriteria", []):
+                lines.append(f"- {criterion}")
+            lines.extend(["", "Fail criteria:", ""])
+            for criterion in kit.get("failCriteria", []):
+                lines.append(f"- {criterion}")
+            lines.extend(
+                [
+                    "",
+                    "Rerun release asset proof:",
+                    "",
+                    "```bash",
+                    str(kit.get("downloadAssetsRerunCommand") or asset_closure.get("nextCommand") or ""),
+                    "```",
+                    "",
+                    "Rerun the full stable-publication gate after release assets pass:",
                     "",
                     "```bash",
                     str(kit.get("stablePublicationRerunCommand") or ""),

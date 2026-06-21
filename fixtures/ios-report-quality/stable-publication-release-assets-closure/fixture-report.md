@@ -12,7 +12,7 @@ No private source tree was scanned. The fixture exists to exercise report-qualit
 
 - Type: `shipguard-release-proof-quality-fixture`
 - Source tool: `shipguard v4 stable-publication`
-- Source question: Does the stable-publication report provide draft-only evidence templates for independent adoption and final security review without manufacturing proof?
+- Source question: Does the downloaded release-assets closure row expose required assets, metadata/local missing assets, download source/status, asset directory, repair/pass/fail criteria, download rerun, full stable-publication rerun, and metadata-only/source-only/fixture-proof boundaries?
 
 # ShipGuard V4 Stable Publication Proof
 

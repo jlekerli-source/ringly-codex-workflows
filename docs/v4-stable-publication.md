@@ -176,6 +176,18 @@ When the LaunchKey candidate packet is a closure blocker, the candidate row also
 
 Markdown renders those fields as `LaunchKey Candidate Closure Kit` so maintainers can fix candidate package lineage first, then rerun the full final publication gate without hiding later release notes, asset, adoption, or security blockers.
 
+When downloaded release assets are a closure blocker, the row also carries a release asset closure kit:
+
+- required stable-publication asset names from the public release contract
+- GitHub release metadata asset names and metadata-missing assets
+- downloaded or supplied local asset names and local missing assets
+- download source, download proof status, asset directory, consumer output directory, command, exit code, and any error text when available
+- repair criteria, pass criteria, and fail criteria for closing the release-assets gate without editing source or generated reports
+- a `downloadAssetsRerunCommand` that downloads or points at the published release assets and a full `stablePublicationRerunCommand` for the final publication gate
+- `releaseAssetProofBoundary`, which says downloaded or supplied public release assets are required, GitHub metadata alone does not count, source-only proof does not count, and fixture proof does not count as stable-v4 publication proof
+
+Markdown renders these fields as `Release Asset Closure Kit` so maintainers can fix the public release asset packet before chasing the downstream post-release consumer proof.
+
 When post-release consumer proof is a closure blocker, the row also carries a consumer closure kit:
 
 - release-consume paths and statuses, including the consumer report path, asset digest matrix path, assets directory, consume output directory, version, command, exit code, stdout, stderr, and any error text when available

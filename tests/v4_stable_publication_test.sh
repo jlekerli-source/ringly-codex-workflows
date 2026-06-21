@@ -467,6 +467,11 @@ assert packet["missingEvidenceIds"] == [
 ]
 assert packet["firstBlockingGate"]["receipt"] == "publishedReleaseAssetProof"
 required_by_id = {item["id"]: item for item in packet["requiredEvidence"]}
+asset_required = required_by_id["downloaded-release-assets"]
+asset_diagnostics = asset_required["releaseAssetDiagnostics"]
+assert asset_diagnostics["status"] == "not-provided"
+assert asset_diagnostics["downloadProofStatus"] == "not-provided"
+assert asset_diagnostics["localAssetNames"] == []
 consumer_required = required_by_id["post-release-consumer-proof"]
 diagnostics = consumer_required["postReleaseConsumerDiagnostics"]
 assert diagnostics["status"] == "not-provided"
@@ -474,6 +479,26 @@ assert diagnostics["consumerReportStatus"] == "not-provided"
 assert set(diagnostics["missingProofArtifacts"]) == {"consumer-report.json", "asset-digests.json"}
 closure = report["stablePublicationClosureChecklist"]
 assert [item["id"] for item in closure["items"]] == packet["missingEvidenceIds"]
+asset_item = closure["items"][0]
+assert asset_item["id"] == "downloaded-release-assets"
+assert asset_item["receipt"] == "publishedReleaseAssetProof"
+assert asset_item["isFirstBlockingGate"] is True
+asset_kit = asset_item["releaseAssetClosureKit"]
+assert asset_kit["status"] == "not-provided"
+assert asset_kit["downloadProofStatus"] == "not-provided"
+assert asset_kit["requiredAssets"]
+assert set(asset_kit["missingLocalAssets"]) == set(asset_kit["requiredAssets"])
+assert asset_kit["releaseAssetProofBoundary"]["downloadedOrSuppliedAssetsRequired"] is True
+assert asset_kit["releaseAssetProofBoundary"]["githubMetadataOnlyCountsAsReleaseAssetProof"] is False
+assert asset_kit["releaseAssetProofBoundary"]["sourceOnlyProofCountsAsReleaseAssetProof"] is False
+assert asset_kit["releaseAssetProofBoundary"]["fixtureProofCountsAsStableV4PublicationProof"] is False
+assert "--download-release-assets" in asset_kit["downloadAssetsRerunCommand"]
+assert "stable-publication" in asset_kit["stablePublicationRerunCommand"]
+assert len(asset_kit["repairCriteria"]) >= 3
+assert len(asset_kit["passCriteria"]) >= 3
+assert len(asset_kit["failCriteria"]) >= 3
+assert asset_kit["currentReleaseAssetDiagnostics"]["status"] == "not-provided"
+assert asset_item["nextCommand"] == asset_item["downloadAssetsRerunCommand"] == asset_kit["downloadAssetsRerunCommand"]
 consumer_item = closure["items"][1]
 assert consumer_item["id"] == "post-release-consumer-proof"
 assert consumer_item["receipt"] == "postReleaseConsumerProof"
@@ -495,6 +520,9 @@ assert len(kit["failCriteria"]) >= 4
 assert kit["currentConsumerDiagnostics"]["status"] == "not-provided"
 assert consumer_item["nextCommand"] == consumer_item["releaseConsumeRerunCommand"] == kit["releaseConsumeRerunCommand"]
 PY
+grep -q 'Release Asset Closure Kit' "$tmp_dir/consumer-blocked/v4-stable-publication.md"
+grep -q 'GitHub metadata only counts as release-asset proof: `False`' "$tmp_dir/consumer-blocked/v4-stable-publication.md"
+grep -q 'Rerun release asset proof' "$tmp_dir/consumer-blocked/v4-stable-publication.md"
 grep -q 'Post-Release Consumer Closure Kit' "$tmp_dir/consumer-blocked/v4-stable-publication.md"
 grep -q 'consumer-report.json, asset-digests.json' "$tmp_dir/consumer-blocked/v4-stable-publication.md"
 grep -q 'Source-only proof counts as consumer proof: `False`' "$tmp_dir/consumer-blocked/v4-stable-publication.md"
