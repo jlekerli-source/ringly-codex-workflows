@@ -1,0 +1,154 @@
+{
+  "behaviorGates": {
+    "adapterBoundary": {
+      "policy": "Thin host adapters can be the product surface; keep them unless host registration proof says they are redundant.",
+      "status": "policy"
+    },
+    "gainHonesty": {
+      "policy": "Benchmark impact is not a current-repo savings claim without a matched baseline.",
+      "status": "available-in-lean-gain"
+    },
+    "hardwareCalibration": {
+      "policy": "Hardware, sensors, clocks, and physical devices need calibration or tuning proof before simplification.",
+      "status": "available"
+    },
+    "oneRunnableCheck": {
+      "policy": "Non-trivial new logic should leave one smallest runnable check; trivial one-liners do not need ceremony.",
+      "status": "enforced-in-lean-review"
+    },
+    "requestedExplanation": {
+      "policy": "Explicitly requested reports, walkthroughs, or phase notes are not clutter.",
+      "status": "policy"
+    },
+    "shortcutDebt": {
+      "policy": "Intentional lean shortcuts need a ceiling and upgrade trigger.",
+      "status": "pass"
+    }
+  },
+  "findings": [
+    {
+      "category": "native-replacement",
+      "evidence": {
+        "file": "Sources/PlainUtility.swift",
+        "line": 12,
+        "snippet": "manual query parsing around a single URL component"
+      },
+      "proofGuidance": "Add encoding and repeated-key checks before replacing the helper with the platform API.",
+      "recommendation": "Try a native URL component API before keeping a custom parser.",
+      "ruleId": "native-url-components",
+      "severity": "opportunity"
+    },
+    {
+      "category": "safety-boundary",
+      "evidence": {
+        "file": "Sources/PaymentPermissionBoundary.swift",
+        "line": 28,
+        "snippet": "permission and purchase validation before irreversible state change"
+      },
+      "proofGuidance": "Keep this boundary until focused tests prove validation, denied state, and rollback behavior still hold.",
+      "recommendation": "Do not simplify trust-boundary validation from a less-code report alone.",
+      "ruleId": "do-not-cut-safety-logic-without-proof",
+      "severity": "info"
+    }
+  ],
+  "fixtureCandidate": {
+    "candidateId": "01-shipguard-lean-audit-does-lean-deck-separate-real-simpl-fa325230",
+    "fixtureType": "shipguard-lean-report-quality-fixture",
+    "publicFixturePath": "fixtures/ios-report-quality/01-shipguard-lean-audit-does-lean-deck-separate-real-simpl-fa325230",
+    "sourceQuestion": "Does Lean Deck separate real simplification candidates from safety-boundary files?",
+    "sourceTool": "shipguard lean audit"
+  },
+  "generatedAt": "2026-06-21T00:09:04Z",
+  "intent": "shipguard-evaluation",
+  "precisionReview": {
+    "actionGroups": [
+      {
+        "decision": "simplify",
+        "evidenceCount": 1,
+        "firstExperiment": "Replace only the utility parser with the native API in a tiny synthetic branch.",
+        "firstLocation": "Sources/PlainUtility.swift:12",
+        "rank": 1,
+        "ruleId": "native-url-components",
+        "stopCondition": "Stop if encoding, empty values, or repeated-key checks fail.",
+        "validationRoute": "Run the focused query parsing check before accepting the simplification."
+      },
+      {
+        "decision": "keep",
+        "evidenceCount": 1,
+        "firstExperiment": "Leave the trust-boundary file untouched and write down the missing proof.",
+        "firstLocation": "Sources/PaymentPermissionBoundary.swift:28",
+        "rank": 2,
+        "ruleId": "do-not-cut-safety-logic-without-proof",
+        "stopCondition": "Stop if denied-state, rollback, permission, or purchase validation behavior lacks before/after proof.",
+        "validationRoute": "Require focused trust-boundary tests before any simplification."
+      }
+    ],
+    "blockedByProof": [
+      {
+        "action": "Do not simplify the permission and purchase boundary from a lean-code signal alone.",
+        "location": "Sources/PaymentPermissionBoundary.swift:28",
+        "proofRequired": "Attach denied-state, rollback, and purchase validation tests first.",
+        "rank": 1,
+        "ruleId": "do-not-cut-safety-logic-without-proof",
+        "severity": "info"
+      }
+    ],
+    "deleteList": [],
+    "keepList": [
+      {
+        "location": "Sources/PaymentPermissionBoundary.swift:28",
+        "proofRequired": "Require before/after tests for trust-boundary behavior.",
+        "reason": "Safety-boundary code is a keep-with-proof lane, not a simplification target.",
+        "ruleId": "do-not-cut-safety-logic-without-proof"
+      }
+    ],
+    "simplifyFirst": [
+      {
+        "action": "Try URLComponents after an encoding equivalence test.",
+        "location": "Sources/PlainUtility.swift:12",
+        "proofRequired": "Add checks for repeated keys, empty values, and encoding.",
+        "rank": 1,
+        "ruleId": "native-url-components",
+        "severity": "opportunity"
+      }
+    ],
+    "summary": {
+      "actionGroups": 2,
+      "deleteCandidates": 0,
+      "keepBoundaries": 1,
+      "proofBlockedCandidates": 1,
+      "simplifyCandidates": 1
+    },
+    "topActions": [
+      {
+        "action": "Try URLComponents after an encoding equivalence test.",
+        "location": "Sources/PlainUtility.swift:12",
+        "proofRequired": "Add checks for repeated keys, empty values, and encoding.",
+        "rank": 1,
+        "ruleId": "native-url-components",
+        "severity": "opportunity"
+      }
+    ]
+  },
+  "reportQualityQuestions": [
+    "Does Lean Deck separate real simplification candidates from safety-boundary files?"
+  ],
+  "scanScope": {
+    "note": "Synthetic fixture; no private source tree was scanned.",
+    "skippedDirectories": [],
+    "skippedDirectoryCount": 0
+  },
+  "schemaVersion": 1,
+  "scopeBoundary": {
+    "purpose": "Synthetic public fixture for ShipGuard report-quality behavior.",
+    "shipguardOnly": true,
+    "targetAppsReadOnly": true
+  },
+  "shareability": {
+    "localAbsolutePathsIncluded": false,
+    "mode": "shareable"
+  },
+  "status": "pass",
+  "surface": "ShipGuard Lean Deck",
+  "tool": "shipguard lean audit"
+}

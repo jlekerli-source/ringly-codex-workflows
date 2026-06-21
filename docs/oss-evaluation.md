@@ -28,6 +28,17 @@ The v3.138 read-only loop reran `shipguard lean audit`, `shipguard lean review`,
 
 Fresh QA now proves Lean Deck questions can move from ranked report-quality output into public fixtures without depending on private app scans or manual fixture taxonomy decisions.
 
+## Current Lean Deck Safety-Boundary Fixture QA
+
+The v3.139 read-only loop reran `shipguard lean audit`, `shipguard lean review`, `shipguard value-gauntlet`, and `ios report-quality --write-fixture-candidates` against this checkout after the first Lean Deck priority fixture landed.
+
+- Finding: fresh Lean Deck QA passed, but the next uncovered actionability question was "Does Lean Deck separate real simplification candidates from safety-boundary files?"
+- Product weakness: without a promoted public fixture, report-quality could keep asking the same safety-boundary separation question instead of advancing to the next useful Lean Deck gap.
+- Fixture fix: `fixtures/ios-report-quality/01-shipguard-lean-audit-does-lean-deck-separate-real-simpl-fa325230` now uses public synthetic evidence with one native simplification candidate and one trust-boundary keep/proof lane.
+- Guardrail: the fixture exposes `Behavior Gates` in Markdown and `behaviorGates` in JSON, so the human-facing report must preserve host-adapter, hardware-calibration, requested-explanation, one-runnable-check, gain-honesty, and shortcut-debt boundaries.
+
+Fresh QA now treats the safety-boundary separation question as covered and advances to the host-adapter, hardware-calibration, requested-explanation, and one-check protection question.
+
 ## Current Verify-PR First-Run QA
 
 The v3.198 read-only loop ran `shipguard inspect`, `shipguard value-gauntlet`, `shipguard full-audit --plan-only`, docs-check, and the verify-first quickstart tests against this checkout.

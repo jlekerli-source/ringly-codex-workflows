@@ -1726,6 +1726,32 @@ if grep -R -E -q '/Users|/private/tmp|/var/folders|Ringly|Ilmify|InweFi' "$lean_
   exit 1
 fi
 
+lean_safety_fixture="fixtures/ios-report-quality/01-shipguard-lean-audit-does-lean-deck-separate-real-simpl-fa325230"
+./bin/shipguard ios report-quality \
+  --reports "$lean_safety_fixture" \
+  --out "$tmp_dir/lean-safety-public-quality" \
+  --shareable >/dev/null
+grep -q '"status": "pass"' "$tmp_dir/lean-safety-public-quality/ios-report-quality.json"
+grep -q 'Does Lean Deck separate real simplification candidates from safety-boundary files?' "$tmp_dir/lean-safety-public-quality/ios-report-quality.md"
+grep -q 'do-not-cut-safety-logic-without-proof' "$lean_safety_fixture/fixture-report.json"
+grep -q 'native-url-components' "$lean_safety_fixture/fixture-report.json"
+python3 - <<'PY' "$tmp_dir/lean-safety-public-quality/ios-report-quality.json"
+import json
+import sys
+
+data = json.load(open(sys.argv[1], encoding="utf-8"))
+if data.get("fixtureCandidates"):
+    raise SystemExit(f"Lean Deck safety-boundary public fixture should not create recursive fixture candidates: {data['fixtureCandidates']!r}")
+questions = data.get("prioritizedActionabilityQuestions") or []
+top = questions[0] if questions else {}
+if not top or not (top.get("sourceMaterializedFixture") is True or top.get("existingFixture")):
+    raise SystemExit(f"Lean Deck safety-boundary fixture should retain materialized or fixture-coverage question evidence: {questions!r}")
+PY
+if grep -R -E -q '/Users|/private/tmp|/var/folders|Ringly|Ilmify|InweFi' "$lean_safety_fixture"; then
+  echo "Lean Deck safety-boundary fixture must not include local paths or private app identifiers" >&2
+  exit 1
+fi
+
 ./bin/shipguard lean audit \
   --path . \
   --out "$tmp_dir/lean-fresh-priority" \
@@ -1738,9 +1764,10 @@ fi
   --write-fixture-candidates "$tmp_dir/lean-fresh-priority-candidates" >/dev/null
 grep -q '"fixtureCoverage":' "$tmp_dir/lean-fresh-priority-quality/ios-report-quality.json"
 grep -q '01-shipguard-lean-audit-does-precisionreview-identify-dele-286dc4bb' "$tmp_dir/lean-fresh-priority-quality/ios-report-quality.json"
+grep -q '01-shipguard-lean-audit-does-lean-deck-separate-real-simpl-fa325230' "$tmp_dir/lean-fresh-priority-quality/ios-report-quality.json"
 grep -q '"fixtureType": "shipguard-lean-report-quality-fixture"' "$tmp_dir/lean-fresh-priority-quality/ios-report-quality.json"
 grep -q '"fixtureCandidates":' "$tmp_dir/lean-fresh-priority-quality/ios-report-quality.json"
-grep -q 'Does Lean Deck separate real simplification candidates from safety-boundary files?' "$tmp_dir/lean-fresh-priority-quality/ios-report-quality.json"
+grep -q 'Does Lean Deck protect host adapters, hardware calibration, requested explanation, and one-check minimums from false less-code pressure?' "$tmp_dir/lean-fresh-priority-quality/ios-report-quality.json"
 grep -q 'write-fixture-candidates' "$tmp_dir/lean-fresh-priority-quality/ios-report-quality.json"
 if grep -R -E -q '/Users|/private/tmp|/var/folders|Ringly|Ilmify|InweFi' "$tmp_dir/lean-fresh-priority-candidates"; then
   echo "materialized Lean Deck priority candidate must not include local paths or private app identifiers" >&2

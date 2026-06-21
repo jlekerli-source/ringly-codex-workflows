@@ -1,15 +1,15 @@
 # Next Goal
 
-- Generated: 2026-06-21T00:01:12Z
+- Generated: 2026-06-21T00:17:35Z
 - Current toolkit version: 3.131.0
-- Target release: v3.138.0
-- Title: Ponytail SourceScout Surface-Proof QA
+- Target release: v3.139.0
+- Title: Lean Deck Safety-Boundary Fixture QA
 
 ## Slash Plan
 
 ```text
-/plan v3.138.0 Ponytail SourceScout Surface-Proof QA for jlekerli-source/ShipGuard:
-1. Implement this bounded improvement: Use the public Ponytail checkout and installed Codex Ponytail marketplace as read-only product QA inputs, prove ShipGuard's native Ponytail integration through SourceScout, Lean Deck, and report-quality, then fix the strongest ShipGuard-only gap without vendoring Ponytail code.
+/plan v3.139.0 Lean Deck Safety-Boundary Fixture QA for jlekerli-source/ShipGuard:
+1. Implement this bounded improvement: Promote the next Lean Deck report-quality actionability question into a public synthetic fixture so read-only ShipGuard QA advances without relying on private app code.
 2. Implement the CLI, docs, tests, and package proof needed for that improvement.
 3. Run the required proof commands, treat blocked or timed-out commands as failures, and record exact blockers.
 4. Push main, verify GitHub Actions, publish and consume release proof, verify asset SHA-256 and clean git status, then generate the following goal.
@@ -18,23 +18,23 @@
 ## Slash Goal
 
 ```text
-/goal Implement v3.138.0 Ponytail SourceScout Surface-Proof QA for jlekerli-source/ShipGuard: follow the /plan above, deliver this bounded improvement: Use the public Ponytail checkout and installed Codex Ponytail marketplace as read-only product QA inputs, prove ShipGuard's native Ponytail integration through SourceScout, Lean Deck, and report-quality, then fix the strongest ShipGuard-only gap without vendoring Ponytail code, push main, verify GitHub Actions, publish the release tarball, verify asset SHA-256 and clean git status, then run shipguard next-goal again for the following release.
+/goal Implement v3.139.0 Lean Deck Safety-Boundary Fixture QA for jlekerli-source/ShipGuard: follow the /plan above, deliver this bounded improvement: Promote the next Lean Deck report-quality actionability question into a public synthetic fixture so read-only ShipGuard QA advances without relying on private app code, push main, verify GitHub Actions, publish the release tarball, verify asset SHA-256 and clean git status, then run shipguard next-goal again for the following release.
 ```
 
 
 ## Bounded Scope
 
-Use the public Ponytail checkout and installed Codex Ponytail marketplace as read-only product QA inputs, prove ShipGuard's native Ponytail integration through SourceScout, Lean Deck, and report-quality, then fix the strongest ShipGuard-only gap without vendoring Ponytail code.
+Promote the next Lean Deck report-quality actionability question into a public synthetic fixture so read-only ShipGuard QA advances without relying on private app code.
 
 ## Completion Receipt
 
-- Completed scope: Refreshed the Codex Ponytail marketplace, inspected the public Ponytail checkout, ran SourceScout and Lean Deck against ShipGuard, fixed external-audit surface detection so Ponytail capabilities map to native ShipGuard command aliases, added an adoption-surface finding for unproven capabilities, promoted the first Lean Deck priority fixture, and kept the next uncovered Lean Deck safety-boundary fixture as the following action.
-- Evidence: Passed: python3 -m py_compile scripts/ios_external_audit.py scripts/ios_report_quality.py scripts/lean_audit.py scripts/lean_review.py; ./tests/ios_external_audit_test.sh; ./tests/lean_audit_test.sh; ./tests/ios_report_quality_test.sh; read-only Ponytail SourceScout run /tmp/shipguard-ponytail-external-audit-after status pass with all five Ponytail capability surfacePresent values true; read-only Ponytail combined report-quality /tmp/shipguard-ponytail-report-quality-after2 status pass averageScore 100 with no findings; codex plugin marketplace upgrade ponytail; codex plugin list shows ponytail@ponytail installed/enabled 4.7.0; ./bin/shipguard codex status --strict; git diff --check; ./bin/shipguard validate; ./bin/shipguard docs-check . --out /tmp/shipguard-ponytail-docs-check; ./tests/cli_smoke_test.sh; ./tests/self_audit_test.sh; ./tests/tool_value_gauntlet_test.sh; ./bin/shipguard value-gauntlet --path . --out /tmp/shipguard-ponytail-value-gauntlet; ./tests/package_release_test.sh.
+- Completed scope: Reran Lean Deck audit/review, value-gauntlet, and report-quality as read-only ShipGuard self-QA; promoted the safety-boundary separation question into a public fixture with one native simplification lane and one keep/proof-boundary lane; updated report-quality regression coverage so fresh Lean QA now advances to the host-adapter, hardware-calibration, requested-explanation, and one-runnable-check protection question.
+- Evidence: Passed: ./bin/shipguard ios report-quality --reports fixtures/ios-report-quality/01-shipguard-lean-audit-does-lean-deck-separate-real-simpl-fa325230 --out /tmp/shipguard-v3139-safety-fixture-quality --shareable status pass averageScore 100; ./bin/shipguard ios report-quality --reports /tmp/shipguard-v3139-lean-audit --reports /tmp/shipguard-v3139-lean-review --out /tmp/shipguard-v3139-lean-quality-after --shipguard-eval --shareable --write-fixture-candidates /tmp/shipguard-v3139-lean-fixtures-after status pass averageScore 100 and priorityAction advanced to the host-adapter/hardware-calibration protection question; ./tests/ios_report_quality_test.sh.
 
 ## Following Slash Plan
 
 ```text
-/plan v3.139.0 Lean Deck Safety-Boundary Fixture QA for jlekerli-source/ShipGuard:
+/plan v3.140.0 Lean Deck Host-Adapter Fixture QA for jlekerli-source/ShipGuard:
 1. Review ROADMAP.md, docs/oss-evaluation.md, and the latest read-only ShipGuard product-QA evidence.
 2. Pick one bounded improvement that makes ShipGuard reports more useful without turning private-app findings into app work.
 3. Implement the CLI, docs, tests, package proof, and plugin-refresh proof needed for that improvement.
@@ -44,13 +44,13 @@ Use the public Ponytail checkout and installed Codex Ponytail marketplace as rea
 ## Following Slash Goal
 
 ```text
-/goal Implement v3.139.0 Lean Deck Safety-Boundary Fixture QA for jlekerli-source/ShipGuard: follow the /plan above, choose one bounded ShipGuard report-quality improvement from ROADMAP.md and docs/oss-evaluation.md, implement it with proof, and generate the next completion receipt plus following /plan and /goal after validation passes.
+/goal Implement v3.140.0 Lean Deck Host-Adapter Fixture QA for jlekerli-source/ShipGuard: follow the /plan above, choose one bounded ShipGuard report-quality improvement from ROADMAP.md and docs/oss-evaluation.md, implement it with proof, and generate the next completion receipt plus following /plan and /goal after validation passes.
 ```
 
 Generate that follow-up file with:
 
 ```bash
-./bin/shipguard next-goal --release 3.139.0 --title "Lean Deck Safety-Boundary Fixture QA" --out NEXT_GOAL.md
+./bin/shipguard next-goal --release 3.140.0 --title "Lean Deck Host-Adapter Fixture QA" --out NEXT_GOAL.md
 ```
 
 ## Constraints
@@ -150,12 +150,12 @@ Generate that follow-up file with:
 
 ## Release Loop
 
-1. Open or update the tracking issue for v3.138.0.
+1. Open or update the tracking issue for v3.139.0.
 2. Implement the smallest complete improvement that makes the toolkit more useful.
 3. Update README, CLI docs, changelog, roadmap, and package verification.
 4. Commit with an issue-closing reference.
 5. Push `main` and verify GitHub Actions success.
-6. Create release `v3.138.0` and upload `dist/shipguard-v3.138.0.tar.gz`.
+6. Create release `v3.139.0` and upload `dist/shipguard-v3.139.0.tar.gz`.
 7. Verify release asset digest, closed issue, tag target, and clean git status.
 8. Generate the next goal:
 
