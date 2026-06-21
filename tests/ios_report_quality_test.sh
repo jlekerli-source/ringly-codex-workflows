@@ -6070,7 +6070,7 @@ data = json.load(open(sys.argv[1], encoding="utf-8"))
 candidate_root = Path(sys.argv[2])
 questions = [
     "Did prepare produce one durable object connecting goal, risk, scope, proof, claims, and verdict?",
-    "Can verify reject unsupported completion claims with an exact next action?",
+    "Can verify reject unsupported completion claims with an exact next action and replay packet?",
     "Did prepare identify notification/permission owner scopes, review-only lifecycle/plist surfaces, and forbidden entitlement/project changes?",
     "Did verify require permission-state and denied-state proof instead of treating a generic test log as enough?",
     "Did the verdict separate simulator denied-state proof from physical-device prompt proof before release claims?",
@@ -6083,16 +6083,23 @@ if not any(
     for item in coverage
 ):
     raise SystemExit(f"expected promoted verify-first fixture coverage for first question: {coverage!r}")
+if not any(
+    item.get("question") == questions[1]
+    and item.get("publicFixturePath") == "fixtures/ios-report-quality/01-shipguard-verify-can-verify-reject-unsupported-completi-bfc3a617"
+    and item.get("fixtureType") == "shipguard-verify-first-task-contract-fixture"
+    for item in coverage
+):
+    raise SystemExit(f"expected promoted unsupported-claim fixture coverage for second question: {coverage!r}")
 candidates = data.get("fixtureCandidates") or []
-if [item.get("sourceQuestion") for item in candidates] != questions[1:]:
+if [item.get("sourceQuestion") for item in candidates] != questions[2:]:
     raise SystemExit(f"verify-first candidates did not match questions: {candidates!r}")
 if {item.get("fixtureType") for item in candidates} != {"shipguard-verify-first-task-contract-fixture"}:
     raise SystemExit(f"unexpected verify-first fixture types: {candidates!r}")
 priority = data.get("priorityAction") or {}
 if priority.get("kind") != "answer-actionability-question":
     raise SystemExit(f"expected actionability priority, got {priority!r}")
-if priority.get("question") != questions[1]:
-    raise SystemExit(f"expected verify-first QA to advance to second question, got {priority!r}")
+if priority.get("question") != questions[2]:
+    raise SystemExit(f"expected verify-first QA to advance to third question, got {priority!r}")
 if "write-fixture-candidates" not in str(priority.get("nextCommand") or ""):
     raise SystemExit(f"expected materialization next command, got {priority!r}")
 for item in candidates:
@@ -6139,6 +6146,47 @@ grep -q '"ruleId": "task-contract-quickstart-replay-missing"' "$tmp_dir/missing-
   --shareable >/dev/null
 grep -q '"status": "pass"' "$tmp_dir/verify-first-promoted-fixture-quality/ios-report-quality.json"
 grep -q '"fixtureCandidates": \[\]' "$tmp_dir/verify-first-promoted-fixture-quality/ios-report-quality.json"
+
+./bin/shipguard ios report-quality \
+  --reports fixtures/ios-report-quality/01-shipguard-verify-can-verify-reject-unsupported-completi-bfc3a617 \
+  --out "$tmp_dir/unsupported-claim-promoted-fixture-quality" \
+  --shareable >/dev/null
+grep -q '"status": "pass"' "$tmp_dir/unsupported-claim-promoted-fixture-quality/ios-report-quality.json"
+grep -q '"fixtureCandidates": \[\]' "$tmp_dir/unsupported-claim-promoted-fixture-quality/ios-report-quality.json"
+grep -q 'Unsupported Claim Replay' fixtures/ios-report-quality/01-shipguard-verify-can-verify-reject-unsupported-completi-bfc3a617/fixture-report.md
+
+weak_unsupported_markdown="$tmp_dir/weak-unsupported-claim-markdown"
+mkdir -p "$weak_unsupported_markdown"
+cp "$verify_first_reports/blocked/shipguard-verdict.json" "$weak_unsupported_markdown/shipguard-verdict.json"
+python3 - <<'PY' "$verify_first_reports/blocked/shipguard-verdict.md" "$weak_unsupported_markdown/shipguard-verdict.md"
+import sys
+
+source, target = sys.argv[1:3]
+text = open(source, encoding="utf-8").read()
+text = text.replace("### Non-Claims\n\n- An unsupported-claim replay is not product proof.\n- A review or blocked verdict is not a merge or release approval.\n- Changing the wording is not enough unless the new claim matches the attached evidence.\n", "")
+open(target, "w", encoding="utf-8").write(text)
+PY
+./bin/shipguard ios report-quality \
+  --reports "$weak_unsupported_markdown" \
+  --out "$tmp_dir/weak-unsupported-claim-markdown-quality" \
+  --shareable >/dev/null
+grep -q '"ruleId": "task-contract-unsupported-claim-replay-markdown-missing"' "$tmp_dir/weak-unsupported-claim-markdown-quality/ios-report-quality.json"
+
+cp "$verify_first_reports/blocked/shipguard-verdict.json" "$tmp_dir/missing-unsupported-claim-replay.json"
+python3 - <<'PY' "$tmp_dir/missing-unsupported-claim-replay.json"
+import json
+import sys
+
+path = sys.argv[1]
+data = json.load(open(path, encoding="utf-8"))
+data.pop("unsupportedClaimReplay", None)
+open(path, "w", encoding="utf-8").write(json.dumps(data, indent=2, sort_keys=True) + "\n")
+PY
+./bin/shipguard ios report-quality \
+  --reports "$tmp_dir/missing-unsupported-claim-replay.json" \
+  --out "$tmp_dir/missing-unsupported-claim-replay-quality" \
+  --shareable >/dev/null
+grep -q '"ruleId": "task-contract-unsupported-claim-replay-missing"' "$tmp_dir/missing-unsupported-claim-replay-quality/ios-report-quality.json"
 
 python3 - <<'PY'
 import json

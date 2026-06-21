@@ -21,7 +21,7 @@ Proof:
 - inspect prepare output for `quickstartReplay`; it should show the first `shipguard verify` template and proof inputs without requiring internal ShipYard docs
 - after Codex edits, capture the diff and a structured validation receipt JSON; plain logs are review context only
 - `shipguard verify --task /tmp/shipguard-task/shipguard-task.json --diff <patch> --evidence <receipt> --out /tmp/shipguard-verdict`
-- inspect verify output for `proofReport`, `quickstartReplay`, and `nextAction`; the Markdown should expose `Quickstart Replay` directly after the proof report
+- inspect verify output for `proofReport`, `quickstartReplay`, `unsupportedClaimReplay` when broad completion wording is rejected or still needs manual/device proof, and `nextAction`; the Markdown should expose `Quickstart Replay` directly after the proof report and `Unsupported Claim Replay` beside claim-specific repair guidance when present
 - for the GitHub Actions first PR-proof starter, run `shipguard action verify-pr --workflow .github/workflows/shipguard-verify-pr.yml --out /tmp/shipguard-action-verify-pr --shareable`; this is static setup proof and includes blocker-first fresh-maintainer failure guidance, but still needs a real PR run plus downloaded `shipguard-verdict` artifact. After a small PR run, add `--artifact-dir /tmp/shipguard-verdict-artifact` so ShipGuard consumes the downloaded artifact instead of leaving runtime proof inspection as prose. Use `runtimeReviewerHandoff` to decide whether the artifact is ready for maintainer review, needs review, must block merge, or must not be used
 - blocked, review, or incomplete verdicts are not passes; follow `nextAction` exactly before merge or release claims
 

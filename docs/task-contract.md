@@ -81,6 +81,8 @@ When `--shareable` points at an external target checkout, ShipGuard also redacts
 
 `quickstartReplay` is the first-user handoff. In `prepare`, it records the task artifact, Markdown artifact, proof inputs, and copy-ready `shipguard verify` template that turns the contract into the first useful verdict. It also lists the fields the durable object connects: goal, risk, authorized scope, protected boundaries, validation, claims, verdict, and next action.
 
+`unsupportedClaimReplay` appears in `verify` when broad completion wording such as "fully verified" is rejected or still needs manual/device proof. It keeps the claim-specific repair path visible even when the overall verdict has a higher-priority blocker such as protected scope: rejected phrase, replay command, exact claim repair action, proof boundary, and non-claims are all rendered in JSON and Markdown.
+
 ## Configuration Baselines
 
 ShipGuard reads `.shipguard.yml` and `.shipguard-baseline.json` during `prepare` and stores the policy inside the task object. The first supported shape is intentionally small:

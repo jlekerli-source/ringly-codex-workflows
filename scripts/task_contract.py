@@ -658,6 +658,89 @@ def build_verify_quickstart_replay(args: argparse.Namespace, report: dict[str, A
     }
 
 
+def build_unsupported_claim_replay(
+    report: dict[str, Any],
+    *,
+    rejected_phrases: list[str],
+    manual_claims: list[str] | None = None,
+) -> dict[str, Any]:
+    claim_checks = report.get("claimChecks") if isinstance(report.get("claimChecks"), dict) else {}
+    decisions = claim_checks.get("claimDecisions") if isinstance(claim_checks.get("claimDecisions"), list) else []
+    manual_claim_set = {str(claim) for claim in manual_claims or []}
+    rejected_phrase_set = {str(phrase) for phrase in rejected_phrases}
+    unsupported_decisions = []
+    rejected_decisions = []
+    manual_proof_decisions = []
+    for item in decisions:
+        if not isinstance(item, dict) or item.get("status") not in {"rejected", "needs-manual-proof"}:
+            continue
+        claim = str(item.get("claim") or "")
+        phrases = {str(phrase) for phrase in item.get("requiredProofPhrases") or []}
+        matches_rejected_phrase = bool(rejected_phrase_set and phrases & rejected_phrase_set)
+        matches_manual_claim = bool(manual_claim_set and claim in manual_claim_set)
+        if not matches_rejected_phrase and not matches_manual_claim:
+            continue
+        rejected_phrase_set.update(phrases)
+        row = {
+            "claim": item.get("claim"),
+            "status": item.get("status"),
+            "reason": item.get("reason"),
+            "requiredProofPhrases": sorted(phrases),
+            "resolution": "Revise the claim or attach structured evidence receipts that prove it.",
+        }
+        unsupported_decisions.append(row)
+        if item.get("status") == "rejected":
+            rejected_decisions.append(row)
+        else:
+            manual_proof_decisions.append(row)
+    replay = report.get("quickstartReplay") if isinstance(report.get("quickstartReplay"), dict) else {}
+    replay_status = "blocked" if rejected_decisions else "review"
+    if manual_proof_decisions and not rejected_decisions:
+        command = "Revise the completion claim, or capture the required manual/physical-device proof receipt, then rerun shipguard verify."
+        expected_artifact = "updated claim or manual/physical-device proof receipt"
+        failure_meaning = "broad completion claim still needs manual or physical-device proof"
+        resolves = ["unsupported-completion-claim", "manual-device-proof"]
+    else:
+        command = "Revise the completion claim or attach the missing structured evidence receipts, then rerun shipguard verify."
+        expected_artifact = "updated claim or structured evidence receipt"
+        failure_meaning = "unsupported completion claim without evidence"
+        resolves = ["unsupported-completion-claim"]
+    claim_next_action = {
+        "owner": "developer",
+        "command": command,
+        "expectedArtifact": expected_artifact,
+        "successCondition": "No unsupported completion claim remains",
+        "failureMeaning": failure_meaning,
+        "resolves": resolves,
+        "priority": 6,
+    }
+    return {
+        "schemaVersion": 1,
+        "status": replay_status,
+        "unsupportedPhrases": sorted(rejected_phrase_set),
+        "unsupportedClaimCount": len(unsupported_decisions),
+        "unsupportedClaims": unsupported_decisions,
+        "rejectedClaimCount": len(rejected_decisions),
+        "rejectedClaims": rejected_decisions,
+        "manualProofClaimCount": len(manual_proof_decisions),
+        "manualProofClaims": manual_proof_decisions,
+        "replayCommand": replay.get("replayCommand"),
+        "fastVerdict": replay.get("fastVerdict"),
+        "reviewPacket": replay.get("reviewPacket") or [],
+        "nextAction": claim_next_action,
+        "proofBoundary": (
+            "This replay proves ShipGuard did not accept the supplied completion claim against the attached task, diff, "
+            "and evidence receipts. It does not prove the claimed behavior; the claim must be narrowed or backed by "
+            "new structured proof or manual/device proof."
+        ),
+        "nonClaims": [
+            "An unsupported-claim replay is not product proof.",
+            "A review or blocked verdict is not a merge or release approval.",
+            "Changing the wording is not enough unless the new claim matches the attached evidence.",
+        ],
+    }
+
+
 def build_validation_contract(commands: list[str], defaults: list[dict[str, Any]]) -> dict[str, Any]:
     if commands:
         required = [
@@ -752,7 +835,6 @@ def prepare_contract(args: argparse.Namespace) -> dict[str, Any]:
         }
         contract["reportQualityQuestions"] = [
             "Did prepare produce one durable object connecting goal, risk, scope, proof, claims, and verdict?",
-            "Can verify reject unsupported completion claims with an exact next action?",
         ]
     if args.shareable and not path_is_within(root, Path.cwd()):
         contract = redact_external_shareable_contract(contract, root)
@@ -1726,6 +1808,15 @@ def verify_contract(args: argparse.Namespace) -> dict[str, Any]:
     }
     report.update(domain_workflows)
     report["quickstartReplay"] = build_verify_quickstart_replay(args, report)
+    if effective_rejected_claims or effective_manual_claims:
+        report["unsupportedClaimReplay"] = build_unsupported_claim_replay(
+            report,
+            rejected_phrases=effective_rejected_claims,
+            manual_claims=effective_manual_claims,
+        )
+        report["reportQualityQuestions"] = [
+            "Can verify reject unsupported completion claims with an exact next action and replay packet?",
+        ]
     return report
 
 
@@ -1960,6 +2051,9 @@ def render_prepare_markdown(contract: dict[str, Any]) -> str:
 
 
 def render_verify_markdown(verdict: dict[str, Any]) -> str:
+    def markdown_cell(value: Any) -> str:
+        return str(value or "").replace("|", "\\|").replace("\n", " ")
+
     diff_first = verdict.get("diffFirstAnalysis") or {}
     merge = diff_first.get("mergeVerdict") or {}
     proof_report = verdict.get("proofReport") or {}
@@ -2040,6 +2134,39 @@ def render_verify_markdown(verdict: dict[str, Any]) -> str:
         for item in claim_decisions:
             lines.append(f"- {item.get('status')}: {item.get('claim')}")
             lines.append(f"  Reason: {item.get('reason')}")
+    unsupported_replay = verdict.get("unsupportedClaimReplay") if isinstance(verdict.get("unsupportedClaimReplay"), dict) else {}
+    if unsupported_replay:
+        lines.extend(["", "## Unsupported Claim Replay", ""])
+        lines.append(f"- Status: `{unsupported_replay.get('status')}`")
+        phrases = ", ".join(f"`{item}`" for item in unsupported_replay.get("unsupportedPhrases") or [])
+        lines.append(f"- Unsupported phrases: {phrases}")
+        lines.append(f"- Replay command: `{unsupported_replay.get('replayCommand')}`")
+        next_action = unsupported_replay.get("nextAction") if isinstance(unsupported_replay.get("nextAction"), dict) else {}
+        lines.append(f"- Next action: `{next_action.get('command')}`")
+        lines.append(f"- Expected artifact: {next_action.get('expectedArtifact')}")
+        lines.append(f"- Success condition: {next_action.get('successCondition')}")
+        lines.append(f"- Boundary: {unsupported_replay.get('proofBoundary')}")
+        lines.append(f"- Unsupported claims: {unsupported_replay.get('unsupportedClaimCount', 0)}")
+        lines.append(f"- Rejected claims: {unsupported_replay.get('rejectedClaimCount', 0)}")
+        lines.append(f"- Manual-proof claims: {unsupported_replay.get('manualProofClaimCount', 0)}")
+        unsupported_rows = unsupported_replay.get("unsupportedClaims") if isinstance(unsupported_replay.get("unsupportedClaims"), list) else []
+        if not unsupported_rows and isinstance(unsupported_replay.get("rejectedClaims"), list):
+            unsupported_rows = unsupported_replay.get("rejectedClaims") or []
+        if unsupported_rows:
+            lines.append("")
+            lines.append("| Status | Claim | Reason | Resolution |")
+            lines.append("| --- | --- | --- | --- |")
+            for item in unsupported_rows:
+                if not isinstance(item, dict):
+                    continue
+                lines.append(
+                    f"| {markdown_cell(item.get('status'))} | {markdown_cell(item.get('claim'))} | {markdown_cell(item.get('reason'))} | {markdown_cell(item.get('resolution'))} |"
+                )
+        non_claims = unsupported_replay.get("nonClaims") if isinstance(unsupported_replay.get("nonClaims"), list) else []
+        if non_claims:
+            lines.extend(["", "### Non-Claims", ""])
+            for item in non_claims:
+                lines.append(f"- {item}")
     baseline = verdict.get("configurationBaseline") or {}
     if baseline:
         lines.extend(["", "## Configuration Baseline", ""])

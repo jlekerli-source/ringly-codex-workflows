@@ -1121,6 +1121,149 @@ def task_contract_quickstart_replay_issues(report: dict[str, Any], *, markdown: 
     return issues
 
 
+def task_contract_unsupported_claim_replay_issues(
+    report: dict[str, Any], *, markdown: str, path_name: str
+) -> list[dict[str, str]]:
+    issues: list[dict[str, str]] = []
+    if str(report.get("tool") or "") != "shipguard verify":
+        return issues
+    claim_checks = report.get("claimChecks") if isinstance(report.get("claimChecks"), dict) else {}
+    rejected_claims = claim_checks.get("rejectedClaims") if isinstance(claim_checks.get("rejectedClaims"), list) else []
+    raw_rejected_claims = claim_checks.get("rawRejectedClaims") if isinstance(claim_checks.get("rawRejectedClaims"), list) else []
+    decisions = claim_checks.get("claimDecisions") if isinstance(claim_checks.get("claimDecisions"), list) else []
+    manual_proof_claims = [
+        item
+        for item in decisions
+        if isinstance(item, dict) and item.get("status") == "needs-manual-proof"
+    ]
+    questions = report.get("reportQualityQuestions") if isinstance(report.get("reportQualityQuestions"), list) else []
+    question_text = normalized_question_text(" ".join(str(item) for item in questions))
+    replay_required = bool(
+        rejected_claims
+        or raw_rejected_claims
+        or manual_proof_claims
+        or "unsupported completion claim" in question_text
+    )
+    if not replay_required:
+        return issues
+
+    replay = report.get("unsupportedClaimReplay")
+    if not isinstance(replay, dict):
+        add_issue(
+            issues,
+            severity="review",
+            rule_id="task-contract-unsupported-claim-replay-missing",
+            evidence=f"{path_name} rejects unsupported claims but has no unsupportedClaimReplay object",
+            recommendation="Emit unsupportedClaimReplay with rejected claims, replay command, next action, proof boundary, and non-claims.",
+        )
+        return issues
+
+    unsupported_rows = replay.get("unsupportedClaims") if isinstance(replay.get("unsupportedClaims"), list) else []
+    rejected_rows = replay.get("rejectedClaims") if isinstance(replay.get("rejectedClaims"), list) else []
+    manual_rows = replay.get("manualProofClaims") if isinstance(replay.get("manualProofClaims"), list) else []
+    if not unsupported_rows and rejected_rows:
+        unsupported_rows = rejected_rows
+    expected_status = "blocked" if rejected_rows else "review"
+    if replay.get("status") != expected_status:
+        add_issue(
+            issues,
+            severity="review",
+            rule_id="task-contract-unsupported-claim-replay-status-wrong",
+            evidence=f"{path_name} unsupportedClaimReplay status is {replay.get('status')!r}",
+            recommendation="Mark rejected-claim replays as blocked and manual-proof-only replays as review so claim status matches the proof gap.",
+        )
+    if not unsupported_rows or int(replay.get("unsupportedClaimCount") or 0) < 1:
+        add_issue(
+            issues,
+            severity="review",
+            rule_id="task-contract-unsupported-claim-replay-claims-missing",
+            evidence=f"{path_name} unsupportedClaimReplay does not list unsupported claims",
+            recommendation="List every unsupported completion claim with status, proof phrase, reason, and resolution.",
+        )
+    if rejected_rows and int(replay.get("rejectedClaimCount") or 0) < 1:
+        add_issue(
+            issues,
+            severity="review",
+            rule_id="task-contract-unsupported-claim-replay-rejected-count-missing",
+            evidence=f"{path_name} unsupportedClaimReplay lists rejected rows but has no rejected count",
+            recommendation="Expose rejectedClaimCount separately from manualProofClaimCount.",
+        )
+    if manual_proof_claims and not manual_rows:
+        add_issue(
+            issues,
+            severity="review",
+            rule_id="task-contract-unsupported-claim-replay-manual-claims-missing",
+            evidence=f"{path_name} has needs-manual-proof claim decisions but unsupportedClaimReplay has no manualProofClaims",
+            recommendation="Expose manualProofClaims separately so manual/device proof gaps are not mislabeled as rejected claims.",
+        )
+    unsupported_phrases = replay.get("unsupportedPhrases") if isinstance(replay.get("unsupportedPhrases"), list) else []
+    if not unsupported_phrases:
+        add_issue(
+            issues,
+            severity="review",
+            rule_id="task-contract-unsupported-claim-replay-phrases-missing",
+            evidence=f"{path_name} unsupportedClaimReplay does not list unsupported proof phrases",
+            recommendation="Expose the proof phrases that made the claim unsupported so the developer can narrow the wording.",
+        )
+    command = str(replay.get("replayCommand") or "")
+    if "shipguard verify" not in command or "--claim" not in command:
+        add_issue(
+            issues,
+            severity="review",
+            rule_id="task-contract-unsupported-claim-replay-command-missing",
+            evidence=f"{path_name} unsupportedClaimReplay has no replayable verify command with the claim",
+            recommendation="Keep the replay command copy-ready, including task, diff, evidence, and claim arguments.",
+        )
+    next_action = replay.get("nextAction") if isinstance(replay.get("nextAction"), dict) else {}
+    resolves = {str(item) for item in next_action.get("resolves", [])} if isinstance(next_action.get("resolves"), list) else set()
+    if (
+        "unsupported-completion-claim" not in resolves
+        or "Revise the completion claim" not in str(next_action.get("command") or "")
+        or not next_action.get("expectedArtifact")
+        or not next_action.get("successCondition")
+    ):
+        add_issue(
+            issues,
+            severity="review",
+            rule_id="task-contract-unsupported-claim-replay-next-action-missing",
+            evidence=f"{path_name} unsupportedClaimReplay does not give the exact repair action",
+            recommendation="Point to revising the claim or attaching structured evidence, with expected artifact and success condition.",
+        )
+    boundary = normalized_question_text(replay.get("proofBoundary") or "")
+    if "does not prove" not in boundary or ("structured proof" not in boundary and "manual/device proof" not in boundary):
+        add_issue(
+            issues,
+            severity="review",
+            rule_id="task-contract-unsupported-claim-replay-boundary-missing",
+            evidence=f"{path_name} unsupportedClaimReplay proof boundary does not block overclaim reuse",
+            recommendation="State that replay proves non-acceptance only, not the claimed product behavior.",
+        )
+    non_claims = " ".join(str(item) for item in replay.get("nonClaims") or [])
+    if "not product proof" not in non_claims.lower() or "not a merge" not in non_claims.lower():
+        add_issue(
+            issues,
+            severity="review",
+            rule_id="task-contract-unsupported-claim-replay-nonclaims-missing",
+            evidence=f"{path_name} unsupportedClaimReplay non-claims are incomplete",
+            recommendation="Keep non-claims explicit: replay is not product proof, not merge approval, and not release approval.",
+        )
+    normalized_markdown = markdown.lower()
+    if (
+        "Unsupported Claim Replay" not in markdown
+        or "Revise the claim" not in markdown
+        or "not product proof" not in normalized_markdown
+        or "not a merge" not in normalized_markdown
+    ):
+        add_issue(
+            issues,
+            severity="review",
+            rule_id="task-contract-unsupported-claim-replay-markdown-missing",
+            evidence=f"{path_name} Markdown does not render the unsupported-claim replay repair path",
+            recommendation="Render Unsupported Claim Replay in Markdown with the unsupported claim, replay command, next action, proof boundary, and non-claims.",
+        )
+    return issues
+
+
 def full_audit_slash_handoff_issues(report: dict[str, Any], *, path_name: str) -> list[dict[str, str]]:
     issues: list[dict[str, str]] = []
     if str(report.get("tool") or "") != "shipguard full-audit":
@@ -5055,6 +5198,7 @@ def grade_report(path: Path, *, input_paths: list[Path], shareable: bool, cwd: P
     issues.extend(result_ux_quality_issues(loaded, path_name=path.name))
     issues.extend(verify_pr_report_quality_issues(loaded, markdown=markdown, path_name=path.name))
     issues.extend(task_contract_quickstart_replay_issues(loaded, markdown=markdown, path_name=path.name))
+    issues.extend(task_contract_unsupported_claim_replay_issues(loaded, markdown=markdown, path_name=path.name))
     issues.extend(full_audit_slash_handoff_issues(loaded, path_name=path.name))
     issues.extend(full_audit_execution_command_issues(loaded, markdown=markdown, path_name=path.name))
     if tool == "shipguard ios performance":
@@ -5905,6 +6049,14 @@ def fixture_candidate_for_question(row: dict[str, Any], index: int) -> dict[str,
                 "the fixture Markdown exposes Quickstart Replay without requiring JSON inspection",
                 "prepare fixtures connect goal, risk, scope, proof, claims, verdict, and next action through the replay contract",
                 "verify fixtures expose replay command, fast verdict, review packet, and next action",
+            ]
+        )
+    if tool == "shipguard verify" and "unsupported completion claim" in normalized_question_text(question):
+        expected_assertions.extend(
+            [
+                "the fixture exposes unsupportedClaimReplay with the rejected claim, proof phrase, replay command, and next action",
+                "the fixture Markdown renders Unsupported Claim Replay and tells the developer to revise the claim or attach structured evidence",
+                "the fixture keeps replay non-claims clear so a blocked verdict is not treated as product proof or merge approval",
             ]
         )
     return {
@@ -7861,22 +8013,56 @@ def synthetic_fixture_report(candidate: dict[str, Any]) -> dict[str, Any]:
             }
         )
     if source_tool == "shipguard verify":
+        unsupported_fixture = "unsupported completion claim" in normalized_question_text(question)
+        status = "blocked" if unsupported_fixture else "pass"
+        replay_command = (
+            "shipguard verify --task <shipguard-task.json> --diff <patch.diff> "
+            "--evidence <validation-receipt.json> "
+            "--claim 'Notification permission copy is fully verified.' --out <verdict-dir>"
+            if unsupported_fixture
+            else "shipguard verify --task <shipguard-task.json> --diff <patch.diff> "
+            "--evidence <validation-receipt.json> --claim <scoped-claim> --out <verdict-dir>"
+        )
+        fast_verdict = (
+            "ShipGuard Proof Report: blocked. Validation 1/1 covered; claims 0/1 accepted; 0 risk file(s): 0 protected, 0 out of scope, 0 deleted test(s); release evidence not-applicable."
+            if unsupported_fixture
+            else "ShipGuard Proof Report: pass. Validation 1/1 covered; claims 1/1 accepted; 0 risk file(s): 0 protected, 0 out of scope, 0 deleted test(s); release evidence not-applicable."
+        )
+        next_action = (
+            {
+                "owner": "developer",
+                "command": "Revise the completion claim or attach the missing structured evidence receipts, then rerun shipguard verify.",
+                "expectedArtifact": "updated claim or structured evidence receipt",
+                "successCondition": "No unsupported completion claim remains",
+                "failureMeaning": "unsupported completion claim without evidence",
+                "resolves": ["unsupported-completion-claim"],
+                "priority": 6,
+            }
+            if unsupported_fixture
+            else {"command": "Attach shipguard-verdict.json and the evidence receipts to the review."}
+        )
         report.update(
             {
                 "surface": "ShipGuard Task Contract Verdict",
                 "goal": "Synthetic verify-first task",
+                "status": status,
                 "proofReport": {
-                    "copyReadyText": "ShipGuard Proof Report: pass. Validation 1/1 covered; claims 1/1 accepted; 0 risk file(s): 0 protected, 0 out of scope, 0 deleted test(s); release evidence not-applicable."
+                    "copyReadyText": fast_verdict,
+                    "status": status,
+                    "claims": {
+                        "checkedCount": 1,
+                        "acceptedCount": 0 if unsupported_fixture else 1,
+                        "rejectedCount": 1 if unsupported_fixture else 0,
+                        "manualProofCount": 0,
+                        "label": "0/1 accepted" if unsupported_fixture else "1/1 accepted",
+                    },
                 },
-                "nextAction": {"command": "Attach shipguard-verdict.json and the evidence receipts to the review."},
+                "nextAction": next_action,
                 "quickstartReplay": {
                     "phase": "verify",
-                    "status": "pass",
-                    "replayCommand": (
-                        "shipguard verify --task <shipguard-task.json> --diff <patch.diff> "
-                        "--evidence <validation-receipt.json> --claim <scoped-claim> --out <verdict-dir>"
-                    ),
-                    "fastVerdict": "ShipGuard Proof Report: pass. Validation 1/1 covered; claims 1/1 accepted; 0 risk file(s): 0 protected, 0 out of scope, 0 deleted test(s); release evidence not-applicable.",
+                    "status": status,
+                    "replayCommand": replay_command,
+                    "fastVerdict": fast_verdict,
                     "reviewPacket": [
                         "shipguard-verdict.json",
                         "shipguard-verdict.md",
@@ -7884,12 +8070,74 @@ def synthetic_fixture_report(candidate: dict[str, Any]) -> dict[str, Any]:
                         "<patch.diff>",
                         "<validation-receipt.json>",
                     ],
-                    "nextAction": "Attach shipguard-verdict.json and the evidence receipts to the review.",
+                    "nextAction": next_action.get("command"),
                     "successSignal": "Reviewer can replay the same verdict shape and inspect the JSON plus Markdown packet before merging.",
                     "boundary": "Synthetic replay contract only; it does not replace target validation.",
                 },
             }
         )
+        if unsupported_fixture:
+            report["agentClaims"] = ["Notification permission copy is fully verified."]
+            report["claimChecks"] = {
+                "rejectedClaims": ["fully verified"],
+                "rawRejectedClaims": ["fully verified"],
+                "claimDecisions": [
+                    {
+                        "claim": "Notification permission copy is fully verified.",
+                        "status": "rejected",
+                        "reason": "Broad completion claim lacks covered validation evidence.",
+                        "requiredProofPhrases": ["fully verified"],
+                    }
+                ],
+                "requiredProofPhrases": ["fully verified"],
+            }
+            report["unsupportedClaimReplay"] = {
+                "schemaVersion": 1,
+                "status": "blocked",
+                "unsupportedPhrases": ["fully verified"],
+                "unsupportedClaimCount": 1,
+                "unsupportedClaims": [
+                    {
+                        "claim": "Notification permission copy is fully verified.",
+                        "status": "rejected",
+                        "reason": "Broad completion claim lacks covered validation evidence.",
+                        "requiredProofPhrases": ["fully verified"],
+                        "resolution": "Revise the claim or attach structured evidence receipts that prove it.",
+                    }
+                ],
+                "rejectedClaimCount": 1,
+                "rejectedClaims": [
+                    {
+                        "claim": "Notification permission copy is fully verified.",
+                        "status": "rejected",
+                        "reason": "Broad completion claim lacks covered validation evidence.",
+                        "requiredProofPhrases": ["fully verified"],
+                        "resolution": "Revise the claim or attach structured evidence receipts that prove it.",
+                    }
+                ],
+                "manualProofClaimCount": 0,
+                "manualProofClaims": [],
+                "replayCommand": report["quickstartReplay"]["replayCommand"],
+                "fastVerdict": fast_verdict,
+                "reviewPacket": report["quickstartReplay"]["reviewPacket"],
+                "nextAction": {
+                    "command": next_action["command"],
+                    "expectedArtifact": next_action["expectedArtifact"],
+                    "successCondition": next_action["successCondition"],
+                    "failureMeaning": next_action["failureMeaning"],
+                    "resolves": next_action["resolves"],
+                },
+                "proofBoundary": (
+                    "This replay proves ShipGuard did not accept the supplied completion claim against the attached task, diff, "
+                    "and evidence receipts. It does not prove the claimed behavior; the claim must be narrowed or backed by "
+                    "new structured proof or manual/device proof."
+                ),
+                "nonClaims": [
+                    "An unsupported-claim replay is not product proof.",
+                    "A review or blocked verdict is not a merge or release approval.",
+                    "Changing the wording is not enough unless the new claim matches the attached evidence.",
+                ],
+            }
     if source_tool == "shipguard ios design":
         report.update(synthetic_design_report_fields())
     return report
@@ -8009,19 +8257,62 @@ def synthetic_fixture_markdown(candidate: dict[str, Any]) -> str:
             ]
         )
     if source_tool == "shipguard verify":
+        unsupported_fixture = "unsupported completion claim" in normalized_question_text(question)
+        replay_command = (
+            "shipguard verify --task <shipguard-task.json> --diff <patch.diff> --evidence <validation-receipt.json> "
+            "--claim 'Notification permission copy is fully verified.' --out <verdict-dir>"
+            if unsupported_fixture
+            else "shipguard verify --task <shipguard-task.json> --diff <patch.diff> --evidence <validation-receipt.json> "
+            "--claim <scoped-claim> --out <verdict-dir>"
+        )
+        fast_verdict = (
+            "ShipGuard Proof Report: blocked. Validation 1/1 covered; claims 0/1 accepted; 0 risk file(s): 0 protected, 0 out of scope, 0 deleted test(s); release evidence not-applicable."
+            if unsupported_fixture
+            else "ShipGuard Proof Report: pass. Validation 1/1 covered; claims 1/1 accepted; 0 risk file(s): 0 protected, 0 out of scope, 0 deleted test(s); release evidence not-applicable."
+        )
+        next_action = (
+            "Revise the completion claim or attach the missing structured evidence receipts, then rerun shipguard verify."
+            if unsupported_fixture
+            else "Attach shipguard-verdict.json and the evidence receipts to the review."
+        )
         lines.extend(
             [
                 "## Quickstart Replay",
                 "",
                 "- Phase: `verify`",
-                "- Replay command: `shipguard verify --task <shipguard-task.json> --diff <patch.diff> --evidence <validation-receipt.json> --claim <scoped-claim> --out <verdict-dir>`",
-                "- Fast verdict: `ShipGuard Proof Report: pass. Validation 1/1 covered; claims 1/1 accepted; 0 risk file(s): 0 protected, 0 out of scope, 0 deleted test(s); release evidence not-applicable.`",
+                f"- Replay command: `{replay_command}`",
+                f"- Fast verdict: `{fast_verdict}`",
                 "- Review packet: `shipguard-verdict.json`, `shipguard-verdict.md`, `<shipguard-task.json>`, `<patch.diff>`, `<validation-receipt.json>`",
-                "- Next action: Attach shipguard-verdict.json and the evidence receipts to the review.",
+                f"- Next action: {next_action}",
                 "- Boundary: Synthetic replay contract only; it does not replace target validation.",
                 "",
             ]
         )
+        if unsupported_fixture:
+            lines.extend(
+                [
+                    "## Unsupported Claim Replay",
+                    "",
+                    "- Status: `blocked`",
+                    "- Unsupported phrases: `fully verified`",
+                    f"- Replay command: `{replay_command}`",
+                    "- Next action: `Revise the completion claim or attach the missing structured evidence receipts, then rerun shipguard verify.`",
+                    "- Expected artifact: updated claim or structured evidence receipt",
+                    "- Success condition: No unsupported completion claim remains",
+                    "- Boundary: This replay proves ShipGuard did not accept the supplied completion claim against the attached task, diff, and evidence receipts. It does not prove the claimed behavior; the claim must be narrowed or backed by new structured proof or manual/device proof.",
+                    "",
+                    "| Status | Claim | Reason | Resolution |",
+                    "| --- | --- | --- | --- |",
+                    "| rejected | Notification permission copy is fully verified. | Broad completion claim lacks covered validation evidence. | Revise the claim or attach structured evidence receipts that prove it. |",
+                    "",
+                    "## Non-Claims",
+                    "",
+                    "- An unsupported-claim replay is not product proof.",
+                    "- A review or blocked verdict is not a merge or release approval.",
+                    "- Changing the wording is not enough unless the new claim matches the attached evidence.",
+                    "",
+                ]
+            )
     if source_tool == "shipguard v4 stable-publication":
         lines.extend(
             [

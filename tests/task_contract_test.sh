@@ -288,6 +288,10 @@ test -f "$tmp_dir/verify-blocked/shipguard-verdict.json"
 grep -q 'Status: blocked' "$tmp_dir/verify-blocked/shipguard-verdict.md"
 grep -q 'Protected boundary touched' "$tmp_dir/verify-blocked/shipguard-verdict.md"
 grep -q 'fully verified' "$tmp_dir/verify-blocked/shipguard-verdict.md"
+grep -q 'Unsupported Claim Replay' "$tmp_dir/verify-blocked/shipguard-verdict.md"
+grep -q 'Revise the completion claim or attach the missing structured evidence receipts' "$tmp_dir/verify-blocked/shipguard-verdict.md"
+grep -q 'not product proof' "$tmp_dir/verify-blocked/shipguard-verdict.md"
+grep -q 'not a merge' "$tmp_dir/verify-blocked/shipguard-verdict.md"
 
 python3 - <<'PY' "$tmp_dir/verify-blocked/shipguard-verdict.json"
 import json
@@ -307,6 +311,24 @@ assert analysis["claimDecisions"][0]["status"] == "rejected"
 assert data["nextAction"]["owner"] == "developer"
 assert "Update the task contract scope" in data["nextAction"]["command"]
 assert data["nextAction"]["priority"] == 1
+replay = data["unsupportedClaimReplay"]
+assert replay["status"] == "blocked"
+assert replay["unsupportedPhrases"] == ["fully verified"]
+assert replay["unsupportedClaimCount"] == 1
+assert replay["unsupportedClaims"][0]["status"] == "rejected"
+assert replay["rejectedClaimCount"] == 1
+assert replay["rejectedClaims"][0]["claim"] == "Notification flow is fully verified."
+assert replay["manualProofClaimCount"] == 0
+assert replay["manualProofClaims"] == []
+assert "shipguard verify" in replay["replayCommand"]
+assert "--claim" in replay["replayCommand"]
+assert replay["nextAction"]["resolves"] == ["unsupported-completion-claim"]
+assert "Revise the completion claim" in replay["nextAction"]["command"]
+assert replay["nextAction"]["priority"] == 6
+assert any("not product proof" in item for item in replay["nonClaims"])
+assert any("not a merge" in item for item in replay["nonClaims"])
+assert "does not prove" in replay["proofBoundary"]
+assert "structured proof" in replay["proofBoundary"]
 PY
 
 printf 'all tests passed, but command failed\n' > "$tmp_dir/logs/failing-swift-test.log"

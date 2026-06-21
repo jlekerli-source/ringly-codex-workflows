@@ -98,6 +98,8 @@ Run the protected workflow diff:
 That returns `blocked`: the diff touches a protected workflow path and the claim says "fully verified" without physical-device proof.
 The terminal summary starts with `ShipGuard Proof Report: blocked`.
 
+Open the Markdown report and look for `Unsupported Claim Replay`. That section separates the claim-specific repair from any other blocker: it shows the exact rejected phrase, the replay command, the claim repair action, and the non-claims that prevent a blocked verdict from being reused as product proof or merge approval.
+
 ## PR Workflow
 
 Use `examples/workflows/verify-pr.yml` as the transparent GitHub Actions starting point. It shows the shape:

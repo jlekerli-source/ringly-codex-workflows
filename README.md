@@ -103,6 +103,8 @@ Replay command: shipguard verify --task <shipguard-task.json> ...
 Review packet: shipguard-verdict.json, shipguard-verdict.md, task, diff, receipt
 ```
 
+If an agent claims something broad like "fully verified" without enough proof, the blocked report also includes `Unsupported Claim Replay`: the exact phrase, replay command, repair action, and non-claims so nobody mistakes a blocked verdict for proof.
+
 For more examples, see [Verify-First Quickstart](docs/verify-first-quickstart.md).
 
 ## Daily Commands

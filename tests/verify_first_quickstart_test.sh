@@ -85,8 +85,38 @@ fi
 
 grep -q 'Status: `blocked`' "$tmp_dir/blocked/shipguard-verdict.md"
 grep -q 'Quickstart Replay' "$tmp_dir/blocked/shipguard-verdict.md"
+grep -q 'Unsupported Claim Replay' "$tmp_dir/blocked/shipguard-verdict.md"
+grep -q 'Revise the completion claim, or capture the required manual/physical-device proof receipt' "$tmp_dir/blocked/shipguard-verdict.md"
+grep -q 'not product proof' "$tmp_dir/blocked/shipguard-verdict.md"
+grep -q 'not a merge' "$tmp_dir/blocked/shipguard-verdict.md"
 grep -q 'Risk files: `1 risk file(s): 1 protected, 1 out of scope, 0 deleted test(s)`' "$tmp_dir/blocked/shipguard-verdict.md"
 grep -q 'ShipGuard Proof Report: blocked. Validation 1/1 covered; claims 0/1 accepted;' "$tmp_dir/blocked.out"
+python3 - "$tmp_dir/blocked/shipguard-verdict.json" <<'PY'
+import json
+import sys
+
+data = json.load(open(sys.argv[1], encoding="utf-8"))
+assert data["status"] == "blocked"
+replay = data["unsupportedClaimReplay"]
+assert replay["status"] == "review"
+assert replay["unsupportedPhrases"] == ["fully verified"]
+assert replay["unsupportedClaimCount"] == 1
+assert replay["unsupportedClaims"][0]["status"] == "needs-manual-proof"
+assert replay["manualProofClaimCount"] == 1
+assert replay["manualProofClaims"][0]["claim"] == "Notification permission copy is fully verified."
+assert replay["rejectedClaimCount"] == 0
+assert replay["rejectedClaims"] == []
+assert "shipguard verify" in replay["replayCommand"]
+assert "--claim" in replay["replayCommand"]
+assert "Notification permission copy is fully verified." in replay["replayCommand"]
+assert replay["nextAction"]["resolves"] == ["unsupported-completion-claim", "manual-device-proof"]
+assert "Revise the completion claim" in replay["nextAction"]["command"]
+assert any("not product proof" in item for item in replay["nonClaims"])
+assert any("not a merge" in item for item in replay["nonClaims"])
+assert "does not prove" in replay["proofBoundary"]
+assert "structured proof" in replay["proofBoundary"]
+assert "manual/device proof" in replay["proofBoundary"]
+PY
 grep -q 'SHIPGUARD_VALIDATION_COMMAND: replace-with-your-test-command' examples/workflows/verify-pr.yml
 grep -q 'Set SHIPGUARD_VALIDATION_COMMAND to your real test command' examples/workflows/verify-pr.yml
 grep -q -- '--validation "$SHIPGUARD_VALIDATION_COMMAND"' examples/workflows/verify-pr.yml

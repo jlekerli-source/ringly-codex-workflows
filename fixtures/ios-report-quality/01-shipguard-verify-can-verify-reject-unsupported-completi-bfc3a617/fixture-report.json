@@ -1,0 +1,217 @@
+{
+  "agentClaims": [
+    "Notification permission copy is fully verified."
+  ],
+  "claimChecks": {
+    "claimDecisions": [
+      {
+        "claim": "Notification permission copy is fully verified.",
+        "reason": "Broad completion claim lacks covered validation evidence.",
+        "requiredProofPhrases": [
+          "fully verified"
+        ],
+        "status": "rejected"
+      }
+    ],
+    "rawRejectedClaims": [
+      "fully verified"
+    ],
+    "rejectedClaims": [
+      "fully verified"
+    ],
+    "requiredProofPhrases": [
+      "fully verified"
+    ]
+  },
+  "findings": [],
+  "fixtureCandidate": {
+    "candidateId": "01-shipguard-verify-can-verify-reject-unsupported-completi-bfc3a617",
+    "duplicateCount": 1,
+    "expectedAssertions": [
+      "report-quality preserves the actionability question in JSON and Markdown",
+      "report-quality emits a fixtureCandidates entry for the public synthetic case",
+      "the fixture keeps scopeBoundary.shipguardOnly and targetAppsReadOnly explicit",
+      "shareable output contains no local absolute paths or private app identifiers",
+      "the fixture exposes quickstartReplay so a fresh maintainer can reach or replay the first useful verdict",
+      "the fixture Markdown exposes Quickstart Replay without requiring JSON inspection",
+      "prepare fixtures connect goal, risk, scope, proof, claims, verdict, and next action through the replay contract",
+      "verify fixtures expose replay command, fast verdict, review packet, and next action",
+      "the fixture exposes unsupportedClaimReplay with the rejected claim, proof phrase, replay command, and next action",
+      "the fixture Markdown renders Unsupported Claim Replay and tells the developer to revise the claim or attach structured evidence",
+      "the fixture keeps replay non-claims clear so a blocked verdict is not treated as product proof or merge approval"
+    ],
+    "fixtureType": "shipguard-verify-first-task-contract-fixture",
+    "materialization": {
+      "files": [
+        "README.md",
+        "fixture-candidate.json",
+        "fixture-report.json",
+        "fixture-report.md"
+      ],
+      "safeSyntheticOnly": true,
+      "writeCommand": "./bin/shipguard ios report-quality --reports <report-dir> --out <quality-dir> --shareable --write-fixture-candidates <fixture-output-dir>"
+    },
+    "priority": 1,
+    "privateDataPolicy": "This materialized starter is synthetic. Use source reports only to choose report shape; do not copy private app code, local paths, screenshots, app-specific identifiers, or proprietary text.",
+    "promotion": {
+      "candidateId": "01-shipguard-verify-can-verify-reject-unsupported-completi-bfc3a617",
+      "copyCommands": [
+        "mkdir -p fixtures/ios-report-quality/01-shipguard-verify-can-verify-reject-unsupported-completi-bfc3a617",
+        "cp <materialized-candidate-dir>/README.md fixtures/ios-report-quality/01-shipguard-verify-can-verify-reject-unsupported-completi-bfc3a617/README.md",
+        "cp <materialized-candidate-dir>/fixture-candidate.json fixtures/ios-report-quality/01-shipguard-verify-can-verify-reject-unsupported-completi-bfc3a617/fixture-candidate.json",
+        "cp <materialized-candidate-dir>/fixture-report.json fixtures/ios-report-quality/01-shipguard-verify-can-verify-reject-unsupported-completi-bfc3a617/fixture-report.json",
+        "cp <materialized-candidate-dir>/fixture-report.md fixtures/ios-report-quality/01-shipguard-verify-can-verify-reject-unsupported-completi-bfc3a617/fixture-report.md"
+      ],
+      "files": [
+        "README.md",
+        "fixture-candidate.json",
+        "fixture-report.json",
+        "fixture-report.md"
+      ],
+      "promotionPolicy": "Promotion is explicit maintainer work. ShipGuard writes starter files only to the requested output directory and does not auto-copy them into the repository.",
+      "reviewChecklist": [
+        "Confirm the fixture is synthetic and public-safe.",
+        "Confirm no private app code, screenshots, local paths, tokens, app identifiers, or proprietary text were copied.",
+        "Confirm scopeBoundary.shipguardOnly and targetAppsReadOnly remain explicit.",
+        "Confirm scoring the promoted fixture does not emit recursive fixtureCandidates.",
+        "Register the fixture in validation only after the report-quality check passes."
+      ],
+      "sourceDirectory": "<materialized-fixture-output>/01-shipguard-verify-can-verify-reject-unsupported-completi-bfc3a617",
+      "suggestedFixturePath": "fixtures/ios-report-quality/01-shipguard-verify-can-verify-reject-unsupported-completi-bfc3a617",
+      "validationCommands": [
+        "./bin/shipguard ios report-quality --reports fixtures/ios-report-quality/01-shipguard-verify-can-verify-reject-unsupported-completi-bfc3a617 --out <quality-dir> --shareable",
+        "./tests/ios_report_quality_test.sh",
+        "./bin/shipguard validate"
+      ]
+    },
+    "publicFixturePath": "fixtures/ios-report-quality/01-shipguard-verify-can-verify-reject-unsupported-completi-bfc3a617",
+    "publicFixtureRecipe": "Create a minimal synthetic ShipGuard report pair that reproduces this report-quality question without private app code, local paths, screenshots, customer data, app names, or proprietary source snippets.",
+    "sourceQuestion": "Can verify reject unsupported completion claims with an exact next action and replay packet?",
+    "sourceReportCount": 1,
+    "sourceReportsRedacted": true,
+    "sourceTool": "shipguard verify",
+    "validationCommands": [
+      "./bin/shipguard ios report-quality --reports <fixture-dir> --out <quality-dir> --shareable",
+      "./tests/ios_report_quality_test.sh"
+    ]
+  },
+  "generatedAt": "2026-06-21T10:37:01Z",
+  "goal": "Synthetic verify-first task",
+  "intent": "shipguard-evaluation",
+  "nextAction": {
+    "command": "Revise the completion claim or attach the missing structured evidence receipts, then rerun shipguard verify.",
+    "expectedArtifact": "updated claim or structured evidence receipt",
+    "failureMeaning": "unsupported completion claim without evidence",
+    "owner": "developer",
+    "priority": 6,
+    "resolves": [
+      "unsupported-completion-claim"
+    ],
+    "successCondition": "No unsupported completion claim remains"
+  },
+  "proofReport": {
+    "claims": {
+      "acceptedCount": 0,
+      "checkedCount": 1,
+      "label": "0/1 accepted",
+      "manualProofCount": 0,
+      "rejectedCount": 1
+    },
+    "copyReadyText": "ShipGuard Proof Report: blocked. Validation 1/1 covered; claims 0/1 accepted; 0 risk file(s): 0 protected, 0 out of scope, 0 deleted test(s); release evidence not-applicable.",
+    "status": "blocked"
+  },
+  "quickstartReplay": {
+    "boundary": "Synthetic replay contract only; it does not replace target validation.",
+    "fastVerdict": "ShipGuard Proof Report: blocked. Validation 1/1 covered; claims 0/1 accepted; 0 risk file(s): 0 protected, 0 out of scope, 0 deleted test(s); release evidence not-applicable.",
+    "nextAction": "Revise the completion claim or attach the missing structured evidence receipts, then rerun shipguard verify.",
+    "phase": "verify",
+    "replayCommand": "shipguard verify --task <shipguard-task.json> --diff <patch.diff> --evidence <validation-receipt.json> --claim 'Notification permission copy is fully verified.' --out <verdict-dir>",
+    "reviewPacket": [
+      "shipguard-verdict.json",
+      "shipguard-verdict.md",
+      "<shipguard-task.json>",
+      "<patch.diff>",
+      "<validation-receipt.json>"
+    ],
+    "status": "blocked",
+    "successSignal": "Reviewer can replay the same verdict shape and inspect the JSON plus Markdown packet before merging."
+  },
+  "reportQualityQuestions": [
+    "Can verify reject unsupported completion claims with an exact next action and replay packet?"
+  ],
+  "scanScope": {
+    "note": "Synthetic fixture; no private source tree was scanned.",
+    "skippedDirectories": [],
+    "skippedDirectoryCount": 0
+  },
+  "schemaVersion": 1,
+  "scopeBoundary": {
+    "purpose": "Synthetic public fixture for ShipGuard report-quality behavior.",
+    "shipguardOnly": true,
+    "targetAppsReadOnly": true
+  },
+  "shareability": {
+    "localAbsolutePathsIncluded": false,
+    "mode": "shareable"
+  },
+  "status": "blocked",
+  "surface": "ShipGuard Task Contract Verdict",
+  "tool": "shipguard verify",
+  "unsupportedClaimReplay": {
+    "fastVerdict": "ShipGuard Proof Report: blocked. Validation 1/1 covered; claims 0/1 accepted; 0 risk file(s): 0 protected, 0 out of scope, 0 deleted test(s); release evidence not-applicable.",
+    "nextAction": {
+      "command": "Revise the completion claim or attach the missing structured evidence receipts, then rerun shipguard verify.",
+      "expectedArtifact": "updated claim or structured evidence receipt",
+      "failureMeaning": "unsupported completion claim without evidence",
+      "resolves": [
+        "unsupported-completion-claim"
+      ],
+      "successCondition": "No unsupported completion claim remains"
+    },
+    "nonClaims": [
+      "An unsupported-claim replay is not product proof.",
+      "A review or blocked verdict is not a merge or release approval.",
+      "Changing the wording is not enough unless the new claim matches the attached evidence."
+    ],
+    "proofBoundary": "This replay proves ShipGuard did not accept the supplied completion claim against the attached task, diff, and evidence receipts. It does not prove the claimed behavior; the claim must be narrowed or backed by new structured proof or manual/device proof.",
+    "manualProofClaimCount": 0,
+    "manualProofClaims": [],
+    "rejectedClaimCount": 1,
+    "rejectedClaims": [
+      {
+        "claim": "Notification permission copy is fully verified.",
+        "reason": "Broad completion claim lacks covered validation evidence.",
+        "requiredProofPhrases": [
+          "fully verified"
+        ],
+        "resolution": "Revise the claim or attach structured evidence receipts that prove it.",
+        "status": "rejected"
+      }
+    ],
+    "replayCommand": "shipguard verify --task <shipguard-task.json> --diff <patch.diff> --evidence <validation-receipt.json> --claim 'Notification permission copy is fully verified.' --out <verdict-dir>",
+    "reviewPacket": [
+      "shipguard-verdict.json",
+      "shipguard-verdict.md",
+      "<shipguard-task.json>",
+      "<patch.diff>",
+      "<validation-receipt.json>"
+    ],
+    "schemaVersion": 1,
+    "status": "blocked",
+    "unsupportedClaimCount": 1,
+    "unsupportedClaims": [
+      {
+        "claim": "Notification permission copy is fully verified.",
+        "reason": "Broad completion claim lacks covered validation evidence.",
+        "requiredProofPhrases": [
+          "fully verified"
+        ],
+        "resolution": "Revise the claim or attach structured evidence receipts that prove it.",
+        "status": "rejected"
+      }
+    ],
+    "unsupportedPhrases": [
+      "fully verified"
+    ]
+  }
+}
