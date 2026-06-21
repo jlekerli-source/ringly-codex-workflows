@@ -100,6 +100,7 @@ For the benchmark-backed impact card:
 ```
 
 `lean gain` writes `lean-gain.json` and `lean-gain.md`. It reports Ponytail-style benchmark direction but explicitly marks current-repo savings as `not-computed`; the unbuilt baseline was never produced, so ShipGuard must not claim fake line, token, cost, or time savings for a live repo.
+`ios report-quality` enforces that boundary: Lean Gain reports must keep benchmark scope, metric pairs, current-repo evidence routes, and Markdown no-claim language visible.
 
 ## What It Checks
 

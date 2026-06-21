@@ -1,0 +1,59 @@
+{
+  "candidateId": "01-shipguard-lean-audit-does-lean-gain-avoid-fake-per-repo-08315752",
+  "duplicateCount": 1,
+  "expectedAssertions": [
+    "report-quality preserves the Lean Gain honesty actionability question in JSON and Markdown",
+    "the fixture exposes benchmarkScoreboard.primary with benchmark scope, baseline, method, remaining-percent metrics, and reported-change metrics",
+    "the fixture marks currentRepoBoundary.perRepoSavingsClaim as not-computed with a reason",
+    "the fixture routes current-repo evidence back to lean audit, lean review, and lean debt",
+    "the Markdown exposes Benchmark Scoreboard, Honesty Boundary, Current Repo Signals, and no-claim language",
+    "the fixture keeps scopeBoundary.shipguardOnly and targetAppsReadOnly explicit",
+    "shareable output contains no local absolute paths or private app identifiers"
+  ],
+  "fixtureType": "shipguard-lean-report-quality-fixture",
+  "materialization": {
+    "files": [
+      "README.md",
+      "fixture-candidate.json",
+      "fixture-report.json",
+      "fixture-report.md"
+    ],
+    "safeSyntheticOnly": true,
+    "writeCommand": "./bin/shipguard ios report-quality --reports <report-dir> --out <quality-dir> --shareable --write-fixture-candidates <fixture-output-dir>"
+  },
+  "priority": 1,
+  "privateDataPolicy": "This promoted fixture is synthetic. Use source reports only to choose report shape; do not copy private app code, local paths, screenshots, app-specific identifiers, or proprietary text.",
+  "promotion": {
+    "candidateId": "01-shipguard-lean-audit-does-lean-gain-avoid-fake-per-repo-08315752",
+    "files": [
+      "README.md",
+      "fixture-candidate.json",
+      "fixture-report.json",
+      "fixture-report.md"
+    ],
+    "promotionPolicy": "Promotion is explicit maintainer work. ShipGuard writes starter files only to the requested output directory and does not auto-copy them into the repository.",
+    "reviewChecklist": [
+      "Confirm the fixture is synthetic and public-safe.",
+      "Confirm no private app code, screenshots, local paths, tokens, app identifiers, or proprietary text were copied.",
+      "Confirm benchmark direction is separate from current-repo savings.",
+      "Confirm current-repo savings remain not-computed without a matched baseline.",
+      "Confirm scoring the promoted fixture does not emit recursive fixtureCandidates."
+    ],
+    "suggestedFixturePath": "fixtures/ios-report-quality/01-shipguard-lean-audit-does-lean-gain-avoid-fake-per-repo-08315752",
+    "validationCommands": [
+      "./bin/shipguard ios report-quality --reports fixtures/ios-report-quality/01-shipguard-lean-audit-does-lean-gain-avoid-fake-per-repo-08315752 --out <quality-dir> --shareable",
+      "./tests/ios_report_quality_test.sh",
+      "./bin/shipguard validate"
+    ]
+  },
+  "publicFixturePath": "fixtures/ios-report-quality/01-shipguard-lean-audit-does-lean-gain-avoid-fake-per-repo-08315752",
+  "publicFixtureRecipe": "Create a minimal synthetic ShipGuard Lean Gain report pair that proves benchmark-backed impact remains separate from current-repo savings claims.",
+  "sourceQuestion": "Does lean gain avoid fake per-repo savings while still showing benchmark-backed impact?",
+  "sourceReportCount": 1,
+  "sourceReportsRedacted": true,
+  "sourceTool": "shipguard lean audit",
+  "validationCommands": [
+    "./bin/shipguard ios report-quality --reports <fixture-dir> --out <quality-dir> --shareable",
+    "./tests/ios_report_quality_test.sh"
+  ]
+}

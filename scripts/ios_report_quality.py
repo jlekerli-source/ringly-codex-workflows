@@ -3070,8 +3070,32 @@ def lean_report_quality_issues(report: dict[str, Any], *, markdown: str, path_na
                 evidence=f"{path_name} does not explicitly mark current-repo savings as not-computed",
                 recommendation="Do not claim local line, token, cost, or time savings without a matched untreated baseline.",
             )
+        elif not boundary.get("reason"):
+            add_issue(
+                issues,
+                severity="review",
+                rule_id="lean-gain-current-boundary-incomplete",
+                evidence=f"{path_name} currentRepoBoundary has no reason for the not-computed claim",
+                recommendation="Explain why current-repo savings are not computed so maintainers cannot turn benchmark direction into a local claim.",
+            )
+        repo_signals = boundary.get("realRepoSignals") if isinstance(boundary, dict) else None
+        repo_signal_text = " ".join(str(item).lower() for item in repo_signals) if isinstance(repo_signals, list) else ""
+        missing_signal_routes = [
+            label
+            for label in ("lean audit", "lean review", "lean debt")
+            if label not in repo_signal_text
+        ]
+        if not isinstance(repo_signals, list) or missing_signal_routes:
+            add_issue(
+                issues,
+                severity="review",
+                rule_id="lean-gain-current-routing-missing",
+                evidence=f"{path_name} currentRepoBoundary.realRepoSignals missing routes: {', '.join(missing_signal_routes) or 'realRepoSignals list'}",
+                recommendation="Route current-repo evidence back to lean audit, lean review, and lean debt instead of implying the benchmark measured this repo.",
+            )
         scoreboard = report.get("benchmarkScoreboard")
-        if not isinstance(scoreboard, dict) or not scoreboard.get("primary"):
+        primary = scoreboard.get("primary") if isinstance(scoreboard, dict) else None
+        if not isinstance(primary, dict):
             add_issue(
                 issues,
                 severity="review",
@@ -3079,6 +3103,47 @@ def lean_report_quality_issues(report: dict[str, Any], *, markdown: str, path_na
                 evidence=f"{path_name} has no benchmarkScoreboard.primary",
                 recommendation="Show benchmark-backed impact separately from current-repo evidence.",
             )
+        else:
+            required_primary = {"label", "baseline", "scope", "method", "remainingPercentOfBaseline", "reportedChange"}
+            missing_primary = sorted(key for key in required_primary if not primary.get(key))
+            scope_text = str(primary.get("scope") or "").lower()
+            if missing_primary or "not this repository" not in scope_text:
+                add_issue(
+                    issues,
+                    severity="review",
+                    rule_id="lean-gain-scoreboard-incomplete",
+                    evidence=f"{path_name} benchmarkScoreboard.primary missing: {', '.join(missing_primary) or 'explicit non-repo scope'}",
+                    recommendation="Keep the benchmark label, baseline, method, and non-repo scope visible so benchmark direction cannot become a launch claim for this checkout.",
+                )
+            remaining = primary.get("remainingPercentOfBaseline")
+            reported = primary.get("reportedChange")
+            metric_keys = {"linesOfCode", "tokens", "cost", "time", "safety"}
+            missing_remaining = sorted(
+                key
+                for key in metric_keys
+                if not isinstance(remaining, dict) or not isinstance(remaining.get(key), (int, float))
+            )
+            missing_reported = sorted(
+                key
+                for key in metric_keys
+                if not isinstance(reported, dict) or not str(reported.get(key) or "").strip()
+            )
+            if missing_remaining or missing_reported:
+                add_issue(
+                    issues,
+                    severity="review",
+                    rule_id="lean-gain-scoreboard-metrics-missing",
+                    evidence=f"{path_name} missing benchmark metrics: remaining={', '.join(missing_remaining) or '-'} reported={', '.join(missing_reported) or '-'}",
+                    recommendation="Emit every Lean Gain metric in both remaining-percent and reported-change form so the benchmark card is reviewable.",
+                )
+        markdown_required = [
+            "Benchmark Scoreboard",
+            "Honesty Boundary",
+            "not-computed",
+            "Current Repo Signals",
+            "Do not claim current-repo line, token, cost, or time savings",
+        ]
+        missing_markdown = [token for token in markdown_required if token not in markdown]
         if "Honesty Boundary" not in markdown:
             add_issue(
                 issues,
@@ -3086,6 +3151,14 @@ def lean_report_quality_issues(report: dict[str, Any], *, markdown: str, path_na
                 rule_id="lean-gain-honesty-markdown-missing",
                 evidence=f"{path_name} Markdown does not expose the honesty boundary",
                 recommendation="Render the no-per-repo-savings boundary in Markdown, not only JSON.",
+            )
+        elif missing_markdown:
+            add_issue(
+                issues,
+                severity="review",
+                rule_id="lean-gain-honesty-markdown-incomplete",
+                evidence=f"{path_name} Markdown missing Lean Gain honesty tokens: {', '.join(missing_markdown)}",
+                recommendation="Render benchmark scope, not-computed current-repo status, current repo signals, and no-claim language in Markdown.",
             )
     if tool in {"shipguard lean audit", "shipguard lean debt"}:
         ledger = report.get("leanDebtLedger")

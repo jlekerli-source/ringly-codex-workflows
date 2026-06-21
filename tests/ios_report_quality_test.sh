@@ -1841,6 +1841,37 @@ if grep -R -E -q '/Users|/private/tmp|/var/folders|Ringly|Ilmify|InweFi' "$lean_
   exit 1
 fi
 
+lean_gain_fixture="fixtures/ios-report-quality/01-shipguard-lean-audit-does-lean-gain-avoid-fake-per-repo-08315752"
+./bin/shipguard ios report-quality \
+  --reports "$lean_gain_fixture" \
+  --out "$tmp_dir/lean-gain-public-quality" \
+  --shareable >/dev/null
+grep -q '"status": "pass"' "$tmp_dir/lean-gain-public-quality/ios-report-quality.json"
+grep -q 'Does lean gain avoid fake per-repo savings while still showing benchmark-backed impact?' "$tmp_dir/lean-gain-public-quality/ios-report-quality.md"
+grep -q '"tool": "shipguard lean gain"' "$lean_gain_fixture/fixture-report.json"
+grep -q '"benchmarkScoreboard":' "$lean_gain_fixture/fixture-report.json"
+grep -q '"perRepoSavingsClaim": "not-computed"' "$lean_gain_fixture/fixture-report.json"
+grep -q 'public benchmark, not this repository' "$lean_gain_fixture/fixture-report.json"
+grep -q 'Honesty Boundary' "$lean_gain_fixture/fixture-report.md"
+grep -q 'Current Repo Signals' "$lean_gain_fixture/fixture-report.md"
+grep -q 'Do not claim current-repo line, token, cost, or time savings' "$lean_gain_fixture/fixture-report.md"
+python3 - <<'PY' "$tmp_dir/lean-gain-public-quality/ios-report-quality.json"
+import json
+import sys
+
+data = json.load(open(sys.argv[1], encoding="utf-8"))
+if data.get("fixtureCandidates"):
+    raise SystemExit(f"Lean Gain honesty public fixture should not create recursive fixture candidates: {data['fixtureCandidates']!r}")
+questions = data.get("prioritizedActionabilityQuestions") or []
+top = questions[0] if questions else {}
+if not top or not (top.get("sourceMaterializedFixture") is True or top.get("existingFixture")):
+    raise SystemExit(f"Lean Gain honesty fixture should retain materialized or fixture-coverage question evidence: {questions!r}")
+PY
+if grep -R -E -q '/Users|/private/tmp|/var/folders|Ringly|Ilmify|InweFi' "$lean_gain_fixture"; then
+  echo "Lean Gain honesty fixture must not include local paths or private app identifiers" >&2
+  exit 1
+fi
+
 ./bin/shipguard lean audit \
   --path . \
   --out "$tmp_dir/lean-fresh-priority" \
@@ -1857,10 +1888,10 @@ grep -q '01-shipguard-lean-audit-does-lean-deck-separate-real-simpl-fa325230' "$
 grep -q '01-shipguard-lean-audit-does-lean-deck-protect-host-adapte-6c18ff70' "$tmp_dir/lean-fresh-priority-quality/ios-report-quality.json"
 grep -q '01-shipguard-lean-audit-does-the-report-help-a-solo-develo-e645ec7e' "$tmp_dir/lean-fresh-priority-quality/ios-report-quality.json"
 grep -q '01-shipguard-lean-audit-does-leandebtledger-make-intention-e856e9a3' "$tmp_dir/lean-fresh-priority-quality/ios-report-quality.json"
+grep -q '01-shipguard-lean-audit-does-lean-gain-avoid-fake-per-repo-08315752' "$tmp_dir/lean-fresh-priority-quality/ios-report-quality.json"
 grep -q '"fixtureType": "shipguard-lean-report-quality-fixture"' "$tmp_dir/lean-fresh-priority-quality/ios-report-quality.json"
 grep -q '"fixtureCandidates":' "$tmp_dir/lean-fresh-priority-quality/ios-report-quality.json"
-grep -q 'Does lean gain avoid fake per-repo savings while still showing benchmark-backed impact?' "$tmp_dir/lean-fresh-priority-quality/ios-report-quality.json"
-grep -q 'write-fixture-candidates' "$tmp_dir/lean-fresh-priority-quality/ios-report-quality.json"
+grep -q 'Does each finding explain the proof needed before removing code?' "$tmp_dir/lean-fresh-priority-quality/ios-report-quality.json"
 if grep -R -E -q '/Users|/private/tmp|/var/folders|Ringly|Ilmify|InweFi' "$tmp_dir/lean-fresh-priority-candidates"; then
   echo "materialized Lean Deck priority candidate must not include local paths or private app identifiers" >&2
   exit 1
@@ -2049,6 +2080,58 @@ grep -q '"ruleId": "lean-debt-ledger-summary-missing"' "$tmp_dir/lean-debt-ledge
 grep -q '"ruleId": "lean-debt-ledger-marker-incomplete"' "$tmp_dir/lean-debt-ledger-missing-proof-quality/ios-report-quality.json"
 grep -q '"ruleId": "lean-debt-ledger-trigger-status-missing"' "$tmp_dir/lean-debt-ledger-missing-proof-quality/ios-report-quality.json"
 grep -q '"ruleId": "lean-debt-ledger-markdown-missing"' "$tmp_dir/lean-debt-ledger-missing-proof-quality/ios-report-quality.json"
+
+mkdir -p "$tmp_dir/lean-gain-fake-savings"
+cat > "$tmp_dir/lean-gain-fake-savings/lean-gain.json" <<'JSON'
+{
+  "schemaVersion": 1,
+  "tool": "shipguard lean gain",
+  "generatedAt": "2026-06-21T00:00:00Z",
+  "status": "pass",
+  "surface": "ShipGuard Lean Gain",
+  "target": {"path": ".", "shareable": true},
+  "benchmarkScoreboard": {
+    "primary": {
+      "label": "Synthetic benchmark",
+      "scope": "this repository",
+      "remainingPercentOfBaseline": {
+        "linesOfCode": 46
+      },
+      "reportedChange": {
+        "linesOfCode": "-54%"
+      }
+    }
+  },
+  "currentRepoBoundary": {
+    "perRepoSavingsClaim": "saved-54-percent",
+    "reason": "",
+    "realRepoSignals": [
+      "diff size after an actual change"
+    ]
+  },
+  "reportQualityQuestions": [
+    "Does lean gain avoid fake per-repo savings while still showing benchmark-backed impact?"
+  ]
+}
+JSON
+cat > "$tmp_dir/lean-gain-fake-savings/lean-gain.md" <<'MD'
+# ShipGuard Lean Gain
+
+The current repo saved 54 percent lines of code.
+
+## Benchmark
+
+This benchmark is presented as if it measured the current repository.
+MD
+./bin/shipguard ios report-quality \
+  --reports "$tmp_dir/lean-gain-fake-savings" \
+  --out "$tmp_dir/lean-gain-fake-savings-quality" \
+  --shareable >/dev/null
+grep -q '"ruleId": "lean-gain-fake-repo-savings-risk"' "$tmp_dir/lean-gain-fake-savings-quality/ios-report-quality.json"
+grep -q '"ruleId": "lean-gain-current-routing-missing"' "$tmp_dir/lean-gain-fake-savings-quality/ios-report-quality.json"
+grep -q '"ruleId": "lean-gain-scoreboard-incomplete"' "$tmp_dir/lean-gain-fake-savings-quality/ios-report-quality.json"
+grep -q '"ruleId": "lean-gain-scoreboard-metrics-missing"' "$tmp_dir/lean-gain-fake-savings-quality/ios-report-quality.json"
+grep -q '"ruleId": "lean-gain-honesty-markdown-missing"' "$tmp_dir/lean-gain-fake-savings-quality/ios-report-quality.json"
 
 mkdir -p "$tmp_dir/lean-large-missing-evidence"
 cat > "$tmp_dir/lean-large-missing-evidence/lean-audit.json" <<'JSON'

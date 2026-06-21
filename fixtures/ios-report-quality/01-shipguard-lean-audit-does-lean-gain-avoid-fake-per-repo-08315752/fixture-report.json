@@ -1,0 +1,105 @@
+{
+  "benchmarkScoreboard": {
+    "legacySingleShot": {
+      "boundary": "Older single-shot ranges are archival context only and are not the launch claim.",
+      "status": "archival-context-only"
+    },
+    "primary": {
+      "baseline": "same agent without the lean-code ruleset",
+      "label": "Synthetic Lean Gain public benchmark",
+      "method": "paired public fixture tasks with and without the lean-code ruleset",
+      "remainingPercentOfBaseline": {
+        "cost": 80,
+        "linesOfCode": 46,
+        "safety": 100,
+        "time": 73,
+        "tokens": 78
+      },
+      "reportedChange": {
+        "cost": "-20%",
+        "linesOfCode": "-54%",
+        "safety": "100%",
+        "time": "-27%",
+        "tokens": "-22%"
+      },
+      "scope": "public benchmark, not this repository"
+    }
+  },
+  "currentRepoBoundary": {
+    "perRepoSavingsClaim": "not-computed",
+    "realRepoSignals": [
+      "lean audit findings",
+      "lean review findings",
+      "lean debt marker counts"
+    ],
+    "reason": "There is no untreated baseline for this repository; ShipGuard cannot subtract code, cost, or time that was never produced."
+  },
+  "fixtureCandidate": {
+    "candidateId": "01-shipguard-lean-audit-does-lean-gain-avoid-fake-per-repo-08315752",
+    "duplicateCount": 1,
+    "expectedAssertions": [
+      "report-quality preserves the Lean Gain honesty actionability question in JSON and Markdown",
+      "the fixture exposes benchmarkScoreboard.primary with benchmark scope, baseline, method, remaining-percent metrics, and reported-change metrics",
+      "the fixture marks currentRepoBoundary.perRepoSavingsClaim as not-computed with a reason",
+      "the fixture routes current-repo evidence back to lean audit, lean review, and lean debt",
+      "the Markdown exposes Benchmark Scoreboard, Honesty Boundary, Current Repo Signals, and no-claim language",
+      "the fixture keeps scopeBoundary.shipguardOnly and targetAppsReadOnly explicit",
+      "shareable output contains no local absolute paths or private app identifiers"
+    ],
+    "fixtureType": "shipguard-lean-report-quality-fixture",
+    "priority": 1,
+    "privateDataPolicy": "This promoted fixture is synthetic. Use source reports only to choose report shape; do not copy private app code, local paths, screenshots, app-specific identifiers, or proprietary text.",
+    "publicFixturePath": "fixtures/ios-report-quality/01-shipguard-lean-audit-does-lean-gain-avoid-fake-per-repo-08315752",
+    "sourceQuestion": "Does lean gain avoid fake per-repo savings while still showing benchmark-backed impact?",
+    "sourceReportCount": 1,
+    "sourceReportsRedacted": true,
+    "sourceTool": "shipguard lean audit"
+  },
+  "generatedAt": "2026-06-21T02:12:00Z",
+  "intent": "shipguard-evaluation",
+  "leanDebtLedger": {
+    "description": "Intentional lean shortcuts found in comments. Every shortcut should name a ceiling and an upgrade trigger so deferrals stay reviewable.",
+    "markers": [],
+    "summary": {
+      "markers": 0,
+      "missingUpgradeTrigger": 0,
+      "omittedByLimit": 0
+    }
+  },
+  "nextActions": [
+    "Use shipguard lean audit for cuttable repo surfaces.",
+    "Use shipguard lean review on the active diff before merge.",
+    "Use shipguard lean debt to count intentional shortcuts with ceilings and upgrade triggers.",
+    "Do not claim per-repo line, token, cost, or time savings unless you have a real matched baseline."
+  ],
+  "reportQualityQuestions": [
+    "Does lean gain avoid fake per-repo savings while still showing benchmark-backed impact?"
+  ],
+  "scanScope": {
+    "note": "Synthetic fixture; no private source tree was scanned.",
+    "skippedDirectories": [],
+    "skippedDirectoryCount": 0
+  },
+  "schemaVersion": 1,
+  "scopeBoundary": {
+    "purpose": "Synthetic public fixture for ShipGuard report-quality behavior.",
+    "shipguardOnly": true,
+    "targetAppsReadOnly": true
+  },
+  "shareability": {
+    "localAbsolutePathsIncluded": false,
+    "mode": "shareable"
+  },
+  "sourceInfluence": {
+    "boundary": "ShipGuard reports the lean-code benchmark honestly and implements its own native reports. It does not vendor external code.",
+    "name": "Lean code benchmark influence",
+    "url": "https://github.com/DietrichGebert/ponytail"
+  },
+  "status": "pass",
+  "surface": "ShipGuard Lean Gain",
+  "target": {
+    "path": ".",
+    "shareable": true
+  },
+  "tool": "shipguard lean gain"
+}

@@ -72,6 +72,17 @@ The v3.142 read-only loop reran `shipguard lean audit`, `shipguard lean review`,
 
 Fresh QA now treats the shortcut-ledger question as covered and advances to the Lean Gain fake-savings question.
 
+## Current Lean Gain Honesty Fixture QA
+
+The v3.143 read-only loop reran `shipguard lean audit`, `shipguard lean review`, `shipguard lean gain`, `shipguard lean debt`, `shipguard value-gauntlet`, and `ios report-quality --write-fixture-candidates` against this checkout after the shortcut-ledger fixture landed.
+
+- Finding: fresh combined Lean QA passed, but the next uncovered actionability question was "Does lean gain avoid fake per-repo savings while still showing benchmark-backed impact?"
+- Product weakness: the generated fixture starter preserved the question but did not prove the actual Lean Gain contract, so a report could make benchmark impact look like measured current-repo savings.
+- Native fix: `ios report-quality` now flags Lean Gain reports that omit benchmark scope, benchmark metrics, the `not-computed` current-repo boundary, current-repo evidence routes, or Markdown no-claim language.
+- Fixture fix: `fixtures/ios-report-quality/01-shipguard-lean-audit-does-lean-gain-avoid-fake-per-repo-08315752` uses public synthetic evidence for a benchmark scoreboard plus explicit no-current-repo-savings boundary.
+
+Fresh combined Lean QA now treats the fake-savings question as covered and advances to the Lean Gain current-repo evidence-routing question.
+
 ## Current Verify-PR First-Run QA
 
 The v3.198 read-only loop ran `shipguard inspect`, `shipguard value-gauntlet`, `shipguard full-audit --plan-only`, docs-check, and the verify-first quickstart tests against this checkout.
