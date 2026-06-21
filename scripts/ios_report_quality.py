@@ -3045,14 +3045,14 @@ def stable_publication_evidence_packet_issues(
     required_rows = required if isinstance(required, list) else []
     synthetic_fixture_report = isinstance(report.get("fixtureCandidate"), dict) or path_name == "fixture-report.json"
     freshness_expected = isinstance(report.get("publicReleaseFreshnessProof"), dict) or not synthetic_fixture_report
-    minimum_required_count = 8 if freshness_expected else 7
+    minimum_required_count = 9 if freshness_expected else 7
     if not isinstance(required, list) or len(required) < minimum_required_count:
         add_issue(
             issues,
             severity="review",
             rule_id="stable-publication-required-evidence-incomplete",
             evidence=f"{path_name} evidence packet does not list all required stable-publication evidence gates",
-            recommendation="List release metadata, release notes, LaunchKey candidate proof, downloaded assets, consumer proof, public release freshness, adoption evidence, and security review evidence.",
+            recommendation="List release metadata, release notes, LaunchKey candidate proof, downloaded assets, consumer proof, public release freshness, release version coherence, adoption evidence, and security review evidence.",
         )
     else:
         required_ids = {str(item.get("id") or "") for item in required_rows if isinstance(item, dict)}
@@ -3067,6 +3067,7 @@ def stable_publication_evidence_packet_issues(
         }
         if freshness_expected:
             expected.add("public-release-freshness")
+            expected.add("release-version-coherence")
         missing_ids = sorted(expected - required_ids)
         if missing_ids:
             add_issue(
@@ -4217,6 +4218,71 @@ def stable_publication_evidence_packet_issues(
             evidence=f"{path_name} has external evidence freshness data but Markdown does not render it",
             recommendation="Render external adoption and security-review freshness status in Markdown so stale evidence cannot hide in JSON.",
         )
+
+    version_coherence = (
+        report.get("releaseVersionCoherenceProof")
+        if isinstance(report.get("releaseVersionCoherenceProof"), dict)
+        else {}
+    )
+    if report.get("stableV4Release") is True and not version_coherence:
+        add_issue(
+            issues,
+            severity="review",
+            rule_id="stable-publication-version-coherence-missing",
+            evidence=f"{path_name} claims stableV4Release=true but has no releaseVersionCoherenceProof",
+            recommendation="Compare VERSION, GitHub release metadata, release-manifest.json, package proof, and consumer report version before allowing stable-v4 claims.",
+        )
+    if version_coherence:
+        comparisons = (
+            version_coherence.get("comparisons")
+            if isinstance(version_coherence.get("comparisons"), dict)
+            else {}
+        )
+        if report.get("stableV4Release") is True and version_coherence.get("status") != "pass":
+            add_issue(
+                issues,
+                severity="review",
+                rule_id="stable-publication-version-coherence-not-pass",
+                evidence=f"{path_name} claims stableV4Release=true but releaseVersionCoherenceProof is {version_coherence.get('status')}",
+                recommendation="Block stable-v4 claims until every version/tag/package/manifest comparison passes.",
+            )
+        for comparison_key in (
+            "sourceVersionMatchesRequested",
+            "metadataReturnedTagMatchesRequested",
+            "manifestVersionMatchesRequested",
+            "packageVersionMatchesRequested",
+            "consumerReportVersionMatchesRequested",
+        ):
+            if comparison_key not in comparisons:
+                add_issue(
+                    issues,
+                    severity="review",
+                    rule_id="stable-publication-version-coherence-comparison-missing",
+                    evidence=f"{path_name} releaseVersionCoherenceProof omits comparison `{comparison_key}`",
+                    recommendation="Expose a version coherence matrix covering VERSION, GitHub metadata, release manifest, package proof, and consumer report version.",
+                )
+                break
+        boundary = (
+            version_coherence.get("versionCoherenceBoundary")
+            if isinstance(version_coherence.get("versionCoherenceBoundary"), dict)
+            else {}
+        )
+        if boundary.get("versionMustMatchAcrossSourceMetadataManifestPackageAndConsumerProof") is not True:
+            add_issue(
+                issues,
+                severity="review",
+                rule_id="stable-publication-version-coherence-boundary-missing",
+                evidence=f"{path_name} releaseVersionCoherenceProof does not expose the stable-v4 version boundary",
+                recommendation="State that version metadata must match across source, GitHub metadata, release manifest, package proof, and consumer proof before stable-v4 claims are allowed.",
+            )
+        if "Release Version Coherence" not in markdown:
+            add_issue(
+                issues,
+                severity="review",
+                rule_id="stable-publication-version-coherence-markdown-missing",
+                evidence=f"{path_name} has releaseVersionCoherenceProof but Markdown does not render it",
+                recommendation="Render the version coherence matrix in Markdown so mismatched versions cannot hide in JSON.",
+            )
 
     non_claims = packet.get("nonClaims")
     if not isinstance(non_claims, list) or not non_claims:

@@ -75,6 +75,7 @@ The report returns `pass` only when every gate passes:
 - Post-release consumer proof is attached from the release assets.
 - The post-release digest matrix covers required release assets, has SHA-256 values for present assets, and the release tarball digest matches the consumer artifact SHA-256.
 - Public release freshness proves the GitHub tag target, `release-manifest.json` commit, release tag/version, release metadata target, and publication timestamp describe the same release.
+- Release version coherence proves `VERSION`, the requested release version, GitHub metadata tag, `release-manifest.json`, release-consume package version, consumer report version, and versioned tarball name all describe the same release.
 - External adoption evidence passes the stable-v4 gate with independent public or redacted external records, and the record `generatedAt` timestamp is no earlier than the release manifest timestamp.
 - Final security-review evidence passes the stable-v4 gate with CLI, plugin, GitHub Actions, release-proof, package-install, and redaction/privacy scope coverage, and the record `generatedAt` timestamp is no earlier than the release manifest timestamp.
 
@@ -228,6 +229,21 @@ When public release freshness is a closure blocker, the row also carries a fresh
 - `freshnessProofBoundary`, which says public tag target plus release manifest proof is required, the manifest commit must match the public tag target, and source-only or fixture API proof cannot satisfy stable-v4 freshness
 
 Markdown renders these fields as `Public Release Freshness Closure Kit` so stale tags, rebuilt assets, or mismatched release manifests are visible before adoption/security evidence is chased.
+
+## Release Version Coherence
+
+Stable publication emits `releaseVersionCoherenceProof` after public release freshness and before external adoption/security evidence.
+
+The proof compares:
+
+- source `VERSION`
+- requested release version and normalized tag
+- returned GitHub release metadata tag name
+- `release-manifest.json` version, tag, and artifact name
+- release-consume package version and `consumer-report.json` version
+- the expected versioned tarball name in metadata and digest assets
+
+Markdown renders this as `Release Version Coherence`. A stable-v4 claim cannot pass if any of those fields point at a different release.
 
 ## External Evidence Freshness
 

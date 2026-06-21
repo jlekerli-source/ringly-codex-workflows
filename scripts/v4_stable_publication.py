@@ -313,6 +313,7 @@ GITHUB_RELEASE_METADATA_REPAIR_CRITERIA = [
 GITHUB_RELEASE_METADATA_PASS_CRITERIA = [
     "The GitHub release repository is explicit or successfully inferred from `origin`.",
     "The release tag exists in the selected repository.",
+    "The returned GitHub release tag name matches the requested release tag.",
     "The release is not draft-only and not prerelease-only.",
     "Every required stable-publication asset is present in GitHub release metadata.",
     "The release URL, target commitish, asset names, and release-note digest are recorded for downstream proof.",
@@ -322,6 +323,7 @@ GITHUB_RELEASE_METADATA_FAIL_CRITERIA = [
     "No GitHub release repository is supplied or inferred.",
     "`--github-release-repo` is not in `owner/repo` form.",
     "The selected API endpoint cannot load the requested release tag.",
+    "The returned GitHub release tag name disagrees with the requested release tag.",
     "The release is draft or prerelease when stable-v4 publication proof is requested.",
     "GitHub metadata is missing one or more required release assets.",
     "A source checkout, local package build, fixture API, or generated report is treated as public release metadata proof.",
@@ -352,6 +354,28 @@ PUBLIC_RELEASE_FRESHNESS_FAIL_CRITERIA = [
     "The release metadata `target_commitish` is a SHA and disagrees with the release manifest commit.",
     "The release manifest appears newer than the public release publication timestamp, which means the public metadata/assets may be stale or replaced.",
     "Source checkout state, fixture API responses, local package builds, or draft release notes are treated as freshness proof.",
+]
+
+RELEASE_VERSION_COHERENCE_REPAIR_CRITERIA = [
+    "Use one release version across VERSION, `--release-version`, the public GitHub release tag, release-manifest.json, and release-consume verification.",
+    "Rebuild and re-upload the release packet if the manifest or tarball belongs to a different version than the public GitHub release.",
+    "Rerun `shipguard v4 stable-publication` after repairing the version, tag, manifest, package, or GitHub release metadata.",
+]
+
+RELEASE_VERSION_COHERENCE_PASS_CRITERIA = [
+    "VERSION matches the requested release version.",
+    "The public GitHub release tag and returned metadata tag name match the requested release.",
+    "release-manifest.json version and tag match the requested release.",
+    "release-consume verification reports the requested release version.",
+    "The versioned tarball name matches the requested release version.",
+]
+
+RELEASE_VERSION_COHERENCE_FAIL_CRITERIA = [
+    "VERSION disagrees with `--release-version`.",
+    "GitHub release metadata returns a different tag name than the requested tag.",
+    "release-manifest.json version or tag disagrees with the requested release.",
+    "release-consume verifies a different package version.",
+    "The release asset packet exposes a tarball for a different version.",
 ]
 
 RELEASE_ASSET_REPAIR_CRITERIA = [
@@ -422,6 +446,10 @@ def load_json(path: Path) -> dict[str, Any]:
 
 def normalize_version(version: str) -> str:
     return version.removeprefix("v")
+
+
+def requested_tarball_name(version: str) -> str:
+    return f"shipguard-v{normalize_version(version)}.tar.gz"
 
 
 def is_sha_like(value: object) -> bool:
@@ -878,8 +906,9 @@ def build_github_release_metadata_proof(args: argparse.Namespace, version: str) 
         "repoInference": getattr(args, "githubReleaseRepoInference", {}),
         "version": release_version,
         "tag": release_tag,
+        "metadataTagName": "",
         "apiUrl": args.github_api_url.rstrip("/"),
-        "requiredAssets": sorted(REQUIRED_RELEASE_ASSETS | {f"shipguard-v{normalize_version(release_version)}.tar.gz"}),
+        "requiredAssets": sorted(REQUIRED_RELEASE_ASSETS | {requested_tarball_name(release_version)}),
         "nextCommand": stable_publication_command(args, placeholders=True),
     }
     if not args.github_release_repo:
@@ -914,12 +943,14 @@ def build_github_release_metadata_proof(args: argparse.Namespace, version: str) 
     missing_assets = sorted(required_assets - set(asset_names))
     body = str(release.get("body") or "")
     release_notes_analysis = analyze_release_notes(body)
+    metadata_tag_name = str(release.get("tag_name") or release.get("tagName") or "")
     proof.update(
         {
-            "status": "pass" if not missing_assets else "review",
+            "status": "pass" if not missing_assets and metadata_tag_name == release_tag else "review",
             "provided": True,
             "summary": "GitHub release metadata was loaded and required release assets are present.",
             "releaseUrl": release.get("html_url") or release.get("url") or "",
+            "metadataTagName": metadata_tag_name,
             "publishedAt": release.get("published_at") or release.get("publishedAt") or "",
             "targetCommitish": release.get("target_commitish") or release.get("targetCommitish") or "",
             "assetCount": len(asset_names),
@@ -943,6 +974,8 @@ def build_github_release_metadata_proof(args: argparse.Namespace, version: str) 
     )
     if missing_assets:
         proof["summary"] = "GitHub release metadata loaded, but required stable-publication assets are missing."
+    if metadata_tag_name != release_tag:
+        proof["summary"] = "GitHub release metadata loaded, but returned release tag does not match the requested tag."
     if proof["isDraft"] or proof["isPrerelease"]:
         proof["status"] = "review"
         proof["summary"] = "GitHub release exists but is draft or prerelease."
@@ -1261,6 +1294,115 @@ def build_public_release_freshness_proof(
     return proof
 
 
+def build_release_version_coherence_proof(
+    *,
+    source_version: str,
+    release_version: str,
+    metadata_proof: dict[str, Any],
+    published_asset_proof: dict[str, Any],
+    public_release_freshness_proof: dict[str, Any],
+) -> dict[str, Any]:
+    requested = normalize_version(release_version)
+    expected_tag = launchkey.normalize_release_tag(release_version)
+    expected_tarball = requested_tarball_name(release_version)
+    consumer_report_path = str(published_asset_proof.get("consumerReportPath") or "")
+    consumer_report = load_json(Path(consumer_report_path)) if consumer_report_path else {}
+    digest = (
+        public_release_freshness_proof.get("artifactName")
+        or published_asset_proof.get("artifactName")
+        or ""
+    )
+    required_assets = set(str(value) for value in metadata_proof.get("requiredAssets", []) if value)
+    metadata_assets = set(str(value) for value in metadata_proof.get("assetNames", []) if value)
+    digest_assets = set()
+    matrix_path = str(published_asset_proof.get("assetDigestMatrixPath") or "")
+    if matrix_path:
+        matrix = load_json(Path(matrix_path))
+        rows = matrix.get("assets") if isinstance(matrix.get("assets"), list) else []
+        digest_assets = {str(row.get("name") or "") for row in rows if isinstance(row, dict)}
+
+    comparisons = {
+        "sourceVersionMatchesRequested": normalize_version(source_version) == requested,
+        "metadataVersionMatchesRequested": normalize_version(str(metadata_proof.get("version") or "")) == requested,
+        "metadataTagMatchesRequested": str(metadata_proof.get("tag") or "") == expected_tag,
+        "metadataReturnedTagMatchesRequested": str(metadata_proof.get("metadataTagName") or "") == expected_tag,
+        "manifestVersionMatchesRequested": normalize_version(str(public_release_freshness_proof.get("manifestVersion") or "")) == requested,
+        "manifestTagMatchesRequested": str(public_release_freshness_proof.get("manifestTag") or "") == expected_tag,
+        "packageVersionMatchesRequested": normalize_version(str(published_asset_proof.get("version") or "")) == requested,
+        "consumerReportVersionMatchesRequested": normalize_version(str(consumer_report.get("version") or "")) == requested,
+        "manifestArtifactNameMatchesRequestedTarball": str(digest or "") == expected_tarball,
+        "metadataRequiredAssetsContainRequestedTarball": expected_tarball in required_assets,
+        "metadataAssetsContainRequestedTarball": expected_tarball in metadata_assets,
+        "consumerDigestAssetsContainRequestedTarball": expected_tarball in digest_assets,
+    }
+    labels = {
+        "sourceVersionMatchesRequested": "VERSION does not match the requested release version.",
+        "metadataVersionMatchesRequested": "GitHub metadata proof version does not match the requested release version.",
+        "metadataTagMatchesRequested": "GitHub metadata proof tag does not match the requested release tag.",
+        "metadataReturnedTagMatchesRequested": "GitHub returned tag_name does not match the requested release tag.",
+        "manifestVersionMatchesRequested": "release-manifest.json version does not match the requested release version.",
+        "manifestTagMatchesRequested": "release-manifest.json tag does not match the requested release tag.",
+        "packageVersionMatchesRequested": "Release-consume package version does not match the requested release version.",
+        "consumerReportVersionMatchesRequested": "consumer-report.json version does not match the requested release version.",
+        "manifestArtifactNameMatchesRequestedTarball": "release-manifest.json artifact name does not match the requested versioned tarball.",
+        "metadataRequiredAssetsContainRequestedTarball": "GitHub metadata required asset list does not include the requested versioned tarball.",
+        "metadataAssetsContainRequestedTarball": "GitHub release metadata asset list does not include the requested versioned tarball.",
+        "consumerDigestAssetsContainRequestedTarball": "asset-digests.json does not include the requested versioned tarball.",
+    }
+    problems = [labels[key] for key, passed in comparisons.items() if passed is not True]
+    if metadata_proof.get("status") != "pass":
+        problems.append("GitHub release metadata must pass before version coherence can pass.")
+    if published_asset_proof.get("status") != "pass":
+        problems.append("Release-consume package proof must pass before version coherence can pass.")
+    if public_release_freshness_proof.get("status") != "pass":
+        problems.append("Public release freshness must pass before version coherence can pass.")
+
+    return {
+        "schemaVersion": 1,
+        "status": "pass" if not problems else "review",
+        "provided": True,
+        "requiredForStableV4": True,
+        "summary": (
+            "VERSION, GitHub release metadata, release manifest, package proof, and consumer digest all name the same release version."
+            if not problems
+            else "Release version metadata is mismatched or incomplete."
+        ),
+        "sourceVersion": source_version,
+        "releaseVersion": release_version,
+        "normalizedReleaseVersion": requested,
+        "expectedTag": expected_tag,
+        "metadataTagName": metadata_proof.get("metadataTagName") or "",
+        "manifestVersion": public_release_freshness_proof.get("manifestVersion") or "",
+        "manifestTag": public_release_freshness_proof.get("manifestTag") or "",
+        "packageVersion": published_asset_proof.get("version") or "",
+        "consumerReportVersion": consumer_report.get("version") or "",
+        "expectedTarballName": expected_tarball,
+        "manifestArtifactName": digest,
+        "comparisons": comparisons,
+        "problems": problems,
+        "repairCriteria": RELEASE_VERSION_COHERENCE_REPAIR_CRITERIA,
+        "passCriteria": RELEASE_VERSION_COHERENCE_PASS_CRITERIA,
+        "failCriteria": RELEASE_VERSION_COHERENCE_FAIL_CRITERIA,
+        "nextCommand": stable_publication_command(
+            argparse.Namespace(
+                github_release_repo=metadata_proof.get("repo") or "<owner/repo>",
+                release_version=release_version,
+                release_candidate_report="<v4-release-candidate-json-or-dir>",
+                release_assets=None,
+                external_adoption_evidence=[],
+                security_review_evidence=[],
+            ),
+            placeholders=True,
+        ),
+        "versionCoherenceBoundary": {
+            "versionMustMatchAcrossSourceMetadataManifestPackageAndConsumerProof": True,
+            "githubMetadataReturnedTagNameMustMatchRequestedTag": True,
+            "sourceOnlyProofCountsAsVersionCoherenceProof": False,
+            "fixtureApiProofCountsAsStableV4PublicationProof": False,
+        },
+    }
+
+
 def first_blocking_gate(gates: list[tuple[str, dict[str, Any], str]]) -> tuple[str, dict[str, Any], str] | None:
     for receipt, proof, command in gates:
         if proof.get("status") == "pass":
@@ -1277,6 +1419,7 @@ def evidence_id_for_receipt(receipt: str) -> str:
         "publishedReleaseAssetProof": "downloaded-release-assets",
         "postReleaseConsumerProof": "post-release-consumer-proof",
         "publicReleaseFreshnessProof": "public-release-freshness",
+        "releaseVersionCoherenceProof": "release-version-coherence",
         "externalAdoptionEvidenceStableGate": "independent-adoption-evidence",
         "securityReviewEvidenceStableGate": "final-security-review-evidence",
     }
@@ -1291,6 +1434,7 @@ def proof_boundary_for_evidence_id(evidence_id: str) -> str:
         "downloaded-release-assets": "Release assets must be downloaded or supplied and verified from the publication packet, not assumed from source state.",
         "post-release-consumer-proof": "Post-release consumer proof must come from release-consume verification of the downloaded or supplied assets.",
         "public-release-freshness": "Public release freshness must prove the GitHub tag target, release manifest commit, release metadata, and downloaded/supplied assets all describe the same release.",
+        "release-version-coherence": "VERSION, requested release version, public tag, release manifest, package proof, and consumer proof must all name the same release.",
         "independent-adoption-evidence": "Independent adoption evidence must be real public or private-redacted evidence; GitHub download counts and maintainer-only runs do not count.",
         "final-security-review-evidence": "Final security review evidence must cover CLI, plugin, GitHub Actions, release proof, package install, and redaction/privacy with no open critical or high findings.",
     }
@@ -1520,6 +1664,7 @@ def github_release_metadata_diagnostics_for_closure(proof: dict[str, Any]) -> di
         "repoInference": proof.get("repoInference") if isinstance(proof.get("repoInference"), dict) else {},
         "version": proof.get("version") or "",
         "tag": proof.get("tag") or "",
+        "metadataTagName": proof.get("metadataTagName") or "",
         "apiUrl": proof.get("apiUrl") or "",
         "releaseEndpoint": proof.get("releaseEndpoint") or "",
         "releaseUrl": proof.get("releaseUrl") or "",
@@ -1579,6 +1724,7 @@ def build_github_release_metadata_closure_kit(
         "repoInference": diagnostics.get("repoInference") if isinstance(diagnostics.get("repoInference"), dict) else {},
         "version": diagnostics.get("version") or "",
         "tag": diagnostics.get("tag") or "",
+        "metadataTagName": diagnostics.get("metadataTagName") or "",
         "apiUrl": diagnostics.get("apiUrl") or "",
         "releaseEndpoint": diagnostics.get("releaseEndpoint") or "",
         "releaseUrl": diagnostics.get("releaseUrl") or "",
@@ -1831,6 +1977,27 @@ def release_freshness_diagnostics_for_closure(proof: dict[str, Any]) -> dict[str
         "artifactSha256": proof.get("artifactSha256") or "",
         "localHeadCommit": proof.get("localHeadCommit") or "",
         "localTagCommit": proof.get("localTagCommit") or "",
+        "comparisons": proof.get("comparisons") if isinstance(proof.get("comparisons"), dict) else {},
+        "problems": proof.get("problems") if isinstance(proof.get("problems"), list) else [],
+        "nextCommand": proof.get("nextCommand") or "",
+    }
+
+
+def release_version_coherence_diagnostics_for_closure(proof: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "status": proof.get("status"),
+        "summary": proof.get("summary") or "",
+        "sourceVersion": proof.get("sourceVersion") or "",
+        "releaseVersion": proof.get("releaseVersion") or "",
+        "normalizedReleaseVersion": proof.get("normalizedReleaseVersion") or "",
+        "expectedTag": proof.get("expectedTag") or "",
+        "metadataTagName": proof.get("metadataTagName") or "",
+        "manifestVersion": proof.get("manifestVersion") or "",
+        "manifestTag": proof.get("manifestTag") or "",
+        "packageVersion": proof.get("packageVersion") or "",
+        "consumerReportVersion": proof.get("consumerReportVersion") or "",
+        "expectedTarballName": proof.get("expectedTarballName") or "",
+        "manifestArtifactName": proof.get("manifestArtifactName") or "",
         "comparisons": proof.get("comparisons") if isinstance(proof.get("comparisons"), dict) else {},
         "problems": proof.get("problems") if isinstance(proof.get("problems"), list) else [],
         "nextCommand": proof.get("nextCommand") or "",
@@ -2258,6 +2425,8 @@ def build_stable_publication_evidence_packet(
             item["postReleaseConsumerDiagnostics"] = post_release_consumer_diagnostics_for_closure(proof)
         if evidence_id == "public-release-freshness":
             item["releaseFreshnessDiagnostics"] = release_freshness_diagnostics_for_closure(proof)
+        if evidence_id == "release-version-coherence":
+            item["releaseVersionCoherenceDiagnostics"] = release_version_coherence_diagnostics_for_closure(proof)
         if evidence_id in {"independent-adoption-evidence", "final-security-review-evidence"}:
             item["evidenceDiagnostics"] = evidence_diagnostics_for_closure(proof)
         required_evidence.append(item)
@@ -2288,6 +2457,7 @@ def build_stable_publication_evidence_packet(
         "proofOrder": [
             "Run LaunchKey release-candidate proof with package install, upgrade, rollback, release assets, adoption, and security receipts.",
             "Publish the GitHub release with stable-v4 release notes and required release-proof assets.",
+            "Confirm the VERSION file, requested release version, GitHub tag, release manifest, package proof, and consumer report name the same release.",
             "Run stable-publication against the published release metadata, downloaded assets, independent adoption evidence, and final security review evidence.",
             "Use a passing stable-publication report as the only local permission to claim ShipGuard v4 is stable.",
         ],
@@ -2538,6 +2708,33 @@ def build_stable_publication_closure_checklist(
                 }
             )
             closure_item["nextCommand"] = closure_item["freshnessRerunCommand"]
+        if evidence_id == "release-version-coherence":
+            diagnostics = (
+                item.get("releaseVersionCoherenceDiagnostics")
+                if isinstance(item.get("releaseVersionCoherenceDiagnostics"), dict)
+                else {}
+            )
+            closure_item.update(
+                {
+                    "sourceVersion": diagnostics.get("sourceVersion") or "",
+                    "releaseVersion": diagnostics.get("releaseVersion") or "",
+                    "expectedTag": diagnostics.get("expectedTag") or "",
+                    "metadataTagName": diagnostics.get("metadataTagName") or "",
+                    "manifestVersion": diagnostics.get("manifestVersion") or "",
+                    "manifestTag": diagnostics.get("manifestTag") or "",
+                    "packageVersion": diagnostics.get("packageVersion") or "",
+                    "consumerReportVersion": diagnostics.get("consumerReportVersion") or "",
+                    "expectedTarballName": diagnostics.get("expectedTarballName") or "",
+                    "manifestArtifactName": diagnostics.get("manifestArtifactName") or "",
+                    "comparisons": diagnostics.get("comparisons") if isinstance(diagnostics.get("comparisons"), dict) else {},
+                    "problems": diagnostics.get("problems") if isinstance(diagnostics.get("problems"), list) else [],
+                    "repairCriteria": RELEASE_VERSION_COHERENCE_REPAIR_CRITERIA,
+                    "passCriteria": RELEASE_VERSION_COHERENCE_PASS_CRITERIA,
+                    "failCriteria": RELEASE_VERSION_COHERENCE_FAIL_CRITERIA,
+                    "versionCoherenceRerunCommand": rerun_command or item.get("nextCommand") or first_blocking.get("nextCommand") or "",
+                }
+            )
+            closure_item["nextCommand"] = closure_item["versionCoherenceRerunCommand"]
         if evidence_id in {"independent-adoption-evidence", "final-security-review-evidence"}:
             template = templates_by_id.get(evidence_id, {})
             starter_file = starter_files_by_id.get(evidence_id, {})
@@ -2985,6 +3182,13 @@ def build_report(args: argparse.Namespace) -> dict[str, Any]:
         metadata_proof=metadata_proof,
         published_asset_proof=published_asset_proof,
     )
+    release_version_coherence_proof = build_release_version_coherence_proof(
+        source_version=version,
+        release_version=release_version,
+        metadata_proof=metadata_proof,
+        published_asset_proof=published_asset_proof,
+        public_release_freshness_proof=public_release_freshness_proof,
+    )
     adoption_proof = attach_external_evidence_freshness(
         launchkey.build_external_adoption_evidence_proof(args),
         evidence_id="independent-adoption-evidence",
@@ -3013,6 +3217,7 @@ def build_report(args: argparse.Namespace) -> dict[str, Any]:
         ("publishedReleaseAssetProof", published_asset_proof, stable_publication_rerun_command(args)),
         ("postReleaseConsumerProof", post_release_consumer_proof, published_asset_proof.get("consumeCommand", "")),
         ("publicReleaseFreshnessProof", public_release_freshness_proof, stable_publication_rerun_command(args)),
+        ("releaseVersionCoherenceProof", release_version_coherence_proof, stable_publication_rerun_command(args)),
         ("externalAdoptionEvidenceStableGate", adoption_gate_proof, adoption_proof.get("nextCommand", "")),
         ("securityReviewEvidenceStableGate", security_gate_proof, security_proof.get("nextCommand", "")),
     ]
@@ -3100,6 +3305,7 @@ def build_report(args: argparse.Namespace) -> dict[str, Any]:
         "publishedReleaseAssetProof": published_asset_proof,
         "postReleaseConsumerProof": post_release_consumer_proof,
         "publicReleaseFreshnessProof": public_release_freshness_proof,
+        "releaseVersionCoherenceProof": release_version_coherence_proof,
         "externalAdoptionEvidenceProof": adoption_proof,
         "securityReviewEvidenceProof": security_proof,
         "stablePublicationGates": [
@@ -3133,6 +3339,7 @@ def build_report(args: argparse.Namespace) -> dict[str, Any]:
             "Does the downloaded release-assets closure row expose required assets, metadata/local missing assets, download source/status, asset directory, repair/pass/fail criteria, download rerun, full stable-publication rerun, and metadata-only/source-only/fixture-proof boundaries?",
             "Does the post-release consumer closure row expose release-consume paths, missing proof artifacts, digest/replay/attestation statuses, repair/pass criteria, release-consume rerun, full stable-publication rerun, and source-only/fixture-proof boundaries?",
             "Does the public release freshness row prove the GitHub tag target, release manifest commit, release metadata target, and publication timestamp describe the same release?",
+            "Does the release version coherence row prove VERSION, GitHub metadata, release manifest, package proof, and consumer report all name the same release version?",
             "Do independent adoption and final security-review evidence records prove generatedAt freshness against the release manifest instead of reusing stale packet evidence?",
             "Do independent adoption and final security-review closure rows expose starter paths, required fields, redaction/privacy boundaries, pass/fail criteria, current diagnostics, and exact stable-publication rerun commands?",
             "Does the stable-publication report prepare guarded launch relay drafts without posting, submitting, or bypassing explicit human approval?",
@@ -3219,6 +3426,51 @@ def render_markdown(report: dict[str, Any]) -> str:
                 lines.append(f"- `{label}` first problem: {problems[0]}")
             else:
                 lines.append(f"- `{label}` first problem: none")
+    version_coherence = (
+        report.get("releaseVersionCoherenceProof")
+        if isinstance(report.get("releaseVersionCoherenceProof"), dict)
+        else {}
+    )
+    if version_coherence:
+        comparisons = version_coherence.get("comparisons") if isinstance(version_coherence.get("comparisons"), dict) else {}
+        problems = version_coherence.get("problems") if isinstance(version_coherence.get("problems"), list) else []
+        boundary = (
+            version_coherence.get("versionCoherenceBoundary")
+            if isinstance(version_coherence.get("versionCoherenceBoundary"), dict)
+            else {}
+        )
+        lines.extend(
+            [
+                "",
+                "## Release Version Coherence",
+                "",
+                f"- Status: `{version_coherence.get('status')}`",
+                f"- Source VERSION: `{version_coherence.get('sourceVersion') or 'not-provided'}`",
+                f"- Release version: `{version_coherence.get('releaseVersion') or 'not-provided'}`",
+                f"- Expected tag: `{version_coherence.get('expectedTag') or 'not-provided'}`",
+                f"- GitHub returned tag: `{version_coherence.get('metadataTagName') or 'not-provided'}`",
+                f"- Manifest version: `{version_coherence.get('manifestVersion') or 'not-provided'}`",
+                f"- Package version: `{version_coherence.get('packageVersion') or 'not-provided'}`",
+                f"- Consumer report version: `{version_coherence.get('consumerReportVersion') or 'not-provided'}`",
+                f"- Expected tarball: `{version_coherence.get('expectedTarballName') or 'not-provided'}`",
+                f"- Manifest artifact: `{version_coherence.get('manifestArtifactName') or 'not-provided'}`",
+                f"- Source-only proof counts as version coherence proof: `{boundary.get('sourceOnlyProofCountsAsVersionCoherenceProof')}`",
+                "",
+                "| Version comparison | Status |",
+                "| --- | --- |",
+            ]
+        )
+        if comparisons:
+            for key, value in comparisons.items():
+                lines.append(f"| `{key}` | `{value}` |")
+        else:
+            lines.append("| `not-provided` | `not-provided` |")
+        lines.extend(["", "Version coherence problems:", ""])
+        if problems:
+            for problem in problems:
+                lines.append(f"- {problem}")
+        else:
+            lines.append("- none")
     closure_checklist = (
         report.get("stablePublicationClosureChecklist")
         if isinstance(report.get("stablePublicationClosureChecklist"), dict)
@@ -3271,6 +3523,7 @@ def render_markdown(report: dict[str, Any]) -> str:
                     f"- Repository: `{kit.get('repo') or 'not-provided'}`",
                     f"- Repository inference: `{repo_inference.get('status') or 'not-provided'}` from `{repo_inference.get('source') or 'not-provided'}`",
                     f"- Release tag: `{kit.get('tag') or 'not-provided'}`",
+                    f"- GitHub returned tag: `{kit.get('metadataTagName') or 'not-provided'}`",
                     f"- API URL: `{kit.get('apiUrl') or 'not-provided'}`",
                     f"- Release endpoint: `{kit.get('releaseEndpoint') or 'not-provided'}`",
                     f"- Release URL: `{kit.get('releaseUrl') or 'not-provided'}`",
@@ -3843,6 +4096,7 @@ def render_markdown(report: dict[str, Any]) -> str:
             f"- Release assets: `{report.get('publishedReleaseAssetProof', {}).get('status')}`",
             f"- Post-release consumer proof: `{report.get('postReleaseConsumerProof', {}).get('status')}`",
             f"- Public release freshness: `{report.get('publicReleaseFreshnessProof', {}).get('status')}`",
+            f"- Release version coherence: `{report.get('releaseVersionCoherenceProof', {}).get('status')}`",
             f"- External adoption stable gate: `{report.get('externalAdoptionEvidenceProof', {}).get('stableV4GateStatus')}`",
             f"- External adoption freshness: `{(report.get('externalAdoptionEvidenceProof', {}).get('evidencePacketFreshness') or {}).get('status')}`",
             f"- Security review stable gate: `{report.get('securityReviewEvidenceProof', {}).get('stableV4GateStatus')}`",

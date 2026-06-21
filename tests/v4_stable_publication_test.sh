@@ -376,9 +376,10 @@ report = json.load(open(sys.argv[1], encoding="utf-8"))
 packet = report["stablePublicationEvidencePacket"]
 assert packet["status"] == "review"
 assert packet["stableV4Release"] is False
-assert packet["requiredEvidenceCount"] == 8
-assert packet["passedEvidenceCount"] < 8
+assert packet["requiredEvidenceCount"] == 9
+assert packet["passedEvidenceCount"] < 9
 assert "launchkey-candidate-packet" in packet["missingEvidenceIds"]
+assert "release-version-coherence" not in packet["missingEvidenceIds"]
 assert packet["firstBlockingGate"]["receipt"] == "releaseCandidatePacketProof"
 assert packet["firstBlockingGate"]["nextCommand"].startswith("./bin/shipguard v4 release-candidate")
 closure = report["stablePublicationClosureChecklist"]
@@ -577,6 +578,7 @@ assert packet["missingEvidenceIds"] == [
     "downloaded-release-assets",
     "post-release-consumer-proof",
     "public-release-freshness",
+    "release-version-coherence",
 ]
 assert packet["firstBlockingGate"]["receipt"] == "publishedReleaseAssetProof"
 required_by_id = {item["id"]: item for item in packet["requiredEvidence"]}
@@ -596,6 +598,11 @@ freshness_required = required_by_id["public-release-freshness"]
 freshness_diagnostics = freshness_required["releaseFreshnessDiagnostics"]
 assert freshness_diagnostics["status"] == "not-provided"
 assert any("release-manifest.json" in problem for problem in freshness_diagnostics["problems"])
+version_required = required_by_id["release-version-coherence"]
+version_diagnostics = version_required["releaseVersionCoherenceDiagnostics"]
+assert version_diagnostics["status"] == "review"
+assert version_diagnostics["comparisons"]["packageVersionMatchesRequested"] is False
+assert version_diagnostics["comparisons"]["consumerReportVersionMatchesRequested"] is False
 closure = report["stablePublicationClosureChecklist"]
 assert [item["id"] for item in closure["items"]] == packet["missingEvidenceIds"]
 asset_item = closure["items"][0]
@@ -1082,6 +1089,14 @@ assert digest["missingSha256AssetNames"] == []
 assert f"shipguard-v{report['releaseVersion'].removeprefix('v')}.tar.gz" in digest["requiredAssetNames"]
 assert report["publicReleaseFreshnessProof"]["status"] == "pass"
 assert report["publicReleaseFreshnessProof"]["comparisons"]["tagTargetMatchesManifestCommit"] is True
+version_coherence = report["releaseVersionCoherenceProof"]
+assert version_coherence["status"] == "pass"
+assert version_coherence["comparisons"]["sourceVersionMatchesRequested"] is True
+assert version_coherence["comparisons"]["metadataReturnedTagMatchesRequested"] is True
+assert version_coherence["comparisons"]["manifestVersionMatchesRequested"] is True
+assert version_coherence["comparisons"]["packageVersionMatchesRequested"] is True
+assert version_coherence["comparisons"]["consumerReportVersionMatchesRequested"] is True
+assert version_coherence["expectedTarballName"] == f"shipguard-v{report['releaseVersion'].removeprefix('v')}.tar.gz"
 assert report["externalAdoptionEvidenceProof"]["stableV4GateStatus"] == "pass"
 assert report["securityReviewEvidenceProof"]["stableV4GateStatus"] == "pass"
 adoption_freshness = report["externalAdoptionEvidenceProof"]["evidencePacketFreshness"]
@@ -1102,8 +1117,8 @@ assert "value-gauntlet" in report["resultUX"]["nextCommand"]
 packet = report["stablePublicationEvidencePacket"]
 assert packet["status"] == "pass"
 assert packet["stableV4Release"] is True
-assert packet["requiredEvidenceCount"] == 8
-assert packet["passedEvidenceCount"] == 8
+assert packet["requiredEvidenceCount"] == 9
+assert packet["passedEvidenceCount"] == 9
 assert packet["missingEvidenceIds"] == []
 assert packet["firstBlockingGate"] is None
 closure = report["stablePublicationClosureChecklist"]
@@ -1120,6 +1135,7 @@ assert {
     "downloaded-release-assets",
     "post-release-consumer-proof",
     "public-release-freshness",
+    "release-version-coherence",
     "independent-adoption-evidence",
     "final-security-review-evidence",
 } <= ids
@@ -1155,6 +1171,8 @@ grep -q 'Release Notes Authoring Kit' "$tmp_dir/pass/v4-stable-publication.md"
 grep -q 'Launch Relay Drafts' "$tmp_dir/pass/v4-stable-publication.md"
 grep -q 'Public posting allowed: `False`' "$tmp_dir/pass/v4-stable-publication.md"
 grep -q 'External Evidence Freshness' "$tmp_dir/pass/v4-stable-publication.md"
+grep -q 'Release Version Coherence' "$tmp_dir/pass/v4-stable-publication.md"
+grep -q 'Release version coherence: `pass`' "$tmp_dir/pass/v4-stable-publication.md"
 grep -q 'External adoption freshness: `pass`' "$tmp_dir/pass/v4-stable-publication.md"
 grep -q 'Security review freshness: `pass`' "$tmp_dir/pass/v4-stable-publication.md"
 grep -q 'independent-adoption-evidence' "$tmp_dir/pass/v4-stable-publication.md"

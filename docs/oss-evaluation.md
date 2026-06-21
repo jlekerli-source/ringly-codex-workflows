@@ -6,6 +6,16 @@ This is the current usefulness and refinement evaluation for ShipGuard after the
 
 ## Current Stable V4 Release Packet QA
 
+The v3.173 read-only stable-v4 packet loop continued from external evidence freshness and tested whether a stable-v4 report could still look complete while version metadata disagreed.
+
+- Finding: `v4 stable-publication` relied on public freshness and consumer proof, but did not expose one explicit version matrix across `VERSION`, requested release version, GitHub metadata, release manifest, package proof, consumer report, and tarball name.
+- Product weakness: a solo maintainer should not have to infer whether the public release tag, package, manifest, and local VERSION all refer to the same release before trusting a stable-v4 claim.
+- Native fix: `releaseVersionCoherenceProof` now summarizes those fields, comparisons, problems, repair/pass/fail criteria, and source-only/fixture-proof boundaries.
+- Report-quality fix: `ios report-quality` now flags stable-publication reports that claim `stableV4Release=true` while hiding or failing release version coherence, and it requires Markdown `Release Version Coherence` rendering when the proof is present.
+- Fixture fix: focused stable-publication tests assert the passing matrix and missing-asset blocker behavior, and the guarded launch-relay fixture now carries synthetic version coherence rows.
+
+Fresh stable-v4 QA still does not claim real stable v4. Version coherence proves that release identifiers agree; it does not replace public release assets, release-consume, independent adoption, or final security review.
+
 The v3.172 read-only stable-v4 packet loop continued from consumer digest freshness and tested whether otherwise valid adoption/security evidence could be reused for a newer release packet without being visibly stale.
 
 - Finding: `v4 stable-publication` could validate external adoption and final security-review record structure without comparing record `generatedAt` values to the release manifest timestamp.

@@ -16,7 +16,7 @@ No private source tree was scanned. The fixture exists to exercise report-qualit
 ## Evidence Packet
 
 - Packet status: `pass`
-- Required evidence passed: `7/7`
+- Required evidence passed: `8/8`
 - First blocking gate: `none`
 
 | Evidence | Status |
@@ -26,6 +26,7 @@ No private source tree was scanned. The fixture exists to exercise report-qualit
 | `launchkey-candidate-packet` | `pass` |
 | `downloaded-release-assets` | `pass` |
 | `post-release-consumer-proof` | `pass` |
+| `release-version-coherence` | `pass` |
 | `independent-adoption-evidence` | `pass` |
 | `final-security-review-evidence` | `pass` |
 
@@ -42,6 +43,32 @@ Freshness boundary:
 - `independent-adoption-evidence` first problem: none
 - `final-security-review-evidence` generatedAt no earlier than release manifest: `True`
 - `final-security-review-evidence` first problem: none
+
+## Release Version Coherence
+
+- Status: `pass`
+- Source VERSION: `0.0.0`
+- Release version: `0.0.0`
+- Expected tag: `v0.0.0`
+- GitHub returned tag: `v0.0.0`
+- Manifest version: `0.0.0`
+- Package version: `0.0.0`
+- Consumer report version: `0.0.0`
+- Expected tarball: `shipguard-v0.0.0.tar.gz`
+- Manifest artifact: `shipguard-v0.0.0.tar.gz`
+- Source-only proof counts as version coherence proof: `False`
+
+| Version comparison | Status |
+| --- | --- |
+| `sourceVersionMatchesRequested` | `True` |
+| `metadataReturnedTagMatchesRequested` | `True` |
+| `manifestVersionMatchesRequested` | `True` |
+| `packageVersionMatchesRequested` | `True` |
+| `consumerReportVersionMatchesRequested` | `True` |
+
+Version coherence problems:
+
+- none
 
 ## Closure Checklist
 
