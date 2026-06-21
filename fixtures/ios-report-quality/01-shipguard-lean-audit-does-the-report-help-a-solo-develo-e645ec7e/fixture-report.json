@@ -1,0 +1,227 @@
+{
+  "behaviorGates": {
+    "adapterBoundary": {
+      "policy": "Thin plugin, hook, MCP, and agent-host adapters can be the product boundary; keep them unless host registration proof says they are redundant.",
+      "status": "policy"
+    },
+    "gainHonesty": {
+      "policy": "Benchmark impact is not a current-repo savings claim without a matched baseline.",
+      "status": "available-in-lean-gain"
+    },
+    "hardwareCalibration": {
+      "policy": "Hardware, sensors, clocks, timing, and physical devices need calibration or tuning proof before simplification.",
+      "status": "available"
+    },
+    "oneRunnableCheck": {
+      "policy": "Non-trivial new logic should leave one smallest runnable check; trivial one-liners do not need ceremony.",
+      "status": "enforced-in-lean-review"
+    },
+    "requestedExplanation": {
+      "policy": "Explicitly requested reports, walkthroughs, phase notes, and rationale are not clutter.",
+      "status": "policy"
+    },
+    "shortcutDebt": {
+      "policy": "Intentional lean shortcuts need a ceiling and upgrade trigger.",
+      "status": "pass"
+    }
+  },
+  "findings": [
+    {
+      "category": "delete-candidate",
+      "evidence": {
+        "file": "Sources/UnusedDebugBanner.swift",
+        "line": 14,
+        "snippet": "debug-only banner with no referenced call site"
+      },
+      "proofGuidance": "Run search for the banner symbol and one UI smoke check before deleting the file.",
+      "recommendation": "Delete the unused debug banner only after call-site search and smoke proof show it is not product behavior.",
+      "ruleId": "delete-unused-debug-banner",
+      "severity": "opportunity"
+    },
+    {
+      "category": "native-replacement",
+      "evidence": {
+        "file": "Sources/QueryFlagParser.swift",
+        "line": 22,
+        "snippet": "manual query splitting around a platform URL component"
+      },
+      "proofGuidance": "Add repeated-key, empty-value, and percent-encoding checks before replacing the helper.",
+      "recommendation": "Try a native URL components parser before keeping the custom helper.",
+      "ruleId": "native-url-components",
+      "severity": "opportunity"
+    },
+    {
+      "category": "product-behavior-boundary",
+      "evidence": {
+        "file": "Sources/SubscriptionEntitlementGate.swift",
+        "line": 38,
+        "snippet": "restore, denied, and active entitlement decisions before feature unlock"
+      },
+      "proofGuidance": "Keep the gate until purchase, restore, denied, and expired entitlement behavior is proven before and after any cleanup.",
+      "recommendation": "Do not delete subscription entitlement logic from a less-code signal alone.",
+      "ruleId": "keep-product-behavior-boundary",
+      "severity": "info"
+    },
+    {
+      "category": "proof-blocked",
+      "evidence": {
+        "file": "Sources/LegacyMigrationBridge.swift",
+        "line": 51,
+        "snippet": "legacy migration branch with no current fixture proving migrated users are gone"
+      },
+      "proofGuidance": "Attach call-site search plus a migration fixture before deleting the bridge.",
+      "recommendation": "Mark the migration bridge proof-blocked until user-state compatibility is proven.",
+      "ruleId": "proof-blocked-migration-bridge",
+      "severity": "review"
+    }
+  ],
+  "fixtureCandidate": {
+    "candidateId": "01-shipguard-lean-audit-does-the-report-help-a-solo-develo-e645ec7e",
+    "duplicateCount": 1,
+    "expectedAssertions": [
+      "report-quality preserves the solo-developer deletion-usefulness question in JSON and Markdown",
+      "the fixture exposes behaviorGates in JSON and Behavior Gates in Markdown",
+      "the fixture separates delete, simplify, keep, and proof-blocked lanes",
+      "the fixture keeps scopeBoundary.shipguardOnly and targetAppsReadOnly explicit",
+      "shareable output contains no local absolute paths or private app identifiers"
+    ],
+    "fixtureType": "shipguard-lean-report-quality-fixture",
+    "priority": 1,
+    "privateDataPolicy": "This promoted fixture is synthetic. Use source reports only to choose report shape; do not copy private app code, local paths, screenshots, app-specific identifiers, or proprietary text.",
+    "publicFixturePath": "fixtures/ios-report-quality/01-shipguard-lean-audit-does-the-report-help-a-solo-develo-e645ec7e",
+    "sourceQuestion": "Does the report help a solo developer delete clutter without deleting product behavior?",
+    "sourceReportCount": 1,
+    "sourceReportsRedacted": true,
+    "sourceTool": "shipguard lean audit"
+  },
+  "generatedAt": "2026-06-21T01:12:00Z",
+  "intent": "shipguard-evaluation",
+  "precisionReview": {
+    "actionGroups": [
+      {
+        "decision": "delete",
+        "evidenceCount": 1,
+        "firstExperiment": "Prove the debug banner has no call sites, then delete only that file in the first cleanup pass.",
+        "firstLocation": "Sources/UnusedDebugBanner.swift:14",
+        "rank": 1,
+        "ruleId": "delete-unused-debug-banner",
+        "stopCondition": "Stop if search finds a runtime route, preview, test, or support workflow that still references the banner.",
+        "validationRoute": "Run symbol search and one UI smoke check before accepting the deletion."
+      },
+      {
+        "decision": "simplify",
+        "evidenceCount": 1,
+        "firstExperiment": "Replace only the query flag helper with the platform URL parser behind focused parser tests.",
+        "firstLocation": "Sources/QueryFlagParser.swift:22",
+        "rank": 2,
+        "ruleId": "native-url-components",
+        "stopCondition": "Stop if repeated keys, empty values, or percent encoding behave differently.",
+        "validationRoute": "Run parser checks for repeated keys, empty values, ordering, and encoding."
+      },
+      {
+        "decision": "keep",
+        "evidenceCount": 1,
+        "firstExperiment": "Leave the entitlement gate untouched and document the proof required before any cleanup.",
+        "firstLocation": "Sources/SubscriptionEntitlementGate.swift:38",
+        "rank": 3,
+        "ruleId": "keep-product-behavior-boundary",
+        "stopCondition": "Stop if purchase, restore, denied, or expired entitlement proof is missing.",
+        "validationRoute": "Require focused entitlement behavior checks before simplification."
+      },
+      {
+        "decision": "proof-blocked",
+        "evidenceCount": 1,
+        "firstExperiment": "Search migration call sites and add a synthetic migrated-user fixture before touching the bridge.",
+        "firstLocation": "Sources/LegacyMigrationBridge.swift:51",
+        "rank": 4,
+        "ruleId": "proof-blocked-migration-bridge",
+        "stopCondition": "Stop if migrated-user state, call-site search, or rollback proof is missing.",
+        "validationRoute": "Run call-site search plus a migration fixture before any deletion."
+      }
+    ],
+    "blockedByProof": [
+      {
+        "action": "Do not delete the migration bridge until migrated-user compatibility is proven.",
+        "location": "Sources/LegacyMigrationBridge.swift:51",
+        "proofRequired": "Attach call-site search plus a migrated-user fixture.",
+        "rank": 1,
+        "ruleId": "proof-blocked-migration-bridge",
+        "severity": "review"
+      }
+    ],
+    "deleteList": [
+      {
+        "action": "Delete the unused debug banner after call-site search and UI smoke proof.",
+        "location": "Sources/UnusedDebugBanner.swift:14",
+        "proofRequired": "Run symbol search and one UI smoke check.",
+        "rank": 1,
+        "ruleId": "delete-unused-debug-banner",
+        "severity": "opportunity"
+      }
+    ],
+    "keepList": [
+      {
+        "location": "Sources/SubscriptionEntitlementGate.swift:38",
+        "proofRequired": "Require purchase, restore, denied, and expired entitlement proof before cleanup.",
+        "reason": "Entitlement gates are product behavior, not clutter.",
+        "ruleId": "keep-product-behavior-boundary"
+      }
+    ],
+    "simplifyFirst": [
+      {
+        "action": "Try URLComponents after focused parser equivalence tests.",
+        "location": "Sources/QueryFlagParser.swift:22",
+        "proofRequired": "Add checks for repeated keys, empty values, ordering, and encoding.",
+        "rank": 1,
+        "ruleId": "native-url-components",
+        "severity": "opportunity"
+      }
+    ],
+    "summary": {
+      "actionGroups": 4,
+      "deleteCandidates": 1,
+      "keepBoundaries": 1,
+      "proofBlockedCandidates": 1,
+      "simplifyCandidates": 1
+    },
+    "topActions": [
+      {
+        "action": "Delete the unused debug banner after call-site search and UI smoke proof.",
+        "location": "Sources/UnusedDebugBanner.swift:14",
+        "proofRequired": "Run symbol search and one UI smoke check.",
+        "rank": 1,
+        "ruleId": "delete-unused-debug-banner",
+        "severity": "opportunity"
+      },
+      {
+        "action": "Try URLComponents after focused parser equivalence tests.",
+        "location": "Sources/QueryFlagParser.swift:22",
+        "proofRequired": "Add checks for repeated keys, empty values, ordering, and encoding.",
+        "rank": 2,
+        "ruleId": "native-url-components",
+        "severity": "opportunity"
+      }
+    ]
+  },
+  "reportQualityQuestions": [
+    "Does the report help a solo developer delete clutter without deleting product behavior?"
+  ],
+  "scanScope": {
+    "note": "Synthetic fixture; no private source tree was scanned.",
+    "skippedDirectories": [],
+    "skippedDirectoryCount": 0
+  },
+  "schemaVersion": 1,
+  "scopeBoundary": {
+    "purpose": "Synthetic public fixture for ShipGuard report-quality behavior.",
+    "shipguardOnly": true,
+    "targetAppsReadOnly": true
+  },
+  "shareability": {
+    "localAbsolutePathsIncluded": false,
+    "mode": "shareable"
+  },
+  "status": "pass",
+  "surface": "ShipGuard Lean Deck",
+  "tool": "shipguard lean audit"
+}

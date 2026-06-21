@@ -50,6 +50,17 @@ The v3.140 read-only loop reran `shipguard lean audit`, `shipguard lean review`,
 
 Fresh QA now treats the host-adapter protection question as covered and advances to the solo-developer deletion-usefulness question.
 
+## Current Lean Deck Deletion-Usefulness Fixture QA
+
+The v3.141 read-only loop reran `shipguard lean audit`, `shipguard lean review`, `shipguard lean gain`, `shipguard lean debt`, `shipguard value-gauntlet`, and `ios report-quality --write-fixture-candidates` against this checkout after the host-adapter fixture landed.
+
+- Finding: fresh Lean Deck QA passed, but the next uncovered actionability question was "Does the report help a solo developer delete clutter without deleting product behavior?"
+- Product weakness: a starter fixture preserved the question but did not make behavior gates visible enough, so the report could still feel like less-code pressure instead of a safe solo-developer decision map.
+- Fixture fix: `fixtures/ios-report-quality/01-shipguard-lean-audit-does-the-report-help-a-solo-develo-e645ec7e` now uses public synthetic evidence for delete, simplify, keep, and proof-blocked lanes.
+- Guardrail: the fixture keeps `Behavior Gates`, a grouped action plan, and a solo-developer decision map in Markdown, while JSON preserves `behaviorGates`, `precisionReview.actionGroups`, and explicit ShipGuard-only scope.
+
+Fresh QA now treats the deletion-usefulness question as covered and advances to the `leanDebtLedger` shortcut-audit question.
+
 ## Current Verify-PR First-Run QA
 
 The v3.198 read-only loop ran `shipguard inspect`, `shipguard value-gauntlet`, `shipguard full-audit --plan-only`, docs-check, and the verify-first quickstart tests against this checkout.
