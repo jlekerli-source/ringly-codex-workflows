@@ -1793,12 +1793,12 @@ def build_release_visibility_handoff(
 
     if stable_v4_release:
         primary = "announce-current-public-release"
+    elif needs_release:
+        primary = "publish-new-github-release"
     elif needs_notes:
         primary = "update-release-notes"
     elif needs_candidate:
         primary = "attach-launchkey-candidate-proof"
-    elif needs_release:
-        primary = "publish-new-github-release"
     elif needs_assets:
         primary = "update-release-assets"
     elif needs_evidence:

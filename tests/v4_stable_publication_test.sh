@@ -307,6 +307,11 @@ assert packet["firstBlockingGate"]["id"] == "github-release-metadata"
 assert packet["firstBlockingGate"]["receipt"] == "githubReleaseMetadataProof"
 assert packet["firstBlockingGate"]["status"] == "blocked"
 assert "github-release-metadata" in packet["missingEvidenceIds"]
+visibility = report["releaseVisibilityHandoff"]
+assert visibility["primaryDecision"] == "publish-new-github-release"
+actions = {item["id"]: item for item in visibility["requiredActions"]}
+assert actions["publish-new-github-release"]["required"] is True
+assert actions["update-release-notes"]["required"] is True
 closure = report["stablePublicationClosureChecklist"]
 assert closure["status"] == "review"
 assert closure["firstBlocker"]["id"] == "github-release-metadata"
@@ -360,6 +365,7 @@ grep -q 'Source-only proof counts as release metadata proof: `False`' "$tmp_dir/
 grep -q 'Fixture API proof counts as stable-v4 publication proof: `False`' "$tmp_dir/metadata-blocked/v4-stable-publication.md"
 grep -q 'Manual approval required to create release: `True`' "$tmp_dir/metadata-blocked/v4-stable-publication.md"
 grep -q 'ShipGuard publishes GitHub release: `False`' "$tmp_dir/metadata-blocked/v4-stable-publication.md"
+grep -q 'Primary decision: `publish-new-github-release`' "$tmp_dir/metadata-blocked/v4-stable-publication.md"
 grep -q 'Create missing GitHub release metadata manually' "$tmp_dir/metadata-blocked/v4-stable-publication.md"
 grep -q 'gh release create' "$tmp_dir/metadata-blocked/v4-stable-publication.md"
 grep -q 'Rerun release metadata proof' "$tmp_dir/metadata-blocked/v4-stable-publication.md"

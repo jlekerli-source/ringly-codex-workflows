@@ -142,7 +142,7 @@ v3.130  v4 schema freeze and compatibility policy
 v3.131  v4 release-candidate readiness
 v3.132  v4 product release stabilization
 v3.133  root report-quality and bounded source-scan hardening
-v3.134  result-UX command-field polish for source reports
+v3.134  stable-publication publish-first visibility handoff
 v3.135  InspectDeck missing-receipt priority
 v3.136  InspectDeck executable next-command normalization
 v3.137  LaunchKey published release-asset proof attachment
@@ -192,11 +192,13 @@ v3.194 makes next-goal release lineage explicit: generated handoffs now compare 
 
 v3.195 keeps that lineage honest for the normal next-release path: a passing next-goal lineage check no longer implies the current checkout already builds the post-bump tarball; it now names the pre-bump artifact and tells maintainers to bump `VERSION` before release packaging.
 
-Release-line note: local `VERSION` now advances to `3.133.0` for the buildable v4-stabilization package path. The latest public GitHub release remains `v3.131.0` until a separate release publication and consumer-proof pass is completed.
+Release-line note: local `VERSION` now advances to `3.134.0` for the buildable v4-stabilization package path. The latest public GitHub release remains `v3.131.0` until a separate release publication and consumer-proof pass is completed.
+
+v3.134 corrects stable-publication visibility routing from real release-line QA: missing or stale public GitHub release metadata now routes the primary decision to `publish-new-github-release` before release-note edits.
 
 v3.133 starts real stable-publication packet QA by making missing GitHub release metadata actionable: the closure kit now includes a manual `gh release create ...` starter with the required release-proof assets and a boundary that ShipGuard prepares proof but does not publish public releases.
 
-v3.134 continues result-UX command-field hardening by making report-quality reject prose or Markdown in `priorityAction.nextCommand`, so copy-facing source-report actions stay executable while explanation stays in summary fields.
+v3.134 also continues result-UX command-field hardening by making report-quality reject prose or Markdown in `priorityAction.nextCommand`, so copy-facing source-report actions stay executable while explanation stays in summary fields.
 
 v3.134 also continues InspectDeck release-proof receipt priority by making missing release proof keep `shipguard inspect` in `review` and route `nextAction` / `resultUX.nextCommand` to `shipguard release-proof build` before lower-priority value-gauntlet recommendations.
 
