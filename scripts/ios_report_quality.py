@@ -2639,6 +2639,65 @@ def full_audit_execution_command_issues(
             recommendation="Include stages[].command so Full Audit reports can render and audit copy-ready execution receipts.",
         )
         return issues
+    receipt = report.get("executionCommandReceipt")
+    if not isinstance(receipt, dict) or not receipt:
+        add_issue(
+            issues,
+            severity="review",
+            rule_id="full-audit-execution-command-receipt-missing",
+            evidence=f"{path_name} Full Audit stages expose commands but no executionCommandReceipt",
+            recommendation="Attach executionCommandReceipt with execute/resume commands, stage command rows, empty/manual stage ids, fallback commands, and no-push/no-publish boundaries.",
+        )
+    else:
+        boundary = receipt.get("proofBoundary") if isinstance(receipt.get("proofBoundary"), dict) else {}
+        stage_rows = receipt.get("stageCommands")
+        empty_ids = receipt.get("emptyStageCommandIds")
+        missing_receipt_parts = []
+        if "shipguard full-audit" not in str(receipt.get("executeCommand") or ""):
+            missing_receipt_parts.append("executeCommand")
+        if "shipguard full-audit" not in str(receipt.get("resumeCommand") or ""):
+            missing_receipt_parts.append("resumeCommand")
+        if not isinstance(stage_rows, list) or len(stage_rows) != len(stages):
+            missing_receipt_parts.append("stageCommands")
+        if not isinstance(empty_ids, list):
+            missing_receipt_parts.append("emptyStageCommandIds")
+        for key in ("doesNotExecuteByRendering", "commandsAreLocalRepoScoped", "doesNotPush", "doesNotPublishRelease"):
+            if boundary.get(key) is not True:
+                missing_receipt_parts.append(f"proofBoundary.{key}")
+        if missing_receipt_parts:
+            add_issue(
+                issues,
+                severity="review",
+                rule_id="full-audit-execution-command-receipt-incomplete",
+                evidence=f"{path_name} executionCommandReceipt missing: {', '.join(missing_receipt_parts)}",
+                recommendation="Keep Full Audit execution command receipts copy-ready, stage-aligned, and explicit that rendering commands does not execute, push, or publish.",
+            )
+        elif isinstance(stage_rows, list):
+            row_by_id = {str(row.get("stageId") or ""): row for row in stage_rows if isinstance(row, dict)}
+            malformed_rows = []
+            for stage in stages:
+                stage_id = str(stage.get("stageId") or "")
+                row = row_by_id.get(stage_id)
+                command = stage.get("command") if isinstance(stage.get("command"), list) else []
+                if not isinstance(row, dict):
+                    malformed_rows.append(f"{stage_id}: missing row")
+                    continue
+                if command and (row.get("copyReady") is not True or not str(row.get("commandText") or "").strip()):
+                    malformed_rows.append(f"{stage_id}: command not copy-ready")
+                if not command and (
+                    row.get("copyReady") is not False
+                    or not str(row.get("fallbackCommand") or "").strip()
+                    or not str(row.get("emptyReason") or "").strip()
+                ):
+                    malformed_rows.append(f"{stage_id}: empty command lacks fallback")
+            if malformed_rows:
+                add_issue(
+                    issues,
+                    severity="review",
+                    rule_id="full-audit-execution-command-receipt-rows-incomplete",
+                    evidence=f"{path_name} executionCommandReceipt rows incomplete: {', '.join(malformed_rows[:5])}",
+                    recommendation="For every stage, mark runnable commands copy-ready and give empty/manual stages a fallback full-audit command plus reason.",
+                )
     def command_signature(text: str) -> str:
         return re.sub(r"[`'\"\\]+", "", " ".join(text.split()))
 
@@ -2664,6 +2723,22 @@ def full_audit_execution_command_issues(
             rule_id="full-audit-execution-command-missing",
             evidence=f"{path_name} Full Audit Markdown omits stage commands for {', '.join(missing_stage_ids[:5])}",
             recommendation="Render every stages[].command value in the Execution Commands table so package/release receipts are copy-ready.",
+        )
+    required_receipt_markdown = [
+        "Execution Command Receipt",
+        "Execute command:",
+        "Resume command:",
+        "Copy-ready stage commands:",
+        "Empty/manual stage commands:",
+    ]
+    missing_receipt_markdown = [token for token in required_receipt_markdown if token not in markdown]
+    if missing_receipt_markdown:
+        add_issue(
+            issues,
+            severity="review",
+            rule_id="full-audit-execution-command-receipt-markdown-missing",
+            evidence=f"{path_name} Full Audit Markdown missing execution receipt tokens: {', '.join(missing_receipt_markdown)}",
+            recommendation="Render executionCommandReceipt in Markdown so the top execute/resume command and empty-stage fallback are visible without opening JSON.",
         )
     return issues
 

@@ -222,6 +222,8 @@ v3.145 continues Full Audit release-packet plan honesty by adding `releasePacket
 
 v3.146 continues Full Audit NEXT_GOAL-backed slash handoff proof by adding `slashHandoffProof` so selected section, completion receipt presence, version-lineage status, copy-ready slash commands, stale-handoff rejection, and no-publication boundaries are visible beside the copied `/plan` and `/goal`.
 
+v3.147 continues Full Audit copy-ready execution-command receipts by adding `executionCommandReceipt` so execute/resume commands, per-stage command rows, empty/manual stage fallbacks, and no-push/no-publish boundaries are visible in JSON and Markdown.
+
 Every release proposal must answer:
 
 1. Which developer decision changes?

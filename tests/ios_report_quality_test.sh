@@ -923,6 +923,7 @@ MD
   --shareable >/dev/null
 grep -q '"status": "review"' "$tmp_dir/commandless-full-audit-quality/ios-report-quality.json"
 grep -q '"ruleId": "full-audit-execution-commands-markdown-missing"' "$tmp_dir/commandless-full-audit-quality/ios-report-quality.json"
+grep -q '"ruleId": "full-audit-execution-command-receipt-missing"' "$tmp_dir/commandless-full-audit-quality/ios-report-quality.json"
 grep -q '"ruleId": "full-audit-slash-handoff-proof-missing"' "$tmp_dir/commandless-full-audit-quality/ios-report-quality.json"
 grep -q 'Render an Execution Commands table from stages' "$tmp_dir/commandless-full-audit-quality/ios-report-quality.md"
 
@@ -964,6 +965,43 @@ cat > "$release_packetless_full_audit/shipguard-full-audit.json" <<'JSON'
   "stageStatusSummary": {
     "planned": 1,
     "manual-required": 1
+  },
+  "executionCommandReceipt": {
+    "status": "review",
+    "executeCommand": "shipguard full-audit --path <shipguard-repo> --out <shipguard-full-audit-out> --profile release --release-url <release-url> --version <version> --tag <tag> --commit <commit-sha> --ci-run-url <ci-run-url>",
+    "resumeCommand": "shipguard full-audit --path <shipguard-repo> --out <shipguard-full-audit-out> --profile release --resume",
+    "stageCount": 2,
+    "copyReadyStageCount": 1,
+    "emptyStageCommandIds": ["release-proof"],
+    "stageCommands": [
+      {
+        "stageId": "package-release",
+        "status": "planned",
+        "command": ["./tests/package_release_test.sh"],
+        "commandText": "./tests/package_release_test.sh",
+        "copyReady": true,
+        "fallbackCommand": "",
+        "emptyReason": "",
+        "proofBoundary": "Local package proof, not GitHub release publication."
+      },
+      {
+        "stageId": "release-proof",
+        "status": "manual-required",
+        "command": [],
+        "commandText": "",
+        "copyReady": false,
+        "fallbackCommand": "shipguard full-audit --path <shipguard-repo> --out <shipguard-full-audit-out> --profile release --release-url <release-url> --version <version> --tag <tag> --commit <commit-sha> --ci-run-url <ci-run-url>",
+        "emptyReason": "release proof requires --release-url, --version, --tag, --commit, and --ci-run-url",
+        "proofBoundary": "Builds local release assets; it does not create the GitHub release."
+      }
+    ],
+    "proofBoundary": {
+      "doesNotExecuteByRendering": true,
+      "commandsAreLocalRepoScoped": true,
+      "doesNotPush": true,
+      "doesNotPublishRelease": true,
+      "installRefreshRequiresIncludeInstall": true
+    }
   },
   "scopeBoundary": {
     "shipguardOnly": true,
@@ -1014,6 +1052,14 @@ cat > "$release_packetless_full_audit/shipguard-full-audit.md" <<'MD'
 | Stage | Status | Command |
 | --- | --- | --- |
 | `package-release` | planned | `./tests/package_release_test.sh` |
+
+## Execution Command Receipt
+
+- Status: `review`
+- Execute command: `shipguard full-audit --path <shipguard-repo> --out <shipguard-full-audit-out> --profile release --release-url <release-url> --version <version> --tag <tag> --commit <commit-sha> --ci-run-url <ci-run-url>`
+- Resume command: `shipguard full-audit --path <shipguard-repo> --out <shipguard-full-audit-out> --profile release --resume`
+- Copy-ready stage commands: 1/2
+- Empty/manual stage commands: `release-proof`
 
 ## Slash Handoff Source
 

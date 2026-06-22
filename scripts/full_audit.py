@@ -621,6 +621,47 @@ def release_packet_plan(args: argparse.Namespace, ids: list[str], stages: list[d
     }
 
 
+def execution_command_receipt(
+    stages: list[dict[str, Any]], *, execute_command: str, resume_command: str
+) -> dict[str, Any]:
+    stage_rows = []
+    empty_stage_ids = []
+    for stage in stages:
+        command = stage.get("command") if isinstance(stage.get("command"), list) else []
+        command_text = shell_join([str(part) for part in command]) if command else ""
+        copy_ready = bool(command_text)
+        if not copy_ready:
+            empty_stage_ids.append(str(stage.get("stageId") or "unknown"))
+        stage_rows.append(
+            {
+                "stageId": stage.get("stageId", ""),
+                "status": stage.get("status", ""),
+                "command": command,
+                "commandText": command_text,
+                "copyReady": copy_ready,
+                "fallbackCommand": "" if copy_ready else execute_command,
+                "emptyReason": "" if copy_ready else stage.get("skippedReason") or "command requires external metadata or a manual gate",
+                "proofBoundary": stage.get("proofBoundary", ""),
+            }
+        )
+    return {
+        "status": "review" if empty_stage_ids else "pass",
+        "executeCommand": execute_command,
+        "resumeCommand": resume_command,
+        "stageCount": len(stages),
+        "copyReadyStageCount": len(stages) - len(empty_stage_ids),
+        "emptyStageCommandIds": empty_stage_ids,
+        "stageCommands": stage_rows,
+        "proofBoundary": {
+            "doesNotExecuteByRendering": True,
+            "commandsAreLocalRepoScoped": True,
+            "doesNotPush": True,
+            "doesNotPublishRelease": True,
+            "installRefreshRequiresIncludeInstall": True,
+        },
+    }
+
+
 def build_report(args: argparse.Namespace) -> dict[str, Any]:
     repo = Path(args.path).expanduser().resolve()
     if not repo.exists():
@@ -719,6 +760,11 @@ def build_report(args: argparse.Namespace) -> dict[str, Any]:
         ],
         "slashHandoffSource": slash_handoff_source,
         "slashHandoffProof": slash_proof,
+        "executionCommandReceipt": execution_command_receipt(
+            stage_reports,
+            execute_command=execute_command,
+            resume_command=resume_command,
+        ),
         "slashPlan": slash_plan,
         "slashGoal": slash_goal,
     }
@@ -775,6 +821,22 @@ def render_markdown(report: dict[str, Any]) -> str:
             lines.append(f"| `{stage['stageId']}` | {stage['status']} | `{command_text}` |")
     else:
         lines.append("No stages were selected.")
+    receipt = report.get("executionCommandReceipt") if isinstance(report.get("executionCommandReceipt"), dict) else {}
+    if receipt:
+        lines.extend(["", "## Execution Command Receipt", ""])
+        lines.append(f"- Status: `{receipt.get('status', 'unknown')}`")
+        lines.append(f"- Execute command: `{receipt.get('executeCommand', '')}`")
+        lines.append(f"- Resume command: `{receipt.get('resumeCommand', '')}`")
+        lines.append(f"- Copy-ready stage commands: {receipt.get('copyReadyStageCount', 0)}/{receipt.get('stageCount', 0)}")
+        empty_ids = receipt.get("emptyStageCommandIds") or []
+        lines.append(f"- Empty/manual stage commands: `{', '.join(empty_ids) or 'none'}`")
+        lines.extend(["", "| Stage | Copy ready | Fallback | Reason | Boundary |", "| --- | --- | --- | --- | --- |"])
+        for row in receipt.get("stageCommands", []):
+            fallback = row.get("fallbackCommand") or "not-needed"
+            reason = row.get("emptyReason") or "not-needed"
+            lines.append(
+                f"| `{row.get('stageId')}` | {str(bool(row.get('copyReady'))).lower()} | `{fallback}` | {reason} | {row.get('proofBoundary', '')} |"
+            )
     lines.extend(["", "## Slow Lanes", ""])
     if report["slowLaneSummary"]:
         lines.extend(["| Stage | Status | Duration | Reason |", "| --- | --- | ---: | --- |"])

@@ -53,6 +53,27 @@ for expected in [
         raise SystemExit(next_command)
 if data["efficiency"]["executeCommand"] != next_command:
     raise SystemExit(data["efficiency"])
+receipt = data.get("executionCommandReceipt") or {}
+if receipt.get("status") != "review":
+    raise SystemExit(receipt)
+if receipt.get("executeCommand") != next_command:
+    raise SystemExit(receipt)
+if "shipguard full-audit" not in receipt.get("resumeCommand", ""):
+    raise SystemExit(receipt)
+if receipt.get("stageCount") != 14 or receipt.get("copyReadyStageCount") != 12:
+    raise SystemExit(receipt)
+if receipt.get("emptyStageCommandIds") != ["ci-proof", "release-proof"]:
+    raise SystemExit(receipt)
+rows = {row.get("stageId"): row for row in receipt.get("stageCommands", [])}
+if rows.get("version", {}).get("copyReady") is not True:
+    raise SystemExit(receipt)
+for stage_id in ["ci-proof", "release-proof"]:
+    row = rows.get(stage_id) or {}
+    if row.get("copyReady") is not False or row.get("fallbackCommand") != next_command or not row.get("emptyReason"):
+        raise SystemExit(row)
+for key in ["doesNotExecuteByRendering", "commandsAreLocalRepoScoped", "doesNotPush", "doesNotPublishRelease"]:
+    if (receipt.get("proofBoundary") or {}).get(key) is not True:
+        raise SystemExit(receipt)
 packet = data.get("releasePacketPlan") or {}
 if packet.get("status") != "review":
     raise SystemExit(packet)
@@ -98,6 +119,9 @@ grep -q 'Proof source:' "$tmp_dir/plan/shipguard-full-audit.md"
 grep -q 'Slow Lanes' "$tmp_dir/plan/shipguard-full-audit.md"
 grep -q 'Execution Commands' "$tmp_dir/plan/shipguard-full-audit.md"
 grep -q '| Stage | Status | Command |' "$tmp_dir/plan/shipguard-full-audit.md"
+grep -q 'Execution Command Receipt' "$tmp_dir/plan/shipguard-full-audit.md"
+grep -q 'Copy-ready stage commands: 12/14' "$tmp_dir/plan/shipguard-full-audit.md"
+grep -q 'Empty/manual stage commands: `ci-proof, release-proof`' "$tmp_dir/plan/shipguard-full-audit.md"
 grep -q 'Release Packet Plan' "$tmp_dir/plan/shipguard-full-audit.md"
 grep -q 'Missing metadata: `release_url, version, tag, commit, ci_run_url`' "$tmp_dir/plan/shipguard-full-audit.md"
 grep -q 'Plan-only output proves route shape only, not completed release proof.' "$tmp_dir/plan/shipguard-full-audit.md"
@@ -149,6 +173,9 @@ if data["efficiency"]["executedStages"] != 3:
     raise SystemExit(data["efficiency"])
 if data["scopeBoundary"]["targetAppsReadOnly"] is not True:
     raise SystemExit(data["scopeBoundary"])
+receipt = data.get("executionCommandReceipt") or {}
+if receipt.get("status") != "pass" or receipt.get("copyReadyStageCount") != 3 or receipt.get("emptyStageCommandIds") != []:
+    raise SystemExit(receipt)
 stage_ids = [stage["stageId"] for stage in data["stages"]]
 if stage_ids != ["version", "py-compile", "docs-check"]:
     raise SystemExit(stage_ids)
@@ -180,6 +207,12 @@ stage = data["stages"][0]
 if stage["stageId"] != "release-proof" or stage["status"] != "manual-required":
     raise SystemExit(stage)
 next_command = data["resultUX"]["nextCommand"]
+receipt = data.get("executionCommandReceipt") or {}
+if receipt.get("status") != "review" or receipt.get("emptyStageCommandIds") != ["release-proof"]:
+    raise SystemExit(receipt)
+row = (receipt.get("stageCommands") or [{}])[0]
+if row.get("fallbackCommand") != next_command or row.get("copyReady") is not False:
+    raise SystemExit(receipt)
 for expected in [
     "--stage release-proof",
     "--release-url <release-url>",
