@@ -53,6 +53,8 @@ InspectDeck leads with:
 
 `resultUX.nextCommand` and `nextAction.command` must stay runnable command templates. If an upstream report such as Value Gauntlet provides prose-only proof guidance, InspectDeck keeps that prose in `nextAction.reason` / `resultUX.nextActionSummary` and falls back to a runnable ShipGuard command.
 
+If an upstream Full Audit receipt has a missing or unsafe failed-stage id, InspectDeck falls back to a full-audit rerun command instead of rendering a malformed `--stage` command.
+
 If a proof input is absent, InspectDeck marks it missing or not supplied instead of pretending the state is proven.
 
 When multiple inputs are absent, InspectDeck prioritizes the nearest missing proof receipt first: generate `value-gauntlet`, then `full-audit`, then release proof. That keeps a bare `shipguard inspect` run useful instead of jumping straight to release publishing work before the weaker ShipGuard evidence exists.

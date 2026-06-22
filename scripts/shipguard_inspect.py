@@ -293,6 +293,14 @@ def append_proof_guidance(reason: str, proof_guidance: str, command: str) -> str
     return f"{reason} Proof guidance: {proof}"
 
 
+def command_safe_token(value: Any) -> str:
+    text = str(value or "").strip()
+    if not text:
+        return ""
+    allowed = set("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._-")
+    return text if all(char in allowed for char in text) else ""
+
+
 def choose_next_action(value_summary: dict[str, Any], full_summary: dict[str, Any], plugin: dict[str, Any], release: dict[str, Any]) -> dict[str, str]:
     if not value_summary.get("found"):
         return {
@@ -309,10 +317,14 @@ def choose_next_action(value_summary: dict[str, Any], full_summary: dict[str, An
     failed = full_summary.get("failedStages") or []
     if failed:
         stage = failed[0]
+        stage_id = command_safe_token(stage.get("stageId"))
+        command = "./bin/shipguard full-audit --path . --out /tmp/shipguard-full-audit --profile quick --shipguard-eval --shareable"
+        if stage_id:
+            command = f"./bin/shipguard full-audit --path . --out /tmp/shipguard-full-audit --stage {stage_id} --resume --shipguard-eval --shareable"
         return {
             "source": "full-audit.failedStages",
-            "command": f"./bin/shipguard full-audit --path . --out /tmp/shipguard-full-audit --stage {stage.get('stageId')} --resume --shipguard-eval --shareable",
-            "reason": f"Full Audit has a non-passing stage: {stage.get('stageId')}.",
+            "command": command,
+            "reason": f"Full Audit has a non-passing stage: {stage.get('stageId') or 'unknown'}.",
         }
     lowest = value_summary.get("lowestValueSurface") or {}
     if lowest.get("recommendation"):

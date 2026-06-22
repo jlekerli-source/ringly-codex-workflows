@@ -235,4 +235,52 @@ if "Run value-gauntlet plus focused v4 product-release fixtures" not in next_act
     raise SystemExit(f"prose proof guidance should remain in reason: {next_action!r}")
 PY
 
+mkdir -p "$tmp_dir/full-unsafe"
+cat > "$tmp_dir/full-unsafe/shipguard-full-audit.json" <<'JSON'
+{
+  "tool": "shipguard full-audit",
+  "status": "review",
+  "profile": "release",
+  "planOnly": false,
+  "stageStatusSummary": {
+    "review": 1
+  },
+  "stages": [
+    {
+      "stageId": "bad stage; echo nope",
+      "title": "Bad stage id",
+      "status": "review",
+      "errorSummary": "Synthetic malformed stage id."
+    }
+  ]
+}
+JSON
+
+./bin/shipguard inspect \
+  --path . \
+  --out "$tmp_dir/unsafe-stage" \
+  --value-gauntlet "$tmp_dir/value" \
+  --full-audit "$tmp_dir/full-unsafe" \
+  --release-assets "$tmp_dir/release" \
+  --shipguard-eval \
+  --shareable >/dev/null
+
+python3 - <<'PY' "$tmp_dir/unsafe-stage/shipguard-inspect.json"
+import json
+import sys
+
+data = json.load(open(sys.argv[1], encoding="utf-8"))
+next_action = data.get("nextAction") or {}
+result = data.get("resultUX") or {}
+expected = "./bin/shipguard full-audit --path . --out /tmp/shipguard-full-audit --profile quick --shipguard-eval --shareable"
+if next_action.get("source") != "full-audit.failedStages":
+    raise SystemExit(f"unsafe stage should still be a failed-stage action: {next_action!r}")
+if next_action.get("command") != expected:
+    raise SystemExit(f"unsafe stage id should fall back to executable full-audit command: {next_action!r}")
+if "--stage bad stage" in next_action.get("command", ""):
+    raise SystemExit(f"unsafe stage id leaked into command: {next_action!r}")
+if result.get("nextCommand") != expected:
+    raise SystemExit(f"resultUX should mirror safe fallback command: {result!r}")
+PY
+
 echo "inspect tests passed"

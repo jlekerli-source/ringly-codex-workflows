@@ -200,6 +200,8 @@ v3.134 continues result-UX command-field hardening by making report-quality reje
 
 v3.135 continues InspectDeck missing-receipt priority by exposing `missingReceiptPriority` in JSON and Markdown, keeping the first executable next action singular while showing the remaining value-gauntlet, full-audit, and release-proof queue.
 
+v3.136 continues InspectDeck executable next-command normalization by falling back to a runnable full-audit command when a failed-stage receipt has a missing or unsafe `stageId`, instead of leaking malformed `--stage` commands into `resultUX.nextCommand`.
+
 Every release proposal must answer:
 
 1. Which developer decision changes?
