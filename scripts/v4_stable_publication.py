@@ -307,6 +307,7 @@ LAUNCHKEY_CANDIDATE_FAIL_CRITERIA = [
 GITHUB_RELEASE_METADATA_REPAIR_CRITERIA = [
     "Pass `--github-release-repo <owner/repo>` explicitly when the origin remote is missing, private, mirrored, or not the publication repository.",
     "Confirm `--release-version <version>` resolves to the exact public GitHub release tag ShipGuard should validate.",
+    "If the release is missing, create it manually with the generated `gh release create` command after the release tarball and proof assets exist.",
     "Publish or update the GitHub release so it is not draft-only or prerelease-only and includes every required stable-publication asset.",
     "After repairing the repository, tag, release state, or asset list, rerun `shipguard v4 stable-publication` so release notes, downloaded assets, consumer proof, adoption, and security gates remain visible.",
 ]
@@ -2434,6 +2435,7 @@ def build_github_release_metadata_closure_kit(
             "--external-adoption-evidence <adoption-evidence-json-or-dir> "
             "--security-review-evidence <security-review-json-or-dir> --shipguard-eval --shareable"
         )
+    release_create = github_release_create_handoff(diagnostics)
     return {
         "schemaVersion": 1,
         "title": "GitHub release metadata closure kit",
@@ -2472,6 +2474,9 @@ def build_github_release_metadata_closure_kit(
         "passCriteria": GITHUB_RELEASE_METADATA_PASS_CRITERIA,
         "failCriteria": GITHUB_RELEASE_METADATA_FAIL_CRITERIA,
         "metadataRerunCommand": metadata_rerun,
+        "releaseCreateCommand": release_create["command"],
+        "releaseCreateInputs": release_create["inputs"],
+        "releaseCreateCommandBoundary": release_create["boundary"],
         "metadataProofBoundary": {
             "publicGitHubReleaseMetadataRequired": True,
             "ownerRepoSyntaxRequired": True,
@@ -2480,6 +2485,64 @@ def build_github_release_metadata_closure_kit(
             "fixtureApiProofCountsAsStableV4PublicationProof": False,
             "releaseAssetsStillRequireDownloadedOrSuppliedProof": True,
             "explanation": "The github-release-metadata gate is satisfied only by public release metadata for the selected owner/repo and tag. Source checkout state, local packages, fixture APIs, and generated reports can test ShipGuard routing but do not prove stable-v4 publication.",
+        },
+    }
+
+
+def github_release_create_handoff(diagnostics: dict[str, Any]) -> dict[str, Any]:
+    repo = str(diagnostics.get("repo") or "<owner/repo>")
+    tag = str(diagnostics.get("tag") or "")
+    version = str(diagnostics.get("version") or "").strip()
+    if not tag:
+        tag = f"v{version}" if version else "v<version>"
+    if not version and tag.startswith("v") and "<" not in tag:
+        version = tag[1:]
+    required_assets = diagnostics.get("requiredAssets")
+    if not isinstance(required_assets, list) or not required_assets:
+        tarball = requested_tarball_name(version or "<version>")
+        required_assets = sorted(REQUIRED_RELEASE_ASSETS | {tarball})
+    asset_args = []
+    for asset in required_assets:
+        name = str(asset)
+        if not name:
+            continue
+        if name.startswith("shipguard-v") and name.endswith(".tar.gz"):
+            asset_args.append(f"dist/{name}")
+        else:
+            asset_args.append(f"<release-proof-assets-dir>/{name}")
+    notes_file = "<stable-publication-report-dir>/stable-publication-release-notes/draft-release-notes.md"
+    title = f"ShipGuard {tag}"
+    command_parts = [
+        "gh",
+        "release",
+        "create",
+        tag,
+        "--repo",
+        repo,
+        "--title",
+        title,
+        "--notes-file",
+        notes_file,
+        *asset_args,
+    ]
+    return {
+        "command": " ".join(shlex.quote(part) for part in command_parts),
+        "inputs": {
+            "repo": repo,
+            "tag": tag,
+            "title": title,
+            "notesFile": notes_file,
+            "requiredAssets": required_assets,
+            "assetArguments": asset_args,
+        },
+        "boundary": {
+            "manualApprovalRequired": True,
+            "shipguardPublishesGitHubRelease": False,
+            "requiresPassingPackageProof": True,
+            "requiresReleaseProofAssets": True,
+            "sourceOnlyProofCountsAsPublishedRelease": False,
+            "fixtureApiProofCountsAsPublishedRelease": False,
+            "explanation": "ShipGuard can prepare the release-create command, but it does not publish GitHub releases. Run the command manually only after the release tarball and proof assets exist.",
         },
     }
 
@@ -3353,6 +3416,9 @@ def build_stable_publication_closure_checklist(
                     "releaseState": metadata_kit.get("releaseState") if isinstance(metadata_kit.get("releaseState"), dict) else {},
                     "releaseNotesSummary": metadata_kit.get("releaseNotesSummary") if isinstance(metadata_kit.get("releaseNotesSummary"), dict) else {},
                     "metadataRerunCommand": metadata_kit.get("metadataRerunCommand") or item.get("nextCommand") or "",
+                    "releaseCreateCommand": metadata_kit.get("releaseCreateCommand") or "",
+                    "releaseCreateInputs": metadata_kit.get("releaseCreateInputs") if isinstance(metadata_kit.get("releaseCreateInputs"), dict) else {},
+                    "releaseCreateCommandBoundary": metadata_kit.get("releaseCreateCommandBoundary") if isinstance(metadata_kit.get("releaseCreateCommandBoundary"), dict) else {},
                     "repairCriteria": metadata_kit.get("repairCriteria") if isinstance(metadata_kit.get("repairCriteria"), list) else [],
                     "passCriteria": metadata_kit.get("passCriteria") if isinstance(metadata_kit.get("passCriteria"), list) else [],
                     "failCriteria": metadata_kit.get("failCriteria") if isinstance(metadata_kit.get("failCriteria"), list) else [],
@@ -4696,6 +4762,7 @@ def render_markdown(report: dict[str, Any]) -> str:
         if isinstance(metadata_closure, dict) and isinstance(metadata_closure.get("releaseMetadataClosureKit"), dict):
             kit = metadata_closure["releaseMetadataClosureKit"]
             boundary = kit.get("metadataProofBoundary") if isinstance(kit.get("metadataProofBoundary"), dict) else {}
+            create_boundary = kit.get("releaseCreateCommandBoundary") if isinstance(kit.get("releaseCreateCommandBoundary"), dict) else {}
             release_state = kit.get("releaseState") if isinstance(kit.get("releaseState"), dict) else {}
             notes_summary = kit.get("releaseNotesSummary") if isinstance(kit.get("releaseNotesSummary"), dict) else {}
             repo_inference = kit.get("repoInference") if isinstance(kit.get("repoInference"), dict) else {}
@@ -4729,6 +4796,10 @@ def render_markdown(report: dict[str, Any]) -> str:
                     f"- Draft or prerelease counts as stable-publication proof: `{boundary.get('draftOrPrereleaseCountsAsStablePublicationProof')}`",
                     f"- Source-only proof counts as release metadata proof: `{boundary.get('sourceOnlyProofCountsAsReleaseMetadataProof')}`",
                     f"- Fixture API proof counts as stable-v4 publication proof: `{boundary.get('fixtureApiProofCountsAsStableV4PublicationProof')}`",
+                    f"- Manual approval required to create release: `{create_boundary.get('manualApprovalRequired')}`",
+                    f"- ShipGuard publishes GitHub release: `{create_boundary.get('shipguardPublishesGitHubRelease')}`",
+                    f"- Release-create requires passing package proof: `{create_boundary.get('requiresPassingPackageProof')}`",
+                    f"- Release-create requires proof assets: `{create_boundary.get('requiresReleaseProofAssets')}`",
                 ]
             )
             lines.extend(["", "Repair criteria:", ""])
@@ -4742,6 +4813,12 @@ def render_markdown(report: dict[str, Any]) -> str:
                 lines.append(f"- {criterion}")
             lines.extend(
                 [
+                    "",
+                    "Create missing GitHub release metadata manually:",
+                    "",
+                    "```bash",
+                    str(kit.get("releaseCreateCommand") or ""),
+                    "```",
                     "",
                     "Rerun release metadata proof:",
                     "",

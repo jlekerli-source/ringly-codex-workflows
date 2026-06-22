@@ -331,6 +331,19 @@ assert len(kit["repairCriteria"]) >= 4
 assert len(kit["passCriteria"]) >= 5
 assert len(kit["failCriteria"]) >= 6
 assert "stable-publication" in kit["metadataRerunCommand"]
+assert kit["releaseCreateCommand"].startswith("gh release create ")
+assert metadata["tag"] in kit["releaseCreateCommand"]
+assert "jlekerli-source/ShipGuard" in kit["releaseCreateCommand"]
+for asset in metadata["requiredAssets"]:
+    assert asset in kit["releaseCreateCommand"]
+assert item["releaseCreateCommand"] == kit["releaseCreateCommand"]
+create_boundary = kit["releaseCreateCommandBoundary"]
+assert create_boundary["manualApprovalRequired"] is True
+assert create_boundary["shipguardPublishesGitHubRelease"] is False
+assert create_boundary["requiresPassingPackageProof"] is True
+assert create_boundary["requiresReleaseProofAssets"] is True
+assert create_boundary["sourceOnlyProofCountsAsPublishedRelease"] is False
+assert create_boundary["fixtureApiProofCountsAsPublishedRelease"] is False
 boundary = kit["metadataProofBoundary"]
 assert boundary["publicGitHubReleaseMetadataRequired"] is True
 assert boundary["ownerRepoSyntaxRequired"] is True
@@ -345,6 +358,10 @@ grep -q 'Public GitHub release metadata required: `True`' "$tmp_dir/metadata-blo
 grep -q 'Draft or prerelease counts as stable-publication proof: `False`' "$tmp_dir/metadata-blocked/v4-stable-publication.md"
 grep -q 'Source-only proof counts as release metadata proof: `False`' "$tmp_dir/metadata-blocked/v4-stable-publication.md"
 grep -q 'Fixture API proof counts as stable-v4 publication proof: `False`' "$tmp_dir/metadata-blocked/v4-stable-publication.md"
+grep -q 'Manual approval required to create release: `True`' "$tmp_dir/metadata-blocked/v4-stable-publication.md"
+grep -q 'ShipGuard publishes GitHub release: `False`' "$tmp_dir/metadata-blocked/v4-stable-publication.md"
+grep -q 'Create missing GitHub release metadata manually' "$tmp_dir/metadata-blocked/v4-stable-publication.md"
+grep -q 'gh release create' "$tmp_dir/metadata-blocked/v4-stable-publication.md"
 grep -q 'Rerun release metadata proof' "$tmp_dir/metadata-blocked/v4-stable-publication.md"
 
 if ./bin/shipguard v4 stable-publication \
@@ -1461,7 +1478,7 @@ grep -q 'Security review freshness: `pass`' "$tmp_dir/pass/v4-stable-publication
 grep -q 'independent-adoption-evidence' "$tmp_dir/pass/v4-stable-publication.md"
 grep -q 'Evidence Templates' "$tmp_dir/pass/v4-stable-publication.md"
 grep -q 'Evidence Starter Kit' "$tmp_dir/pass/v4-stable-publication.md"
-grep -Eq 'Release version: `v?3\.131\.0`' "$tmp_dir/pass/v4-stable-publication.md"
+grep -q "Release version: \`$version\`" "$tmp_dir/pass/v4-stable-publication.md" || grep -q "Release version: \`v$version\`" "$tmp_dir/pass/v4-stable-publication.md"
 grep -q 'stable-publication-release-notes' "$tmp_dir/pass/v4-stable-publication.md"
 grep -q 'Stable v4 release claim allowed: `True`' "$tmp_dir/pass/v4-stable-publication.md"
 test -f "$tmp_dir/pass/stable-publication-evidence-kit/README.md"

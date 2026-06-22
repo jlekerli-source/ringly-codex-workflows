@@ -100,6 +100,8 @@ The kit exposes:
 - draft and prerelease state, because neither state can satisfy stable-v4 publication proof
 - release-note length, line count, SHA-256 digest, and missing topic IDs from the loaded metadata when available
 - current metadata diagnostics, including the exact error when the endpoint cannot be loaded
+- `releaseCreateCommand`, a copy-ready manual `gh release create ...` starter for the missing release, plus the notes file and required asset arguments
+- `releaseCreateCommandBoundary`, which states that ShipGuard does not publish the release and that manual approval, passing package proof, and release-proof assets are required
 - repair criteria, pass criteria, fail criteria, and the stable-publication rerun command
 - `metadataProofBoundary`, which states that public GitHub release metadata is required and that source-only proof, draft/prerelease proof, and fixture API proof do not prove stable-v4 publication
 

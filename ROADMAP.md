@@ -194,6 +194,8 @@ v3.195 keeps that lineage honest for the normal next-release path: a passing nex
 
 Release-line note: local `VERSION` now advances to `3.132.0` for the buildable v4-stabilization package path. The latest public GitHub release remains `v3.131.0` until a separate release publication and consumer-proof pass is completed.
 
+v3.133 starts real stable-publication packet QA by making missing GitHub release metadata actionable: the closure kit now includes a manual `gh release create ...` starter with the required release-proof assets and a boundary that ShipGuard prepares proof but does not publish public releases.
+
 Every release proposal must answer:
 
 1. Which developer decision changes?
