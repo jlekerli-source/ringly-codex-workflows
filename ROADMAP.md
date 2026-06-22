@@ -182,6 +182,8 @@ v3.189 humanizes the stable-publication result UX so the top proof source and fi
 
 v3.190 makes stable-publication default asset downloads rerunnable: generated `--out/downloaded-release-assets` state is refreshed before a new download, while explicit custom download directories and supplied release-asset directories remain caller-owned and protected from deletion.
 
+v3.191 makes release-notes edit commands path-safe: stable-publication now points `gh release edit --notes-file` at the generated draft under the report output directory, so the first blocker command works from a normal repo shell instead of assuming the maintainer has changed into the report directory.
+
 Every release proposal must answer:
 
 1. Which developer decision changes?

@@ -127,7 +127,7 @@ Every run also writes `stable-publication-release-notes/` inside the report dire
 
 This directory is a draft-only authoring aid, not proof that the public GitHub release was edited. It contains:
 
-- `README.md` with public-release-body rules, the exact manual `gh release edit ... --notes-file stable-publication-release-notes/draft-release-notes.md` command, and the rerun command
+- `README.md` with public-release-body rules, the exact manual `gh release edit ... --notes-file <report-out>/stable-publication-release-notes/draft-release-notes.md` command, and the rerun command
 - `release-notes-checklist.json` with the same topic matrix and missing topic IDs from `releaseNotesProof`
 - `draft-release-notes.md` with a copy-ready stable-publication section covering release assets, post-release consumer proof, independent adoption, final security review, and non-claims
 
@@ -316,7 +316,7 @@ Important fields:
 - `currentPublicReleaseCanBeAnnounced`
 - `localMainCanBeAnnounced`
 - `requiredActions[]` for `publish-new-github-release`, `update-release-notes`, `attach-launchkey-candidate-proof`, `update-release-assets`, `attach-adoption-security-evidence`, and `keep-current-public-release-unchanged`
-- `requiredActions[].nextCommand`, where `update-release-notes` points at the generated `gh release edit ... --notes-file stable-publication-release-notes/draft-release-notes.md` command when release notes are the blocker
+- `requiredActions[].nextCommand`, where `update-release-notes` points at the generated `gh release edit ... --notes-file <report-out>/stable-publication-release-notes/draft-release-notes.md` command when release notes are the blocker
 - `visibilityBoundary.unpublishedLocalCodeCountsAsReleased = false`
 
 The handoff does not publish, edit a GitHub release, or post externally. It makes the next release action explicit while keeping local `HEAD`/`main` deltas advisory: a selected public release can still be the announcement target when stable-publication evidence passes for that release.

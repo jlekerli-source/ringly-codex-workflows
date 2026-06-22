@@ -6,6 +6,14 @@ This is the current usefulness and refinement evaluation for ShipGuard after the
 
 ## Current Stable V4 Release Packet QA
 
+The v3.191 stable-publication loop promoted the next copy/paste actionability gap from real public-release QA: the release-notes edit command pointed at `stable-publication-release-notes/draft-release-notes.md` as if the maintainer were already inside the report output directory.
+
+- Finding: the first blocker command was conceptually right but path-fragile.
+- Product weakness: `resultUX.nextCommand` should be runnable from a normal repo shell, not depend on an implicit current working directory.
+- Native fix: release-notes edit commands now point `--notes-file` at the generated draft under the report output directory; shareable reports still redact the local output path.
+
+Fresh real-public-release QA still does not claim stable v4. The real `v3.131.0` report remains product-blocked on release notes, LaunchKey candidate proof, independent adoption evidence, and final security-review evidence.
+
 The v3.190 stable-publication loop promoted a real maintainer time-waster found during public-release QA: rerunning into the same output directory could make the generated `downloaded-release-assets/` directory block a fresh download and create false downstream asset/freshness/coherence noise.
 
 - Finding: the proof packet itself was valid, but a stale generated download directory made the rerun look like release assets were missing.

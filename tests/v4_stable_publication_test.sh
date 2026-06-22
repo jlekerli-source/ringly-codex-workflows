@@ -892,10 +892,10 @@ assert notes_kit["draftOnly"] is True
 assert notes_kit["directory"] == "stable-publication-release-notes"
 assert notes_kit["releaseTag"] == f"v{report['releaseVersion']}"
 assert notes_kit["releaseUrl"].endswith(f"/releases/tag/v{report['releaseVersion']}")
-assert notes_kit["publicReleaseEditCommand"] == (
-    f"gh release edit v{report['releaseVersion']} --repo jlekerli-source/ShipGuard "
-    "--notes-file stable-publication-release-notes/draft-release-notes.md"
-)
+notes_edit_command = notes_kit["publicReleaseEditCommand"]
+assert notes_edit_command.startswith(f"gh release edit v{report['releaseVersion']} --repo jlekerli-source/ShipGuard --notes-file ")
+assert notes_edit_command.endswith("/stable-publication-release-notes/draft-release-notes.md")
+assert "--notes-file stable-publication-release-notes/draft-release-notes.md" not in notes_edit_command
 assert report["stablePublicationEvidencePacket"]["firstBlockingGate"]["nextCommand"] == notes_kit["publicReleaseEditCommand"]
 assert report["resultUX"]["nextCommand"] == notes_kit["publicReleaseEditCommand"]
 assert report["resultUX"]["proofSource"] == "release notes"

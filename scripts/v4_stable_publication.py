@@ -643,9 +643,10 @@ def stable_publication_rerun_command(args: argparse.Namespace) -> str:
     return " ".join(shlex.quote(str(part)) for part in command)
 
 
-def public_release_notes_edit_command(*, repo: str, tag: str) -> str:
+def public_release_notes_edit_command(*, repo: str, tag: str, notes_file: str | Path | None = None) -> str:
     repo = repo or "<owner/repo>"
     tag = tag or "<tag>"
+    notes_path = str(notes_file or f"{RELEASE_NOTES_KIT_DIRNAME}/draft-release-notes.md")
     return " ".join(
         shlex.quote(str(part))
         for part in (
@@ -656,7 +657,7 @@ def public_release_notes_edit_command(*, repo: str, tag: str) -> str:
             "--repo",
             repo,
             "--notes-file",
-            f"{RELEASE_NOTES_KIT_DIRNAME}/draft-release-notes.md",
+            notes_path,
         )
     )
 
@@ -2977,6 +2978,7 @@ def build_stable_publication_release_notes_authoring_kit(
     release_version: str,
     release_notes_proof: dict[str, Any],
     metadata_proof: dict[str, Any],
+    out_dir: Path,
 ) -> dict[str, Any]:
     missing_topic_ids = release_notes_proof.get("missingTopicIds")
     if not isinstance(missing_topic_ids, list):
@@ -2986,7 +2988,11 @@ def build_stable_publication_release_notes_authoring_kit(
         topic_matrix = []
     release_tag = str(metadata_proof.get("tag") or launchkey.normalize_release_tag(release_version))
     release_repo = str(metadata_proof.get("repo") or "<owner/repo>")
-    edit_command = public_release_notes_edit_command(repo=release_repo, tag=release_tag)
+    edit_command = public_release_notes_edit_command(
+        repo=release_repo,
+        tag=release_tag,
+        notes_file=out_dir / RELEASE_NOTES_KIT_DIRNAME / "draft-release-notes.md",
+    )
     return {
         "schemaVersion": 2,
         "draftOnly": True,
@@ -4089,6 +4095,7 @@ def build_report(args: argparse.Namespace) -> dict[str, Any]:
         release_version=release_version,
         release_notes_proof=release_notes_proof,
         metadata_proof=metadata_proof,
+        out_dir=out_dir,
     )
     release_notes_next_command = str(
         release_notes_authoring_kit.get("publicReleaseEditCommand")
