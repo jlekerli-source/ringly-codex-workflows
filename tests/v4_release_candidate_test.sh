@@ -1016,7 +1016,7 @@ if ./bin/shipguard v4 release-candidate \
   --out "$tmp_dir/native-missing-repo" \
   --download-release-assets \
   --release-version "$version" \
-  --json >/dev/null 2>&1; then
+  --shareable >/dev/null 2>&1; then
   echo "expected native GitHub asset download without repo to fail release-candidate proof" >&2
   exit 1
 fi
@@ -1025,5 +1025,25 @@ grep -q '"status": "review"' "$tmp_dir/native-missing-repo/v4-release-candidate.
 grep -q '"githubReleaseAssetDownloadProof": "blocked"' "$tmp_dir/native-missing-repo/v4-release-candidate.json"
 grep -q '"receipt": "githubReleaseAssetDownloadProof"' "$tmp_dir/native-missing-repo/v4-release-candidate.json"
 grep -q 'missing --github-release-repo' "$tmp_dir/native-missing-repo/v4-release-candidate.json"
+grep -q 'Download Blocking Proof' "$tmp_dir/native-missing-repo/v4-release-candidate.md"
+python3 - "$tmp_dir/native-missing-repo/v4-release-candidate.json" <<'PY'
+import json
+import sys
+
+report = json.load(open(sys.argv[1], encoding="utf-8"))
+download = report["githubReleaseAssetDownloadProof"]
+blocking = download["downloadBlockingProof"]
+assert download["status"] == "blocked"
+assert blocking["status"] == "blocked"
+assert blocking["repo"] == ""
+assert blocking["tag"] == f"v{report['version']}"
+assert blocking["downloadDir"] == "<downloaded-release-assets>"
+assert blocking["error"] == "missing --github-release-repo <owner/repo>"
+assert "--download-release-assets" in blocking["nextCommand"]
+assert blocking["proofBoundary"]["githubReleaseRepoRequired"] is True
+assert blocking["proofBoundary"]["sourceOnlyProofCounts"] is False
+assert report["blockingProof"]["receipt"] == "githubReleaseAssetDownloadProof"
+assert report["resultUX"]["blockingProof"]["receipt"] == "githubReleaseAssetDownloadProof"
+PY
 
 echo "v4 release-candidate test passed"

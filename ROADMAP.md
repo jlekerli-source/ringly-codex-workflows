@@ -210,6 +210,8 @@ v3.139 continues LaunchKey generated proof-directory report-quality exclusion by
 
 v3.140 continues LaunchKey upgrade and rollback receipt attachment by adding compact `upgradeProofAttachment` and `rollbackProofAttachment` blocks so same-prefix upgrade and rollback cleanup proof travel with the candidate packet.
 
+v3.141 continues LaunchKey downloaded-asset blocking proof detail by adding `downloadBlockingProof` to failed native GitHub release-asset downloads so repo, tag, endpoint, destination, error, rerun command, and proof boundaries are visible.
+
 Every release proposal must answer:
 
 1. Which developer decision changes?

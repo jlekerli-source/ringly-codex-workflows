@@ -974,18 +974,22 @@ def build_github_release_asset_download_proof(args: argparse.Namespace, version:
     if not args.github_release_repo:
         proof["summary"] = "GitHub release asset download was requested, but no repository was supplied."
         proof["error"] = "missing --github-release-repo <owner/repo>"
+        attach_github_release_asset_download_blocking_proof(proof)
         return proof
     if "/" not in args.github_release_repo:
         proof["summary"] = "GitHub release repository must use owner/repo syntax."
         proof["error"] = f"invalid --github-release-repo value: {args.github_release_repo}"
+        attach_github_release_asset_download_blocking_proof(proof)
         return proof
     if download_dir.exists() and not download_dir.is_dir():
         proof["summary"] = "GitHub release download destination exists but is not a directory."
         proof["error"] = f"download destination is not a directory: {download_dir}"
+        attach_github_release_asset_download_blocking_proof(proof)
         return proof
     if download_dir.exists() and any(download_dir.iterdir()):
         proof["summary"] = "GitHub release download destination already exists and is not empty."
         proof["error"] = f"download destination must be empty: {download_dir}"
+        attach_github_release_asset_download_blocking_proof(proof)
         return proof
 
     token = os.environ.get(args.github_token_env or "")
@@ -1009,6 +1013,8 @@ def build_github_release_asset_download_proof(args: argparse.Namespace, version:
         if not isinstance(assets, list) or not assets:
             proof["summary"] = "GitHub release has no downloadable assets."
             proof["error"] = "release asset list was empty"
+            proof["releaseUrl"] = release.get("html_url") or ""
+            attach_github_release_asset_download_blocking_proof(proof)
             return proof
         download_dir.mkdir(parents=True, exist_ok=True)
         downloaded_assets: list[dict[str, Any]] = []
@@ -1033,6 +1039,8 @@ def build_github_release_asset_download_proof(args: argparse.Namespace, version:
         if not downloaded_assets:
             proof["summary"] = "GitHub release asset response did not contain usable assets."
             proof["error"] = "no usable asset objects were downloaded"
+            proof["releaseUrl"] = release.get("html_url") or ""
+            attach_github_release_asset_download_blocking_proof(proof)
             return proof
         proof.update(
             {
@@ -1048,7 +1056,40 @@ def build_github_release_asset_download_proof(args: argparse.Namespace, version:
             shutil.rmtree(download_dir, ignore_errors=True)
         proof["summary"] = "GitHub release asset download failed."
         proof["error"] = short_output(str(exc), 500)
+    if proof.get("status") != "pass":
+        attach_github_release_asset_download_blocking_proof(proof)
     return proof
+
+
+def attach_github_release_asset_download_blocking_proof(proof: dict[str, Any]) -> None:
+    if not proof.get("requested") or proof.get("status") == "pass":
+        return
+    proof["downloadBlockingProof"] = {
+        "status": proof.get("status"),
+        "repo": proof.get("repo", ""),
+        "tag": proof.get("tag", ""),
+        "apiUrl": proof.get("apiUrl", ""),
+        "releaseEndpoint": proof.get("releaseEndpoint", ""),
+        "releaseUrl": proof.get("releaseUrl", ""),
+        "downloadDir": proof.get("downloadDir", ""),
+        "assetCount": proof.get("assetCount"),
+        "downloadedAssetNames": [
+            str(item.get("name") or "")
+            for item in proof.get("downloadedAssets", [])
+            if isinstance(item, dict) and item.get("name")
+        ],
+        "summary": proof.get("summary", ""),
+        "error": proof.get("error", ""),
+        "nextCommand": proof.get("nextCommand"),
+        "proofBoundary": {
+            "githubReleaseRepoRequired": True,
+            "ownerRepoSyntaxRequired": True,
+            "emptyDownloadDestinationRequired": True,
+            "releaseAssetsRequired": True,
+            "sourceOnlyProofCounts": False,
+            "fixtureProofCountsAsStableV4PublicationProof": False,
+        },
+    }
 
 
 def build_published_release_asset_proof(
@@ -2519,6 +2560,16 @@ def render_markdown(report: dict[str, Any]) -> str:
         lines.append(f"- Asset count: `{proof.get('assetCount')}`")
         if proof.get("downloadDir"):
             lines.append(f"- Download directory: `{proof.get('downloadDir')}`")
+        blocking = proof.get("downloadBlockingProof") if isinstance(proof.get("downloadBlockingProof"), dict) else {}
+        if blocking:
+            lines.extend(["", "### Download Blocking Proof", ""])
+            lines.append(f"- Status: `{blocking.get('status')}`")
+            lines.append(f"- Repository: `{blocking.get('repo') or 'missing'}`")
+            lines.append(f"- Tag: `{blocking.get('tag') or 'missing'}`")
+            lines.append(f"- Release endpoint: `{blocking.get('releaseEndpoint') or 'missing'}`")
+            lines.append(f"- Download dir: `{blocking.get('downloadDir') or 'missing'}`")
+            lines.append(f"- Error: `{blocking.get('error') or 'missing'}`")
+            lines.append(f"- Next command: `{blocking.get('nextCommand')}`")
     else:
         lines.append(f"- Next command: `{proof.get('nextCommand')}`")
     proof = report["publishedReleaseAssetProof"]

@@ -1588,6 +1588,74 @@ def launchkey_upgrade_rollback_attachment_issues(report: dict[str, Any], *, mark
     return issues
 
 
+def launchkey_download_blocking_proof_issues(report: dict[str, Any], *, markdown: str, path_name: str) -> list[dict[str, str]]:
+    if str(report.get("tool") or "") != "shipguard v4 release-candidate":
+        return []
+    proof = report.get("githubReleaseAssetDownloadProof")
+    if not isinstance(proof, dict) or not proof.get("requested") or proof.get("status") in {"pass", "not-requested"}:
+        return []
+    issues: list[dict[str, str]] = []
+    blocking = proof.get("downloadBlockingProof")
+    if not isinstance(blocking, dict) or not blocking:
+        add_issue(
+            issues,
+            severity="review",
+            rule_id="launchkey-download-blocking-proof-missing",
+            evidence=f"{path_name} githubReleaseAssetDownloadProof blocked but has no downloadBlockingProof",
+            recommendation="Attach downloadBlockingProof with repo, tag, endpoint, download directory, error, next command, and proof boundary.",
+        )
+        return issues
+    if blocking.get("status") != proof.get("status"):
+        add_issue(
+            issues,
+            severity="review",
+            rule_id="launchkey-download-blocking-proof-status-drift",
+            evidence=f"{path_name} downloadBlockingProof.status does not mirror githubReleaseAssetDownloadProof.status",
+            recommendation="Keep downloadBlockingProof.status aligned with githubReleaseAssetDownloadProof.status.",
+        )
+    if not blocking.get("error") and not blocking.get("summary"):
+        add_issue(
+            issues,
+            severity="review",
+            rule_id="launchkey-download-blocking-proof-error-missing",
+            evidence=f"{path_name} downloadBlockingProof hides the download failure reason",
+            recommendation="Expose the short download error or summary so maintainers know whether repo, tag, API, destination, or asset metadata blocked the run.",
+        )
+    if not blocking.get("nextCommand"):
+        add_issue(
+            issues,
+            severity="review",
+            rule_id="launchkey-download-blocking-proof-next-command-missing",
+            evidence=f"{path_name} downloadBlockingProof has no rerun command",
+            recommendation="Expose the LaunchKey rerun command with --download-release-assets and --github-release-repo placeholders.",
+        )
+    boundary = blocking.get("proofBoundary") if isinstance(blocking.get("proofBoundary"), dict) else {}
+    if (
+        boundary.get("githubReleaseRepoRequired") is not True
+        or boundary.get("ownerRepoSyntaxRequired") is not True
+        or boundary.get("emptyDownloadDestinationRequired") is not True
+        or boundary.get("releaseAssetsRequired") is not True
+        or boundary.get("sourceOnlyProofCounts") is not False
+        or boundary.get("fixtureProofCountsAsStableV4PublicationProof") is not False
+    ):
+        add_issue(
+            issues,
+            severity="review",
+            rule_id="launchkey-download-blocking-proof-boundary-missing",
+            evidence=f"{path_name} downloadBlockingProof weakens the GitHub release asset download boundary",
+            recommendation="State that repo/tag/API access, empty destination, and real release assets are required; source-only and fixture proof do not count for stable-v4 publication.",
+        )
+    if "Download Blocking Proof" not in markdown:
+        add_issue(
+            issues,
+            severity="review",
+            rule_id="launchkey-download-blocking-proof-markdown-missing",
+            evidence=f"{path_name} Markdown does not render Download Blocking Proof",
+            recommendation="Render Download Blocking Proof under GitHub Release Asset Download so maintainers can inspect the download blocker without opening JSON.",
+        )
+    return issues
+
+
 def task_contract_quickstart_replay_issues(report: dict[str, Any], *, markdown: str, path_name: str) -> list[dict[str, str]]:
     issues: list[dict[str, str]] = []
     tool = str(report.get("tool") or "")
@@ -7923,6 +7991,7 @@ def grade_report(path: Path, *, input_paths: list[Path], shareable: bool, cwd: P
     issues.extend(launchkey_release_asset_attachment_issues(loaded, markdown=markdown, path_name=path.name))
     issues.extend(launchkey_fresh_install_attachment_issues(loaded, markdown=markdown, path_name=path.name))
     issues.extend(launchkey_upgrade_rollback_attachment_issues(loaded, markdown=markdown, path_name=path.name))
+    issues.extend(launchkey_download_blocking_proof_issues(loaded, markdown=markdown, path_name=path.name))
     issues.extend(task_contract_quickstart_replay_issues(loaded, markdown=markdown, path_name=path.name))
     issues.extend(task_contract_notification_scope_issues(loaded, markdown=markdown, path_name=path.name))
     issues.extend(task_contract_unsupported_claim_replay_issues(loaded, markdown=markdown, path_name=path.name))
