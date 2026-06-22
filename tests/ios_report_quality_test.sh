@@ -6434,10 +6434,38 @@ JSON
 grep -q '"status": "pass"' "$tmp_dir/launchkey-proof-dir-skip-quality/ios-report-quality.json"
 grep -q '"reportCount": 1' "$tmp_dir/launchkey-proof-dir-skip-quality/ios-report-quality.json"
 grep -q '"path": "<report-input-1>/v4-release-candidate.json"' "$tmp_dir/launchkey-proof-dir-skip-quality/ios-report-quality.json"
-if grep -q 'fresh-install-prefix\|fresh-install-work\|upgrade-prefix\|upgrade-work\|rollback-prefix\|rollback-work\|downloaded-release-assets\|release-consume\|stable-publication-launch-relay\|stable-publication-release-notes\|fixture-promotion-manifest' "$tmp_dir/launchkey-proof-dir-skip-quality/ios-report-quality.json"; then
-  echo "report-quality must skip generated LaunchKey proof directories under report outputs" >&2
-  exit 1
-fi
+grep -q 'Skipped Generated Report Inputs' "$tmp_dir/launchkey-proof-dir-skip-quality/ios-report-quality.md"
+python3 - "$tmp_dir/launchkey-proof-dir-skip-quality/ios-report-quality.json" <<'PY'
+import json
+import sys
+
+data = json.load(open(sys.argv[1], encoding="utf-8"))
+reports = data.get("reports") or []
+if len(reports) != 1 or reports[0].get("path") != "<report-input-1>/v4-release-candidate.json":
+    raise SystemExit(f"expected only the root LaunchKey report to be scored: {reports!r}")
+discovery = data.get("skippedReportDiscovery") or {}
+skipped = discovery.get("skippedReports") or []
+dirs = {item.get("skippedDirectory") for item in skipped}
+expected = {
+    "fresh-install-prefix",
+    "fresh-install-work",
+    "upgrade-prefix",
+    "upgrade-work",
+    "rollback-prefix",
+    "rollback-work",
+    "downloaded-release-assets",
+    "release-consume",
+    "stable-publication-launch-relay",
+    "stable-publication-release-notes",
+}
+missing = expected - dirs
+if missing:
+    raise SystemExit(f"generated proof directories were skipped but not disclosed: {sorted(missing)!r}")
+if int(discovery.get("skippedReportCount") or 0) < len(expected):
+    raise SystemExit(f"skipped report count is too low: {discovery!r}")
+if any("fixture-promotion-manifest" in (item.get("path") or "") for item in skipped):
+    raise SystemExit(f"self-promoted fixture manifests should remain omitted from skipped report discovery: {skipped!r}")
+PY
 
 stable_publication_fixture="fixtures/ios-report-quality/stable-publication-complete"
 ./bin/shipguard ios report-quality \

@@ -247,7 +247,14 @@ SOURCE_REPORT_SKIP_DIR_NAMES = {
 
 
 def is_skipped_report_path(path: Path) -> bool:
-    return any(parent.name in SOURCE_REPORT_SKIP_DIR_NAMES for parent in path.parents)
+    return skipped_report_dir_name(path) is not None
+
+
+def skipped_report_dir_name(path: Path) -> str | None:
+    for parent in path.parents:
+        if parent.name in SOURCE_REPORT_SKIP_DIR_NAMES:
+            return parent.name
+    return None
 
 
 def report_json_files(inputs: list[str]) -> list[Path]:
@@ -271,6 +278,21 @@ def report_json_files(inputs: list[str]) -> list[Path]:
     if not unique:
         fail("no report JSON files found")
     return unique
+
+
+def skipped_report_json_files(inputs: list[str]) -> list[tuple[Path, str]]:
+    skipped: list[tuple[Path, str]] = []
+    for raw in inputs:
+        path = Path(raw).expanduser().resolve()
+        if not path.exists() or path.is_file():
+            continue
+        for candidate in sorted(path.rglob("*.json")):
+            if candidate.name in SOURCE_REPORT_SKIP_NAMES:
+                continue
+            skipped_dir = skipped_report_dir_name(candidate)
+            if skipped_dir:
+                skipped.append((candidate, skipped_dir))
+    return sorted(set(skipped), key=lambda item: item[0].as_posix())
 
 
 def fixture_promotion_manifest_files(inputs: list[str]) -> list[Path]:
@@ -8838,6 +8860,7 @@ def build_report(inputs: list[str], *, shareable: bool = False, shipguard_eval: 
     promotion_manifest_paths = fixture_promotion_manifest_files(inputs)
     input_paths = resolved_input_paths(inputs)
     cwd = Path.cwd().resolve()
+    skipped_reports = skipped_report_json_files(inputs)
     graded = [grade_report(path, input_paths=input_paths, shareable=shareable, cwd=cwd) for path in paths]
     promotion_manifests = [
         promotion_manifest_report(path, input_paths=input_paths, shareable=shareable, cwd=cwd)
@@ -8888,6 +8911,19 @@ def build_report(inputs: list[str], *, shareable: bool = False, shipguard_eval: 
         "reportCount": len(graded),
         "averageScore": average,
         "inputs": [path_label(path, input_paths=input_paths, shareable=shareable, cwd=cwd) for path in input_paths],
+        "skippedReportDiscovery": {
+            "skippedReportCount": len(skipped_reports),
+            "skippedReports": [
+                {
+                    "path": path_label(path, input_paths=input_paths, shareable=shareable, cwd=cwd),
+                    "skippedDirectory": skipped_dir,
+                    "reason": "generated proof or package evidence directory; graded through the root ShipGuard report instead",
+                }
+                for path, skipped_dir in skipped_reports[:50]
+            ],
+            "truncated": len(skipped_reports) > 50,
+            "skipDirectoryNames": sorted(SOURCE_REPORT_SKIP_DIR_NAMES),
+        },
         "shareability": {
             "mode": "shareable" if shareable else "local",
             "localAbsolutePathsIncluded": not shareable,
@@ -8948,6 +8984,22 @@ def render_markdown(report: dict[str, Any]) -> str:
         lines.append(
             f"| {item['score']} | {item['status']} | {item.get('reportStatus') or '-'} | `{table_cell(item.get('tool') or 'unknown', 40)}` | {table_cell(item.get('surface') or '-', 42)} | {item.get('intent') or '-'} | `{Path(item['path']).name}` | {item['issueCount']} |"
         )
+
+    skipped = report.get("skippedReportDiscovery") or {}
+    lines.extend(["", "## Skipped Generated Report Inputs", ""])
+    lines.append(f"- Skipped JSON files: {skipped.get('skippedReportCount', 0)}")
+    skipped_reports = skipped.get("skippedReports") or []
+    if skipped_reports:
+        lines.extend(["", "| Directory | Skipped JSON | Reason |", "| --- | --- | --- |"])
+        for item in skipped_reports[:12]:
+            lines.append(
+                f"| `{table_cell(item.get('skippedDirectory') or '-', 40)}` | `{table_cell(item.get('path') or '-', 80)}` | {table_cell(item.get('reason') or '-', 100)} |"
+            )
+        if skipped.get("truncated"):
+            lines.append("")
+            lines.append("Additional skipped generated report inputs are preserved in JSON but omitted from this compact Markdown table.")
+    else:
+        lines.append("No generated proof directories were skipped.")
 
     lines.extend(["", "## Findings", ""])
     if report["findings"]:
