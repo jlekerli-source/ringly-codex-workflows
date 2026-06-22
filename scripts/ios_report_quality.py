@@ -4676,6 +4676,19 @@ def stable_publication_evidence_packet_issues(
                     evidence=f"{path_name} finalStableV4ClaimPacket does not carry the unpublished-local-delta warning",
                     recommendation="Mirror publicReleaseDeltaProof into finalStableV4ClaimPacket and Markdown so claim copy cannot imply unpublished local main is already released.",
                 )
+        if "Final Stable V4 Claim Packet" in markdown and "Final claim public-release delta" in markdown:
+            final_claim_section = markdown.split("Final Stable V4 Claim Packet", 1)[1].split("\n## ", 1)[0]
+            table_index = final_claim_section.find("| Evidence | Status |")
+            delta_index = final_claim_section.find("Final claim public-release delta")
+            first_row_index = final_claim_section.find("| `", table_index + len("| Evidence | Status |")) if table_index >= 0 else -1
+            if table_index >= 0 and first_row_index >= 0 and table_index < delta_index < first_row_index:
+                add_issue(
+                    issues,
+                    severity="review",
+                    rule_id="stable-publication-final-claim-markdown-table-interrupted",
+                    evidence=f"{path_name} renders final claim delta inside the evidence table",
+                    recommendation="Render final claim evidence rows contiguously, then render the public-release delta summary after the table.",
+                )
         if "Final Stable V4 Claim Packet" not in markdown or "Copy-ready claim" not in markdown:
             add_issue(
                 issues,

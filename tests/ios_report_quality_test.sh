@@ -5639,6 +5639,54 @@ PY
   --shareable >/dev/null
 grep -q '"ruleId": "stable-publication-final-claim-release-delta-summary-missing"' "$tmp_dir/stable-publication-final-claim-delta-quality/ios-report-quality.json"
 
+stable_publication_final_claim_table_dir="$tmp_dir/stable-publication-final-claim-table"
+mkdir -p "$stable_publication_final_claim_table_dir"
+python3 - "$stable_publication_final_claim_delta_dir/v4-stable-publication.json" "$stable_publication_final_claim_table_dir" <<'PY'
+import json
+import pathlib
+import sys
+
+source = pathlib.Path(sys.argv[1])
+target = pathlib.Path(sys.argv[2])
+report = json.loads(source.read_text(encoding="utf-8"))
+report["finalStableV4ClaimPacket"]["publicReleaseDeltaSummary"] = {
+    "status": "review",
+    "selectedGitHubReleaseTag": "v3.999.0",
+    "selectedPublicReleaseCommit": "public",
+    "localHeadCommit": "local",
+    "localMainCommit": "local",
+    "unpublishedLocalDelta": True,
+    "stableV4ClaimCoversSelectedPublicRelease": False,
+    "stableV4ClaimCoversLocalCheckout": False,
+    "unpublishedLocalCodeCountsAsReleased": False,
+    "localHeadIsNotPublicReleaseProof": True,
+    "localMainIsNotPublicReleaseProof": True,
+    "problems": [],
+}
+(target / "v4-stable-publication.json").write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+(target / "v4-stable-publication.md").write_text(
+    "# ShipGuard V4 Stable Publication Proof\n\n"
+    "## Public Release Delta\n\n"
+    "- Unpublished local delta: `True`\n\n"
+    "## Final Stable V4 Claim Packet\n\n"
+    "Copy-ready claim:\n\n"
+    "Do not claim ShipGuard 3.999.0 as stable v4 yet.\n\n"
+    "| Evidence | Status |\n"
+    "| --- | --- |\n\n"
+    "Final claim public-release delta:\n\n"
+    "- Unpublished local delta: `True`\n"
+    "- Claim covers local checkout: `False`\n"
+    "- Unpublished local code counts as released: `False`\n"
+    "| `github-release-metadata` | `pass` |\n",
+    encoding="utf-8",
+)
+PY
+./bin/shipguard ios report-quality \
+  --reports "$stable_publication_final_claim_table_dir" \
+  --out "$tmp_dir/stable-publication-final-claim-table-quality" \
+  --shareable >/dev/null
+grep -q '"ruleId": "stable-publication-final-claim-markdown-table-interrupted"' "$tmp_dir/stable-publication-final-claim-table-quality/ios-report-quality.json"
+
 stable_publication_launchkey_closure_dir="$tmp_dir/stable-publication-launchkey-closure"
 mkdir -p "$stable_publication_launchkey_closure_dir"
 cat > "$stable_publication_launchkey_closure_dir/v4-stable-publication.json" <<'JSON'

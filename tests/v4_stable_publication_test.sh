@@ -1342,6 +1342,17 @@ grep -q 'Claim decision: `allowed`' "$tmp_dir/pass/v4-stable-publication.md"
 grep -q 'has passed stable-v4 publication proof' "$tmp_dir/pass/v4-stable-publication.md"
 grep -q 'Final claim public-release delta' "$tmp_dir/pass/v4-stable-publication.md"
 grep -q 'Unpublished local delta: `False`' "$tmp_dir/pass/v4-stable-publication.md"
+python3 - "$tmp_dir/pass/v4-stable-publication.md" <<'PY'
+from pathlib import Path
+import sys
+
+markdown = Path(sys.argv[1]).read_text(encoding="utf-8")
+section = markdown.split("## Final Stable V4 Claim Packet", 1)[1].split("\n## ", 1)[0]
+table = section.index("| Evidence | Status |")
+row = section.index("| `github-release-metadata` |", table)
+delta = section.index("Final claim public-release delta:", row)
+assert table < row < delta
+PY
 grep -q 'Release Version Coherence' "$tmp_dir/pass/v4-stable-publication.md"
 grep -q 'Release Asset Coherence' "$tmp_dir/pass/v4-stable-publication.md"
 grep -q 'Release version coherence: `pass`' "$tmp_dir/pass/v4-stable-publication.md"

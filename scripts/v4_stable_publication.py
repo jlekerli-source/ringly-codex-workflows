@@ -4386,6 +4386,9 @@ def render_markdown(report: dict[str, Any]) -> str:
                 "| --- | --- |",
             ]
         )
+        for row in final_claim.get("evidenceSummary", []):
+            if isinstance(row, dict):
+                lines.append(f"| `{row.get('id')}` | `{row.get('status')}` |")
         delta = (
             final_claim.get("publicReleaseDeltaSummary")
             if isinstance(final_claim.get("publicReleaseDeltaSummary"), dict)
@@ -4405,9 +4408,6 @@ def render_markdown(report: dict[str, Any]) -> str:
                     f"- Unpublished local code counts as released: `{delta.get('unpublishedLocalCodeCountsAsReleased')}`",
                 ]
             )
-        for row in final_claim.get("evidenceSummary", []):
-            if isinstance(row, dict):
-                lines.append(f"| `{row.get('id')}` | `{row.get('status')}` |")
         lines.extend(["", "Blocked claim wording:", ""])
         for claim in final_claim.get("blockedClaims", []):
             lines.append(f"- {claim}")

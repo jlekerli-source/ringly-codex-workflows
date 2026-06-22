@@ -321,7 +321,7 @@ The packet includes the claim decision, copy-ready allowed or blocked wording, e
 
 Markdown renders this as `Final Stable V4 Claim Packet`. A blocked report says not to claim stable v4 yet and names the first blocker; a passing report gives bounded stable-v4 wording without claiming marketplace acceptance or public launch posting.
 
-When `publicReleaseDeltaProof.unpublishedLocalDelta` is true, the final claim packet also renders `Final claim public-release delta` and the copy-ready wording warns that local `HEAD` or `main` must not be described as released until a new public release passes.
+When `publicReleaseDeltaProof.unpublishedLocalDelta` is true, the final claim packet also renders `Final claim public-release delta` after the evidence table, and the copy-ready wording warns that local `HEAD` or `main` must not be described as released until a new public release passes.
 
 ## External Evidence Freshness
 
