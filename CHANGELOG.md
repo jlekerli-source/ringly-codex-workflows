@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Added LaunchKey final security-review gate attachments: supplied security review evidence now carries `securityReviewEvidenceProof.securityReviewGateAttachment` with record counts, accepted evidence classes, accepted reviewer relationships, required scope, required fields, first invalid record diagnostics, next command, and proof boundaries, and `ios report-quality` flags LaunchKey reports that hide it.
 - Added LaunchKey external adoption gate attachments: supplied adoption evidence now carries `externalAdoptionEvidenceProof.adoptionGateAttachment` with record counts, accepted evidence classes, required fields, first invalid record diagnostics, next command, and proof boundaries, and `ios report-quality` flags LaunchKey reports that hide it.
 - Added LaunchKey native download proof attachments: successful GitHub release-asset downloads now attach `githubReleaseAssetDownloadProof.downloadProofAttachment` with repo, tag, endpoint, destination, downloaded asset names, SHA-256 rows, rerun command, and proof boundaries, and `ios report-quality` flags LaunchKey reports that hide it.
 - Added LaunchKey downloaded-asset blocking proof detail: failed native GitHub release-asset downloads now attach `githubReleaseAssetDownloadProof.downloadBlockingProof` with repo, tag, endpoint, download directory, error, rerun command, and proof boundaries, and `ios report-quality` flags LaunchKey reports that hide it.

@@ -1812,6 +1812,105 @@ def launchkey_external_adoption_gate_attachment_issues(report: dict[str, Any], *
     return issues
 
 
+def launchkey_security_review_gate_attachment_issues(report: dict[str, Any], *, markdown: str, path_name: str) -> list[dict[str, str]]:
+    if str(report.get("tool") or "") != "shipguard v4 release-candidate":
+        return []
+    proof = report.get("securityReviewEvidenceProof")
+    if not isinstance(proof, dict) or not proof.get("provided"):
+        return []
+    issues: list[dict[str, str]] = []
+    attachment = proof.get("securityReviewGateAttachment")
+    if not isinstance(attachment, dict) or not attachment:
+        add_issue(
+            issues,
+            severity="review",
+            rule_id="launchkey-security-review-gate-attachment-missing",
+            evidence=f"{path_name} securityReviewEvidenceProof was supplied but has no securityReviewGateAttachment",
+            recommendation="Attach securityReviewGateAttachment with record counts, accepted classes, accepted reviewers, required scope, diagnostics, next command, and proof boundary.",
+        )
+        return issues
+    if attachment.get("stableV4GateStatus") != proof.get("stableV4GateStatus"):
+        add_issue(
+            issues,
+            severity="review",
+            rule_id="launchkey-security-review-gate-attachment-status-drift",
+            evidence=f"{path_name} securityReviewGateAttachment.stableV4GateStatus does not mirror securityReviewEvidenceProof",
+            recommendation="Keep securityReviewGateAttachment stable-v4 gate status aligned with the security evidence proof.",
+        )
+    accepted_classes = set(str(value) for value in attachment.get("acceptedEvidenceClasses", [])) if isinstance(attachment.get("acceptedEvidenceClasses"), list) else set()
+    if not {"public-security-review", "private-redacted-security-review"} <= accepted_classes:
+        add_issue(
+            issues,
+            severity="review",
+            rule_id="launchkey-security-review-gate-attachment-classes-missing",
+            evidence=f"{path_name} securityReviewGateAttachment does not list accepted stable-v4 security review classes",
+            recommendation="List public-security-review and private-redacted-security-review so maintainers know what can pass stable-v4 final security evidence.",
+        )
+    accepted_reviewers = set(str(value) for value in attachment.get("acceptedReviewerRelationships", [])) if isinstance(attachment.get("acceptedReviewerRelationships"), list) else set()
+    if not {"independent", "maintainer-security-review"} <= accepted_reviewers:
+        add_issue(
+            issues,
+            severity="review",
+            rule_id="launchkey-security-review-gate-attachment-reviewers-missing",
+            evidence=f"{path_name} securityReviewGateAttachment does not list accepted reviewer relationships",
+            recommendation="List independent and maintainer-security-review so maintainers know which reviewer relationships can pass final security evidence.",
+        )
+    required_scope = set(str(value) for value in attachment.get("requiredScope", [])) if isinstance(attachment.get("requiredScope"), list) else set()
+    expected_scope = {"cli", "plugin", "github-actions", "release-proof", "package-install", "redaction-privacy"}
+    if not expected_scope <= required_scope:
+        add_issue(
+            issues,
+            severity="review",
+            rule_id="launchkey-security-review-gate-attachment-scope-missing",
+            evidence=f"{path_name} securityReviewGateAttachment hides required stable-v4 security scope",
+            recommendation="Expose CLI, plugin, GitHub Actions, release-proof, package-install, and redaction/privacy scope requirements.",
+        )
+    required_fields = set(str(value) for value in attachment.get("requiredFields", [])) if isinstance(attachment.get("requiredFields"), list) else set()
+    if not {"reviewerRelationship", "scope", "methodology", "findingsSummary", "nonClaims"} <= required_fields:
+        add_issue(
+            issues,
+            severity="review",
+            rule_id="launchkey-security-review-gate-attachment-required-fields-missing",
+            evidence=f"{path_name} securityReviewGateAttachment hides key required security-review fields",
+            recommendation="Expose required fields including reviewerRelationship, scope, methodology, findingsSummary, and nonClaims.",
+        )
+    if proof.get("status") == "blocked" and not attachment.get("firstInvalidRecord"):
+        add_issue(
+            issues,
+            severity="review",
+            rule_id="launchkey-security-review-gate-attachment-diagnostics-missing",
+            evidence=f"{path_name} blocked security-review proof has no firstInvalidRecord diagnostics",
+            recommendation="Expose the first invalid security review record path, missing fields, missing scope, and errors.",
+        )
+    boundary = attachment.get("proofBoundary") if isinstance(attachment.get("proofBoundary"), dict) else {}
+    if (
+        boundary.get("requiredScopeMustBeCovered") is not True
+        or boundary.get("privateDataRedactedRequired") is not True
+        or boundary.get("criticalHighOpenMustBeZero") is not True
+        or boundary.get("methodologyRequired") is not True
+        or boundary.get("consentOrShareableSummaryRequired") is not True
+        or boundary.get("fixtureSyntheticProofCounts") is not False
+        or boundary.get("sourceOnlyProofCounts") is not False
+        or boundary.get("marketplaceAcceptanceClaimed") is not False
+    ):
+        add_issue(
+            issues,
+            severity="review",
+            rule_id="launchkey-security-review-gate-attachment-boundary-missing",
+            evidence=f"{path_name} securityReviewGateAttachment weakens the final security-review proof boundary",
+            recommendation="State that required scope, redaction, methodology, and zero open critical/high findings are required, while fixture/source/marketplace proof does not count.",
+        )
+    if "Security Review Gate Attachment" not in markdown:
+        add_issue(
+            issues,
+            severity="review",
+            rule_id="launchkey-security-review-gate-attachment-markdown-missing",
+            evidence=f"{path_name} Markdown does not render Security Review Gate Attachment",
+            recommendation="Render Security Review Gate Attachment under Security Review Evidence so maintainers can inspect the gate without opening JSON.",
+        )
+    return issues
+
+
 def task_contract_quickstart_replay_issues(report: dict[str, Any], *, markdown: str, path_name: str) -> list[dict[str, str]]:
     issues: list[dict[str, str]] = []
     tool = str(report.get("tool") or "")
@@ -8150,6 +8249,7 @@ def grade_report(path: Path, *, input_paths: list[Path], shareable: bool, cwd: P
     issues.extend(launchkey_download_blocking_proof_issues(loaded, markdown=markdown, path_name=path.name))
     issues.extend(launchkey_download_proof_attachment_issues(loaded, markdown=markdown, path_name=path.name))
     issues.extend(launchkey_external_adoption_gate_attachment_issues(loaded, markdown=markdown, path_name=path.name))
+    issues.extend(launchkey_security_review_gate_attachment_issues(loaded, markdown=markdown, path_name=path.name))
     issues.extend(task_contract_quickstart_replay_issues(loaded, markdown=markdown, path_name=path.name))
     issues.extend(task_contract_notification_scope_issues(loaded, markdown=markdown, path_name=path.name))
     issues.extend(task_contract_unsupported_claim_replay_issues(loaded, markdown=markdown, path_name=path.name))

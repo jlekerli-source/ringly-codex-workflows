@@ -329,6 +329,7 @@ import sys
 
 report = json.load(open(sys.argv[1], encoding="utf-8"))
 proof = report["securityReviewEvidenceProof"]
+attachment = proof["securityReviewGateAttachment"]
 assert report["status"] == "pass"
 assert report["releaseReadiness"]["securityReviewEvidenceProof"] == "pass"
 assert report["releaseReadiness"]["securityReviewEvidenceStableGate"] == "review"
@@ -341,6 +342,16 @@ assert proof["stableV4EligibleEvidenceCount"] == 0
 assert proof["records"][0]["path"] == "<security-review-evidence>/synthetic-security.json"
 assert proof["records"][0]["stableV4Eligible"] is False
 assert "none of the records are stable-v4 eligible" in proof["summary"]
+assert attachment["status"] == "pass"
+assert attachment["stableV4GateStatus"] == "review"
+assert attachment["stableV4EligibleEvidenceCount"] == 0
+assert "public-security-review" in attachment["acceptedEvidenceClasses"]
+assert "private-redacted-security-review" in attachment["acceptedEvidenceClasses"]
+assert "maintainer-security-review" in attachment["acceptedReviewerRelationships"]
+assert "redaction-privacy" in attachment["requiredScope"]
+assert "findingsSummary" in attachment["requiredFields"]
+assert attachment["proofBoundary"]["fixtureSyntheticProofCounts"] is False
+assert attachment["proofBoundary"]["criticalHighOpenMustBeZero"] is True
 PY
 if grep -R -F -q "$tmp_dir/security" "$tmp_dir/synthetic-security"; then
   echo "shareable v4 release-candidate output must redact security review evidence paths" >&2
@@ -403,12 +414,14 @@ JSON
   --security-review-evidence "$tmp_dir/stable-security/security-review.json" \
   --shipguard-eval \
   --shareable
+grep -q 'Security Review Gate Attachment' "$tmp_dir/stable-security-report/v4-release-candidate.md"
 python3 - "$tmp_dir/stable-security-report/v4-release-candidate.json" <<'PY'
 import json
 import sys
 
 report = json.load(open(sys.argv[1], encoding="utf-8"))
 proof = report["securityReviewEvidenceProof"]
+attachment = proof["securityReviewGateAttachment"]
 assert report["releaseReadiness"]["securityReviewEvidenceProof"] == "pass"
 assert report["releaseReadiness"]["securityReviewEvidenceStableGate"] == "pass"
 assert proof["stableV4GateStatus"] == "pass"
@@ -416,6 +429,10 @@ assert proof["stableV4EligibleEvidenceCount"] == 1
 assert proof["records"][0]["stableV4Eligible"] is True
 assert proof["records"][0]["criticalOpen"] == 0
 assert proof["records"][0]["highOpen"] == 0
+assert attachment["stableV4GateStatus"] == "pass"
+assert attachment["stableV4EligibleEvidenceCount"] == 1
+assert attachment["invalidRecordCount"] == 0
+assert attachment["proofBoundary"]["sourceOnlyProofCounts"] is False
 PY
 SHIPGUARD_GENERATED_AT="2026-06-19T00:00:00Z" \
   ./bin/shipguard release-proof build \
@@ -642,6 +659,7 @@ assert report["releaseReadiness"]["externalAdoptionEvidenceStableGate"] == "pass
 assert report["releaseReadiness"]["securityReviewEvidenceProof"] == "pass"
 assert report["releaseReadiness"]["securityReviewEvidenceStableGate"] == "pass"
 assert report["securityReviewEvidenceProof"]["stableV4EligibleEvidenceCount"] == 1
+assert report["securityReviewEvidenceProof"]["securityReviewGateAttachment"]["stableV4GateStatus"] == "pass"
 assert "--profile release" in report["resultUX"]["nextCommand"]
 assert "--release-url <release-url>" in report["resultUX"]["nextCommand"]
 assert "final stable-v4 release proof packet" in report["resultUX"]["priorityAction"]

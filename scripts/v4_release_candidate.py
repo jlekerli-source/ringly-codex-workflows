@@ -1730,10 +1730,12 @@ def build_security_review_evidence_proof(args: argparse.Namespace) -> dict[str, 
     }
     if collection_errors or not files:
         proof["error"] = collection_errors[0] if collection_errors else "no security review evidence records found"
+        attach_security_review_gate_attachment(proof)
         return proof
     if invalid_records:
         first = invalid_records[0]
         proof["error"] = "; ".join(first.get("missingFields", []) + first.get("errors", []))
+        attach_security_review_gate_attachment(proof)
         return proof
     proof["status"] = "pass"
     if stable_records:
@@ -1743,7 +1745,59 @@ def build_security_review_evidence_proof(args: argparse.Namespace) -> dict[str, 
         proof["stableV4GateStatus"] = "review"
         proof["summary"] = "Security review evidence is structurally valid, but none of the records are stable-v4 eligible review evidence."
         proof["nextAction"] = "Attach real public-security-review or private-redacted-security-review evidence before any stable-v4 release claim."
+    attach_security_review_gate_attachment(proof)
     return proof
+
+
+def attach_security_review_gate_attachment(proof: dict[str, Any]) -> None:
+    records = [record for record in proof.get("records", []) if isinstance(record, dict)]
+    invalid_records = [record for record in records if record.get("status") != "pass"]
+    first_invalid = invalid_records[0] if invalid_records else {}
+    proof["securityReviewGateAttachment"] = {
+        "status": proof.get("status"),
+        "stableV4GateStatus": proof.get("stableV4GateStatus"),
+        "evidenceRecordCount": proof.get("evidenceRecordCount", 0),
+        "validRecordCount": proof.get("validRecordCount", 0),
+        "invalidRecordCount": proof.get("invalidRecordCount", 0),
+        "stableV4EligibleEvidenceCount": proof.get("stableV4EligibleEvidenceCount", 0),
+        "acceptedEvidenceClasses": ["public-security-review", "private-redacted-security-review"],
+        "acceptedReviewerRelationships": ["independent", "maintainer-security-review"],
+        "requiredScope": sorted(SECURITY_SCOPE_REQUIRED),
+        "requiredFields": [
+            "schemaVersion",
+            "evidenceType",
+            "evidenceClass",
+            "reviewerRelationship",
+            "generatedAt",
+            "status",
+            "privateDataRedacted",
+            "scope",
+            "methodology",
+            "commands",
+            "artifacts",
+            "findingsSummary",
+            "nonClaims",
+        ],
+        "evidenceInputs": proof.get("evidenceInputs", []),
+        "firstInvalidRecord": {
+            "path": first_invalid.get("path", ""),
+            "missingFields": first_invalid.get("missingFields", []),
+            "missingStableScope": first_invalid.get("missingStableScope", []),
+            "errors": first_invalid.get("errors", []),
+        } if first_invalid else {},
+        "nextCommand": proof.get("nextCommand"),
+        "nextAction": proof.get("nextAction", ""),
+        "proofBoundary": {
+            "requiredScopeMustBeCovered": True,
+            "privateDataRedactedRequired": True,
+            "criticalHighOpenMustBeZero": True,
+            "methodologyRequired": True,
+            "consentOrShareableSummaryRequired": True,
+            "fixtureSyntheticProofCounts": False,
+            "sourceOnlyProofCounts": False,
+            "marketplaceAcceptanceClaimed": False,
+        },
+    }
 
 
 def failed_process_excerpt(proof: dict[str, Any]) -> str:
@@ -2735,6 +2789,17 @@ def render_markdown(report: dict[str, Any]) -> str:
         lines.append(f"- Evidence records: `{proof.get('evidenceRecordCount')}`")
         lines.append(f"- Valid records: `{proof.get('validRecordCount')}`")
         lines.append(f"- Stable-v4 eligible records: `{proof.get('stableV4EligibleEvidenceCount')}`")
+        attachment = proof.get("securityReviewGateAttachment") if isinstance(proof.get("securityReviewGateAttachment"), dict) else {}
+        if attachment:
+            lines.extend(["", "### Security Review Gate Attachment", ""])
+            lines.append(f"- Status: `{attachment.get('status')}`")
+            lines.append(f"- Stable v4 gate: `{attachment.get('stableV4GateStatus')}`")
+            lines.append(f"- Accepted classes: `{', '.join(attachment.get('acceptedEvidenceClasses') or [])}`")
+            lines.append(f"- Accepted reviewers: `{', '.join(attachment.get('acceptedReviewerRelationships') or [])}`")
+            lines.append(f"- Required scope: `{', '.join(attachment.get('requiredScope') or [])}`")
+            lines.append(f"- Stable-v4 eligible records: `{attachment.get('stableV4EligibleEvidenceCount')}`")
+            lines.append(f"- Invalid records: `{attachment.get('invalidRecordCount')}`")
+            lines.append(f"- Next command: `{attachment.get('nextCommand')}`")
     else:
         lines.append(f"- Next command: `{proof.get('nextCommand')}`")
     lines.extend(["", "## Plugin Refresh Proof", ""])

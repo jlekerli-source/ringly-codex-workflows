@@ -5719,6 +5719,74 @@ MD
 grep -q '"status": "review"' "$tmp_dir/launchkey-adoption-attachment-quality/ios-report-quality.json"
 grep -q 'launchkey-external-adoption-gate-attachment-missing' "$tmp_dir/launchkey-adoption-attachment-quality/ios-report-quality.json"
 
+launchkey_security_attachment_dir="$tmp_dir/launchkey-security-attachment"
+mkdir -p "$launchkey_security_attachment_dir"
+cat > "$launchkey_security_attachment_dir/v4-release-candidate.json" <<'JSON'
+{
+  "schemaVersion": 1,
+  "tool": "shipguard v4 release-candidate",
+  "surface": "ShipGuard V4 Release Candidate Readiness",
+  "generatedAt": "2026-06-19T00:00:00Z",
+  "status": "pass",
+  "resultUX": {
+    "status": "pass",
+    "verdict": "PASS: Synthetic LaunchKey report has security review evidence.",
+    "proofSource": "synthetic release-readiness fixture",
+    "whyItMatters": "LaunchKey tracks stable-v4 final security evidence.",
+    "nextCommand": "./bin/shipguard v4 release-candidate --path . --out <candidate-dir> --security-review-evidence <evidence-json-or-dir> --shipguard-eval --shareable",
+    "nextActionSummary": "Prepare stable-publication proof."
+  },
+  "securityReviewEvidenceProof": {
+    "status": "pass",
+    "provided": true,
+    "requiredForStableV4": true,
+    "stableV4GateStatus": "pass",
+    "summary": "Security review evidence passed the structural contract and includes stable-v4 eligible review evidence.",
+    "nextCommand": "./bin/shipguard v4 release-candidate --path . --out <candidate-dir> --security-review-evidence <evidence-json-or-dir> --shipguard-eval --shareable",
+    "requiredScope": ["cli", "github-actions", "package-install", "plugin", "redaction-privacy", "release-proof"],
+    "evidenceRecordCount": 1,
+    "validRecordCount": 1,
+    "invalidRecordCount": 0,
+    "stableV4EligibleEvidenceCount": 1,
+    "records": [
+      {
+        "path": "<security-review-evidence>/security-review.json",
+        "status": "pass",
+        "stableV4Eligible": true,
+        "evidenceClass": "private-redacted-security-review",
+        "reviewerRelationship": "maintainer-security-review",
+        "scope": ["cli", "github-actions", "package-install", "plugin", "redaction-privacy", "release-proof"],
+        "criticalOpen": 0,
+        "highOpen": 0
+      }
+    ]
+  }
+}
+JSON
+cat > "$launchkey_security_attachment_dir/v4-release-candidate.md" <<'MD'
+# ShipGuard V4 Release Candidate Readiness
+
+## Result
+
+- Verdict: PASS: Synthetic LaunchKey report has security review evidence.
+- Proof source: synthetic release-readiness fixture
+- Why it matters: LaunchKey tracks stable-v4 final security evidence.
+- Next command: `./bin/shipguard v4 release-candidate --path . --out <candidate-dir> --security-review-evidence <evidence-json-or-dir> --shipguard-eval --shareable`
+- Next action: Prepare stable-publication proof.
+
+## Security Review Evidence
+
+- Status: `pass`
+- Stable v4 gate: `pass`
+- Summary: Security review evidence passed the structural contract and includes stable-v4 eligible review evidence.
+MD
+./bin/shipguard ios report-quality \
+  --reports "$launchkey_security_attachment_dir" \
+  --out "$tmp_dir/launchkey-security-attachment-quality" \
+  --shareable >/dev/null
+grep -q '"status": "review"' "$tmp_dir/launchkey-security-attachment-quality/ios-report-quality.json"
+grep -q 'launchkey-security-review-gate-attachment-missing' "$tmp_dir/launchkey-security-attachment-quality/ios-report-quality.json"
+
 stable_publication_priority_dir="$tmp_dir/stable-publication-priority"
 mkdir -p "$stable_publication_priority_dir"
 cat > "$stable_publication_priority_dir/tool-value-gauntlet.json" <<'JSON'

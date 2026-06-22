@@ -216,6 +216,8 @@ v3.142 continues LaunchKey native GitHub release-asset download by adding `downl
 
 v3.143 continues Stable-v4 external adoption evidence gating by adding `adoptionGateAttachment` to supplied adoption evidence so record counts, accepted classes, required fields, first invalid record diagnostics, next command, and source-only/fixture/download/marketplace boundaries travel with the candidate packet.
 
+v3.144 continues Stable-v4 final security-review evidence gating by adding `securityReviewGateAttachment` to supplied security review evidence so record counts, accepted classes, accepted reviewer relationships, required scope, required fields, first invalid record diagnostics, next command, and source-only/fixture/marketplace boundaries travel with the candidate packet.
+
 Every release proposal must answer:
 
 1. Which developer decision changes?
