@@ -7687,6 +7687,37 @@ assert priority.get("existingFixturePath") == "fixtures/ios-report-quality/stabl
 assert data.get("fixtureCandidates") == [], data.get("fixtureCandidates")
 PY
 
+stable_publication_security_fixture="fixtures/ios-report-quality/stable-publication-security-review-evidence-checklist"
+./bin/shipguard ios report-quality \
+  --reports "$stable_publication_security_fixture" \
+  --out "$tmp_dir/stable-publication-security-fixture-quality" \
+  --shareable >/dev/null
+grep -q '"status": "pass"' "$tmp_dir/stable-publication-security-fixture-quality/ios-report-quality.json"
+grep -q '"kind": "review-existing-fixture"' "$tmp_dir/stable-publication-security-fixture-quality/ios-report-quality.json"
+grep -q '"publicFixturePath": "fixtures/ios-report-quality/stable-publication-security-review-evidence-checklist"' "$tmp_dir/stable-publication-security-fixture-quality/ios-report-quality.json"
+grep -q '"fixtureCandidates": \[\]' "$tmp_dir/stable-publication-security-fixture-quality/ios-report-quality.json"
+grep -q 'Security Review Evidence Rejection' "$stable_publication_security_fixture/fixture-report.md"
+grep -q 'reviewed surfaces, severity thresholds, redaction, methodology, findingsSummary, nonClaims' "$stable_publication_security_fixture/fixture-report.md"
+grep -q '"requiredReviewSurfaces":' "$stable_publication_security_fixture/fixture-report.json"
+grep -q '"missingReviewSurfaces":' "$stable_publication_security_fixture/fixture-report.json"
+python3 - <<'PY' "$tmp_dir/stable-publication-security-fixture-quality/ios-report-quality.json"
+import json
+import sys
+
+data = json.load(open(sys.argv[1], encoding="utf-8"))
+coverage = data.get("fixtureCoverage") or []
+assert len(coverage) == 1, coverage
+item = coverage[0]
+assert item.get("sourceTool") == "shipguard v4 stable-publication", item
+assert item.get("fixtureType") == "shipguard-release-proof-quality-fixture", item
+assert item.get("publicFixturePath") == "fixtures/ios-report-quality/stable-publication-security-review-evidence-checklist", item
+assert "vague security evidence" in item.get("question", ""), item
+priority = data.get("priorityAction") or {}
+assert priority.get("kind") == "review-existing-fixture", priority
+assert priority.get("existingFixturePath") == "fixtures/ios-report-quality/stable-publication-security-review-evidence-checklist", priority
+assert data.get("fixtureCandidates") == [], data.get("fixtureCandidates")
+PY
+
 stable_publication_missing_intake="$tmp_dir/stable-publication-missing-intake"
 mkdir -p "$stable_publication_missing_intake"
 python3 - <<'PY' "$stable_publication_launch_relay_fixture/fixture-report.json" "$stable_publication_launch_relay_fixture/fixture-report.md" "$stable_publication_missing_intake"
