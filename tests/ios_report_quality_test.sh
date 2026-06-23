@@ -7726,12 +7726,23 @@ report = json.load(open(sys.argv[1], encoding="utf-8"))
 index = report.get("stablePublicationExternalEvidenceFixtureIndex") or {}
 assert index.get("coveredCount") == 2, index
 assert index.get("expectedCount") == 2, index
+summary = index.get("decisionSummary") or {}
+assert "freshness remains the next promotion target" in summary.get("verdict", ""), summary
+assert summary.get("coveredEvidenceClasses") == [
+    "independent-adoption-evidence",
+    "final-security-review-evidence",
+], summary
+assert summary.get("remainingExternalEvidenceQuestions") == ["external-evidence-freshness-fixture"], summary
+assert summary.get("nextPromotionTarget") == "external-evidence-freshness-fixture", summary
+assert "not adoption" in summary.get("nonClaimSummary", ""), summary
 rows = {item.get("id"): item for item in index.get("rows") or []}
 assert rows.get("independent-adoption-evidence", {}).get("status") == "covered", rows
 assert rows.get("final-security-review-evidence", {}).get("status") == "covered", rows
 assert index.get("nextFixtureToPromote", {}).get("id") == "external-evidence-freshness-fixture", index
 
 static = json.load(open(sys.argv[2], encoding="utf-8"))
+static_summary = static.get("decisionSummary") or {}
+assert static_summary.get("nextPromotionTarget") == "external-evidence-freshness-fixture", static_summary
 coverage_ids = {item.get("id") for item in static.get("coverage") or []}
 assert "independent-adoption-evidence" in coverage_ids, static
 assert "final-security-review-evidence" in coverage_ids, static
@@ -7739,8 +7750,11 @@ gaps = static.get("remainingExternalEvidenceGaps") or []
 assert gaps and gaps[0].get("suggestedFixturePath", "").endswith("stable-publication-external-evidence-freshness"), gaps
 PY
 grep -q 'Stable-Publication External Evidence Fixture Index' "$tmp_dir/stable-publication-security-fixture-quality/ios-report-quality.md"
+grep -q 'Decision summary' "$tmp_dir/stable-publication-security-fixture-quality/ios-report-quality.md"
+grep -q 'Next promotion target: `external-evidence-freshness-fixture`' "$tmp_dir/stable-publication-security-fixture-quality/ios-report-quality.md"
 grep -q 'weak adoption signals rejected' fixtures/ios-report-quality/stable-publication-external-evidence-fixture-index.md
 grep -q 'vague security evidence rejected' fixtures/ios-report-quality/stable-publication-external-evidence-fixture-index.md
+grep -q 'not adoption, final security-review, or stable-v4 publication proof' fixtures/ios-report-quality/stable-publication-external-evidence-fixture-index.md
 
 stable_publication_missing_intake="$tmp_dir/stable-publication-missing-intake"
 mkdir -p "$stable_publication_missing_intake"

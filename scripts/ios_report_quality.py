@@ -9881,21 +9881,34 @@ def stable_publication_external_evidence_fixture_index(
         "summary": "Promote a fixture proving adoption/security records cannot predate the release manifest they support.",
         "suggestedFixturePath": "fixtures/ios-report-quality/stable-publication-external-evidence-freshness",
     }
+    next_target = missing[0] if missing else next_gap
+    covered_classes = [row["id"] for row in rows if row["status"] == "covered"]
+    remaining_questions = [gap["id"] for gap in [next_gap]]
+    non_claims = [
+        "Fixture coverage proves report-quality behavior only.",
+        "Fixture coverage is not independent adoption evidence.",
+        "Fixture coverage is not final security-review evidence.",
+        "Fixture coverage does not prove stable-v4 publication.",
+    ]
     return {
         "schemaVersion": SCHEMA_VERSION,
         "status": "pass" if not missing else "review",
         "purpose": "Compact index of public stable-publication external-evidence fixture coverage.",
         "coveredCount": len(rows) - len(missing),
         "expectedCount": len(rows),
+        "decisionSummary": {
+            "verdict": "Adoption and security-review fixture questions are covered; freshness remains the next promotion target."
+            if not missing
+            else "Stable-publication external evidence fixture coverage is incomplete.",
+            "coveredEvidenceClasses": covered_classes,
+            "remainingExternalEvidenceQuestions": remaining_questions,
+            "nextPromotionTarget": next_target.get("id") or next_target.get("candidateId") or "unknown",
+            "nonClaimSummary": "This is fixture coverage, not adoption, final security-review, or stable-v4 publication proof.",
+        },
         "rows": rows,
         "remainingExternalEvidenceGaps": [next_gap],
-        "nextFixtureToPromote": missing[0] if missing else next_gap,
-        "nonClaims": [
-            "Fixture coverage proves report-quality behavior only.",
-            "Fixture coverage is not independent adoption evidence.",
-            "Fixture coverage is not final security-review evidence.",
-            "Fixture coverage does not prove stable-v4 publication.",
-        ],
+        "nextFixtureToPromote": next_target,
+        "nonClaims": non_claims,
     }
 
 
@@ -10131,6 +10144,18 @@ def render_markdown(report: dict[str, Any]) -> str:
         lines.append(
             f"- Covered: {external_index.get('coveredCount', 0)}/{external_index.get('expectedCount', 0)}"
         )
+        decision_summary = external_index.get("decisionSummary") if isinstance(external_index.get("decisionSummary"), dict) else {}
+        if decision_summary:
+            covered_classes = ", ".join(str(value) for value in decision_summary.get("coveredEvidenceClasses") or [])
+            remaining_questions = ", ".join(
+                str(value) for value in decision_summary.get("remainingExternalEvidenceQuestions") or []
+            )
+            lines.extend(["", "Decision summary:"])
+            lines.append(f"- Verdict: {decision_summary.get('verdict') or '-'}")
+            lines.append(f"- Covered evidence classes: {covered_classes or '-'}")
+            lines.append(f"- Remaining questions: {remaining_questions or '-'}")
+            lines.append(f"- Next promotion target: `{decision_summary.get('nextPromotionTarget') or 'unknown'}`")
+            lines.append(f"- Non-claim: {decision_summary.get('nonClaimSummary') or '-'}")
         lines.extend(["", "| Evidence | Status | Fixture | Rejection Proved | Required Proof |", "| --- | --- | --- | --- | --- |"])
         for item in external_index.get("rows") or []:
             required = ", ".join(str(value) for value in item.get("requiredProof") or [])

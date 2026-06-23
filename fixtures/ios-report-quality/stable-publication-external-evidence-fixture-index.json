@@ -3,6 +3,18 @@
   "status": "pass",
   "tool": "shipguard ios report-quality",
   "purpose": "Compact public index of stable-publication external evidence fixture coverage.",
+  "decisionSummary": {
+    "verdict": "Adoption and security-review fixture questions are covered; freshness remains the next promotion target.",
+    "coveredEvidenceClasses": [
+      "independent-adoption-evidence",
+      "final-security-review-evidence"
+    ],
+    "remainingExternalEvidenceQuestions": [
+      "external-evidence-freshness-fixture"
+    ],
+    "nextPromotionTarget": "external-evidence-freshness-fixture",
+    "nonClaimSummary": "This is fixture coverage, not adoption, final security-review, or stable-v4 publication proof."
+  },
   "coverage": [
     {
       "id": "independent-adoption-evidence",
