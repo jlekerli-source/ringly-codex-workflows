@@ -1,24 +1,24 @@
 # Next Goal
 
-- Generated: 2026-06-23T04:33:52Z
-- Current toolkit version: 3.154.0
-- Target release: v3.154.0
-- Title: Lean Debt trigger-rot next-action fixture
+- Generated: 2026-06-23T04:44:56Z
+- Current toolkit version: 3.155.0
+- Target release: v3.155.0
+- Title: Verify-first launch quickstart
 
 ## Version Lineage Check
 
 - Status: pass
-- VERSION: 3.154.0
-- Expected next release from VERSION: v3.155.0
-- Planned target release: v3.154.0
-- Current checkout package artifact: dist/shipguard-v3.154.0.tar.gz
-- Release package artifact to build: dist/shipguard-v3.154.0.tar.gz
-- Action: VERSION already names v3.154.0; build, verify, publish, and consume dist/shipguard-v3.154.0.tar.gz before generating the next goal.
+- VERSION: 3.155.0
+- Expected next release from VERSION: v3.156.0
+- Planned target release: v3.155.0
+- Current checkout package artifact: dist/shipguard-v3.155.0.tar.gz
+- Release package artifact to build: dist/shipguard-v3.155.0.tar.gz
+- Action: VERSION already names v3.155.0; build, verify, publish, and consume dist/shipguard-v3.155.0.tar.gz before generating the next goal.
 
 ## Slash Plan
 
 ```text
-/plan v3.154.0 Lean Debt trigger-rot next-action fixture for jlekerli-source/ShipGuard:
+/plan v3.155.0 Verify-first launch quickstart for jlekerli-source/ShipGuard:
 1. Pick exactly one high-signal maintainer reliability improvement from ROADMAP.md and write the bounded scope before editing.
 2. Implement the CLI, docs, tests, and package proof needed for that improvement.
 3. Run the required proof commands, treat blocked or timed-out commands as failures, and record exact blockers.
@@ -28,19 +28,19 @@
 ## Slash Goal
 
 ```text
-/goal Implement v3.154.0 Lean Debt trigger-rot next-action fixture for jlekerli-source/ShipGuard: follow the /plan above, finish one high-signal maintainer reliability improvement from ROADMAP.md with CLI/docs/tests/package proof, push main, verify GitHub Actions, build and verify the release tarball, publish and consume release proof, verify asset SHA-256 and clean git status, then run shipguard next-goal again for the following release.
+/goal Implement v3.155.0 Verify-first launch quickstart for jlekerli-source/ShipGuard: follow the /plan above, finish one high-signal maintainer reliability improvement from ROADMAP.md with CLI/docs/tests/package proof, push main, verify GitHub Actions, build and verify the release tarball, publish and consume release proof, verify asset SHA-256 and clean git status, then run shipguard next-goal again for the following release.
 ```
 
 
 ## Completion Receipt
 
-- Completed scope: Lean Debt trigger-rot next-action fixture is now the v3.154 release-line target: standalone Lean Debt emits triggerWatchContract on each rotRiskReview.prioritizedRows[] item with trigger state, trigger condition, exact next action, check route, proof artifact, and stop condition; ios report-quality covers the public fixture plus missing trigger contract, weak/old schema, missing Trigger-Watch Contracts Markdown, and duplicate-candidate guards. This slice promoted the already-implemented behavior to VERSION 3.154.0 and refreshed release-consumption docs/examples.
-- Evidence: Commit 8e797046ffcaa9d9874c462fb548781e3fa99a65 pushed to main. Local proof passed before commit: git diff --check; python3 -m py_compile scripts/lean_debt.py scripts/ios_report_quality.py; ./tests/lean_audit_test.sh; ./tests/ios_report_quality_test.sh; ./bin/shipguard validate; ./bin/shipguard docs-check . --out /tmp/shipguard-docs-check-v3.154; ./tests/cli_smoke_test.sh; ./tests/self_audit_test.sh; action example test batch; env PREFIX="/Users/omarat-turkmani/.local" ./scripts/install.sh && ./bin/shipguard codex status --strict; ./bin/shipguard value-gauntlet --path . --out /tmp/shipguard-value-gauntlet-v3.154; ./tests/package_release_test.sh; ./bin/shipguard ios report-quality --reports /tmp/shipguard-value-gauntlet-v3.154 --out /tmp/shipguard-value-quality-v3.154 --shareable. GitHub Actions passed: https://github.com/jlekerli-source/ShipGuard/actions/runs/28002194733. Release proof built at /tmp/shipguard-v3.154.0-proof; public asset consumer proof passed at /tmp/shipguard-v3.154.0-consume; tarball SHA-256 da79fb4693fb101944d3292f675bfeb13cc8a1e62a2ab0dd35302f1a5e9283e2 matched proof, asset copy, and dist/shipguard-v3.154.0.tar.gz. v4 release candidate passed at /tmp/shipguard-v3.154.0-candidate. Stable-publication remained honestly blocked with exit 1 at /tmp/shipguard-v3.154.0-stable-publication: status review, stable publication 2/10, first blocker github-release-metadata, stableV4ClaimMayBePublished false, computerUseMayPost false.
+- Completed scope: Verify-first launch quickstart is now the v3.155 release-line target: the public README, docs, demo diff, structured receipt, PR workflow example, quickstartReplay reports, and verify_first_quickstart_test.sh present shipguard prepare -> shipguard verify as the first consumer-facing ShipGuard path. This slice promoted the already-tested behavior to VERSION 3.155.0, refreshed release-consumption docs/examples, and tightened the README proof-report sample to exact validation, claim, risk-file, and release-evidence counts.
+- Evidence: Commit f36ad7ad66420a4a01992c2ce6a03387151ee8ea pushed to main. Local proof passed: git diff --check; ./tests/verify_first_quickstart_test.sh; ./bin/shipguard validate; ./bin/shipguard docs-check . --out /tmp/shipguard-docs-check-v3.155; ./tests/cli_smoke_test.sh; ./tests/self_audit_test.sh; ./tests/package_release_test.sh; env PREFIX="/Users/omarat-turkmani/.local" ./scripts/install.sh && ./bin/shipguard codex status --strict. GitHub Actions passed: https://github.com/jlekerli-source/ShipGuard/actions/runs/28002648082. Release proof built at /tmp/shipguard-v3.155.0-proof; public asset consumer proof passed at /tmp/shipguard-v3.155.0-consume; tarball SHA-256 281aacbeb15c64662fc1d364fefaf562a7dbaf66bed918cf8b6f91cdaf69f454 matched proof, asset copy, and dist/shipguard-v3.155.0.tar.gz. v4 release candidate passed at /tmp/shipguard-v3.155.0-candidate. Stable-publication remained honestly blocked with exit 1 at /tmp/shipguard-v3.155.0-stable-publication: status review, stable publication 2/10, first blocker github-release-metadata, stableV4ClaimMayBePublished false, computerUseMayPost false.
 
 ## Following Slash Plan
 
 ```text
-/plan v3.155.0 Verify-first launch quickstart for jlekerli-source/ShipGuard:
+/plan v3.156.0 Guarded launch relay drafts for jlekerli-source/ShipGuard:
 1. Review ROADMAP.md, docs/oss-evaluation.md, and the latest read-only ShipGuard product-QA evidence.
 2. Pick one bounded improvement that makes ShipGuard reports more useful without turning private-app findings into app work.
 3. Implement the CLI, docs, tests, package proof, and plugin-refresh proof needed for that improvement.
@@ -50,13 +50,13 @@
 ## Following Slash Goal
 
 ```text
-/goal Implement v3.155.0 Verify-first launch quickstart for jlekerli-source/ShipGuard: follow the /plan above, choose one bounded ShipGuard report-quality improvement from ROADMAP.md and docs/oss-evaluation.md, implement it with proof, and generate the next completion receipt plus following /plan and /goal after validation passes.
+/goal Implement v3.156.0 Guarded launch relay drafts for jlekerli-source/ShipGuard: follow the /plan above, choose one bounded ShipGuard report-quality improvement from ROADMAP.md and docs/oss-evaluation.md, implement it with proof, and generate the next completion receipt plus following /plan and /goal after validation passes.
 ```
 
 Generate that follow-up file with:
 
 ```bash
-./bin/shipguard next-goal --release 3.155.0 --title "Verify-first launch quickstart" --out NEXT_GOAL.md
+./bin/shipguard next-goal --release 3.156.0 --title "Guarded launch relay drafts" --out NEXT_GOAL.md
 ```
 
 ## Constraints
@@ -156,12 +156,12 @@ Generate that follow-up file with:
 
 ## Release Loop
 
-1. Open or update the tracking issue for v3.154.0.
+1. Open or update the tracking issue for v3.155.0.
 2. Implement the smallest complete improvement that makes the toolkit more useful.
 3. Update README, CLI docs, changelog, roadmap, and package verification.
 4. Commit with an issue-closing reference.
 5. Push `main` and verify GitHub Actions success.
-6. Build `dist/shipguard-v3.154.0.tar.gz`, create release `v3.154.0`, upload the rebuilt tarball, and consume release proof.
+6. Build `dist/shipguard-v3.155.0.tar.gz`, create release `v3.155.0`, upload the rebuilt tarball, and consume release proof.
 7. Verify release asset digest, closed issue, tag target, and clean git status.
 8. Generate the next goal:
 
