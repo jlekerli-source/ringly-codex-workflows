@@ -1569,12 +1569,20 @@ def build_diff_learning_handoff(
 
     recurrence_candidates = [signal for signal in signals if signal != "scope-evidence-claim-match"]
     disposition = reviewer_disposition or "not-recorded"
+    disposition_followups = {
+        "accepted": "Keep this verdict as positive local outcome evidence; do not weaken rules from one accepted packet.",
+        "dismissed": "Keep the dismissed signal for recurrence review; tune only after repeated dismissed outcomes with matching context.",
+        "follow-up": "Capture the follow-up fix or missing receipt, then rerun shipguard verify with the updated evidence.",
+        "unknown": "Leave this verdict out of tuning decisions until a maintainer records a clearer outcome.",
+        "not-recorded": "Ask the reviewer to rerun verify with --reviewer-disposition after deciding the packet.",
+    }
     reviewer_disposition_receipt = {
         "schemaVersion": 1,
         "status": "present" if reviewer_disposition else "missing",
         "disposition": disposition,
         "note": reviewer_note,
         "trackedSignals": recurrence_candidates,
+        "recommendedFollowUp": disposition_followups[disposition],
         "localOutcomeUse": (
             "Use this with later reviewed verdicts to count accepted blockers, dismissed warnings, "
             "and follow-up fixes before tuning ShipGuard rules."
@@ -2241,6 +2249,7 @@ def render_verify_markdown(verdict: dict[str, Any]) -> str:
         disposition = learning.get("reviewerDispositionReceipt") if isinstance(learning.get("reviewerDispositionReceipt"), dict) else {}
         if disposition:
             lines.append(f"- Reviewer disposition: `{disposition.get('disposition')}`")
+            lines.append(f"- Reviewer follow-up: {disposition.get('recommendedFollowUp')}")
             if disposition.get("note"):
                 lines.append(f"- Reviewer note: {disposition.get('note')}")
         recurrence = learning.get("recurringSignalTuning") if isinstance(learning.get("recurringSignalTuning"), dict) else {}

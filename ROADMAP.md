@@ -184,6 +184,8 @@ v3.161 adds recurring-signal tuning guidance to that handoff: verify reports now
 
 v3.162 adds reviewer-disposition receipts to that handoff: maintainers can run `shipguard verify --reviewer-disposition accepted|dismissed|follow-up|unknown` after review so local outcomes are visible for future recurring-signal tuning without pretending that one private review is adoption, benchmark, or security proof.
 
+v3.163 turns those dispositions into follow-up routing: accepted, dismissed, follow-up, unknown, and missing reviewer outcomes now each carry concrete next guidance so local tuning evidence does not stop at a label.
+
 v3.186 continues that release-notes actionability cleanup by routing the same edit command through `stablePublicationEvidencePacket.firstBlockingGate.nextCommand`, release-notes closure `nextCommand`, and `resultUX.nextCommand`; `rerunCommand` remains the after-edit verifier.
 
 v3.187 cleans the stable-publication release visibility handoff so completed `pass`/not-required rows say `not-needed` instead of leaking fallback commands like test scripts into maintainer-facing next-action tables.

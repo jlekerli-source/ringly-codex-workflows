@@ -261,6 +261,7 @@ assert disposition["status"] == "present"
 assert disposition["disposition"] == "accepted"
 assert disposition["note"] == "Maintainer accepted this proof packet."
 assert disposition["trackedSignals"] == []
+assert disposition["recommendedFollowUp"].startswith("Keep this verdict as positive")
 assert "not adoption evidence" in disposition["proofBoundary"]
 assert recurrence["shouldTrackLocally"] is False
 assert recurrence["signalKeys"] == []
@@ -282,6 +283,7 @@ grep -q 'Behavior Categories' "$tmp_dir/verify-pass/shipguard-verdict.md"
 grep -q 'Diff Learning Handoff' "$tmp_dir/verify-pass/shipguard-verdict.md"
 grep -q 'scope-evidence-claim-match' "$tmp_dir/verify-pass/shipguard-verdict.md"
 grep -q 'Reviewer disposition: `accepted`' "$tmp_dir/verify-pass/shipguard-verdict.md"
+grep -q 'Reviewer follow-up: Keep this verdict as positive local outcome evidence' "$tmp_dir/verify-pass/shipguard-verdict.md"
 grep -q 'Reviewer note: Maintainer accepted this proof packet.' "$tmp_dir/verify-pass/shipguard-verdict.md"
 grep -q 'Track recurring signals: `False`' "$tmp_dir/verify-pass/shipguard-verdict.md"
 grep -q 'Recurring signal keys: `none`' "$tmp_dir/verify-pass/shipguard-verdict.md"
@@ -349,6 +351,7 @@ recurrence = learning["recurringSignalTuning"]
 disposition = learning["reviewerDispositionReceipt"]
 assert disposition["status"] == "missing"
 assert disposition["disposition"] == "not-recorded"
+assert disposition["recommendedFollowUp"].startswith("Ask the reviewer")
 assert disposition["trackedSignals"] == [
     "protected-boundary-crossing",
     "out-of-scope-diff",
