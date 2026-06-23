@@ -711,24 +711,6 @@
         "status": "requires-review-record"
       }
     ],
-    "files": [
-      {
-        "path": "stable-publication-evidence-kit/README.md",
-        "purpose": "Synthetic starter-kit README."
-      },
-      {
-        "path": "stable-publication-evidence-kit/stable-publication-checklist.json",
-        "purpose": "Synthetic checklist."
-      },
-      {
-        "path": "stable-publication-evidence-kit/external-adoption-evidence.json",
-        "purpose": "Synthetic adoption starter."
-      },
-      {
-        "path": "stable-publication-evidence-kit/security-review-evidence.json",
-        "purpose": "Synthetic security starter."
-      }
-    ],
     "externalEvidenceIntakeChecklist": [
       {
         "acceptedEvidenceClasses": [
@@ -766,8 +748,58 @@
         ]
       }
     ],
+    "files": [
+      {
+        "path": "stable-publication-evidence-kit/README.md",
+        "purpose": "Synthetic starter-kit README."
+      },
+      {
+        "path": "stable-publication-evidence-kit/stable-publication-checklist.json",
+        "purpose": "Synthetic checklist."
+      },
+      {
+        "path": "stable-publication-evidence-kit/external-adoption-evidence.json",
+        "purpose": "Synthetic adoption starter."
+      },
+      {
+        "path": "stable-publication-evidence-kit/security-review-evidence.json",
+        "purpose": "Synthetic security starter."
+      }
+    ],
     "nextCommandTemplate": "./bin/shipguard v4 stable-publication --path . --out <stable-publication-dir> --external-adoption-evidence stable-publication-evidence-kit/external-adoption-evidence.json --security-review-evidence stable-publication-evidence-kit/security-review-evidence.json --shipguard-eval --shareable",
-    "schemaVersion": 1
+    "schemaVersion": 1,
+    "securityReviewChecklist": {
+      "passDecision": "Pass only when every required surface is reviewed and criticalOpen plus highOpen are both 0.",
+      "redactionBoundaries": [
+        "privateDataRedacted must be true",
+        "no private app source",
+        "no private app identifiers",
+        "no local absolute paths",
+        "no screenshots with private data",
+        "no tokens or account identifiers"
+      ],
+      "requiredEvidenceFields": [
+        "reviewerRelationship",
+        "scope",
+        "methodology",
+        "commands",
+        "artifacts",
+        "findingsSummary",
+        "nonClaims"
+      ],
+      "requiredReviewSurfaces": [
+        "cli",
+        "plugin",
+        "github-actions",
+        "release-proof",
+        "package-install",
+        "redaction-privacy"
+      ],
+      "severityThresholds": {
+        "criticalOpen": 0,
+        "highOpen": 0
+      }
+    }
   },
   "stablePublicationEvidenceTemplates": {
     "draftOnly": true,

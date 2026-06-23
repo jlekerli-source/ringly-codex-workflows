@@ -7677,6 +7677,27 @@ PY
   --shareable >/dev/null
 grep -q '"ruleId": "stable-publication-evidence-intake-checklist-missing"' "$tmp_dir/stable-publication-missing-intake-quality/ios-report-quality.json"
 
+stable_publication_missing_security_checklist="$tmp_dir/stable-publication-missing-security-checklist"
+mkdir -p "$stable_publication_missing_security_checklist"
+python3 - <<'PY' "$stable_publication_launch_relay_fixture/fixture-report.json" "$stable_publication_launch_relay_fixture/fixture-report.md" "$stable_publication_missing_security_checklist"
+import json
+import pathlib
+import sys
+
+source_json = pathlib.Path(sys.argv[1])
+source_md = pathlib.Path(sys.argv[2])
+target = pathlib.Path(sys.argv[3])
+report = json.loads(source_json.read_text(encoding="utf-8"))
+report["stablePublicationEvidenceStarterKit"].pop("securityReviewChecklist", None)
+(target / "v4-stable-publication.json").write_text(json.dumps(report, indent=2, sort_keys=True), encoding="utf-8")
+(target / "v4-stable-publication.md").write_text(source_md.read_text(encoding="utf-8"), encoding="utf-8")
+PY
+./bin/shipguard ios report-quality \
+  --reports "$stable_publication_missing_security_checklist" \
+  --out "$tmp_dir/stable-publication-missing-security-checklist-quality" \
+  --shareable >/dev/null
+grep -q '"ruleId": "stable-publication-security-review-checklist-missing"' "$tmp_dir/stable-publication-missing-security-checklist-quality/ios-report-quality.json"
+
 stable_publication_missing_visibility="$tmp_dir/stable-publication-missing-visibility"
 mkdir -p "$stable_publication_missing_visibility"
 python3 - <<'PY' "$stable_publication_launch_relay_fixture/fixture-report.json" "$stable_publication_launch_relay_fixture/fixture-report.md" "$stable_publication_missing_visibility"

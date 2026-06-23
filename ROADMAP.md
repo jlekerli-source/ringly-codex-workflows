@@ -242,7 +242,7 @@ v3.192 adds a stable-publication consumer-proof quickstart to the generated evid
 
 v3.193 adds a stable-publication external evidence intake guard: generated evidence kits now separate draft adoption/security starter records from pass-eligible evidence with accepted classes, required fields, and redaction boundaries, while report-quality flags missing or incomplete intake contracts.
 
-v3.194 makes next-goal release lineage explicit: generated handoffs now compare `VERSION`, the expected next semantic release, the planned target release, the current pre-bump package artifact, and the expected post-bump release artifact, then stop slash plan/goal publishing language at version-lineage resolution when a planning-only stabilization slice skips the next semantic release.
+v3.194 adds a stable-publication security-review evidence checklist: generated evidence templates, starter kits, and reports now name required review surfaces, critical/high severity thresholds, required fields, redaction boundaries, and the pass decision, while report-quality flags missing or incomplete security checklists.
 
 v3.195 keeps that lineage honest for the normal next-release path: a passing next-goal lineage check no longer implies the current checkout already builds the post-bump tarball; it now names the pre-bump artifact and tells maintainers to bump `VERSION` before release packaging.
 

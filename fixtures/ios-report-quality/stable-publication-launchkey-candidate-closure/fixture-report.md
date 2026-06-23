@@ -142,6 +142,14 @@ Rerun the full stable-publication gate after LaunchKey passes:
 | `independent-adoption-evidence` | public-external, private-redacted-external | actorRelationship, privateDataRedacted, commands, artifacts, outcome, nonClaims | privateDataRedacted must be `True` |
 | `final-security-review-evidence` | public-security-review, private-redacted-security-review | scope, methodology, findingsSummary, privateDataRedacted, nonClaims | privateDataRedacted must be `True` |
 
+## Security Review Evidence Checklist
+
+- Required review surfaces: cli, plugin, github-actions, release-proof, package-install, redaction-privacy
+- Severity threshold: `criticalOpen=0`, `highOpen=0`
+- Required evidence fields: reviewerRelationship, scope, methodology, commands, artifacts, findingsSummary, nonClaims
+- Redaction boundaries: privateDataRedacted must be true, no private app source, no private app identifiers, no local absolute paths, no screenshots with private data, no tokens or account identifiers
+- Pass decision: Pass only when every required surface is reviewed and criticalOpen plus highOpen are both 0.
+
 ## Release Notes Authoring Kit
 
 - Directory: `stable-publication-release-notes`

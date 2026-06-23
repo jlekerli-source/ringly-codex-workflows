@@ -6029,6 +6029,39 @@ def stable_publication_evidence_packet_issues(
                     evidence=f"{path_name} starter kit has incomplete external evidence intake checklist ids: {', '.join(incomplete_intake_ids)}",
                     recommendation="Include accepted evidence classes, required fields, and a strict privateDataRedacted boundary for adoption and security-review starter records.",
                 )
+        security_checklist = starter.get("securityReviewChecklist")
+        expected_security_surfaces = {"cli", "plugin", "github-actions", "release-proof", "package-install", "redaction-privacy"}
+        expected_security_fields = {"reviewerRelationship", "scope", "methodology", "commands", "artifacts", "findingsSummary", "nonClaims"}
+        if not isinstance(security_checklist, dict) or not security_checklist:
+            add_issue(
+                issues,
+                severity="review",
+                rule_id="stable-publication-security-review-checklist-missing",
+                evidence=f"{path_name} starter kit has no securityReviewChecklist",
+                recommendation="Add a concise final security-review checklist with required surfaces, severity thresholds, required fields, redaction boundaries, and pass decision.",
+            )
+        else:
+            surfaces = set(security_checklist.get("requiredReviewSurfaces") or [])
+            fields = set(security_checklist.get("requiredEvidenceFields") or [])
+            thresholds = security_checklist.get("severityThresholds") if isinstance(security_checklist.get("severityThresholds"), dict) else {}
+            redaction = security_checklist.get("redactionBoundaries") if isinstance(security_checklist.get("redactionBoundaries"), list) else []
+            pass_decision = str(security_checklist.get("passDecision") or "")
+            if (
+                not expected_security_surfaces <= surfaces
+                or not expected_security_fields <= fields
+                or thresholds.get("criticalOpen") != 0
+                or thresholds.get("highOpen") != 0
+                or "privateDataRedacted must be true" not in redaction
+                or "criticalOpen" not in pass_decision
+                or "highOpen" not in pass_decision
+            ):
+                add_issue(
+                    issues,
+                    severity="review",
+                    rule_id="stable-publication-security-review-checklist-incomplete",
+                    evidence=f"{path_name} securityReviewChecklist does not fully define final security-review pass evidence",
+                    recommendation="List all required review surfaces, critical/high zero thresholds, required fields, redaction boundaries, and a pass decision tied to those gates.",
+                )
         starter_schema = starter.get("schemaVersion")
         if isinstance(starter_schema, int) and starter_schema >= 2:
             report_release_version = str(report.get("releaseVersion") or "")
@@ -6078,6 +6111,14 @@ def stable_publication_evidence_packet_issues(
             rule_id="stable-publication-evidence-intake-checklist-markdown-missing",
             evidence=f"{path_name} Markdown does not render the external evidence intake checklist",
             recommendation="Render accepted evidence classes, required fields, and redaction boundaries in Markdown before starter records can be used.",
+        )
+    if "Security Review Evidence Checklist" not in markdown:
+        add_issue(
+            issues,
+            severity="review",
+            rule_id="stable-publication-security-review-checklist-markdown-missing",
+            evidence=f"{path_name} Markdown does not render the security review evidence checklist",
+            recommendation="Render required review surfaces, severity thresholds, required fields, redaction boundaries, and pass decision in Markdown.",
         )
     notes_kit = report.get("stablePublicationReleaseNotesAuthoringKit")
     if not isinstance(notes_kit, dict):
@@ -11480,6 +11521,13 @@ def synthetic_stable_publication_report_fields() -> dict[str, Any]:
                     "redactionBoundary": {"privateDataRedactedMustBeTrue": True},
                 },
             ],
+            "securityReviewChecklist": {
+                "requiredReviewSurfaces": ["cli", "plugin", "github-actions", "release-proof", "package-install", "redaction-privacy"],
+                "severityThresholds": {"criticalOpen": 0, "highOpen": 0},
+                "requiredEvidenceFields": ["reviewerRelationship", "scope", "methodology", "commands", "artifacts", "findingsSummary", "nonClaims"],
+                "redactionBoundaries": ["privateDataRedacted must be true"],
+                "passDecision": "Pass only when every required surface is reviewed and criticalOpen plus highOpen are both 0.",
+            },
             "nextCommandTemplate": "./bin/shipguard v4 stable-publication --path . --out <stable-publication-dir> --external-adoption-evidence stable-publication-evidence-kit/external-adoption-evidence.json --security-review-evidence stable-publication-evidence-kit/security-review-evidence.json --shipguard-eval --shareable",
         },
         "stablePublicationReleaseNotesAuthoringKit": {
@@ -12252,6 +12300,14 @@ def synthetic_fixture_markdown(candidate: dict[str, Any]) -> str:
                 "| --- | --- | --- | --- |",
                 "| `independent-adoption-evidence` | public-external, private-redacted-external | actorRelationship, privateDataRedacted, commands, artifacts, outcome, nonClaims | privateDataRedacted must be `True` |",
                 "| `final-security-review-evidence` | public-security-review, private-redacted-security-review | scope, methodology, findingsSummary, privateDataRedacted, nonClaims | privateDataRedacted must be `True` |",
+                "",
+                "## Security Review Evidence Checklist",
+                "",
+                "- Required review surfaces: cli, plugin, github-actions, release-proof, package-install, redaction-privacy",
+                "- Severity threshold: `criticalOpen=0`, `highOpen=0`",
+                "- Required evidence fields: reviewerRelationship, scope, methodology, commands, artifacts, findingsSummary, nonClaims",
+                "- Redaction boundaries: privateDataRedacted must be true",
+                "- Pass decision: Pass only when every required surface is reviewed and criticalOpen plus highOpen are both 0.",
                 "",
                 "## Release Notes Authoring Kit",
                 "",

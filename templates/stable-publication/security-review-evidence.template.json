@@ -42,6 +42,38 @@
     "mediumOpen": 0,
     "lowOpen": 0
   },
+  "securityReviewChecklist": {
+    "requiredReviewSurfaces": [
+      "cli",
+      "plugin",
+      "github-actions",
+      "release-proof",
+      "package-install",
+      "redaction-privacy"
+    ],
+    "severityThresholds": {
+      "criticalOpen": 0,
+      "highOpen": 0
+    },
+    "requiredEvidenceFields": [
+      "reviewerRelationship",
+      "scope",
+      "methodology",
+      "commands",
+      "artifacts",
+      "findingsSummary",
+      "nonClaims"
+    ],
+    "redactionBoundaries": [
+      "privateDataRedacted must be true",
+      "no private app source",
+      "no private app identifiers",
+      "no local absolute paths",
+      "no screenshots with private data",
+      "no tokens or account identifiers"
+    ],
+    "passDecision": "Pass only when every required surface is reviewed and criticalOpen plus highOpen are both 0."
+  },
   "outcome": "Describe reviewed surfaces, resolved issues, residual risks, and why there are no open critical or high findings. Remove private app names, local paths, screenshots, identifiers, tokens, and account data.",
   "nonClaims": [
     "Does not prove OpenAI marketplace acceptance.",

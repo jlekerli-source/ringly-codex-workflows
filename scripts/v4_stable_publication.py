@@ -110,6 +110,38 @@ STABLE_PUBLICATION_EVIDENCE_LADDER = [
         "description": "A security review record must cover the required ShipGuard surfaces and show no open critical or high findings.",
     },
 ]
+STABLE_PUBLICATION_SECURITY_REVIEW_CHECKLIST = {
+    "requiredReviewSurfaces": [
+        "cli",
+        "plugin",
+        "github-actions",
+        "release-proof",
+        "package-install",
+        "redaction-privacy",
+    ],
+    "severityThresholds": {
+        "criticalOpen": 0,
+        "highOpen": 0,
+    },
+    "requiredEvidenceFields": [
+        "reviewerRelationship",
+        "scope",
+        "methodology",
+        "commands",
+        "artifacts",
+        "findingsSummary",
+        "nonClaims",
+    ],
+    "redactionBoundaries": [
+        "privateDataRedacted must be true",
+        "no private app source",
+        "no private app identifiers",
+        "no local absolute paths",
+        "no screenshots with private data",
+        "no tokens or account identifiers",
+    ],
+    "passDecision": "Pass only when every required surface is reviewed and criticalOpen plus highOpen are both 0.",
+}
 STABLE_PUBLICATION_TEMPLATE_SPECS = [
     {
         "id": "independent-adoption-evidence",
@@ -219,6 +251,7 @@ STABLE_PUBLICATION_TEMPLATE_SPECS = [
             "zeroRiskClaimsForbidden": True,
             "criticalAndHighFindingsMustBeExplicit": True,
         },
+        "securityReviewChecklist": STABLE_PUBLICATION_SECURITY_REVIEW_CHECKLIST,
         "passCriteria": [
             "At least one JSON record has status=pass.",
             "evidenceType is shipguard-security-review.",
@@ -3199,6 +3232,7 @@ def build_stable_publication_evidence_starter_kit_manifest() -> dict[str, Any]:
         ],
         "evidenceLadder": STABLE_PUBLICATION_EVIDENCE_LADDER,
         "externalEvidenceIntakeChecklist": external_intake,
+        "securityReviewChecklist": STABLE_PUBLICATION_SECURITY_REVIEW_CHECKLIST,
         "publicProofWalkthrough": {
             "path": f"{STARTER_KIT_DIRNAME}/{PUBLIC_PROOF_WALKTHROUGH_FILENAME}",
             "maintainerCanProduce": ["public-consumer-proof", "private-maintainer-qa"],
@@ -3994,6 +4028,7 @@ def write_stable_publication_evidence_starter_kit(
         "stableV4Release": False,
         "evidenceLadder": starter_kit.get("evidenceLadder") or STABLE_PUBLICATION_EVIDENCE_LADDER,
         "externalEvidenceIntakeChecklist": starter_kit.get("externalEvidenceIntakeChecklist", []),
+        "securityReviewChecklist": starter_kit.get("securityReviewChecklist") or STABLE_PUBLICATION_SECURITY_REVIEW_CHECKLIST,
         "publicProofWalkthrough": starter_kit.get("publicProofWalkthrough", {}),
         "firstBlockingGate": packet.get("firstBlockingGate"),
         "closureChecklist": closure_checklist,
@@ -4068,7 +4103,15 @@ def write_stable_publication_evidence_starter_kit(
     readme_lines.extend(
         [
             "",
-    ]
+            "## Security Review Evidence Checklist",
+            "",
+            f"- Required review surfaces: {', '.join(STABLE_PUBLICATION_SECURITY_REVIEW_CHECKLIST['requiredReviewSurfaces'])}",
+            "- Severity threshold: `criticalOpen=0`, `highOpen=0`",
+            f"- Required evidence fields: {', '.join(STABLE_PUBLICATION_SECURITY_REVIEW_CHECKLIST['requiredEvidenceFields'])}",
+            f"- Redaction boundaries: {', '.join(STABLE_PUBLICATION_SECURITY_REVIEW_CHECKLIST['redactionBoundaries'])}",
+            f"- Pass decision: {STABLE_PUBLICATION_SECURITY_REVIEW_CHECKLIST['passDecision']}",
+            "",
+        ]
     )
     if release_notes_kit:
         missing_topics = ", ".join(str(item) for item in release_notes_kit.get("missingTopicIds", [])) or "none"
@@ -5855,6 +5898,21 @@ def render_markdown(report: dict[str, Any]) -> str:
                     f"{', '.join(item.get('requiredFields') or [])} | "
                     f"privateDataRedacted must be `{redaction.get('privateDataRedactedMustBeTrue')}` |"
                 )
+        security_checklist = starter_kit.get("securityReviewChecklist")
+        if isinstance(security_checklist, dict) and security_checklist:
+            thresholds = security_checklist.get("severityThresholds") if isinstance(security_checklist.get("severityThresholds"), dict) else {}
+            lines.extend(
+                [
+                    "",
+                    "### Security Review Evidence Checklist",
+                    "",
+                    f"- Required review surfaces: {', '.join(security_checklist.get('requiredReviewSurfaces') or [])}",
+                    f"- Severity threshold: `criticalOpen={thresholds.get('criticalOpen')}`, `highOpen={thresholds.get('highOpen')}`",
+                    f"- Required evidence fields: {', '.join(security_checklist.get('requiredEvidenceFields') or [])}",
+                    f"- Redaction boundaries: {', '.join(security_checklist.get('redactionBoundaries') or [])}",
+                    f"- Pass decision: {security_checklist.get('passDecision')}",
+                ]
+            )
         related = starter_kit.get("relatedAuthoringKits")
         if isinstance(related, list) and related:
             lines.extend(["", "| Related kit | Status | Missing topics |", "| --- | --- | --- |"])

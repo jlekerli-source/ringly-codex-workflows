@@ -1318,7 +1318,39 @@
       "Use the report's firstBlockingGate and this checklist together; do not claim stable v4 until v4 stable-publication returns pass."
     ],
     "nextCommandTemplate": "./bin/shipguard v4 stable-publication --path . --out <stable-publication-dir> --github-release-repo <owner/repo> --release-version <version> --release-candidate-report <v4-release-candidate-json-or-dir> --download-release-assets --external-adoption-evidence stable-publication-evidence-kit/external-adoption-evidence.json --security-review-evidence stable-publication-evidence-kit/security-review-evidence.json --shipguard-eval --shareable",
-    "schemaVersion": 1
+    "schemaVersion": 1,
+    "securityReviewChecklist": {
+      "passDecision": "Pass only when every required surface is reviewed and criticalOpen plus highOpen are both 0.",
+      "redactionBoundaries": [
+        "privateDataRedacted must be true",
+        "no private app source",
+        "no private app identifiers",
+        "no local absolute paths",
+        "no screenshots with private data",
+        "no tokens or account identifiers"
+      ],
+      "requiredEvidenceFields": [
+        "reviewerRelationship",
+        "scope",
+        "methodology",
+        "commands",
+        "artifacts",
+        "findingsSummary",
+        "nonClaims"
+      ],
+      "requiredReviewSurfaces": [
+        "cli",
+        "plugin",
+        "github-actions",
+        "release-proof",
+        "package-install",
+        "redaction-privacy"
+      ],
+      "severityThresholds": {
+        "criticalOpen": 0,
+        "highOpen": 0
+      }
+    }
   },
   "stablePublicationEvidenceTemplates": {
     "draftOnly": true,
