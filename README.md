@@ -94,9 +94,10 @@ You should see a verdict plus a replay block:
 ```text
 ShipGuard Proof Report
 Status: pass
-Validation: covered
-Claims checked: accepted
-Next action: review or merge with the attached proof
+Validation: 1/1 covered
+Claims checked: 1/1 accepted
+Risk files: 0 risk file(s): 0 protected, 0 out of scope, 0 deleted test(s)
+Release evidence: not-applicable
 
 Quickstart Replay
 Replay command: shipguard verify --task <shipguard-task.json> ...

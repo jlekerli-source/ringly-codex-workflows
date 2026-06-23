@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Promoted the verify-first launch quickstart into the release line: the public README, docs, demo diff, structured receipt, PR workflow example, `quickstartReplay` reports, and `verify_first_quickstart_test.sh` now present `shipguard prepare` -> `shipguard verify` as the first consumer-facing ShipGuard path, with exact proof-report counts instead of vague launch copy.
 - Promoted the Lean Review selected-mode bias fixture into the release line: the public synthetic fixture now stays under `ios_report_quality_test.sh`, proves `modeBiasReview` for `lite`/`full`/`ultra`, rejects mismatched selected-mode/top-action reports, and keeps recursive fixture candidates out of promoted fixture scoring.
 - Added Full Audit execution receipt counts: `executionCommandReceipt` now reports fallback and manual-required stage counts/ids, renders the counts in Markdown, and report-quality flags receipts that omit them.
 - Added Full Audit slash-handoff freshness proof: `slashHandoffProof` now exposes whether the handoff came from the active or fresh following `NEXT_GOAL.md` section plus a copy-ready `shipguard next-goal` regeneration command, and report-quality flags Full Audit reports that hide those fields.
