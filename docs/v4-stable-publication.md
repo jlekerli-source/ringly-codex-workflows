@@ -309,7 +309,7 @@ Stable publication emits `publicEvidenceClosureProof` as the copy-ready summary 
 
 The proof lists both evidence rows with gate status, freshness status, stable-v4 eligible record counts, fresh/stale record counts, starter paths, template copy commands, the full stable-publication rerun command, and non-claims. It is deliberately a summary of the adoption/security gates, not a new way to manufacture evidence.
 
-Markdown renders this as `Public Evidence Closure`. A stable-v4 claim cannot pass if adoption/security proof is missing, stale, fixture-only, source-only, based on GitHub downloads, or framed as marketplace acceptance or external launch proof.
+Markdown renders this as `Public Evidence Closure` plus `External Evidence Source-Class Matrix`. The matrix names accepted evidence classes, the required actor/reviewer relationship field, accepted relationships, rejected substitutes, and the pass boundary for independent adoption and final security review. A stable-v4 claim cannot pass if adoption/security proof is missing, stale, fixture-only, source-only, based on GitHub downloads, or framed as marketplace acceptance or external launch proof.
 
 ## Public Release Delta
 

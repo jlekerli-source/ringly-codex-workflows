@@ -625,6 +625,7 @@ required_by_id = {item["id"]: item for item in packet["requiredEvidence"]}
 assert required_by_id["independent-adoption-evidence"]["evidenceDiagnostics"]["stableV4GateStatus"] == "not-provided"
 assert required_by_id["final-security-review-evidence"]["evidenceDiagnostics"]["stableV4GateStatus"] == "not-provided"
 public_evidence = report["publicEvidenceClosureProof"]
+assert public_evidence["schemaVersion"] == 2
 assert public_evidence["status"] == "review"
 assert public_evidence["missingOrBlockingEvidenceIds"] == [
     "independent-adoption-evidence",
@@ -632,6 +633,23 @@ assert public_evidence["missingOrBlockingEvidenceIds"] == [
 ]
 assert public_evidence["publicEvidenceBoundary"]["githubDownloadCountsCountAsAdoptionEvidence"] is False
 assert public_evidence["publicEvidenceBoundary"]["doesNotClaimMarketplaceAcceptance"] is True
+source_matrix = {item["id"]: item for item in public_evidence["sourceClassMatrix"]}
+assert source_matrix["independent-adoption-evidence"]["acceptedEvidenceClasses"] == [
+    "public-external",
+    "private-redacted-external",
+]
+assert source_matrix["independent-adoption-evidence"]["requiredRelationshipField"] == "actorRelationship"
+assert source_matrix["independent-adoption-evidence"]["acceptedRelationships"] == ["independent"]
+assert "download counts" in source_matrix["independent-adoption-evidence"]["rejectedSubstitutes"]
+assert "maintainer-only private app runs" in source_matrix["independent-adoption-evidence"]["rejectedSubstitutes"]
+assert "fixtureSynthetic records" in source_matrix["independent-adoption-evidence"]["rejectedSubstitutes"]
+assert source_matrix["final-security-review-evidence"]["acceptedEvidenceClasses"] == [
+    "public-security-review",
+    "private-redacted-security-review",
+]
+assert source_matrix["final-security-review-evidence"]["requiredRelationshipField"] == "reviewerRelationship"
+assert "maintainer-security-review" in source_matrix["final-security-review-evidence"]["acceptedRelationships"]
+assert "open critical/high findings" in source_matrix["final-security-review-evidence"]["rejectedSubstitutes"]
 assert any("stable-publication" in command for command in public_evidence["copyReadyCommands"])
 final_claim = report["finalStableV4ClaimPacket"]
 assert final_claim["status"] == "blocked"
@@ -707,6 +725,9 @@ assert set(security_item["evidenceClosureKit"]["requiredScope"]) == {
     "redaction-privacy",
 }
 PY
+grep -q 'External Evidence Source-Class Matrix' "$tmp_dir/evidence-blocked/v4-stable-publication.md"
+grep -q 'maintainer-only private app runs' "$tmp_dir/evidence-blocked/v4-stable-publication.md"
+grep -q 'open critical/high findings' "$tmp_dir/evidence-blocked/v4-stable-publication.md"
 grep -q 'Evidence Closure Kit: `independent-adoption-evidence`' "$tmp_dir/evidence-blocked/v4-stable-publication.md"
 grep -q 'Evidence Closure Kit: `final-security-review-evidence`' "$tmp_dir/evidence-blocked/v4-stable-publication.md"
 grep -q 'Public Evidence Closure' "$tmp_dir/evidence-blocked/v4-stable-publication.md"
@@ -1435,6 +1456,7 @@ assert security_freshness["staleStableRecordCount"] == 0
 assert adoption_freshness["freshnessBoundary"]["generatedAtMustBeNoEarlierThanReleaseManifest"] is True
 assert adoption_freshness["freshnessBoundary"]["sourceOnlyProofRefreshesExternalEvidence"] is False
 public_evidence = report["publicEvidenceClosureProof"]
+assert public_evidence["schemaVersion"] == 2
 assert public_evidence["status"] == "pass"
 assert public_evidence["missingOrBlockingEvidenceIds"] == []
 assert {row["id"] for row in public_evidence["evidenceRows"]} == {
@@ -1442,6 +1464,13 @@ assert {row["id"] for row in public_evidence["evidenceRows"]} == {
     "final-security-review-evidence",
 }
 assert all(row["freshnessStatus"] == "pass" for row in public_evidence["evidenceRows"])
+source_matrix = {item["id"]: item for item in public_evidence["sourceClassMatrix"]}
+assert source_matrix["independent-adoption-evidence"]["requiredRelationshipField"] == "actorRelationship"
+assert source_matrix["independent-adoption-evidence"]["acceptedRelationships"] == ["independent"]
+assert "stale generatedAt records" in source_matrix["independent-adoption-evidence"]["rejectedSubstitutes"]
+assert source_matrix["final-security-review-evidence"]["requiredRelationshipField"] == "reviewerRelationship"
+assert "independent" in source_matrix["final-security-review-evidence"]["acceptedRelationships"]
+assert "vague self-review notes" in source_matrix["final-security-review-evidence"]["rejectedSubstitutes"]
 assert public_evidence["publicEvidenceBoundary"]["fixtureEvidenceCountsAsStableV4Evidence"] is False
 assert public_evidence["publicEvidenceBoundary"]["doesNotPostOrSubmitExternally"] is True
 delta = report["publicReleaseDeltaProof"]

@@ -2216,6 +2216,39 @@ def build_public_evidence_closure_proof(
         ("independent-adoption-evidence", adoption_proof),
         ("final-security-review-evidence", security_proof),
     ]
+    source_class_matrix = [
+        {
+            "id": "independent-adoption-evidence",
+            "acceptedEvidenceClasses": ["public-external", "private-redacted-external"],
+            "requiredRelationshipField": "actorRelationship",
+            "acceptedRelationships": ["independent"],
+            "rejectedSubstitutes": [
+                "GitHub stars",
+                "GitHub forks",
+                "download counts",
+                "maintainer-only private app runs",
+                "fixtureSynthetic records",
+                "stale generatedAt records",
+                "unchanged starter templates",
+            ],
+            "passBoundary": "Requires redacted/public command and artifact evidence from an independent actor.",
+        },
+        {
+            "id": "final-security-review-evidence",
+            "acceptedEvidenceClasses": ["public-security-review", "private-redacted-security-review"],
+            "requiredRelationshipField": "reviewerRelationship",
+            "acceptedRelationships": ["independent", "maintainer-security-review"],
+            "rejectedSubstitutes": [
+                "fixtureSynthetic records",
+                "stale generatedAt records",
+                "vague self-review notes",
+                "missing required surfaces",
+                "open critical/high findings",
+                "unchanged starter templates",
+            ],
+            "passBoundary": "Requires reviewed stable-v4 surfaces, methodology, findings summary, artifacts, redaction, and no open critical/high findings.",
+        },
+    ]
     rows: list[dict[str, Any]] = []
     problems: list[str] = []
     for evidence_id, proof in proof_pairs:
@@ -2247,7 +2280,7 @@ def build_public_evidence_closure_proof(
         rows.append(row)
 
     return {
-        "schemaVersion": 1,
+        "schemaVersion": 2,
         "releaseVersion": release_version,
         "status": "pass" if not problems else "review",
         "requiredForStableV4": True,
@@ -2257,6 +2290,7 @@ def build_public_evidence_closure_proof(
             else "Independent adoption or final security-review evidence still needs real, fresh, claim-bounded proof."
         ),
         "evidenceRows": rows,
+        "sourceClassMatrix": source_class_matrix,
         "missingOrBlockingEvidenceIds": [row["id"] for row in rows if row["status"] != "pass"],
         "starterKitDirectory": evidence_starter_kit.get("directory") or "stable-publication-evidence-kit",
         "rerunCommand": rerun_command,
@@ -4993,6 +5027,26 @@ def render_markdown(report: dict[str, Any]) -> str:
                     f"`{row.get('stableV4EligibleEvidenceCount')}` | `{row.get('freshStableRecordCount')}` | "
                     f"`{row.get('staleStableRecordCount')}` | `{row.get('starterPath') or 'not-provided'}` |"
                 )
+        source_matrix = public_evidence.get("sourceClassMatrix")
+        if isinstance(source_matrix, list) and source_matrix:
+            lines.extend(
+                [
+                    "",
+                    "### External Evidence Source-Class Matrix",
+                    "",
+                    "| Evidence | Accepted classes | Relationship field | Accepted relationships | Rejected substitutes | Pass boundary |",
+                    "| --- | --- | --- | --- | --- | --- |",
+                ]
+            )
+            for row in source_matrix:
+                if isinstance(row, dict):
+                    lines.append(
+                        f"| `{row.get('id')}` | {', '.join(row.get('acceptedEvidenceClasses') or [])} | "
+                        f"`{row.get('requiredRelationshipField') or 'not-provided'}` | "
+                        f"{', '.join(row.get('acceptedRelationships') or [])} | "
+                        f"{', '.join(row.get('rejectedSubstitutes') or [])} | "
+                        f"{row.get('passBoundary') or '-'} |"
+                    )
         lines.extend(["", "Copy-ready commands:", ""])
         for command in public_evidence.get("copyReadyCommands", []):
             lines.append(f"- `{command}`")

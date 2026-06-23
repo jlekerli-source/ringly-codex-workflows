@@ -5399,6 +5399,77 @@ def stable_publication_evidence_packet_issues(
                 evidence=f"{path_name} publicEvidenceClosureProof does not expose adoption/security non-claim boundaries",
                 recommendation="State that real adoption and final security evidence are required, and that downloads, fixtures, source-only proof, marketplace acceptance, or posting claims do not count.",
             )
+        if int(public_evidence.get("schemaVersion") or 1) >= 2:
+            source_matrix = (
+                public_evidence.get("sourceClassMatrix")
+                if isinstance(public_evidence.get("sourceClassMatrix"), list)
+                else []
+            )
+            matrix_by_id = {str(item.get("id") or ""): item for item in source_matrix if isinstance(item, dict)}
+            adoption_matrix = matrix_by_id.get("independent-adoption-evidence") or {}
+            security_matrix = matrix_by_id.get("final-security-review-evidence") or {}
+            adoption_classes = set(str(value) for value in adoption_matrix.get("acceptedEvidenceClasses", []))
+            adoption_relationships = set(str(value) for value in adoption_matrix.get("acceptedRelationships", []))
+            adoption_rejections = set(str(value) for value in adoption_matrix.get("rejectedSubstitutes", []))
+            security_classes = set(str(value) for value in security_matrix.get("acceptedEvidenceClasses", []))
+            security_relationships = set(str(value) for value in security_matrix.get("acceptedRelationships", []))
+            security_rejections = set(str(value) for value in security_matrix.get("rejectedSubstitutes", []))
+            if not {"public-external", "private-redacted-external"} <= adoption_classes:
+                add_issue(
+                    issues,
+                    severity="review",
+                    rule_id="stable-publication-adoption-source-class-matrix-missing",
+                    evidence=f"{path_name} publicEvidenceClosureProof does not list accepted adoption evidence classes",
+                    recommendation="Expose public-external and private-redacted-external as the only stable adoption evidence classes.",
+                )
+            if adoption_matrix.get("requiredRelationshipField") != "actorRelationship" or "independent" not in adoption_relationships:
+                add_issue(
+                    issues,
+                    severity="review",
+                    rule_id="stable-publication-adoption-relationship-matrix-missing",
+                    evidence=f"{path_name} publicEvidenceClosureProof does not expose the independent actor relationship requirement",
+                    recommendation="Expose actorRelationship=independent so maintainer QA cannot be confused with adoption evidence.",
+                )
+            if not {"download counts", "maintainer-only private app runs", "fixtureSynthetic records", "stale generatedAt records"} <= adoption_rejections:
+                add_issue(
+                    issues,
+                    severity="review",
+                    rule_id="stable-publication-adoption-rejected-substitutes-missing",
+                    evidence=f"{path_name} publicEvidenceClosureProof does not list rejected adoption substitutes",
+                    recommendation="List download counts, maintainer-only runs, fixture records, and stale records as non-substitutes for independent adoption.",
+                )
+            if not {"public-security-review", "private-redacted-security-review"} <= security_classes:
+                add_issue(
+                    issues,
+                    severity="review",
+                    rule_id="stable-publication-security-source-class-matrix-missing",
+                    evidence=f"{path_name} publicEvidenceClosureProof does not list accepted security-review evidence classes",
+                    recommendation="Expose public-security-review and private-redacted-security-review as the only stable security-review evidence classes.",
+                )
+            if security_matrix.get("requiredRelationshipField") != "reviewerRelationship" or not {"independent", "maintainer-security-review"} <= security_relationships:
+                add_issue(
+                    issues,
+                    severity="review",
+                    rule_id="stable-publication-security-relationship-matrix-missing",
+                    evidence=f"{path_name} publicEvidenceClosureProof does not expose accepted reviewer relationships",
+                    recommendation="Expose reviewerRelationship values so security review evidence is not confused with adoption evidence.",
+                )
+            if not {"fixtureSynthetic records", "stale generatedAt records", "vague self-review notes", "open critical/high findings"} <= security_rejections:
+                add_issue(
+                    issues,
+                    severity="review",
+                    rule_id="stable-publication-security-rejected-substitutes-missing",
+                    evidence=f"{path_name} publicEvidenceClosureProof does not list rejected security-review substitutes",
+                    recommendation="List fixture records, stale records, vague self-review, and open critical/high findings as non-substitutes for final security proof.",
+                )
+            if source_matrix and "External Evidence Source-Class Matrix" not in markdown:
+                add_issue(
+                    issues,
+                    severity="review",
+                    rule_id="stable-publication-source-class-matrix-markdown-missing",
+                    evidence=f"{path_name} publicEvidenceClosureProof has sourceClassMatrix data but Markdown does not render it",
+                    recommendation="Render accepted classes, relationship fields, rejected substitutes, and pass boundaries in Markdown.",
+                )
         if not public_evidence.get("copyReadyCommands"):
             add_issue(
                 issues,
