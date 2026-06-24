@@ -87,9 +87,9 @@ Proof boundary:
 
 ## Findings
 
-| Severity | Category | Rule | Finding | Recommendation | Proof |
-| --- | --- | --- | --- | --- | --- |
-| review | Design Tailoring | `design-tailoring-app-type-proof` | Education guidance must be app-type tailored | Use the learning-progress profile for motion, haptics, visual density, and copy guidance. | Review the Design Tailoring Contract and attach one preview or screenshot receipt for the synthetic learning flow. |
+| Severity | Category | Rule | Principles | Finding | Recommendation | Proof |
+| --- | --- | --- | --- | --- | --- | --- |
+| review | Design Tailoring | `design-tailoring-app-type-proof` | app-type fit, motion, haptics | Education guidance must be app-type tailored | Use the learning-progress profile for motion, haptics, visual density, and copy guidance. | Review the Design Tailoring Contract and attach one preview or screenshot receipt for the synthetic learning flow. |
 
 ## Fixture Intent
 

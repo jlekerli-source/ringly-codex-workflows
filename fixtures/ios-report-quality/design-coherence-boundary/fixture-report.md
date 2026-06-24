@@ -87,9 +87,9 @@ Proof boundary:
 
 ## Findings
 
-| Severity | Category | Rule | Finding | Recommendation | Proof |
-| --- | --- | --- | --- | --- | --- |
-| review | Design DNA | `design-coherence-target-work-boundary` | Design coherence finding must not become target-app work | Improve ShipGuard report-quality rules or public fixtures before using this as target-app implementation guidance. | Review the Design Tailoring Contract and Design Coherence Boundary, then run report-quality on the synthetic fixture. |
+| Severity | Category | Rule | Principles | Finding | Recommendation | Proof |
+| --- | --- | --- | --- | --- | --- | --- |
+| review | Design DNA | `design-coherence-target-work-boundary` | unity, app-type fit | Design coherence finding must not become target-app work | Improve ShipGuard report-quality rules or public fixtures before using this as target-app implementation guidance. | Review the Design Tailoring Contract and Design Coherence Boundary, then run report-quality on the synthetic fixture. |
 
 ## Fixture Intent
 

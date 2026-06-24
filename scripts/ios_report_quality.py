@@ -3719,6 +3719,37 @@ def design_principle_vocabulary_issues(
             evidence=f"{path_name} has professionalDesignPrincipleVocabulary JSON but Markdown does not show the principle vocabulary",
             recommendation="Render the professional design principles in Markdown so humans see the design QA lens.",
         )
+    findings = report.get("findings")
+    if isinstance(findings, list):
+        for item in findings:
+            if not isinstance(item, dict):
+                continue
+            tags = item.get("principleTags")
+            normalized_tags = [
+                normalized_question_text(tag)
+                for tag in tags
+                if isinstance(tag, str)
+            ] if isinstance(tags, list) else []
+            unknown = [tag for tag in normalized_tags if tag not in declared]
+            if not normalized_tags or unknown:
+                add_issue(
+                    issues,
+                    severity="review",
+                    rule_id="design-finding-principle-tags-missing",
+                    evidence=f"{path_name} finding {item.get('ruleId')!r} has principleTags={tags!r}",
+                    recommendation="Tag each design finding with professionalDesignPrincipleVocabulary entries so recommendations explain the principle they protect.",
+                )
+                break
+    if issues:
+        return issues
+    if report.get("findings") and "Principles" not in markdown:
+        add_issue(
+            issues,
+            severity="review",
+            rule_id="design-finding-principle-tags-markdown-missing",
+            evidence=f"{path_name} has principle-tagged design findings but Markdown hides the principle column",
+            recommendation="Render finding principle tags in Markdown so readers can connect each recommendation to the design vocabulary.",
+        )
     return issues
 
 
@@ -12127,6 +12158,7 @@ def synthetic_design_report_fields() -> dict[str, Any]:
                 "recommendation": "Improve ShipGuard report-quality rules or public fixtures before using this as target-app implementation guidance.",
                 "proof": "Review the Design Tailoring Contract and Design Coherence Boundary, then run report-quality on the synthetic fixture.",
                 "proofGuidance": "Review the Design Tailoring Contract and Design Coherence Boundary, then run report-quality on the synthetic fixture.",
+                "principleTags": ["unity", "app-type fit"],
             },
             {
                 "severity": "opportunity",
@@ -12137,6 +12169,7 @@ def synthetic_design_report_fields() -> dict[str, Any]:
                 "recommendation": "Run shipguard ios preview for a phone-shaped visual proof loop; use ios devspace when ChatGPT should plan from that widget.",
                 "proof": "Attach preview-events.jsonl, handoff.md, and refreshed screenshot evidence for visual claims.",
                 "proofGuidance": "Attach preview-events.jsonl, handoff.md, and refreshed screenshot evidence for visual claims.",
+                "principleTags": ["preview proof"],
             }
         ],
     }
@@ -13505,9 +13538,9 @@ def synthetic_fixture_markdown(candidate: dict[str, Any]) -> str:
                 "",
                 "## Findings",
                 "",
-                "| Severity | Category | Rule | Finding | Recommendation | Proof |",
-                "| --- | --- | --- | --- | --- | --- |",
-                "| review | Design DNA | `design-coherence-target-work-boundary` | Design coherence finding must not become target-app work | Improve ShipGuard report-quality rules or public fixtures before using this as target-app implementation guidance. | Review the Design Tailoring Contract and Design Coherence Boundary, then run report-quality on the synthetic fixture. |",
+                "| Severity | Category | Rule | Principles | Finding | Recommendation | Proof |",
+                "| --- | --- | --- | --- | --- | --- | --- |",
+                "| review | Design DNA | `design-coherence-target-work-boundary` | unity, app-type fit | Design coherence finding must not become target-app work | Improve ShipGuard report-quality rules or public fixtures before using this as target-app implementation guidance. | Review the Design Tailoring Contract and Design Coherence Boundary, then run report-quality on the synthetic fixture. |",
                 "",
                 "## Design Coherence Boundary",
                 "",

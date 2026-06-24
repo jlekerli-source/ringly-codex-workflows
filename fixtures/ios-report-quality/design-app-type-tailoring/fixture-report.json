@@ -213,6 +213,11 @@
     {
       "category": "Design Tailoring",
       "evidence": "Synthetic learning source signals choose education while the report must avoid utility-only design advice.",
+      "principleTags": [
+        "app-type fit",
+        "motion",
+        "haptics"
+      ],
       "proof": "Review the Design Tailoring Contract and attach one preview or screenshot receipt for the synthetic learning flow.",
       "proofGuidance": "Review the Design Tailoring Contract and attach one preview or screenshot receipt for the synthetic learning flow.",
       "recommendation": "Use the learning-progress profile for motion, haptics, visual density, and copy guidance.",

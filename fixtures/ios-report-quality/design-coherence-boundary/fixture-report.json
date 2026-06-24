@@ -213,6 +213,10 @@
     {
       "category": "Design DNA",
       "evidence": "Synthetic design inventory has visual, motion, haptic, and copy signals but no app-work authorization.",
+      "principleTags": [
+        "unity",
+        "app-type fit"
+      ],
       "proof": "Review the Design Tailoring Contract and Design Coherence Boundary, then run report-quality on the synthetic fixture.",
       "proofGuidance": "Review the Design Tailoring Contract and Design Coherence Boundary, then run report-quality on the synthetic fixture.",
       "recommendation": "Improve ShipGuard report-quality rules or public fixtures before using this as target-app implementation guidance.",

@@ -363,7 +363,18 @@ def finding(
     evidence: str,
     recommendation: str,
     proof: str,
-) -> dict[str, str]:
+) -> dict[str, Any]:
+    principle_map = {
+        "motion-reduced-motion-gate": ["motion", "app-type fit"],
+        "motion-continuous-animation-density": ["motion", "app-type fit"],
+        "visual-effects-stack-review": ["contrast", "hierarchy", "balance", "unity"],
+        "visible-copy-localization-gate": ["hierarchy", "unity", "app-type fit"],
+        "typography-dynamic-type-gap": ["hierarchy", "contrast", "white space"],
+        "iconography-language-missing": ["repetition", "unity", "app-type fit"],
+        "haptics-blueprint-missing": ["haptics", "app-type fit"],
+        "preview-proof-not-provided": ["preview proof"],
+        "icon-imagegen-brief-available": ["unity", "app-type fit"],
+    }
     return {
         "ruleId": rule_id,
         "severity": severity,
@@ -373,11 +384,12 @@ def finding(
         "recommendation": recommendation,
         "proof": proof,
         "proofGuidance": proof,
+        "principleTags": principle_map.get(rule_id, ["app-type fit"]),
     }
 
 
-def build_findings(app_type: str, dna: dict[str, Any], preview: dict[str, Any], icon_brief: bool) -> list[dict[str, str]]:
-    findings: list[dict[str, str]] = []
+def build_findings(app_type: str, dna: dict[str, Any], preview: dict[str, Any], icon_brief: bool) -> list[dict[str, Any]]:
+    findings: list[dict[str, Any]] = []
     motion = dna["motion"]
     layout = dna["layout"]
     typography = dna["typography"]
@@ -1277,10 +1289,10 @@ def render_markdown(report: dict[str, Any]) -> str:
 
     lines.extend(["", "## Findings", ""])
     if report["findings"]:
-        lines.extend(["| Severity | Category | Rule | Finding | Recommendation | Proof |", "| --- | --- | --- | --- | --- | --- |"])
+        lines.extend(["| Severity | Category | Rule | Principles | Finding | Recommendation | Proof |", "| --- | --- | --- | --- | --- | --- | --- |"])
         for item in report["findings"]:
             lines.append(
-                f"| {item['severity']} | {item['category']} | `{item['ruleId']}` | {item['title']} | {item['recommendation']} | {item['proof']} |"
+                f"| {item['severity']} | {item['category']} | `{item['ruleId']}` | {', '.join(item.get('principleTags') or [])} | {item['title']} | {item['recommendation']} | {item['proof']} |"
             )
     else:
         lines.append("No design QA findings were detected.")
